@@ -1,0 +1,26 @@
+opencli: "0.1.0"
+info:
+  title: Stripe CLI
+  description: |
+    # Stripe CLI reference
+    
+    This reference documents every command and flag available in Stripe's command-line interface.
+    The Stripe CLI helps you build, test, and manage your Stripe integration right from the terminal.
+    With the CLI, you can:
+    - Create, retrieve, update, and delete API objects.
+    - Tail API request logs in real time.
+    - Securely test webhooks without relying on third-party tunneling software.
+    
+    Follow the [installation guide](https://docs.stripe.com/stripe-cli#install) to set up the Stripe CLI.
+
+commands:
+  stripe login [flags]:
+    description: "Connect the CLI to your Stripe account by logging in to persist your secret key locally."
+    parameters:
+    - name: interactive
+      alias: i
+      kind: flag
+      type: boolean
+    - name: project-name
+      kind: flag
+      type: string

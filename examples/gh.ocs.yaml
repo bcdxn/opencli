@@ -1,0 +1,20 @@
+opencli: 0.1.0
+info:
+  title: "GitHub CLI"
+  description: "GitHub CLI, or gh, is a command-line interface to GitHub for use in your terminal or your scripts."
+
+commands:
+  gh {command} <arguments> [flags]:
+    description: "Work seamlessly with GitHub from the command line."
+
+  gh alias {command} <arguments> [flags]:
+    description: "Aliases can be used to make shortcuts for gh commands or to compose multiple commands."
+  gh alias delete (<alias> | --all) [flags]:
+    description: "Delete set aliases"
+    parameters:
+    - name: alias
+      kind: argument
+      type: string
+    - name: all
+      kind: flag
+      type: boolean

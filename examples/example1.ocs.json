@@ -1,0 +1,40 @@
+{
+  "opencli": "0.1.0",
+  "info": {
+    "title": "The GitHub CLI",
+    "description": "GitHub CLI brings GitHub to your terminal. Free and open source.",
+    "termsOfService": "",
+    "contact": {
+      "email": "cli@github.com"
+    },
+    "license": {
+      "name": "MIT License",
+      "url": "https://raw.githubusercontent.com/cli/cli/refs/heads/trunk/LICENSE"
+    }
+  },
+  "commands": {
+    "alias": {
+      "description": "Aliases can be used to make shortcuts for gh commands or to compose multiple commands.",
+      "commands": {
+        "delete": {
+          "description": "Delete set aliases",
+          "parameters": [{
+            "name": "alias",
+            "type": "string",
+            "in": "arguments",
+            "required": false
+          }, {
+            "name": "all",
+            "short": "a",
+            "type": "boolean",
+            "in": "options",
+            "required": false
+          }]
+        },
+        "import": {},
+        "list": {},
+        "set": {}
+      }
+    }
+  }
+}
