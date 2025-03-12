@@ -4,10 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/bcdxn/openclispec/examples/cobra/github_cli/internal/commands"
+	"github.com/bcdxn/openclispec/examples/cobra/github_cli/internal/app"
+	"github.com/bcdxn/openclispec/examples/cobra/github_cli/internal/cli"
 )
 
 func main() {
-	commands.Execute(context.Background())
+	handlers := app.Handlers{}   // implementation
+	a := cli.FromCobra(handlers) // generated wrapper
+
+	a.ExecuteContext(context.Background())
 	fmt.Println()
 }
