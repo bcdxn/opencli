@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/bcdxn/openclispec/examples/cobra/github_cli/internal/cli"
 	"github.com/spf13/cobra"
 )
 
@@ -14,7 +15,12 @@ func (h AliasHandlers) GhAliasRoot(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func (h AliasHandlers) GhAliasDelete(ctx context.Context) error {
+func (h AliasHandlers) GhAliasDelete(ctx context.Context, flags cli.GhAliasDeleteFlags) error {
+	fmt.Println("gh alias delete")
+	return nil
+}
+
+func (h AliasHandlers) GhAliasSet(ctx context.Context, flags cli.GhAliasSetFlags) error {
 	fmt.Println("gh alias delete")
 	return nil
 }

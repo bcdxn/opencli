@@ -1,0 +1,13 @@
+{{- /*
+Generate the code that declares the Flag parameters that will be injected into the given handler
+implementation function.
+*/ -}}
+{{- if .Flags -}}
+// {{.HandlerFnName}}Flags holds the parsed flag options that will be injected into the command
+// handler implementation.
+type {{.HandlerFnName}}Flags struct {
+  {{- range $i, $val := .Flags}}
+  {{.FlagPropName}} {{$val.Type}}
+  {{- end}}
+}
+{{- end -}}

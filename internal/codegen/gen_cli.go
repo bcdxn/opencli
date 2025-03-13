@@ -26,7 +26,7 @@ func (g *Generator) GenerateCLI() {
 				Subcommands: []CLICommand{
 					{
 						Name:          "alias",
-						Summary:       "",
+						Summary:       "Create command shortcuts",
 						CommandFnName: "cmdGhAlias",
 						// HandlerFnName: "GhAliasHandler",
 						Subcommands: []CLICommand{
@@ -36,11 +36,20 @@ func (g *Generator) GenerateCLI() {
 								CommandFnName: "cmdGhAliasDelete",
 								HandlerFnName: "GhAliasDelete",
 								Subcommands:   []CLICommand{},
-								Executable:    true,
+								Flags: []CLIFlag{
+									{
+										Name:         "all",
+										FlagPropName: "All",
+										Summary:      "Delete all aliases",
+										Type:         "bool",
+										DefaultBool:  false,
+									},
+								},
+								Executable: true,
 							},
 							// {
-							// 	Name:          "import",
-							// 	Summary:       "",
+							// 	Name:          "import [<filename> | -] [flags]",
+							// 	Summary:       "Import aliases from the contents of a YAML file.",
 							// 	CommandFnName: "cmdGhAliasImport",
 							// 	HandlerFnName: "GhAliasImport",
 							// 	Subcommands:   []CLICommand{},
@@ -54,14 +63,31 @@ func (g *Generator) GenerateCLI() {
 							// 	Subcommands:   []CLICommand{},
 							// 	Executable:    true,
 							// },
-							// {
-							// 	Name:          "set",
-							// 	Summary:       "",
-							// 	CommandFnName: "cmdGhAliasSet",
-							// 	HandlerFnName: "GhAliasSet",
-							// 	Subcommands:   []CLICommand{},
-							// 	Executable:    true,
-							// },
+							{
+								Name:          "set <alias> <expansion> [flags]",
+								Summary:       "Define a word that will expand to a full gh command when invoked.",
+								CommandFnName: "cmdGhAliasSet",
+								HandlerFnName: "GhAliasSet",
+								Subcommands:   []CLICommand{},
+								Flags: []CLIFlag{
+									{
+										Name:         "clobber",
+										FlagPropName: "Clobber",
+										Summary:      "Overwrite existing aliases of the same name",
+										Type:         "bool",
+										DefaultBool:  false,
+									},
+									{
+										Name:         "shell",
+										Alias:        "s",
+										FlagPropName: "Shell",
+										Summary:      "Declare an alias to be passed through a shell interpreter",
+										Type:         "bool",
+										DefaultBool:  false,
+									},
+								},
+								Executable: true,
+							},
 						},
 					},
 					// {
@@ -96,11 +122,23 @@ type TemplateData struct {
 }
 
 type CLICommand struct {
+	Name            string
+	Summary         string
+	Description     string
+	CommandFnName   string
+	HandlerFnName   string
+	FlagsStructName string
+	Subcommands     []CLICommand
+	Flags           []CLIFlag
+	Executable      bool
+}
+
+type CLIFlag struct {
+	FlagPropName  string
 	Name          string
+	Alias         string
 	Summary       string
-	Description   string
-	CommandFnName string
-	HandlerFnName string
-	Subcommands   []CLICommand
-	Executable    bool
+	Type          string
+	DefaultString string
+	DefaultBool   bool
 }

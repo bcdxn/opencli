@@ -1,0 +1,17 @@
+{{- /*
+  Generate the code that declares the individual flag variables. These are the variables whos
+  reference is passed to the cobra commadn pflags library and will become the properties of the
+  command-specific flags object passed to the handler implementation function. e.g.:
+
+  ```
+  // Instantiate flags
+  var varSomeFlag string
+  var varAnotherFlag bool
+  ```
+*/ -}}
+{{- if .Flags -}}
+  // Instantiate flags
+  {{- range $i, $val := .Flags}}
+  var var{{.FlagPropName}} {{$val.Type}}
+  {{- end}}
+{{- end -}}

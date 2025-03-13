@@ -5,10 +5,14 @@ type CLIInterface interface {
   {{- end}}
 }
 
-{{define "template.commandHandlerFn" }}
+{{- define "template.commandHandlerFn" }}
   {{- if .HandlerFnName}}
   // {{.HandlerFnName}} is the handler function run when a particular command is invoked
+  {{- if .Flags}}
+  {{.HandlerFnName}}(ctx context.Context, flags {{.HandlerFnName}}Flags) error
+  {{- else}}
   {{.HandlerFnName}}(ctx context.Context) error
+  {{- end}}
   {{- end}}
   {{- range $i, $val := .Subcommands -}}
     {{- template "template.commandHandlerFn" ($val) -}}

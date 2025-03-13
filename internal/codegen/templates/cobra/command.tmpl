@@ -6,7 +6,7 @@ root command of the CLI.
 
 // New returns the root executable CLI command. e.g.:
 // ```go
-// app := cli.New()
+// app := cli.New(handlersImpl)
 // app.ExecuteContext(context.Background())
 // ```
 func New(handlers CLIInterface) *cobra.Command {
@@ -15,20 +15,33 @@ func New(handlers CLIInterface) *cobra.Command {
 
 {{define "template.commandFn"}}
 
+{{template "flags_parameters_type.tmpl" .}}
+
 // {{.CommandFnName}} returns a cobra command for the `{{.Name}}` command with subcommands
 // added appropriately.
 func {{.CommandFnName}}(handlers CLIInterface) *cobra.Command {
+  {{template "flags_vars_block.tmpl" .}}
   // Create the cobra command
   cmd := cobra.Command{
     Use: "{{.Name}}",
     {{if .Summary}}Short: "{{.Summary}}",{{- else -}}{{end -}}
     {{if .Executable}}RunE: func(cmd *cobra.Command, args []string) error {
-      return handlers.{{.HandlerFnName}}(cmd.Context())
+      {{if .Flags}}
+      flags := {{.HandlerFnName}}Flags{
+        {{- range $i, $val := .Flags}}
+        {{.FlagPropName}}: var{{.FlagPropName}},
+        {{- end}}
+      }
+      {{end}}
+      return handlers.{{.HandlerFnName}}(cmd.Context(){{if .Flags}}, flags{{end}})
     },{{- else -}}
     // Not runnable
     {{- end}}
   }
+  {{template "flags_add_to_command.tmpl" .}}
+  {{- if .Subcommands -}}
   // Add subcommands
+  {{- end -}}
   {{- range $i, $val := .Subcommands}}
   cmd.AddCommand({{$val.CommandFnName}}(handlers))
   {{- end}}

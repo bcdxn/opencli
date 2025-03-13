@@ -1,0 +1,31 @@
+{{/* Generate the code that appends flags to a command */}}
+
+{{- /* Generate the code that appends flags to a command */ -}}
+{{- define "template.defaultVal" -}}
+  {{- if eq .Type "string" -}}
+  "{{.DefaultString}}"
+  {{- else if eq .Type "bool" -}}
+  {{.DefaultBool}}
+  {{- else if eq .Type "int" -}}
+  {{.DefaultInt}}
+  {{- end -}}
+{{- end -}}
+
+{{- define "template.flagFn" -}}
+  {{- if and (eq .Type "string") (.Alias) -}}
+    StringVarP(&var{{.FlagPropName}}, "{{.Name}}", "{{.Alias}}", {{template "template.defaultVal" (.)}}, "{{.Summary}}")
+  {{- else if eq .Type "string" -}}
+    StringVar(&var{{.FlagPropName}}, "{{.Name}}", {{template "template.defaultVal" (.)}}, "{{.Summary}}")
+  {{- else if and (eq .Type "bool") (.Alias) -}}
+    BoolVarP(&var{{.FlagPropName}}, "{{.Name}}", "{{.Alias}}", {{template "template.defaultVal" (.)}}, "{{.Summary}}")
+  {{- else if eq .Type "bool" -}}
+    BoolVar(&var{{.FlagPropName}}, "{{.Name}}", {{template "template.defaultVal" (.)}}, "{{.Summary}}")
+  {{- end -}}
+{{- end -}}
+
+{{- if .Flags -}}
+  // Add command flags
+{{- end -}}
+{{- range $i, $val := .Flags}}
+  cmd.Flags().{{template "template.flagFn" ($val)}}
+{{- end}}
