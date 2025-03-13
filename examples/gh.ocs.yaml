@@ -8,13 +8,29 @@ commands:
     description: "Work seamlessly with GitHub from the command line."
 
   gh alias {command} <arguments> [flags]:
-    description: "Aliases can be used to make shortcuts for gh commands or to compose multiple commands."
-  gh alias delete (<alias> | --all) [flags]:
-    description: "Delete set aliases"
-    parameters:
+    description: "Create command shortcuts"
+  gh alias delete {<alias> | --all} [flags]:
+    summary: "Delete set aliases"
+    params:
     - name: alias
       kind: argument
       type: string
     - name: all
+      kind: flag
+      type: boolean
+  gh alias set <alias> <expansion> [flags]:
+    summary: "Delete set aliases"
+    params:
+    - name: alias
+      kind: argument
+      type: string
+    - name: expansion
+      kind: argument
+      type: string
+    - name: clobber
+      kind: flag
+      type: boolean
+    - name: shell
+      alias: s
       kind: flag
       type: boolean
