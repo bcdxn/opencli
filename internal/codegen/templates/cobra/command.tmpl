@@ -24,16 +24,24 @@ func {{.CommandFnName}}(handlers CLIInterface) *cobra.Command {
   // Create the cobra command
   cmd := cobra.Command{
     Use: "{{.Name}}",
-    {{if .Summary}}Short: "{{.Summary}}",{{- else -}}{{end -}}
+    {{if .Summary}}Short: "{{.Summary}}",{{- else -}}{{end}}
     {{if .Executable}}RunE: func(cmd *cobra.Command, args []string) error {
+      {{range $i, $val := .PositionalArgs -}}
+      {{- if $val.Required -}}
+      if len(args) < {{add $i 1}} {
+        return errors.New("required positional arg ${{$i}} '{{$val.Name}}' is missing")
+      }
+      {{end}}
+      {{- end -}}
+
       {{if .Flags}}
       flags := {{.HandlerFnName}}Flags{
         {{- range $i, $val := .Flags}}
-        {{.FlagPropName}}: var{{.FlagPropName}},
+        {{.FlagPropName}}: flag{{.FlagPropName}},
         {{- end}}
       }
       {{end}}
-      return handlers.{{.HandlerFnName}}(cmd.Context(){{if .Flags}}, flags{{end}})
+      return handlers.{{.HandlerFnName}}(cmd.Context(){{if .PositionalArgs}}, args{{end}}{{if .Flags}}, flags{{end}})
     },{{- else -}}
     // Not runnable
     {{- end}}

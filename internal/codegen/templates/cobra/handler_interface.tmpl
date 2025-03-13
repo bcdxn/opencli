@@ -8,7 +8,11 @@ type CLIInterface interface {
 {{- define "template.commandHandlerFn" }}
   {{- if .HandlerFnName}}
   // {{.HandlerFnName}} is the handler function run when a particular command is invoked
-  {{- if .Flags}}
+  {{- if and (.Flags) (.PositionalArgs) }}
+  {{.HandlerFnName}}(ctx context.Context, args []string, flags {{.HandlerFnName}}Flags) error
+  {{- else if .PositionalArgs}}
+  {{.HandlerFnName}}(ctx context.Context, args []string) error
+  {{- else if .Flags}}
   {{.HandlerFnName}}(ctx context.Context, flags {{.HandlerFnName}}Flags) error
   {{- else}}
   {{.HandlerFnName}}(ctx context.Context) error

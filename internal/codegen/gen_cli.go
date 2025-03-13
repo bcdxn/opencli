@@ -15,6 +15,12 @@ func (g *Generator) GenerateCLI() {
 		panic(err)
 	}
 
+	funcMap := template.FuncMap{
+		"add": func(x, y int) int {
+			return x + y
+		},
+	}
+
 	testCLI := TemplateData{
 		Package: "cli",
 		Commands: []CLICommand{
@@ -42,7 +48,7 @@ func (g *Generator) GenerateCLI() {
 										FlagPropName: "All",
 										Summary:      "Delete all aliases",
 										Type:         "bool",
-										DefaultBool:  false,
+										Default:      false,
 									},
 								},
 								Executable: true,
@@ -75,7 +81,7 @@ func (g *Generator) GenerateCLI() {
 										FlagPropName: "Clobber",
 										Summary:      "Overwrite existing aliases of the same name",
 										Type:         "bool",
-										DefaultBool:  false,
+										Default:      false,
 									},
 									{
 										Name:         "shell",
@@ -83,7 +89,21 @@ func (g *Generator) GenerateCLI() {
 										FlagPropName: "Shell",
 										Summary:      "Declare an alias to be passed through a shell interpreter",
 										Type:         "bool",
-										DefaultBool:  false,
+										Default:      false,
+									},
+								},
+								PositionalArgs: []CLIPositionalArg{
+									{
+										Name:        "alias",
+										ArgPropName: "Alias",
+										Type:        "string",
+										Required:    true,
+									},
+									{
+										Name:        "expansion",
+										ArgPropName: "Expansion",
+										Type:        "string",
+										Required:    true,
 									},
 								},
 								Executable: true,
@@ -102,7 +122,7 @@ func (g *Generator) GenerateCLI() {
 		},
 	}
 
-	t, err := template.ParseFS(
+	t, err := template.New("tmpl").Funcs(funcMap).ParseFS(
 		cobraTemplates,
 		"templates/cobra/*",
 	)
@@ -130,15 +150,24 @@ type CLICommand struct {
 	FlagsStructName string
 	Subcommands     []CLICommand
 	Flags           []CLIFlag
+	PositionalArgs  []CLIPositionalArg
 	Executable      bool
 }
 
 type CLIFlag struct {
-	FlagPropName  string
-	Name          string
-	Alias         string
-	Summary       string
-	Type          string
-	DefaultString string
-	DefaultBool   bool
+	FlagPropName string
+	Name         string
+	Alias        string
+	Summary      string
+	Type         string
+	Required     bool
+	Default      any
+}
+
+type CLIPositionalArg struct {
+	ArgPropName string
+	Name        string
+	Type        string
+	Required    bool
+	Default     any
 }
