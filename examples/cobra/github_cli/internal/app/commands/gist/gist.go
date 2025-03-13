@@ -1,10 +1,8 @@
 package gist
 
 import (
-	"context"
 	"fmt"
 
-	"github.com/bcdxn/openclispec/examples/cobra/github_cli/internal/cli"
 	"github.com/spf13/cobra"
 )
 
@@ -20,11 +18,11 @@ func (h GistHandlers) GhGistClone(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func (h GistHandlers) GhGistCreate(
-	ctx context.Context,
-	args cli.GhGistCreateArgs,
-	flags cli.GhGistCreateFlags,
-) error {
-	fmt.Printf("gh gist create --desc='%s' --public=%t\n", flags.Desc, flags.Public)
-	return nil
-}
+// func (h GistHandlers) GhGistCreate(
+// 	ctx context.Context,
+// 	args cli.GhGistCreateArgs,
+// 	flags cli.GhGistCreateFlags,
+// ) error {
+// 	fmt.Printf("gh gist create --desc='%s' --public=%t\n", flags.Desc, flags.Public)
+// 	return nil
+// }

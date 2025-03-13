@@ -1,6 +1,7 @@
 package alias
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -13,7 +14,7 @@ func (h AliasHandlers) GhAliasRoot(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func (h AliasHandlers) GhAliasDelete(cmd *cobra.Command, args []string) error {
+func (h AliasHandlers) GhAliasDelete(ctx context.Context) error {
 	fmt.Println("gh alias delete")
 	return nil
 }

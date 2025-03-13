@@ -1,0 +1,45 @@
+{{/*
+Generate private functions that return cobra commands. These functions include the declaration of
+the `cobra.Command` object itself and add all nested subcommands recursively. Expose the runnable
+root command of the CLI.
+*/}}
+
+// New returns the root executable CLI command. e.g.:
+// ```go
+// app := cli.New()
+// app.ExecuteContext(context.Background())
+// ```
+func New(handlers CLIInterface) *cobra.Command {
+	return {{(index .Commands 0).CommandFnName}}(handlers)
+}
+
+{{define "template.commandFn"}}
+
+// {{.CommandFnName}} returns a cobra command for the `{{.Name}}` command with subcommands
+// added appropriately.
+func {{.CommandFnName}}(handlers CLIInterface) *cobra.Command {
+  // Create the cobra command
+  cmd := cobra.Command{
+    Use: "{{.Name}}",
+    {{if .Summary}}Short: "{{.Summary}}",{{- else -}}{{end -}}
+    {{if .Executable}}RunE: func(cmd *cobra.Command, args []string) error {
+      return handlers.{{.HandlerFnName}}(cmd.Context())
+    },{{- else -}}
+    // Not runnable
+    {{- end}}
+  }
+  // Add subcommands
+  {{- range $i, $val := .Subcommands}}
+  cmd.AddCommand({{$val.CommandFnName}}(handlers))
+  {{- end}}
+  // Return initialized command
+  return &cmd
+}
+  {{- range $i, $val := .Subcommands -}}
+    {{- template "template.commandFn" ($val) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- range $i, $val := .Commands -}}
+  {{- template "template.commandFn" ($val) -}}
+{{- end}}

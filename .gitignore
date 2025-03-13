@@ -1,0 +1,8 @@
+scratch*
+*.gen.go
+
+.DS_Store
+Thumbs.db
+vscode/*
+tmp
+dist

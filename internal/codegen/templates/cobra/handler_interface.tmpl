@@ -1,0 +1,16 @@
+// CLIInterface represents all CLI command handlers.
+type CLIInterface interface {
+  {{- range $i, $val := .Commands -}}
+  {{template "template.commandHandlerFn" ($val) -}}
+  {{- end}}
+}
+
+{{define "template.commandHandlerFn" }}
+  {{- if .HandlerFnName}}
+  // {{.HandlerFnName}} is the handler function run when a particular command is invoked
+  {{.HandlerFnName}}(ctx context.Context) error
+  {{- end}}
+  {{- range $i, $val := .Subcommands -}}
+    {{- template "template.commandHandlerFn" ($val) -}}
+  {{- end -}}
+{{- end -}}

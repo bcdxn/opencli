@@ -9,8 +9,8 @@ import (
 )
 
 func main() {
-	handlers := app.Handlers{}   // implementation
-	a := cli.FromCobra(handlers) // generated wrapper
+	handlers := app.Handlers{} // implementation
+	a := cli.New(handlers)     // generated wrapper
 
 	a.ExecuteContext(context.Background())
 	fmt.Println()
