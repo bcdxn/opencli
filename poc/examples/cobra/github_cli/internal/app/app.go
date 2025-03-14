@@ -3,8 +3,8 @@ package app
 import (
 	"fmt"
 
-	"github.com/bcdxn/openclispec/examples/cobra/github_cli/internal/app/commands/alias"
-	"github.com/bcdxn/openclispec/examples/cobra/github_cli/internal/app/commands/gist"
+	"github.com/bcdxn/openclispec/poc/examples/cobra/github_cli/internal/app/commands/alias"
+	"github.com/bcdxn/openclispec/poc/examples/cobra/github_cli/internal/app/commands/gist"
 	"github.com/spf13/cobra"
 )
 

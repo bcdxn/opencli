@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/bcdxn/openclispec/internal/codegen"
+	"github.com/bcdxn/openclispec/poc/internal/codegen"
 )
 
 func main() {
