@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "http://github.com/bcdxn/opencli/schemas/v0.0.1/specification.schema.json",
+  "$id": "http://github.com/bcdxn/opencli/schemas/v0.0.1_specification.schema.json",
   "title": "OpenCLI Specification",
   "description": "Describe a command line interface application",
   "type": "object",
