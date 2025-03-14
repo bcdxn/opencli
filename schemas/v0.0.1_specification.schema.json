@@ -1,0 +1,356 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "http://github.com/bcdxn/opencli/schemas/v0.0.1/specification.schema.json",
+  "title": "OpenCLI Specification",
+  "description": "Describe a command line interface application",
+  "type": "object",
+  "properties": {
+    "opencliVersion": {
+      "type": "string",
+      "description": "This property MUST be the exact version number of the OpenCLI Specification that this OpenCLI Document uses. The opencli field SHOULD be used by tooling to interpret the OpenCLI Document. This field is not related to the CLI info.version string.",
+      "choices": [
+        "0.0.1"
+      ]
+    },
+    "info": {
+      "$ref": "#/$defs/InfoObject"
+    },
+    "install": {
+      "type": "array",
+      "description": "The installation methods available for the CLI.",
+      "items": {
+        "$ref": "#/$defs/InstallMethodItemObject"
+      }
+    },
+    "commands": {
+      "type": "object",
+      "description": "The commands available for the CLI. Each key should contain the full command starting with the CLI binary name (e.g.: `$.info.binary`)",
+      "properties": {
+        "^.*$": {
+          "$ref": "#/$defs/CommandItemObject"
+        }
+      }
+    }
+  },
+  "required": [
+    "opencliVersion",
+    "info"
+  ],
+  "$defs": {
+    "InfoObject": {
+      "type": "object",
+      "description": "Provides metadata about the CLI. This metadata is used for generating help output and documentation.",
+      "properties": {
+        "binary": {
+          "type": "string",
+          "description": "The name of the CLI binary. This is the name that will be used to invoke the CLI from the command line."
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the CLI. This will appear in generated help output and documentation."
+        },
+        "summary": {
+          "type": "string",
+          "description": "A short summary of the CLI. This will appear in generated help output and documentation in addition to the description. [Markdown](https://spec.commonmark.org) may be used for rich text representation."
+        },
+        "description": {
+          "type": "string",
+          "description": "A longer description of the CLI. This will appear in generated help output and documentation in addition to the summary. [Markdown](https://spec.commonmark.org) may be used for rich text representation."
+        },
+        "license": {
+          "$ref": "#/$defs/LicenseObject"
+        },
+        "contact": {
+          "$ref": "#/$defs/ContactObject"
+        },
+        "version": {
+          "type": "string",
+          "description": "The version of the OpenCLI Document which typically corresponds to the release version of your CLI."
+        }
+      },
+      "required": [
+        "binary",
+        "title",
+        "version"
+      ]
+    },
+    "LicenseObject": {
+      "type": "object",
+      "description": "Describes the license used by the CLI.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the license used by the CLI."
+        },
+        "spdxId": {
+          "type": "string",
+          "description": "The [SPDX identifier](https://spdx.org/licenses/) of the license used by the CLI."
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "A URL to the license used by the CLI."
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "ContactObject": {
+      "type": "object",
+      "description": "Contact information for the CLI.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the contact person/organization."
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "A URL pointing to the contact information."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The email address of the contact person/organization."
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "name"
+          ]
+        },
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "email"
+          ]
+        }
+      ]
+    },
+    "InstallMethodItemObject": {
+      "type": "object",
+      "description": "An installation method for the CLI.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the installation method.",
+          "examples": [
+            "homebrew",
+            "apt",
+            "chocolatey",
+            "binary",
+            "source"
+          ]
+        },
+        "command": {
+          "type": "string",
+          "description": "The command to install the CLI."
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "A URL pointing to the binary or source code."
+        },
+        "documentation": {
+          "type": "string",
+          "description": "The documentation for the installation method. [Markdown](https://spec.commonmark.org) may be used for rich text representation."
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "name",
+            "command"
+          ]
+        },
+        {
+          "required": [
+            "name",
+            "url"
+          ]
+        }
+      ]
+    },
+    "CommandItemObject": {
+      "type": "object",
+      "description": "Describes a command for the CLI.",
+      "properties": {
+        "summary": {
+          "type": "string",
+          "description": "A short summary of the command. This will appear in generated help output and documentation in addition to the description. [Markdown](https://spec.commonmark.org) may be used for rich text representation."
+        },
+        "description": {
+          "type": "string",
+          "description": "A longer description of the command. This will appear in generated help output and documentation in addition to the summary. [Markdown](https://spec.commonmark.org) may be used for rich text representation."
+        },
+        "arguments": {
+          "type": "array",
+          "description": "The positional arguments available for the command. The order in which the arguments are defined is the order in which they should be provided to the command.",
+          "items": {
+            "$ref": "#/$defs/ArgumentItemObject"
+          }
+        },
+        "flags": {
+          "type": "array",
+          "description": "The flags available for the command. Flags can be provided in any order.",
+          "items": {
+            "$ref": "#/$defs/FlagItemObject"
+          }
+        },
+        "hidden": {
+          "type": "boolean",
+          "description": "Determines if the command is hidden from generated help output and documentation.",
+          "default": false
+        }
+      },
+      "required": [
+        "summary"
+      ]
+    },
+    "ArgumentItemObject": {
+      "type": "object",
+      "description": "A positional argument for a command.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the argument."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of the argument. Codegen tools MAY use this field to coerce argument types before passing them to the command handler implementations.",
+          "choices": [
+            "string",
+            "number",
+            "boolean"
+          ],
+          "default": "string"
+        },
+        "choices": {
+          "type": "array",
+          "description": "The enumerated choices available for the argument. Codegen tools MAY enforce this enumeration before passing them to the command hadnler implementations. This will appear in generated help output and documentation. [Markdown](https://spec.commonmark.org) may be used for rich text representation.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "description": "The value of the choice."
+              },
+              "description": {
+                "type": "string",
+                "description": "A description of the choice. This will appear in generated documentation"
+              }
+            }
+          }
+        },
+        "summary": {
+          "type": "string",
+          "description": "A short summary of the argument. This will appear in generated help output and documentation in addition to the description. [Markdown](https://spec.commonmark.org) may be used for rich text representation."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the argument. This will appear in generated help output and documentation in addition to the summary. [Markdown](https://spec.commonmark.org) may be used for rich text representation."
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Determines if the argument is mandatory. If required arguments are not supplied, the command will exit in error.",
+          "default": false
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "FlagItemObject": {
+      "type": "object",
+      "description": "A flag for a command.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the flag."
+        },
+        "alias": {
+          "type": "string",
+          "description": "The single character short flag."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of the flag. Codegen tools WILL use this field to coerce flag types before passing them to the command handler implementations.",
+          "choices": [
+            "string",
+            "number",
+            "boolean"
+          ]
+        },
+        "choices": {
+          "type": "array",
+          "description": "The enumerated choices available for the flag. If the flag is not one of the choices, the command will exit in error.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "description": "The value of the choice."
+              },
+              "description": {
+                "type": "string",
+                "description": "A description of the choice. This will appear in generated documentation"
+              }
+            }
+          }
+        },
+        "valueHint":{
+          "type": "string",
+          "description": "A hint to the user about the value of the flag. This will appear in generated help output and documentation."
+        },
+        "summary": {
+          "type": "string",
+          "description": "A short summary of the flag. This will appear in generated help output and documentation in addition to the description. [Markdown](https://spec.commonmark.org) may be used for rich text representation."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the flag. This will appear in generated help output and documentation in addition to the summary. [Markdown](https://spec.commonmark.org) may be used for rich text representation."
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Determines if the flag is mandatory. If required flags are not supplied, the command will exit in error.",
+          "default": false
+        },
+        "hidden": {
+          "type": "boolean",
+          "description": "Determines if the flag is hidden from generated help output and documentation.",
+          "default": false
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "name",
+            "type"
+          ],
+          "not": {
+            "required": [
+              "choices"
+            ]
+          }
+        },
+        {
+          "required": [
+            "name",
+            "choices"
+          ],
+          "not": {
+            "required": [
+              "type"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
