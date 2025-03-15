@@ -30,13 +30,14 @@ _Like OpenAPI Spec, but for your CLIs_
   - [ogen](https://ogen.dev)
 * Stripe's [amazing looking CLI documentation](https://docs.stripe.com/cli)
 
-## `/pkg` Repo Layout
+## Repo Layout
 
+- `/spec` - The JSON Schema specification files for the supported version of OpenCLI.
 - `/pkg` - public packages meant to be use used by other projects; API stability follows semantic versioning and semantic import versioning.
 - `/cmd` - entrypoints to runnable programs/apps; these programs are typically built and distributed as binaries and should not be imported into other codebases.
 - `/internal` - internal packages not meant to be distributed or used imported into other codebases; no API stability is guaranteed.
 
-### Public Packages
+### `/pkg` Public Packages
 
 #### `opencli/validator`
 

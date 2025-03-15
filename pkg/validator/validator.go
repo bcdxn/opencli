@@ -10,7 +10,7 @@ import (
 	"github.com/santhosh-tekuri/jsonschema/v6"
 )
 
-//go:generate cp -r ../../schemas/ ./distschemas
+//go:generate cp -r ../../spec/ ./distschemas
 //go:embed distschemas
 var schemas embed.FS
 
