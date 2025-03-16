@@ -19,7 +19,14 @@ var schemas embed.FS
 // Any validation errors are returned.
 // If no error is returned, the document is valid.
 func ValidateDocumentJSON(document []byte) error {
-	schema, err := schemaValidator(document)
+	// Unmarshal the given document and extract the OpenCLI Specification version
+	var specVersionDoc documentVersion
+	err := json.Unmarshal(document, &specVersionDoc)
+	if err != nil {
+		return err
+	}
+	// Create a JSON Schema validator for the given OpenCLI Specification version
+	schema, err := schemaValidator(specVersionDoc.Version)
 	if err != nil {
 		return err
 	}
@@ -44,7 +51,14 @@ func MustValidateDocumentJSON(document []byte) {
 // Any validation errors are returned.
 // If no error is returned, the document is valid.
 func ValidateDocumentYAML(document []byte) error {
-	schema, err := schemaValidator(document)
+	// Unmarshal the given document and extract the OpenCLI Specification version
+	var specVersionDoc documentVersion
+	err := yaml.Unmarshal(document, &specVersionDoc)
+	if err != nil {
+		return err
+	}
+	// Create a JSON Schema validator for the given OpenCLI Specification version
+	schema, err := schemaValidator(specVersionDoc.Version)
 	if err != nil {
 		return err
 	}
@@ -82,24 +96,19 @@ func Versions() []string {
 ------------------------------------------------------------------------------------------------- */
 
 type documentVersion struct {
-	Version string `json:"openCliVersion"`
+	Version string `json:"opencliVersion" yaml:"opencliVersion"`
 }
 
 // schemaValidator returns a JSON Schema that can be used for validation.
-func schemaValidator(document []byte) (*jsonschema.Schema, error) {
-	// First attempt to unmarshal the document to ensure we're dealing with a valid JSON document
-	var docObj documentVersion
-	if err := json.Unmarshal(document, &docObj); err != nil {
-		return nil, fmt.Errorf("error unmarshalling JSON document: %w", err)
-	}
+func schemaValidator(version string) (*jsonschema.Schema, error) {
 	// Select the version of the OpenCLI Specification to validate the given document against
-	if docObj.Version == "" {
-		return nil, fmt.Errorf("missing 'openCliVersion' field in document")
+	if version == "" {
+		return nil, fmt.Errorf("missing 'opencliVersion' field in document")
 	}
 	// Read and unmarshal the JSON schema file for the selected OpenCLI Spec version
-	contents, err := schemas.ReadFile(fmt.Sprintf("distschemas/%s_specification.schema.json", docObj.Version))
+	contents, err := schemas.ReadFile(fmt.Sprintf("distschemas/%s_specification.schema.json", version))
 	if err != nil {
-		return nil, fmt.Errorf("unsupported OpenCLI version %s; use one of %v", docObj.Version, Versions())
+		return nil, fmt.Errorf("unsupported OpenCLI version %s; use one of %v", version, Versions())
 	}
 	schema, err := jsonschema.UnmarshalJSON(bytes.NewReader(contents))
 	if err != nil {

@@ -76,11 +76,11 @@ func TestValidateDocumentYAML(t *testing.T) {
 			document: []byte(`
 opencliVersion: "1.0.0-alpha.0"
 info:
-	binary: "test"	
-	title: "Test OpenCLI Specification"
-	version: "1.0.0"
-	commands: {}
-			`),
+  binary: "test"	
+  title: "Test OpenCLI Specification"
+  version: "1.0.0"
+  commands: {}
+      `),
 			wantErr: false,
 		},
 		{
@@ -88,12 +88,12 @@ info:
 			document: []byte(`
 opencliVersion: "0.0.5"
 info:
-	binary: "test"
-	title: "Test OpenCLI Specification"
-	version: "1.0.0"
+  binary: "test"
+  title: "Test OpenCLI Specification"
+  version: "1.0.0"
 }
 commands: {}
-			`),
+      `),
 			wantErr: true,
 		},
 		{
@@ -103,10 +103,9 @@ commands: {}
 		},
 		{
 			name: "invalid document",
-			document: []byte(`
-opencliVersion: "1.0.0-alpha.0"
+			document: []byte(`opencliVersion: "1.0.0-alpha.0"
 key: "value"
-			`),
+      `),
 			wantErr: true,
 		},
 	}
