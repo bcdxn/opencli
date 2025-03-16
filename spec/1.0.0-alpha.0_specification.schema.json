@@ -25,7 +25,7 @@
     "commands": {
       "type": "object",
       "description": "The commands available for the CLI. Each key should contain the full command starting with the CLI binary name (e.g.: `$.info.binary`)",
-      "properties": {
+      "patternProperties": {
         "^.*$": {
           "$ref": "#/$defs/CommandItemObject"
         }
