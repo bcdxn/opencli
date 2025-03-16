@@ -79,7 +79,7 @@ info:
   binary: "test"	
   title: "Test OpenCLI Specification"
   version: "1.0.0"
-  commands: {}
+commands: {}
       `),
 			wantErr: false,
 		},
@@ -91,7 +91,6 @@ info:
   binary: "test"
   title: "Test OpenCLI Specification"
   version: "1.0.0"
-}
 commands: {}
       `),
 			wantErr: true,

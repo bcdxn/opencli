@@ -36,6 +36,7 @@
     "opencliVersion",
     "info"
   ],
+  "additionalProperties": false,
   "$defs": {
     "InfoObject": {
       "type": "object",
@@ -72,7 +73,8 @@
         "binary",
         "title",
         "version"
-      ]
+      ],
+      "additionalProperties": false
     },
     "LicenseObject": {
       "type": "object",
@@ -94,7 +96,8 @@
       },
       "required": [
         "name"
-      ]
+      ],
+      "additionalProperties": false
     },
     "ContactObject": {
       "type": "object",
@@ -131,7 +134,8 @@
             "email"
           ]
         }
-      ]
+      ],
+      "additionalProperties": false
     },
     "InstallMethodItemObject": {
       "type": "object",
@@ -175,7 +179,8 @@
             "url"
           ]
         }
-      ]
+      ],
+      "additionalProperties": false
     },
     "CommandItemObject": {
       "type": "object",
@@ -207,11 +212,14 @@
           "type": "boolean",
           "description": "Determines if the command is hidden from generated help output and documentation.",
           "default": false
+        },
+        "executable": {
+          "type": "boolean",
+          "description": "Determines if the command is an executable. If true, the command can be executed by the CLI. If false, the command likely a grouping of one or more subcommands and serves as documentation only.",
+          "default": true
         }
       },
-      "required": [
-        "summary"
-      ]
+      "additionalProperties": false
     },
     "ArgumentItemObject": {
       "type": "object",
@@ -245,7 +253,11 @@
                 "type": "string",
                 "description": "A description of the choice. This will appear in generated documentation"
               }
-            }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
           }
         },
         "summary": {
@@ -264,7 +276,8 @@
       },
       "required": [
         "name"
-      ]
+      ],
+      "additionalProperties": false
     },
     "FlagItemObject": {
       "type": "object",
@@ -301,7 +314,11 @@
                 "type": "string",
                 "description": "A description of the choice. This will appear in generated documentation"
               }
-            }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
           }
         },
         "valueHint":{
@@ -350,7 +367,8 @@
             ]
           }
         }
-      ]
+      ],
+      "additionalProperties": false
     }
   }
 }

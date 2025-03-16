@@ -2,6 +2,7 @@ distschemas
 
 scratch*
 *.gen.go
+cmd/t
 
 .DS_Store
 Thumbs.db
