@@ -1,12 +1,13 @@
 package validator
 
 import (
+	"fmt"
 	"testing"
 )
 
-// TestValidateDocumentV1_0_0_alpha_0 tests the ValidateDocument function by passing different documents in
-// and validating those documents against version 1.0.0-alpha.0 of the specification.
-func TestValidateDocumentV1_0_0_alpha_0(t *testing.T) {
+// TestValidateDocumentJSON tests the ValidateDocument function by passing different documents in
+// and validating those documents against all supported versions of the specification.
+func TestValidateDocumentJSON(t *testing.T) {
 	tests := []struct {
 		name           string
 		opencliVersion string
@@ -53,9 +54,69 @@ func TestValidateDocumentV1_0_0_alpha_0(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := ValidateDocument(tt.document)
+			err := ValidateDocumentJSON(tt.document)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("ValidateDocument() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("ValidateDocumentJSON() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+// TestValidateDocumentYAML tests the ValidateDocument function by passing different documents in
+// and validating those documents against all supported versions of the specification.
+func TestValidateDocumentYAML(t *testing.T) {
+	tests := []struct {
+		name           string
+		opencliVersion string
+		document       []byte
+		wantErr        bool
+	}{
+		{
+			name: "valid document",
+			document: []byte(`
+opencliVersion: "1.0.0-alpha.0"
+info:
+	binary: "test"	
+	title: "Test OpenCLI Specification"
+	version: "1.0.0"
+	commands: {}
+			`),
+			wantErr: false,
+		},
+		{
+			name: "unsupported version",
+			document: []byte(`
+opencliVersion: "0.0.5"
+info:
+	binary: "test"
+	title: "Test OpenCLI Specification"
+	version: "1.0.0"
+}
+commands: {}
+			`),
+			wantErr: true,
+		},
+		{
+			name:     "malformed document",
+			document: []byte(`{"invalid": "d`),
+			wantErr:  true,
+		},
+		{
+			name: "invalid document",
+			document: []byte(`
+opencliVersion: "1.0.0-alpha.0"
+key: "value"
+			`),
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fmt.Println(string(tt.document))
+			err := ValidateDocumentYAML(tt.document)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ValidateDocumentYAML() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
