@@ -1,3 +1,5 @@
+![ocli-badge](https://img.shields.io/badge/OpenCLI_Spec-Compliant-brightgreen?link=https%3A%2F%2Fgithub.com%2Fbcdxn%2Fopencli)
+
 # OpenCLI Specification
 
 _Like OpenAPI Spec, but for your CLIs_
@@ -39,43 +41,11 @@ _Like OpenAPI Spec, but for your CLIs_
 
 ### `/pkg` Public Packages
 
-#### `opencli/validator`
+#### `ocli`
 
-Offers the ability to validate OpenCLI Spec files.
-
-### Usage
-
-```go
-package main
-
-import (
-  "fmt"
-
-  "github.com/bcdxn/opencli/pkg/validator"
-)
-  
-
-func main() {
-  // check what versions are available
-  versions := validator.Versions()
-  fmt.Println(versions) // [1.0.0-alpha.0]
-
-  // validate an document to see if it is compliant with the OpenCLI Specification
-  err := validator.ValidateDocument([]byte(`
-    {
-      "opencliVersion": "1.0.0-alpha.0",
-      "info": {
-        "binary": "test",
-        "title": "Test OpenCLI Specification",
-        "version": "1.0.0"
-      },
-      "commands": {}
-    }
-  `))
-  if err != nil {
-    panic(err)
-  }
-}
+- Unmarshal and validate validate OpenCLI Spec files
+- Generate CLI code
+- Generate CLI documentation
 
 ```
 

@@ -1,0 +1,114 @@
+opencliVersion: 1.0.0-alpha.0
+
+info:
+  title: OpenCLI
+  summary: A CLI for working with OpenCLI Specs
+  description: |
+    `ocli` is a command line interface designed to make working with OpenCLI
+    Spec documents easier. It provides a number of capabilities, including:
+
+    - validating OpenCLI Spec documents
+    - generating Documentation from OpenCLI Spec documents
+    - generating boilerplate for various CLI frameworks from OpenCLI Spec
+      documents
+    
+    The commands are documented below. You can also find out more about each
+    command using the contextual `--help` flag. e.g.:
+
+    ```sh
+    ocli generate --help
+    ```
+  version: 1.0.0-alpha.0
+  binary: ocli
+  license:
+    name: "MIT"
+    spdxId: "MIT"
+    url: "https://spdx.org/licenses/MIT.html"
+  contact:
+    name: "OpenCLI Team"
+    email: "developerteam@ocli-tbd.com"
+    url: "https://github.com/bcdxn/opencli"
+
+
+install:
+  - name: Binary Download
+    url: https://github.com/bcdxn/opencli/releases
+    description: |
+      You can visit the GitHub releases page of the project to download pre-compiled binaries
+      appropriate for your system.
+  - name: Go Get
+    command: 'go get github.com/bcdxn/opencli'
+      
+commands:
+  versions:
+    summary: Print the versions of the OpenCLI Specificatons that are supported
+    description: |
+      The `versions` command will print the versions of the OpenCLI
+      Specification that are available and supported by this version of the
+      OpenCLI CLI.
+
+  check <path-to-spec>:
+    summary: Check an OpenCLI Spec document for errors
+    description: |
+      The `check` command will validate an OpenCLI Spec document and return any
+      errors that are found.
+    arguments:
+      - name: path-to-spec
+        summary: The path to the OpenCLI Spec document to check
+        description: |
+          this command will check the validity of the given OpenCLI document
+          by parsing it and checking it against the OpenCLI Specification.
+
+          NOTE: The  format of the input file will be determined by the file extension.
+        required: true
+        type: string
+  
+  generate <command> [flags]:
+    summary: A collection of commands used to generate code and/or documentation from an OpenCLI Spec document
+    executable: false
+  generate docs <path-to-spec> [flags]:
+    summary: Generate documentation from an OpenCLI Spec document
+    description: |
+      The `generate docs` command will generate documentation from an OpenCLI
+      Spec document. You can specify the format of the documentation to be
+      generated using the `--format` flag.
+    arguments:
+      - name: path-to-spec
+        summary: The path to the OpenCLI Spec that documentation will be generated from
+        required: true
+        type: string
+    flags:
+      - name: format
+        summary: The format of the documentation to generate
+        required: true
+        choices:
+          - value: markdown
+          - value: html
+          - value: man
+  generate cli <path-to-spec> [flags]:
+    summary: Generate CLI Boilerplate code from an OpenCLI Spec document
+    description: |
+      The `generate cli` command will generate the boilerplate code for
+      various CLI frameworks from an OpenCLI Spec document. You can specify the
+      language of the CLI to be generated using
+      the `--language` flag.
+    arguments:
+      - name: path-to-spec
+        summary: The path to the OpenCLI Spec that the CLI will be generated from
+        required: true
+        type: string
+    flags:
+      - name: framework
+        summary: The language of the CLI to generate
+        required: true
+        choices:
+          - value: cobra
+            description: "[Cobra](https://github.com/spf13/cobra?tab=readme-ov-file) is a popular CLI framework for Go"
+          - value: urfave/cli
+            description: "[urfave/cli](https://github.com/urfave/cli) is a declarative CLI framework for Go"
+          - value: yargs
+            description: "[yargs](https://yargs.js.org) is a popular CLI framework for Node.js"
+          - value: oclif
+            description: "[oclif](https://oclif.io) is a popular CLI framework written in Typescript"
+
+

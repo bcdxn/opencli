@@ -1,7 +1,6 @@
-package validator
+package ocli
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -111,7 +110,6 @@ key: "value"
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			fmt.Println(string(tt.document))
 			err := ValidateDocumentYAML(tt.document)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ValidateDocumentYAML() error = %v, wantErr %v", err, tt.wantErr)

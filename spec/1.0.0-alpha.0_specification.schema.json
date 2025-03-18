@@ -42,10 +42,6 @@
       "type": "object",
       "description": "Provides metadata about the CLI. This metadata is used for generating help output and documentation.",
       "properties": {
-        "binary": {
-          "type": "string",
-          "description": "The name of the CLI binary. This is the name that will be used to invoke the CLI from the command line."
-        },
         "title": {
           "type": "string",
           "description": "The title of the CLI. This will appear in generated help output and documentation."
@@ -64,14 +60,18 @@
         "contact": {
           "$ref": "#/$defs/ContactObject"
         },
+        "binary": {
+          "type": "string",
+          "description": "The name of the CLI binary. This is the name that will be used to invoke the CLI from the command line."
+        },
         "version": {
           "type": "string",
           "description": "The version of the OpenCLI Document which typically corresponds to the release version of your CLI."
         }
       },
       "required": [
-        "binary",
         "title",
+        "binary",
         "version"
       ],
       "additionalProperties": false
@@ -107,18 +107,18 @@
           "type": "string",
           "description": "The name of the contact person/organization."
         },
-        "url": {
-          "type": "string",
-          "format": "uri",
-          "description": "A URL pointing to the contact information."
-        },
         "email": {
           "type": "string",
           "format": "email",
           "description": "The email address of the contact person/organization."
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "A URL pointing to the contact information."
         }
       },
-      "oneOf": [
+      "anyOf": [
         {
           "required": [
             "name"
@@ -126,12 +126,12 @@
         },
         {
           "required": [
-            "url"
+            "email"
           ]
         },
         {
           "required": [
-            "email"
+            "url"
           ]
         }
       ],
@@ -161,12 +161,12 @@
           "format": "uri",
           "description": "A URL pointing to the binary or source code."
         },
-        "documentation": {
+        "description": {
           "type": "string",
-          "description": "The documentation for the installation method. [Markdown](https://spec.commonmark.org) may be used for rich text representation."
+          "description": "The description for the installation method. [Markdown](https://spec.commonmark.org) may be used for rich text representation."
         }
       },
-      "oneOf": [
+      "anyOf": [
         {
           "required": [
             "name",
@@ -238,6 +238,15 @@
             "boolean"
           ],
           "default": "string"
+        },
+        "kind": {
+          "type": "string",
+          "description": "The kind of the argument. Codegen tools MAY use this field to coerce argument types before passing them to the command handler implementations.",
+          "choices": [
+            "fixed",
+            "variadic"
+          ],
+          "default": "fixed"
         },
         "choices": {
           "type": "array",
@@ -344,7 +353,7 @@
           "default": false
         }
       },
-      "oneOf": [
+      "anyOf": [
         {
           "required": [
             "name",
