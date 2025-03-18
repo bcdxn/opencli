@@ -47,8 +47,6 @@ _Like OpenAPI Spec, but for your CLIs_
 - Generate CLI code
 - Generate CLI documentation
 
-```
-
 ## Testing
 
 #### Run all go:generate directives
