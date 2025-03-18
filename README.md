@@ -3,9 +3,10 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/bcdxn/opencli.svg)](https://pkg.go.dev/github.com/bcdxn/opencli)
 ![ocli-badge](https://img.shields.io/badge/OpenCLI_Spec-Compliant-brightgreen?link=https%3A%2F%2Fgithub.com%2Fbcdxn%2Fopencli)
 
+A declarative specification for your CLI that can be used to generate documentation and boilerplate code
+
 _Like OpenAPI Spec, but for your CLIs_
 
-A declarative specification for your CLI that can be used to generate documentation and boilerplate code
 
 ## Capabilities
 
