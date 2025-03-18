@@ -5,6 +5,14 @@
 
 _Like OpenAPI Spec, but for your CLIs_
 
+A declarative specification for your CLI that can be used to generate documentation and boilerplate code
+
+## Capabilities
+
+- Unmarshal and validate validate OpenCLI Spec files
+- Generate CLI boilerplate code for common CLI frameworks
+- Generate CLI documentation in various formats
+
 ## Motivation
 
 1. Contract first development - focus on the ergonomics of your CLI before you write any code
@@ -39,14 +47,6 @@ _Like OpenAPI Spec, but for your CLIs_
 - `/pkg` - public packages meant to be use used by other projects; API stability follows semantic versioning and semantic import versioning.
 - `/cmd` - entrypoints to runnable programs/apps; these programs are typically built and distributed as binaries and should not be imported into other codebases.
 - `/internal` - internal packages not meant to be distributed or used imported into other codebases; no API stability is guaranteed.
-
-### `/pkg` Public Packages
-
-#### `ocli`
-
-- Unmarshal and validate validate OpenCLI Spec files
-- Generate CLI code
-- Generate CLI documentation
 
 ## Testing
 
