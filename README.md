@@ -14,7 +14,7 @@ _Like OpenAPI Spec, but for your CLIs_
 
 - [x] Create a spec
 - [x] Create a JSON-Schema to validate the spec
-- [ ] Generate a Markdown documentation file from a spec-compliant file
+- [x] Generate a Markdown documentation file from a spec-compliant file
 - [ ] Generate CLI boilerplate from a spec-compliant file
   - [ ] [urfave/cli](https://github.com/urfave/cli)
 - [ ] Generate a static docs site
