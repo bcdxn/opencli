@@ -14,7 +14,7 @@ func TestGenDocsMarkdown(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	actual := GenDocs(ocs, "markdown")
+	actual := GenDocs(ocs)
 	if string(actual) != expected {
 		t.Errorf("generated documentation did not match expectation, FOUND:\n%s\n==========\nEXPECTED:\n%s\n==========\n", string(actual), expected)
 	}
