@@ -3,7 +3,7 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/bcdxn/opencli.svg)](https://pkg.go.dev/github.com/bcdxn/opencli)
 ![ocli-badge](https://img.shields.io/badge/OpenCLI_Spec-Compliant-brightgreen?link=https%3A%2F%2Fgithub.com%2Fbcdxn%2Fopencli)
 
-A declarative specification for your CLI that can be used to generate documentation and boilerplate code
+Define your CLI in a declarative, language-agnostic document that can be used to generate documentation and boilerplate code.
 
 _Like OpenAPI Spec, but for your CLIs_
 
@@ -18,7 +18,7 @@ _Like OpenAPI Spec, but for your CLIs_
 
 1. Contract first development - focus on the ergonomics of your CLI before you write any code
 2. Remove the redundant work of writing docs pages for your CLI - Generate docs for your CLI automatically and keep them from going stale.
-3. Separate your services from the CLI framework - generate the framework-specific boilerplate that invokes your implementation.
+3. Separate your services from the CLI framework - generate the framework-specific boilerplate that invokes your implementation, keeping your code framework-agnostic.
 
 ## Goals
 
