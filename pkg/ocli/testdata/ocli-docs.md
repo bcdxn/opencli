@@ -50,29 +50,7 @@ go get github.com/bcdxn/opencli
 
 ## Commands
 
-### `$ ocli check <path-to-spec>`
-
-Check an OpenCLI Spec document for errors
-
-The `check` command will validate an OpenCLI Spec document and return any
-errors that are found.
-
-#### Arguments
-
-##### `<path-to-spec>`
-
-The path to the OpenCLI Spec document to check
-
-this command will check the validity of the given OpenCLI document
-by parsing it and checking it against the OpenCLI Specification.
-
-NOTE: The  format of the input file will be determined by the file extension.
-
-
-`string` `required`
-
----
-### `$ ocli generate <command> [flags]`
+### `$ ocli generate {command} <arguments> [flags]`
 
 A collection of commands used to generate code and/or documentation from an OpenCLI Spec document
 
@@ -128,7 +106,34 @@ The format of the documentation to generate
 `enum` `required`
 
 ---
-### `$ ocli versions`
+### `$ ocli spec {command} <arguments> [flags]`
+
+A collection of commands related to the OpenCLI Specification
+
+---
+### `$ ocli spec check <path-to-spec>`
+
+Check an OpenCLI Spec document for errors
+
+The `check` command will validate an OpenCLI Spec document and return any
+errors that are found.
+
+#### Arguments
+
+##### `<path-to-spec>`
+
+The path to the OpenCLI Spec document to check
+
+this command will check the validity of the given OpenCLI document
+by parsing it and checking it against the OpenCLI Specification.
+
+NOTE: The  format of the input file will be determined by the file extension.
+
+
+`string` `required`
+
+---
+### `$ ocli spec versions`
 
 Print the versions of the OpenCLI Specificatons that are supported
 

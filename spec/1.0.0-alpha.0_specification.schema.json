@@ -330,7 +330,7 @@
             "additionalProperties": false
           }
         },
-        "valueHint":{
+        "valueHint": {
           "type": "string",
           "description": "A hint to the user about the value of the flag. This will appear in generated help output and documentation."
         },
@@ -346,6 +346,121 @@
           "type": "boolean",
           "description": "Determines if the flag is mandatory. If required flags are not supplied, the command will exit in error.",
           "default": false
+        },
+        "default": {
+          "description": "default is the default value the flag will take if it is not provided in the command line. It can be a constant or it can be sourced from the environment or a file. If sourced, resololution will be attempted from each source in the order it is defined, stopping once a value is found or the sources have been exhausted.",
+          "oneOf": [
+            {
+              "description": "The literal default value",
+              "type": "string"
+            },
+            {
+              "description": "The literal default value",
+              "type": "number"
+            },
+            {
+              "description": "The literal default value",
+              "type": "boolean"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "sources": {
+                  "description": "The possible sources of the default value; order is important as it determines the order of resolution.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "oneOf": [
+                      {
+                        "properties": {
+                          "type": {
+                            "description": "The source type of environment variable.",
+                            "type": "string",
+                            "choices": [
+                              "env"
+                            ]
+                          },
+                          "name": {
+                            "description": "The environmet variable name.",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "name"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "properties": {
+                          "type": {
+                            "description": "The source type of file.",
+                            "type": "string",
+                            "choices": [
+                              "file"
+                            ]
+                          },
+                          "format": {
+                            "description": "The expected format of the configuration file.",
+                            "type": "string"
+                          },
+                          "path": {
+                            "description": "The path to the configuration file.",
+                            "type": "string"
+                          },
+                          "name": {
+                            "description": "The property name within the file.",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "format",
+                          "path",
+                          "name"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "properties": {
+                          "type": {
+                            "description": "the source type of 'constant'",
+                            "type": "string",
+                            "choices": [
+                              "const"
+                            ]
+                          },
+                          "value": {
+                            "description": "The literal default value",
+                            "oneOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "boolean"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  },
+                  "minItems": 1
+                }
+              },
+              "required": [
+                "sources"
+              ]
+            }
+          ]
         },
         "hidden": {
           "type": "boolean",

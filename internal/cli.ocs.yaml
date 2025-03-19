@@ -40,14 +40,17 @@ install:
     command: 'go get github.com/bcdxn/opencli'
       
 commands:
-  versions:
+  ocli spec {command} <arguments> [flags]:
+    summary: Commands related to the OpenCLI Specification
+    executable: false
+  ocli spec versions:
     summary: Print the versions of the OpenCLI Specificatons that are supported
     description: |
       The `versions` command will print the versions of the OpenCLI
       Specification that are available and supported by this version of the
       OpenCLI CLI.
 
-  check <path-to-spec>:
+  ocli spec check <path-to-spec>:
     summary: Check an OpenCLI Spec document for errors
     description: |
       The `check` command will validate an OpenCLI Spec document and return any
@@ -63,10 +66,10 @@ commands:
         required: true
         type: string
   
-  generate <command> [flags]:
+  ocli generate {command} <arguments> [flags]:
     summary: A collection of commands used to generate code and/or documentation from an OpenCLI Spec document
     executable: false
-  generate docs <path-to-spec> [flags]:
+  ocli generate docs <path-to-spec> [flags]:
     summary: Generate documentation from an OpenCLI Spec document
     description: |
       The `generate docs` command will generate documentation from an OpenCLI
@@ -85,7 +88,7 @@ commands:
           - value: markdown
           - value: html
           - value: man
-  generate cli <path-to-spec> [flags]:
+  ocli generate cli <path-to-spec> [flags]:
     summary: Generate CLI Boilerplate code from an OpenCLI Spec document
     description: |
       The `generate cli` command will generate the boilerplate code for

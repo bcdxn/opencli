@@ -176,7 +176,7 @@ func docFromUnmarshalled(doc oclidoc.OpenCliDocument) (OpenCliDocument, error) {
 
 	// Sort command by `Line` property to ensure a stable order
 	sort.Slice(domainDoc.Commands, func(i, j int) bool {
-		return domainDoc.Commands[i].Line < domainDoc.Commands[j].Line
+		return domainDoc.Commands[i].Name < domainDoc.Commands[j].Name
 	})
 
 	return domainDoc, nil
