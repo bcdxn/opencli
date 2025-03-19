@@ -24,12 +24,12 @@ func GenDocs(doc OpenCliDocument, options ...GenDocsOption) []byte {
 		option(opts)
 	}
 
-	tmpl := getTemplate("markdown")
+	tmpl := getDocsTemplate("markdown")
 	buf := bytes.NewBuffer([]byte{})
 
 	// Note that various docs formats may have multiple template files depending on the complexity.
 	// `docs.tmpl`, however, always serves as the entrypoint.
-	err := tmpl.ExecuteTemplate(buf, "docs.tmpl", tmplData{*opts, doc})
+	err := tmpl.ExecuteTemplate(buf, "docs.tmpl", docsTmplData{*opts, doc})
 	if err != nil {
 		panic(err)
 	}
@@ -62,8 +62,8 @@ type genDocsOptions struct {
 	IncludeFooter bool
 }
 
-// tmplData represents the data used to render the documentation template.
-type tmplData struct {
+// docsTmplData represents the data used to render the documentation template.
+type docsTmplData struct {
 	Opts genDocsOptions
 	Doc  OpenCliDocument
 }
@@ -72,7 +72,7 @@ type tmplData struct {
 var docsTemplates embed.FS
 
 // getTemplate reads the format-appropariate template file(s) into memory -- a prerequisite for generating the documentation.
-func getTemplate(format string) *template.Template {
+func getDocsTemplate(format string) *template.Template {
 	// Templates for a specific format are stored in a subdirectory with the name of the format nested within `templates/docs/`.
 	t, err := template.New("tmpl").ParseFS(
 		docsTemplates,
