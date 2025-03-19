@@ -63,7 +63,7 @@ type Command struct {
 	Arguments   []Argument
 	Flags       []Flag
 	Hidden      bool
-	Executable  bool
+	Group       bool
 }
 
 // Argument represents an OpenCLI command argument.
@@ -201,7 +201,7 @@ func translateCommand(doc oclidoc.OpenCliDocument, cmd string, cmdObj oclidoc.Co
 	// return the translated command
 	return Command{
 		Description: cmdObj.Description,
-		Executable:  cmdObj.Executable,
+		Group:       cmdObj.Group,
 		Hidden:      cmdObj.Hidden,
 		Line:        line,
 		Name:        name,

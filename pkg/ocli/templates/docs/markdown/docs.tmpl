@@ -62,8 +62,10 @@ _{{.Doc.Info.Summary}}_
 
 ## Commands
 {{range .Doc.Commands}}{{if not .Hidden}}
-### `$ {{.Line}}`
-{{- if .Summary}}
+### `$ {{.Line}}`{{if .Group}}
+
+`group` `nonexecutable`
+{{end}}{{- if .Summary}}
 
 {{.Summary}}{{end}}
 {{- if .Description}}

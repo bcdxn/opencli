@@ -50,7 +50,7 @@ type Command struct {
 	Arguments   []Argument `json:"arguments" yaml:"arguments"`
 	Flags       []Flag     `json:"flags" yaml:"flags"`
 	Hidden      bool       `json:"hidden" yaml:"hidden"`
-	Executable  bool       `json:"executable" yaml:"executable"`
+	Group       bool       `json:"group" yaml:"group"`
 }
 
 // Argument represents an OpenCLI command argument.

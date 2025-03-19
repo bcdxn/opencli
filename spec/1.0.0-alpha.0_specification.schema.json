@@ -213,10 +213,10 @@
           "description": "Determines if the command is hidden from generated help output and documentation.",
           "default": false
         },
-        "executable": {
+        "group": {
           "type": "boolean",
-          "description": "Determines if the command is an executable. If true, the command can be executed by the CLI. If false, the command likely a grouping of one or more subcommands and serves as documentation only.",
-          "default": true
+          "description": "If true, then the command it is a logical grouping of subcommands and is not an executable as a stand-alone command.",
+          "default": false
         }
       },
       "additionalProperties": false
