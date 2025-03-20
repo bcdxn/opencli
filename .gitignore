@@ -1,5 +1,6 @@
 distschemas
 
+.vscode
 scratch*
 *.gen.go
 tmp*

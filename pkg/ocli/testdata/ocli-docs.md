@@ -52,6 +52,9 @@ go get github.com/bcdxn/opencli
 
 ### `$ ocli generate {command} <arguments> [flags]`
 
+`group` `nonexecutable`
+
+
 A collection of commands used to generate code and/or documentation from an OpenCLI Spec document
 
 ---
@@ -108,7 +111,10 @@ The format of the documentation to generate
 ---
 ### `$ ocli spec {command} <arguments> [flags]`
 
-A collection of commands related to the OpenCLI Specification
+`group` `nonexecutable`
+
+
+Commands related to the OpenCLI Specification
 
 ---
 ### `$ ocli spec check <path-to-spec>`

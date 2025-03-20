@@ -72,9 +72,10 @@ type Argument struct {
 	Summary     string
 	Description string
 	Type        string
-	Kind        string
+	Variadic    Variadic
 	Choices     []Choice
 	Required    bool
+	Default     any
 }
 
 // Flag represents an OpenCLI command flag.
@@ -84,15 +85,94 @@ type Flag struct {
 	Summary     string
 	Description string
 	Type        string
-	Kind        string
+	Variadic    Variadic
 	Choices     []Choice
 	Hidden      bool
 	Required    bool
+	Default     any
+}
+
+type Variadic struct {
+	Enabled bool
+	Sep     string
 }
 
 type Choice struct {
 	Value       string
 	Description string
+}
+
+// NonHiddenCommands returns true if there are any commands where Hidden is false.
+func (d OpenCliDocument) VisibleCommands() bool {
+	for _, cmd := range d.Commands {
+		if !cmd.Hidden {
+			return true
+		}
+	}
+
+	return false
+}
+
+// Arguments returns true if any of the commands have arguments.
+func (d OpenCliDocument) Arguments() bool {
+	for _, cmd := range d.Commands {
+		if len(cmd.Arguments) > 0 {
+			return true
+		}
+	}
+
+	return false
+}
+
+// Flags returns true if any of the commands have flags.
+func (d OpenCliDocument) Flags() bool {
+	for _, cmd := range d.Commands {
+		if len(cmd.Flags) > 0 {
+			return true
+		}
+	}
+
+	return false
+}
+
+// EnumeratedArgs returns true if any arguments on any commands contain enumerated values.
+func (d OpenCliDocument) EnumeratedArgs() bool {
+	for _, cmd := range d.Commands {
+		for _, arg := range cmd.Arguments {
+			if len(arg.Choices) > 0 {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+// EnumeratedFlags returns true if any flags on any commands contain enumerated values.
+func (d OpenCliDocument) EnumeratedFlags() bool {
+	for _, cmd := range d.Commands {
+		for _, flag := range cmd.Flags {
+			if len(flag.Choices) > 0 {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+// NonHiddenFlags returns true if there are any flags for the given command where Hidden isfalse.
+func (cmd Command) VisibleFlags() bool {
+	visible := false
+
+	for _, flag := range cmd.Flags {
+		if !flag.Hidden {
+			visible = true
+			break
+		}
+	}
+
+	return visible
 }
 
 // UnmarshalYAML ummarshalls the given YAML file into an OpenCliDocument domain object.
@@ -186,7 +266,7 @@ func translateCommand(doc oclidoc.OpenCliDocument, cmd string, cmdObj oclidoc.Co
 	binRE := regexp.MustCompile(`^([^\S\r\n]*` + doc.Info.Binary + `[^\S\r\n]+)?`)
 	lineParamsRE := regexp.MustCompile(`[^\S\r\n][^A-Za-z]`)
 	line := binRE.ReplaceAllString(cmd, doc.Info.Binary+" ")
-	name := binRE.ReplaceAllString(cmd, "")
+	name := line
 	name = lineParamsRE.Split(name, -1)[0]
 	// add arguments to command
 	var args []Argument
@@ -211,41 +291,13 @@ func translateCommand(doc oclidoc.OpenCliDocument, cmd string, cmdObj oclidoc.Co
 	}
 }
 
-// NonHiddenCommands returns true if there are any commands where Hidden is false.
-func (d OpenCliDocument) VisibleCommands() bool {
-	visible := false
-
-	for _, cmd := range d.Commands {
-		if !cmd.Hidden {
-			visible = true
-			break
-		}
-	}
-
-	return visible
-}
-
-// NonHiddenFlags returns true if there are any flags for the given command where Hidden isfalse.
-func (cmd Command) VisibleFlags() bool {
-	visible := false
-
-	for _, flag := range cmd.Flags {
-		if !flag.Hidden {
-			visible = true
-			break
-		}
-	}
-
-	return visible
-}
-
 func translateArgument(arg oclidoc.Argument) Argument {
 	domainArg := Argument{
 		Name:        arg.Name,
 		Summary:     arg.Summary,
 		Description: arg.Description,
 		Type:        arg.Type,
-		Kind:        arg.Kind,
+		Variadic:    Variadic{arg.Variadic.Enabled, arg.Variadic.Sep},
 		Required:    arg.Required,
 	}
 
@@ -265,7 +317,7 @@ func translateFlag(flag oclidoc.Flag) Flag {
 		Summary:     flag.Summary,
 		Description: flag.Description,
 		Type:        flag.Type,
-		Kind:        flag.Kind,
+		Variadic:    Variadic{flag.Variadic.Enabled, flag.Variadic.Sep},
 		Required:    flag.Required,
 		Hidden:      flag.Hidden,
 	}

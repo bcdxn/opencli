@@ -4,9 +4,11 @@
 package {{.Opts.Package}}
 
 import (
-  "context"
-
-  urfavecli "github.com/urfave/cli/v3"
+  "fmt"
+  "strings"
 )
 
-
+{{template "args_types.tmpl" .}}
+{{template "args_enums.tmpl" .}}
+{{template "flag_types.tmpl" .}}
+{{template "flag_enums.tmpl" .}}

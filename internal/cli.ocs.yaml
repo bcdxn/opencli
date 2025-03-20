@@ -42,7 +42,7 @@ install:
 commands:
   ocli spec {command} <arguments> [flags]:
     summary: Commands related to the OpenCLI Specification
-    executable: false
+    group: true
   ocli spec versions:
     summary: Print the versions of the OpenCLI Specificatons that are supported
     description: |
@@ -68,7 +68,7 @@ commands:
   
   ocli generate {command} <arguments> [flags]:
     summary: A collection of commands used to generate code and/or documentation from an OpenCLI Spec document
-    executable: false
+    group: true
   ocli generate docs <path-to-spec> [flags]:
     summary: Generate documentation from an OpenCLI Spec document
     description: |
@@ -83,6 +83,7 @@ commands:
     flags:
       - name: format
         summary: The format of the documentation to generate
+        variadic: ","
         required: true
         choices:
           - value: markdown

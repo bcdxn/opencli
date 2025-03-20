@@ -1,0 +1,13 @@
+{{if .Doc.Flags}}
+/* CLI command flags types
+------------------------------------------------------------------------------------------------- */
+{{range $i, $cmd := .Doc.Commands}}{{if not .Group}}{{if .Flags}}
+
+// {{.Name | PascalCase}}Flags holds the parsed arguments that will be injected into the command handler implementation.
+type {{.Name | PascalCase}}Flags struct {
+{{- range .Flags}}
+  {{.Name | PascalCase}} {{if .Variadic.Enabled}}[]{{end}}{{if .Choices}}{{$cmd.Name | PascalCase}}{{.Name | PascalCase}}FlagEnum{{else if eq .Type "boolean"}}bool{{else}}string{{end}}
+{{end -}}
+}
+{{- end}}{{end}}{{end}}
+{{- end}}

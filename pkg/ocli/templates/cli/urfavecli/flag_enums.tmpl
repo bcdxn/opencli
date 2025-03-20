@@ -1,0 +1,38 @@
+{{if .Doc.EnumeratedFlags}}
+/* CLI command flag enums
+------------------------------------------------------------------------------------------------- */
+{{range $i, $cmd := .Doc.Commands}}{{if not .Group}}{{if .Flags}}
+{{- range $j, $flag := .Flags}}{{if .Choices}}
+type {{$cmd.Name | PascalCase}}{{$flag.Name | PascalCase}}FlagEnum struct {
+	Enum     []string{{if $flag.Default}}
+	Default  string{{end}}
+	selected string
+}
+
+func (f *{{$cmd.Name | PascalCase}}{{$flag.Name | PascalCase}}FlagEnum) Set(value string) error {
+	for _, enum := range f.Enum {
+		if enum == value {
+			f.selected = value
+			return nil
+		}
+	}
+
+	return fmt.Errorf("allowed values are %s", strings.Join(f.Enum, ", "))
+}
+
+func (f {{$cmd.Name | PascalCase}}{{$flag.Name | PascalCase}}FlagEnum) String() string {
+	{{if $flag.Default}}if f.selected == "" {
+		return f.Default
+	}{{end}}
+	return f.selected
+}
+
+func (f {{$cmd.Name | PascalCase}}{{$flag.Name | PascalCase}}FlagEnum) Get() any {
+	{{if $flag.Default}}if f.selected == "" {
+		return f.Default
+	}{{end}}
+	return f.selected
+}
+{{end}}{{end -}}
+{{end}}{{end}}{{end}}
+{{end}}

@@ -11,8 +11,9 @@ import (
 type GenCliOptions func(*genCliOptions)
 
 // GenCLI generates CLI boilerplate for the given OpenCLI document using the specified framework.
-func GenCLI(doc OpenCliDocument, options ...GenCliOptions) []byte {
+func GenCLI(doc OpenCliDocument, options ...GenCliOptions) ([]GenFile, error) {
 	opts := &genCliOptions{
+		Package:   "cli",
 		Framework: "urfavecli",
 	}
 
@@ -21,15 +22,14 @@ func GenCLI(doc OpenCliDocument, options ...GenCliOptions) []byte {
 	}
 
 	tmpl := getCliTemplate(opts.Framework)
-	buf := bytes.NewBuffer([]byte{})
-	// Note that various cli frameworks may have multiple template files depending on the complexity.
-	// `cli.gen.go.tmpl`, however, always serves as the entrypoint.
-	err := tmpl.ExecuteTemplate(buf, "cli.gen.go.tmpl", cliTmplData{doc})
-	if err != nil {
-		panic(err)
-	}
 
-	return buf.Bytes()
+	return genUrfaveCli(tmpl, cliTmplData{*opts, doc})
+}
+
+func Package(name string) GenCliOptions {
+	return func(opts *genCliOptions) {
+		opts.Package = name
+	}
 }
 
 func Framework(name string) GenCliOptions {
@@ -38,18 +38,25 @@ func Framework(name string) GenCliOptions {
 	}
 }
 
+type GenFile struct {
+	Name     string
+	Contents []byte
+}
+
 /* Private functions and types
 ------------------------------------------------------------------------------------------------- */
 
 // genDocsOptions represents the configurable options when generating documentation.
 // The options are meant to be configured using the functional options pattern.
 type genCliOptions struct {
+	Package   string
 	Framework string
 }
 
 // cliTmplData represents the data used to render the documentation template.
 type cliTmplData struct {
-	Doc OpenCliDocument
+	Opts genCliOptions
+	Doc  OpenCliDocument
 }
 
 //go:embed templates/cli/*
@@ -58,7 +65,9 @@ var cliTemplates embed.FS
 // getCliTemplate reads the framework-appropariate template file(s) into memory -- a prerequisite for generating the boilerplate code.
 func getCliTemplate(framework string) *template.Template {
 	// Templates for a specific framework are stored in a subdirectory with the name of the framework nested within `templates/cli/`.
-	t, err := template.New("tmpl").ParseFS(
+	t, err := template.New("tmpl").Funcs(map[string]any{
+		"PascalCase": pascalCase,
+	}).ParseFS(
 		cliTemplates,
 		fmt.Sprintf("templates/cli/%s/*", framework),
 	)
@@ -67,4 +76,31 @@ func getCliTemplate(framework string) *template.Template {
 	}
 
 	return t
+}
+
+func genUrfaveCli(tmpl *template.Template, data cliTmplData) ([]GenFile, error) {
+	cliInterfaceGenContents := bytes.NewBuffer([]byte{})
+	// `cli_interface.gen.go.tmpl` defines the interface that must be implemented to handle all of the CLI command actions.
+	err := tmpl.ExecuteTemplate(cliInterfaceGenContents, "cli_interface.gen.go.tmpl", data)
+	if err != nil {
+		return nil, err
+	}
+
+	cliParamsGenContents := bytes.NewBuffer([]byte{})
+	// `cli_params.gen.go.tmpl` defines all of the injected argument/flag types.
+	err = tmpl.ExecuteTemplate(cliParamsGenContents, "cli_params.gen.go.tmpl", data)
+	if err != nil {
+		return nil, err
+	}
+
+	return []GenFile{
+		{
+			Name:     "cli_interface.gen.go",
+			Contents: cliInterfaceGenContents.Bytes(),
+		},
+		{
+			Name:     "cli_params.gen.go",
+			Contents: cliParamsGenContents.Bytes(),
+		},
+	}, nil
 }

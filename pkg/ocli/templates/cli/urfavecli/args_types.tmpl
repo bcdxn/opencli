@@ -1,0 +1,13 @@
+{{if .Doc.Arguments}}
+/* CLI command argument types
+------------------------------------------------------------------------------------------------- */
+{{range $i, $cmd := .Doc.Commands}}{{if not .Group}}{{if .Arguments}}
+
+// {{.Name | PascalCase}}Args holds the parsed arguments that will be injected into the command handler implementation.
+type {{.Name | PascalCase}}Args struct {
+{{- range .Arguments}}
+  {{.Name | PascalCase}} {{if .Variadic.Enabled}}[]{{end}}{{if .Choices}}{{$cmd.Name | PascalCase}}{{.Name | PascalCase}}ArgEnum{{else if eq .Type "boolean"}}bool{{else}}string{{end}}
+{{end -}}
+}
+{{- end}}{{end}}{{end}}
+{{- end}}

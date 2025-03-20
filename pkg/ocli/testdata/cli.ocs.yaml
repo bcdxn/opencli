@@ -41,8 +41,8 @@ install:
       
 commands:
   ocli spec {command} <arguments> [flags]:
-    summary: A collection of commands related to the OpenCLI Specification
-    executable: false
+    summary: Commands related to the OpenCLI Specification
+    group: true
   ocli spec versions:
     summary: Print the versions of the OpenCLI Specificatons that are supported
     description: |
@@ -68,7 +68,7 @@ commands:
   
   ocli generate {command} <arguments> [flags]:
     summary: A collection of commands used to generate code and/or documentation from an OpenCLI Spec document
-    executable: false
+    group: true
   ocli generate docs <path-to-spec> [flags]:
     summary: Generate documentation from an OpenCLI Spec document
     description: |
@@ -113,3 +113,5 @@ commands:
             description: "[yargs](https://yargs.js.org) is a popular CLI framework for Node.js"
           - value: oclif
             description: "[oclif](https://oclif.io) is a popular CLI framework written in Typescript"
+
+
