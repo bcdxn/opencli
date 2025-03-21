@@ -1,20 +1,22 @@
 {{template "command" . }}
 
-{{define "command" -}}{{- $node := . }}  {{$node.Command.Name | CamelCase}}Cmd := &urfavecli.Command{
-    Name: "{{$node.Name | EscapeString}}",
-    Usage: "{{$node.Command.Summary | EscapeString}}",
-    UsageText: "{{$node.Command.Line | EscapeString}}",
-    Description: "{{$node.Command.Description | EscapeString}}",{{if not $node.Command.Group}}
+{{define "command" -}}{{- $node := . }}
+
+{{- range $i, $subCmd := $node.Commands}}
+{{template "command" $subCmd}}
+{{- end}}
+  // `{{$node.Command.Line | EscapeString}}`
+  {{$node.Command.Name | CamelCase}}Cmd := &urfavecli.Command{
+    Name: "{{$node.Name | EscapeString}}",{{if $node.Command.Summary}}
+    Usage: "{{$node.Command.Summary | EscapeString}}",{{end}}
+    UsageText: "{{$node.Command.Line | EscapeString}}",{{if $node.Command.Description}}
+    Description: "{{$node.Command.Description | EscapeString}}",{{end}}{{if not $node.Command.Group}}
     Action: func(ctx context.Context, cmd *urfavecli.Command) error {
       {{- template "action" $node.Command}}
     },
     {{- end}}
   }
-{{if $node.Commands}}
-{{- range $i, $subCmd := $node.Commands}}
-{{template "command" $subCmd}}
-{{- end}}
-  // Add {{$node.Command.Name | CamelCase}}Cmd subcommands
+  {{if $node.Commands}}// Add {{$node.Command.Name | CamelCase}}Cmd subcommands
   {{$node.Command.Name | CamelCase}}Cmd.Commands = []*urfavecli.Command{
   {{- range $i, $subCmd := $node.Commands}}
     {{$subCmd.Command.Name | CamelCase}}Cmd,
