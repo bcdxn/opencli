@@ -7,31 +7,45 @@ Define your CLI in a declarative, language-agnostic document that can be used to
 
 _Like OpenAPI Spec, but for your CLIs_
 
-## Capabilities
+## OpenCLI Specs Benefits
 
-- Unmarshal and validate validate OpenCLI Spec files
-- Generate CLI boilerplate code for common CLI frameworks
-- Generate CLI documentation in various formats
+- Promote contract first development
+- Decouple implementation of commands from the CLI Framework
+- Automatically document your CLI
+- Automatically generate CLI framework-specific code
+
 
 ## Example
+
+Let's describe the following CLI
+
+```sh
+$ pleasantries greet John --language=english
+# hello John
+$ pleasantries farewell Jane --language=spanish
+# adios Jane
+```
+
+The CLI above can be described using an OpenCLI Specification Document like:
 
 ```yaml
 opencliVersion: 1.0.0-alpha.0
 
 info:
-  title: Greet
-  summary: A fun CLI defined by OpenCLI Spec
+  title: Pleasantries
+  summary: A fun CLI to greet or bid farewell
   version: 1.0.0
-  binary: greet
+  binary: pleasantries
       
 commands:
-  greet {command} <arguments> [flags]:
+  pleasantries {command} <name> [flags]:
     group: true
-  greet me <name> [flags]:
+
+  pleasantries greet <name> [flags]:
     summary: "Say hello"
     arguments:
       - name: "name"
-        summary: "Your name"
+        summary: "A name to include the greeting"
         required: false
         type: "string"
     flags:
@@ -41,8 +55,23 @@ commands:
         type: "string"
         choices:
           - value: "english"
-          - value: "french"
-          - value: "german"
+          - value: "spanish"
+
+  pleasantries farewell <name> [flags]:
+    summary: "Say goodbye"
+    arguments:
+      - name: "name"
+        summary: "A name to include in the farewell"
+        required: false
+        type: "string"
+    flags:
+      - name: "language"
+        summary: "The language of the greeting"
+        required: false
+        type: "string"
+        choices:
+          - value: "english"
+          - value: "spanish"
 ```
 
 See a full example of an OpenCLI Document [here](https://github.com/bcdxn/opencli/blob/main/internal/cli.ocs.yaml) - the document that defines the OpenCLI CLI 🤯
