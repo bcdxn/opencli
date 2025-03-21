@@ -90,6 +90,8 @@ type Variadic struct {
 	Sep     string
 }
 
+// UnmarshalJSON handles custom unmarshalling logic
+// The 'variadic' property in the JSON may hold either a bool literal or a string literal, and it must be marshalled into a struct.
 func (v *Variadic) UnmarshalJSON(bs []byte) error {
 	// first try unmarshalling a plain bool representation
 	var boolDeclaration bool
@@ -115,6 +117,8 @@ func (v *Variadic) UnmarshalJSON(bs []byte) error {
 	return err
 }
 
+// UnmarshalYAML handles custom unmarshalling logic.
+// The 'variadic' property in the YAML may hold either a bool literal or a string literal and it must be marshalled into a struct.
 func (v *Variadic) UnmarshalYAML(node *yaml.Node) error {
 	// first try unmarshalling a plain bool representation
 	var boolDeclaration bool

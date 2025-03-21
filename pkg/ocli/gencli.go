@@ -66,7 +66,10 @@ var cliTemplates embed.FS
 func getCliTemplate(framework string) *template.Template {
 	// Templates for a specific framework are stored in a subdirectory with the name of the framework nested within `templates/cli/`.
 	t, err := template.New("tmpl").Funcs(map[string]any{
-		"PascalCase": pascalCase,
+		"PascalCase":   pascalCase,
+		"CamelCase":    camelCase,
+		"EscapeString": escapeString,
+		"Inc":          increment,
 	}).ParseFS(
 		cliTemplates,
 		fmt.Sprintf("templates/cli/%s/*", framework),
@@ -91,6 +94,14 @@ func genUrfaveCli(tmpl *template.Template, data cliTmplData) ([]GenFile, error) 
 	err = tmpl.ExecuteTemplate(cliParamsGenContents, "cli_params.gen.go.tmpl", data)
 	if err != nil {
 		return nil, err
+
+	}
+
+	cliGenContents := bytes.NewBuffer([]byte{})
+	// `cli.gen.go.tmpl` defines the constructor/entrypoint to the CLI program.
+	err = tmpl.ExecuteTemplate(cliGenContents, "cli.gen.go.tmpl", data)
+	if err != nil {
+		return nil, err
 	}
 
 	return []GenFile{
@@ -101,6 +112,10 @@ func genUrfaveCli(tmpl *template.Template, data cliTmplData) ([]GenFile, error) 
 		{
 			Name:     "cli_params.gen.go",
 			Contents: cliParamsGenContents.Bytes(),
+		},
+		{
+			Name:     "cli.gen.go",
+			Contents: cliGenContents.Bytes(),
 		},
 	}, nil
 }

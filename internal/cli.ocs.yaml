@@ -50,7 +50,7 @@ commands:
       Specification that are available and supported by this version of the
       OpenCLI CLI.
 
-  ocli spec check <path-to-spec>:
+  ocli spec check <path-to-spec> <another>:
     summary: Check an OpenCLI Spec document for errors
     description: |
       The `check` command will validate an OpenCLI Spec document and return any
@@ -63,6 +63,10 @@ commands:
           by parsing it and checking it against the OpenCLI Specification.
 
           NOTE: The  format of the input file will be determined by the file extension.
+        required: true
+        type: string
+      - name: another
+        summary: a test
         required: true
         type: string
   
