@@ -13,6 +13,40 @@ _Like OpenAPI Spec, but for your CLIs_
 - Generate CLI boilerplate code for common CLI frameworks
 - Generate CLI documentation in various formats
 
+## Example
+
+```yaml
+opencliVersion: 1.0.0-alpha.0
+
+info:
+  title: Greet
+  summary: A fun CLI defined by OpenCLI Spec
+  version: 1.0.0
+  binary: greet
+      
+commands:
+  greet {command} <arguments> [flags]:
+    group: true
+  greet me <name> [flags]:
+    summary: "Say hello"
+    arguments:
+      - name: "name"
+        summary: "Your name"
+        required: false
+        type: "string"
+    flags:
+      - name: "language"
+        summary: "The language of the greeting"
+        required: false
+        type: "string"
+        choices:
+          - value: "english"
+          - value: "french"
+          - value: "german"
+```
+
+See a full example of an OpenCLI Document [here](https://github.com/bcdxn/opencli/blob/main/internal/cli.ocs.yaml) - the document that defines the OpenCLI CLI 🤯
+
 ## Inspiration
 
 * [OpenAPI Specification](https://swagger.io/specification/)
