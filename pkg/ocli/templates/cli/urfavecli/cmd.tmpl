@@ -12,10 +12,11 @@
 {{- /* end of commandVar template */}}
 
 {{define "commandProps" -}}
+{{- $node := . }}
 {{$cmd := .Command}}
 
   {{/* SET COMMAND NAME */ -}}
-  {{$cmd.Name | CamelCase}}Cmd.Name = "{{$cmd.Name | EscapeString}}"
+  {{$cmd.Name | CamelCase}}Cmd.Name = "{{$node.Name | EscapeString}}"
   {{/* SET COMMAND USAGE TEXT */ -}}
   {{$cmd.Name | CamelCase}}Cmd.UsageText = "{{$cmd.Line | EscapeString}}"
 
@@ -31,6 +32,49 @@
   {{$cmd.Name | CamelCase}}Cmd.Aliases = []string{
   {{- range $cmd.Aliases}}
     "{{ . }}",
+  {{- end}}
+  }
+  {{- end}}
+
+  {{- /* SET COMMAND ARGS */}}
+  {{- if $cmd.Arguments }}
+  {{$cmd.Name | CamelCase}}Cmd.Arguments = []urfavecli.Argument{
+  {{- range $cmd.Arguments}}
+    &urfavecli.StringArg{
+      Name: "{{.Name | EscapeString}}",
+      {{- if .Required}}
+      Min:  1,
+      {{- else}}
+      Min: 0,
+      {{- end}}
+      {{- if .Variadic.Enabled}}
+      Max: -1,
+      {{- else}}
+      Max: 1,
+      {{- end}}
+    },
+  {{- end}}
+  }
+  {{- end}}
+
+  {{- /* SET COMMAND FLAGS */}}
+  {{- if $cmd.Flags}}
+  {{$cmd.Name | CamelCase}}Cmd.Flags = []urfavecli.Flag{
+  {{- range $cmd.Flags}}
+    &urfavecli.{{if eq .Type "string"}}String{{else}}Bool{{end}}{{if .Variadic.Enabled}}Slice{{end}}Flag{
+      Name: "{{.Name | EscapeString}}",
+      Required: {{.Required}},
+      {{- if .Default}}
+      Value: {{if eq .Type "string"}}"{{.Default | EscapeString}}"{{else}}{{.Default}}{{end}},
+      {{- end}}
+      {{- if .Aliases}}
+      Aliases: []string{
+      {{- range .Aliases}}
+        "{{. | EscapeString}}",
+      {{- end}}
+      },
+      {{- end}}
+    },
   {{- end}}
   }
   {{- end}}

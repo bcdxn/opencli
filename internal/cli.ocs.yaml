@@ -74,7 +74,7 @@ commands:
         type: "string"
   
   ocli generate {command} <arguments> [flags]:
-    summary: "A collection of commands used to generate code and/or documentation from an OpenCLI Spec document"
+    summary: "Commands used to generate code and/or documentation from an OpenCLI Spec document"
     group: true
   ocli generate docs <path-to-spec> [flags]:
     summary: "Generate documentation from an OpenCLI Spec document"

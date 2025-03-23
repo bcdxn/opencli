@@ -239,8 +239,7 @@
           "type": "string",
           "description": "The type of the argument. Codegen tools MAY use this field to coerce argument types before passing them to the command handler implementations.",
           "choices": [
-            "string",
-            "boolean"
+            "string"
           ],
           "default": "string"
         },
