@@ -1,12 +1,17 @@
-{{if .Opts.IncludeBadge -}}
-![ocli-badge](https://img.shields.io/badge/OpenCLI_Spec-Compliant-brightgreen?link=https%3A%2F%2Fgithub.com%2Fbcdxn%2Fopencli)
-
-{{end -}}
 # {{.Doc.Info.Title}}
+{{- if .Opts.IncludeBadge}}
+![ocli-badge](https://img.shields.io/badge/OpenCLI_Spec-Compliant-brightgreen?link=https%3A%2F%2Fgithub.com%2Fbcdxn%2Fopencli)
+{{- end}}
+
+{{- if .Doc.Info.Summary}}
 
 _{{.Doc.Info.Summary}}_
+{{- end}}
+
+{{- if .Doc.Info.Description}}
 
 {{.Doc.Info.Description}}
+{{- end}}
 
 {{- if or (.Doc.Info.License.Name) (.Doc.Info.License.SpdxID)}}
 
@@ -74,7 +79,7 @@ _{{.Doc.Info.Summary}}_
 {{- if .Arguments}}
 #### Arguments
 {{range .Arguments}}
-##### `<{{.Name}}>`
+##### `<{{.Name}}{{if .Variadic}}...{{end}}>`
 {{- if .Summary}}
 
 {{.Summary}}{{end}}
@@ -82,7 +87,15 @@ _{{.Doc.Info.Summary}}_
 
 {{.Description}}{{end}}
 
-{{if .Choices}}`enum`{{else}}`{{.Type}}`{{end}} {{if .Required}}`required`{{end}}
+{{if .Choices}}`enum`{{end}} `{{.Type}}`{{if .Variadic}} `variadic`{{end}}{{if .Required}} `required`{{end}}
+
+{{- if .Choices}}
+
+###### Supported Values of `<{{.Name}}>`
+{{range .Choices}}
+- `{{.Value}}`{{if .Description}} - {{.Description}}{{end}}
+{{- end}}
+{{- end}}
 {{- end}}
 {{- end}}
 {{- if and (.Flags) (.VisibleFlags)}}
@@ -97,7 +110,15 @@ _{{.Doc.Info.Summary}}_
 
 {{.Description}}{{end}}
 
-{{if .Choices}}`enum`{{else}}`{{.Type}}`{{end}} {{if .Required}}`required`{{end}}
+{{if .Choices}}`enum`{{end}} `{{.Type}}`{{if .Variadic}} `variadic`{{end}}{{if .Required}} `required`{{end}}
+
+{{- if .Choices}}
+
+###### Supported Values of `--{{.Name}}`
+{{range .Choices}}
+- `{{.Value}}`{{if .Description}} - {{.Description}}{{end}}
+{{- end}}
+{{- end}}
 {{- end}}
 {{- end}}
 

@@ -76,7 +76,7 @@ type Argument struct {
 	Summary     string
 	Description string
 	Type        string
-	Variadic    Variadic
+	Variadic    bool
 	Choices     []Choice
 	Required    bool
 	Default     any
@@ -90,16 +90,11 @@ type Flag struct {
 	Summary     string
 	Description string
 	Type        string
-	Variadic    Variadic
+	Variadic    bool
 	Choices     []Choice
 	Hidden      bool
 	Required    bool
 	Default     any
-}
-
-type Variadic struct {
-	Enabled bool
-	Sep     string
 }
 
 type Choice struct {
@@ -157,7 +152,7 @@ func (d OpenCliDocument) VisibleFlags() bool {
 func (d OpenCliDocument) FixedEnumeratedArgs() bool {
 	for _, cmd := range d.Commands {
 		for _, arg := range cmd.Arguments {
-			if len(arg.Choices) > 0 && !arg.Variadic.Enabled {
+			if len(arg.Choices) > 0 && !arg.Variadic {
 				return true
 			}
 		}
@@ -170,7 +165,7 @@ func (d OpenCliDocument) FixedEnumeratedArgs() bool {
 func (d OpenCliDocument) VariadicEnumeratedArgs() bool {
 	for _, cmd := range d.Commands {
 		for _, arg := range cmd.Arguments {
-			if len(arg.Choices) > 0 && arg.Variadic.Enabled {
+			if len(arg.Choices) > 0 && arg.Variadic {
 				return true
 			}
 		}
@@ -183,7 +178,7 @@ func (d OpenCliDocument) VariadicEnumeratedArgs() bool {
 func (d OpenCliDocument) FixedEnumeratedFlags() bool {
 	for _, cmd := range d.Commands {
 		for _, flag := range cmd.Flags {
-			if len(flag.Choices) > 0 && !flag.Variadic.Enabled {
+			if len(flag.Choices) > 0 && !flag.Variadic {
 				return true
 			}
 		}
@@ -196,7 +191,7 @@ func (d OpenCliDocument) FixedEnumeratedFlags() bool {
 func (d OpenCliDocument) VariadicEnumeratedFlags() bool {
 	for _, cmd := range d.Commands {
 		for _, flag := range cmd.Flags {
-			if len(flag.Choices) > 0 && flag.Variadic.Enabled {
+			if len(flag.Choices) > 0 && flag.Variadic {
 				return true
 			}
 		}
@@ -222,7 +217,7 @@ func (cmd Command) VisibleFlags() bool {
 // EnumeratedArgs returns true if any fixed arguments on the command contain enumerated values.
 func (cmd Command) FixedEnumeratedArgs() bool {
 	for _, arg := range cmd.Arguments {
-		if len(arg.Choices) > 0 && !arg.Variadic.Enabled {
+		if len(arg.Choices) > 0 && !arg.Variadic {
 			return true
 		}
 	}
@@ -233,7 +228,7 @@ func (cmd Command) FixedEnumeratedArgs() bool {
 // EnumeratedArgs returns true if any variadic arguments on the command contain enumerated values.
 func (cmd Command) VariadicEnumeratedArgs() bool {
 	for _, arg := range cmd.Arguments {
-		if len(arg.Choices) > 0 && arg.Variadic.Enabled {
+		if len(arg.Choices) > 0 && arg.Variadic {
 			return true
 		}
 	}
@@ -244,7 +239,7 @@ func (cmd Command) VariadicEnumeratedArgs() bool {
 // EnumeratedFlags returns true if any fixed type flags on the command contain enumerated values.
 func (cmd Command) FixedEnumeratedFlags() bool {
 	for _, flag := range cmd.Flags {
-		if len(flag.Choices) > 0 && !flag.Variadic.Enabled {
+		if len(flag.Choices) > 0 && !flag.Variadic {
 			return true
 		}
 	}
@@ -255,7 +250,7 @@ func (cmd Command) FixedEnumeratedFlags() bool {
 // EnumeratedFlags returns true if any variadic type flags on the command contain enumerated values.
 func (cmd Command) VariadicEnumeratedFlags() bool {
 	for _, flag := range cmd.Flags {
-		if len(flag.Choices) > 0 && flag.Variadic.Enabled {
+		if len(flag.Choices) > 0 && flag.Variadic {
 			return true
 		}
 	}
@@ -459,7 +454,7 @@ func translateArgument(arg oclidoc.Argument) Argument {
 		Summary:     arg.Summary,
 		Description: arg.Description,
 		Type:        arg.Type,
-		Variadic:    Variadic{arg.Variadic.Enabled, arg.Variadic.Sep},
+		Variadic:    arg.Variadic,
 		Required:    arg.Required,
 	}
 
@@ -481,7 +476,7 @@ func translateFlag(flag oclidoc.Flag) Flag {
 		Summary:     flag.Summary,
 		Description: flag.Description,
 		Type:        flag.Type,
-		Variadic:    Variadic{flag.Variadic.Enabled, flag.Variadic.Sep},
+		Variadic:    flag.Variadic,
 		Required:    flag.Required,
 		Hidden:      flag.Hidden,
 	}

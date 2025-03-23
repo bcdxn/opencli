@@ -244,18 +244,9 @@
           "default": "string"
         },
         "variadic": {
-          "oneOf": [
-            {
-              "type": "boolean",
-              "description": "Indicates if the the argument is variadic, and the default separator ',' is used. Codegen tools MAY use this field to coerce argument values before passing them to the command handler implementations.",
-              "default": false
-            },
-            {
-              "type": "string",
-              "description": "Indicates that the argument is variadic and the separator is the value. Codegen tools MAY use this field to coerce argument values before passing them to the command handler implementations.",
-              "default": false
-            }
-          ]
+          "type": "boolean",
+          "description": "Indicates if the the argument value is variadic. Multiple values for variadic argumuments can be supplied. A variadic argument must be the last argument declared and only one variadic argument may be declared.",
+          "default": false
         },
         "choices": {
           "type": "array",
@@ -293,8 +284,7 @@
         }
       },
       "required": [
-        "name",
-        "type"
+        "name"
       ],
       "additionalProperties": false
     },
@@ -322,18 +312,9 @@
           ]
         },
         "variadic": {
-          "oneOf": [
-            {
-              "type": "boolean",
-              "description": "Indicates if the the flag value is variadic, and the default separator ',' is used. Codegen tools MAY use this field to coerce flag values before passing them to the command handler implementations.",
-              "default": false
-            },
-            {
-              "type": "string",
-              "description": "Indicates that the flag value is variadic and the separator is the value. Codegen tools MAY use this field to coerce flag values before passing them to the command handler implementations.",
-              "default": false
-            }
-          ]
+          "type": "boolean",
+          "description": "Indicates if the the flag value is variadic. Variadic flags can be supplied multiple times. e.g.: `--flag value --flag value_two --flag value_three`",
+          "default": false
         },
         "choices": {
           "type": "array",

@@ -1,6 +1,5 @@
-![ocli-badge](https://img.shields.io/badge/OpenCLI_Spec-Compliant-brightgreen?link=https%3A%2F%2Fgithub.com%2Fbcdxn%2Fopencli)
-
 # OpenCLI
+![ocli-badge](https://img.shields.io/badge/OpenCLI_Spec-Compliant-brightgreen?link=https%3A%2F%2Fgithub.com%2Fbcdxn%2Fopencli)
 
 _A CLI for working with OpenCLI Specs_
 
@@ -55,7 +54,7 @@ go get github.com/bcdxn/opencli
 `group` `nonexecutable`
 
 
-A collection of commands used to generate code and/or documentation from an OpenCLI Spec document
+Commands used to generate code and/or documentation from an OpenCLI Spec document
 
 ---
 ### `$ ocli generate cli <path-to-spec> [flags]`
@@ -73,15 +72,22 @@ the `--language` flag.
 
 The path to the OpenCLI Spec that the CLI will be generated from
 
-`string` `required`
+ `string` `required`
 
 #### Flags
 
 ##### `--framework`
 
-The language of the CLI to generate
+The framework of the CLI boilerplate to generate
 
-`enum` `required`
+`enum` `string` `required`
+
+###### Supported Values of `--framework`
+
+- `cobra` - [Cobra](https://github.com/spf13/cobra?tab=readme-ov-file) is a popular CLI framework for Go
+- `urfave/cli` - [urfave/cli](https://github.com/urfave/cli) is a declarative CLI framework for Go
+- `yargs` - [yargs](https://yargs.js.org) is a popular CLI framework for Node.js
+- `oclif` - [oclif](https://oclif.io) is a popular CLI framework written in Typescript
 
 ---
 ### `$ ocli generate docs <path-to-spec> [flags]`
@@ -98,7 +104,7 @@ generated using the `--format` flag.
 
 The path to the OpenCLI Spec that documentation will be generated from
 
-`string` `required`
+ `string` `required`
 
 #### Flags
 
@@ -106,10 +112,16 @@ The path to the OpenCLI Spec that documentation will be generated from
 
 The format of the documentation to generate
 
-`enum` `required`
+`enum` `string` `required`
+
+###### Supported Values of `--format`
+
+- `markdown` - Plain text using standard [Markdown](https://commonmark.org).
+- `html` - A full static bundle that can be rendered in the browser.
+- `man` - Plain text using [Man Page](https://en.wikipedia.org/wiki/Man_page) formatting
 
 ---
-### `$ ocli spec {command} <arguments> [flags]`
+### `$ ocli specification {command} <arguments> [flags]`
 
 `group` `nonexecutable`
 
@@ -117,7 +129,7 @@ The format of the documentation to generate
 Commands related to the OpenCLI Specification
 
 ---
-### `$ ocli spec check <path-to-spec>`
+### `$ ocli specification check <path-to-spec>`
 
 Check an OpenCLI Spec document for errors
 
@@ -136,10 +148,10 @@ by parsing it and checking it against the OpenCLI Specification.
 NOTE: The  format of the input file will be determined by the file extension.
 
 
-`string` `required`
+ `string` `required`
 
 ---
-### `$ ocli spec versions`
+### `$ ocli specification versions`
 
 Print the versions of the OpenCLI Specificatons that are supported
 

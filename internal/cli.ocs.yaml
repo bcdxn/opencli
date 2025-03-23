@@ -53,7 +53,7 @@ commands:
       Specification that are available and supported by this version of the
       OpenCLI CLI.
 
-  ocli specification check <path-to-spec> <another>:
+  ocli specification check <path-to-spec>:
     summary: "Check an OpenCLI Spec document for errors"
     description: |
       The `check` command will validate an OpenCLI Spec document and return any
@@ -66,10 +66,6 @@ commands:
           by parsing it and checking it against the OpenCLI Specification.
 
           NOTE: The  format of the input file will be determined by the file extension.
-        required: true
-        type: "string"
-      - name: "another"
-        summary: "a test"
         required: true
         type: "string"
   
@@ -87,21 +83,20 @@ commands:
         summary: "The path to the OpenCLI Spec that documentation will be generated from"
         required: true
         type: "string"
-        choices:
-          - value: "spec.json"
-          - value: "spec.yaml"
     flags:
       - name: "format"
         aliases:
           - "f"
         summary: "The format of the documentation to generate"
         type: "string"
-        variadic: ","
         required: true
         choices:
           - value: "markdown"
+            description: "Plain text using standard [Markdown](https://commonmark.org)."
           - value: "html"
+            description: "A full static bundle that can be rendered in the browser."
           - value: "man"
+            description: "Plain text using [Man Page](https://en.wikipedia.org/wiki/Man_page) formatting"
         hint: "markdown"
   ocli generate cli <path-to-spec> [flags]:
     summary: "Generate CLI Boilerplate code from an OpenCLI Spec document"
@@ -117,10 +112,11 @@ commands:
         type: "string"
     flags:
       - name: "framework"
-        summary: "The language of the CLI to generate"
+        aliases:
+          - "f"
+        summary: "The framework of the CLI boilerplate to generate"
         required: true
         type: "string"
-        hint: "cobra"
         choices:
           - value: "cobra"
             description: "[Cobra](https://github.com/spf13/cobra?tab=readme-ov-file) is a popular CLI framework for Go"

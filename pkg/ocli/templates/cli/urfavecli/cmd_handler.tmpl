@@ -14,15 +14,15 @@ func(ctx context.Context, cmd *urfavecli.Command) error {
     }
     {{- end}}
 
-    {{- if .Variadic.Enabled}}
-    args.{{.Name | PascalCase}} = strings.Split(cmd.Args().Get({{$i}}), "{{.Variadic.SeparatorSep}}")
+    {{- if .Variadic}}
+    args.{{.Name | PascalCase}} = cmd.Args().Slice()[{{$i}}:]
     {{- else}}
     args.{{.Name | PascalCase}} = cmd.Args().Get({{$i}})
     {{- end}}
     {{- /* ENSURE ENUMERATION ARGS */}}
     {{- if .Choices}}
 
-    {{- if .Variadic.Enabled}}
+    {{- if .Variadic}}
     validChoice = validateChoicesSlice(
       []string{
         {{- range .Choices}}
@@ -55,12 +55,12 @@ func(ctx context.Context, cmd *urfavecli.Command) error {
 
     {{- /* ADD FLAGS */}}
     {{- range .Flags}}
-    flags.{{.Name | PascalCase}} = cmd.{{if .Variadic.Enabled}}StringSlice{{else if eq .Type "string"}}String{{else}}Bool{{end}}("{{.Name | EscapeString}}")
+    flags.{{.Name | PascalCase}} = cmd.{{if .Variadic}}StringSlice{{else if eq .Type "string"}}String{{else}}Bool{{end}}("{{.Name | EscapeString}}")
 
     {{- /* ENSURE ENUMERATION Flags */}}
     {{- if .Choices}}
 
-    {{- if .Variadic.Enabled}}
+    {{- if .Variadic}}
     validChoice = validateChoicesSlice(
       []string{
         {{- range .Choices}}

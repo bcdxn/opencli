@@ -47,7 +47,7 @@
       {{- else}}
       Min: 0,
       {{- end}}
-      {{- if .Variadic.Enabled}}
+      {{- if .Variadic}}
       Max: -1,
       {{- else}}
       Max: 1,
@@ -61,7 +61,7 @@
   {{- if $cmd.Flags}}
   {{$cmd.Name | CamelCase}}Cmd.Flags = []urfavecli.Flag{
   {{- range $cmd.Flags}}
-    &urfavecli.{{if eq .Type "string"}}String{{else}}Bool{{end}}{{if .Variadic.Enabled}}Slice{{end}}Flag{
+    &urfavecli.{{if eq .Type "string"}}String{{else}}Bool{{end}}{{if .Variadic}}Slice{{end}}Flag{
       Name: "{{.Name | EscapeString}}",
       Required: {{.Required}},
       {{- if .Default}}

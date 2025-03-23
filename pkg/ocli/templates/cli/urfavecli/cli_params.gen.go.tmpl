@@ -15,7 +15,7 @@ package {{.Opts.Package}}
 // {{.Name | PascalCase}}Args holds the parsed arguments that will be injected into the command handler implementation.
 type {{.Name | PascalCase}}Args struct {
 {{- range .Arguments}}
-  {{.Name | PascalCase}} {{if .Variadic.Enabled}}[]{{end}}{{if eq .Type "string"}}string{{else}}bool{{end}}
+  {{.Name | PascalCase}} {{if .Variadic}}[]{{end}}{{if eq .Type "string"}}string{{else}}bool{{end}}
 {{- end}}
 }
 
@@ -37,7 +37,7 @@ type {{.Name | PascalCase}}Args struct {
 // {{.Name | PascalCase}}Flag holds the parsed arguments that will be injected into the command handler implementation.
 type {{.Name | PascalCase}}Flags struct {
 {{- range .Flags}}
-  {{.Name | PascalCase}} {{if .Variadic.Enabled}}[]{{end}}{{if eq .Type "string"}}string{{else}}bool{{end}}
+  {{.Name | PascalCase}} {{if .Variadic}}[]{{end}}{{if eq .Type "string"}}string{{else}}bool{{end}}
 {{- end}}
 }
 
