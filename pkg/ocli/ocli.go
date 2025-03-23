@@ -61,6 +61,7 @@ type Command struct {
 	Line        string // The full command line as defined in the OpenCLI Spec Document
 	Name        string // The command part of the command line
 	Params      string // The args/flags part of the command line
+	Aliases     []string
 	Summary     string
 	Description string
 	Arguments   []Argument
@@ -84,7 +85,8 @@ type Argument struct {
 // Flag represents an OpenCLI command flag.
 type Flag struct {
 	Name        string
-	Alias       string
+	Aliases     []string
+	Hint        string
 	Summary     string
 	Description string
 	Type        string
@@ -151,11 +153,11 @@ func (d OpenCliDocument) VisibleFlags() bool {
 	return false
 }
 
-// EnumeratedArgs returns true if any arguments on any commands contain enumerated values.
-func (d OpenCliDocument) EnumeratedArgs() bool {
+// EnumeratedArgs returns true if any fixed arguments on any commands contain enumerated values.
+func (d OpenCliDocument) FixedEnumeratedArgs() bool {
 	for _, cmd := range d.Commands {
 		for _, arg := range cmd.Arguments {
-			if len(arg.Choices) > 0 {
+			if len(arg.Choices) > 0 && !arg.Variadic.Enabled {
 				return true
 			}
 		}
@@ -164,11 +166,37 @@ func (d OpenCliDocument) EnumeratedArgs() bool {
 	return false
 }
 
-// EnumeratedFlags returns true if any flags on any commands contain enumerated values.
-func (d OpenCliDocument) EnumeratedFlags() bool {
+// EnumeratedArgs returns true if any variadic arguments on any commands contain enumerated values.
+func (d OpenCliDocument) VariadicEnumeratedArgs() bool {
+	for _, cmd := range d.Commands {
+		for _, arg := range cmd.Arguments {
+			if len(arg.Choices) > 0 && arg.Variadic.Enabled {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+// EnumeratedFlags returns true if any fixed type flags on any commands contain enumerated values.
+func (d OpenCliDocument) FixedEnumeratedFlags() bool {
 	for _, cmd := range d.Commands {
 		for _, flag := range cmd.Flags {
-			if len(flag.Choices) > 0 {
+			if len(flag.Choices) > 0 && !flag.Variadic.Enabled {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+// EnumeratedFlags returns true if any variadic type flags on any commands contain enumerated values.
+func (d OpenCliDocument) VariadicEnumeratedFlags() bool {
+	for _, cmd := range d.Commands {
+		for _, flag := range cmd.Flags {
+			if len(flag.Choices) > 0 && flag.Variadic.Enabled {
 				return true
 			}
 		}
@@ -189,6 +217,50 @@ func (cmd Command) VisibleFlags() bool {
 	}
 
 	return visible
+}
+
+// EnumeratedArgs returns true if any fixed arguments on the command contain enumerated values.
+func (cmd Command) FixedEnumeratedArgs() bool {
+	for _, arg := range cmd.Arguments {
+		if len(arg.Choices) > 0 && !arg.Variadic.Enabled {
+			return true
+		}
+	}
+
+	return false
+}
+
+// EnumeratedArgs returns true if any variadic arguments on the command contain enumerated values.
+func (cmd Command) VariadicEnumeratedArgs() bool {
+	for _, arg := range cmd.Arguments {
+		if len(arg.Choices) > 0 && arg.Variadic.Enabled {
+			return true
+		}
+	}
+
+	return false
+}
+
+// EnumeratedFlags returns true if any fixed type flags on the command contain enumerated values.
+func (cmd Command) FixedEnumeratedFlags() bool {
+	for _, flag := range cmd.Flags {
+		if len(flag.Choices) > 0 && !flag.Variadic.Enabled {
+			return true
+		}
+	}
+
+	return false
+}
+
+// EnumeratedFlags returns true if any variadic type flags on the command contain enumerated values.
+func (cmd Command) VariadicEnumeratedFlags() bool {
+	for _, flag := range cmd.Flags {
+		if len(flag.Choices) > 0 && flag.Variadic.Enabled {
+			return true
+		}
+	}
+
+	return false
 }
 
 // UnmarshalYAML ummarshalls the given YAML file into an OpenCliDocument domain object.
@@ -369,6 +441,7 @@ func translateCommand(doc oclidoc.OpenCliDocument, cmd string, cmdObj oclidoc.Co
 	}
 	// return the translated command
 	return Command{
+		Aliases:     cmdObj.Aliases,
 		Description: cmdObj.Description,
 		Group:       cmdObj.Group,
 		Hidden:      cmdObj.Hidden,
@@ -403,6 +476,8 @@ func translateArgument(arg oclidoc.Argument) Argument {
 func translateFlag(flag oclidoc.Flag) Flag {
 	domainFlag := Flag{
 		Name:        flag.Name,
+		Aliases:     flag.Aliases,
+		Hint:        flag.Hint,
 		Summary:     flag.Summary,
 		Description: flag.Description,
 		Type:        flag.Type,

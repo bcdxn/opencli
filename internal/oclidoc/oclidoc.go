@@ -53,6 +53,7 @@ type Install struct {
 type Command struct {
 	Summary     string     `json:"summary" yaml:"summary"`
 	Description string     `json:"description" yaml:"description"`
+	Aliases     []string   `json:"aliases" yaml:"aliases"`
 	Arguments   []Argument `json:"arguments" yaml:"arguments"`
 	Flags       []Flag     `json:"flags" yaml:"flags"`
 	Hidden      bool       `json:"hidden" yaml:"hidden"`
@@ -74,7 +75,8 @@ type Argument struct {
 // Flag represents an OpenCLI command flag.
 type Flag struct {
 	Name        string   `json:"name" yaml:"name"`
-	Alias       string   `json:"alias" yaml:"alias"`
+	Aliases     []string `json:"aliases" yaml:"aliases"`
+	Hint        string   `json:"hint" yaml:"hint"`
 	Summary     string   `json:"summary" yaml:"summary"`
 	Description string   `json:"description" yaml:"description"`
 	Type        string   `json:"type" yaml:"type"`

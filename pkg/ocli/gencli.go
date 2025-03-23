@@ -70,6 +70,7 @@ func getCliTemplate(framework string) *template.Template {
 		"CamelCase":    camelCase,
 		"EscapeString": escapeString,
 		"Inc":          increment,
+		"ToString":     toString,
 	}).ParseFS(
 		cliTemplates,
 		fmt.Sprintf("templates/cli/%s/*", framework),
@@ -94,7 +95,6 @@ func genUrfaveCli(tmpl *template.Template, data cliTmplData) ([]GenFile, error) 
 	err = tmpl.ExecuteTemplate(cliParamsGenContents, "cli_params.gen.go.tmpl", data)
 	if err != nil {
 		return nil, err
-
 	}
 
 	cliGenContents := bytes.NewBuffer([]byte{})

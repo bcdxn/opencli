@@ -1,6 +1,7 @@
 package ocli
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 )
@@ -41,4 +42,12 @@ func escapeString(s string) string {
 
 func increment(n int) int {
 	return n + 1
+}
+
+func toString(v any) string {
+	if v == nil {
+		return ""
+	}
+
+	return fmt.Sprintf("%v", v)
 }

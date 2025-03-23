@@ -5,12 +5,12 @@ package {{.Opts.Package}}
 
 import (
   "context"
-  "fmt"
+  "errors"
 
   urfavecli "github.com/urfave/cli/v3"
 )
 
 func New(impl CLIHandlersInterface) *urfavecli.Command {
-{{template "command.tmpl" .Doc.CommandTrie.Root}}
+{{template "cmd.tmpl" .Doc.CommandTrie.Root}}
   return {{.Doc.CommandTrie.Root.Command.Name | CamelCase}}Cmd
 }
