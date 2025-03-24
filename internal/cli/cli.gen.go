@@ -84,7 +84,7 @@ func New(impl CLIHandlersInterface) *urfavecli.Command {
       flags.Framework,
     )
     if !validChoice {
-      return errors.New("Invalid value for argument --framework")
+      return errors.New("invalid value for argument --framework")
     }
     flags.Package = cmd.String("package")
 
@@ -128,7 +128,7 @@ func New(impl CLIHandlersInterface) *urfavecli.Command {
       flags.Format,
     )
     if !validChoice {
-      return errors.New("Invalid value for argument --format")
+      return errors.New("invalid value for argument --format")
     }
 
     return impl.OcliGenerateDocs(ctx, cmd, args, flags)
