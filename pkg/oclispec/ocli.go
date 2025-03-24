@@ -1,4 +1,4 @@
-package ocli
+package oclispec
 
 import (
 	"bytes"
@@ -14,8 +14,8 @@ import (
 
 // ocli.go contains the OpenCLI domain types.
 
-// OpenCliDocument represents the OpenCLI document.
-type OpenCliDocument struct {
+// Document represents the OpenCLI document.
+type Document struct {
 	OpenCLIVersion string
 	Info           Info
 	Install        []Install
@@ -103,7 +103,7 @@ type Choice struct {
 }
 
 // NonHiddenCommands returns true if there are any commands where Hidden is false.
-func (d OpenCliDocument) VisibleCommands() bool {
+func (d Document) VisibleCommands() bool {
 	for _, cmd := range d.Commands {
 		if !cmd.Hidden {
 			return true
@@ -114,7 +114,7 @@ func (d OpenCliDocument) VisibleCommands() bool {
 }
 
 // Arguments returns true if any of the commands have arguments.
-func (d OpenCliDocument) Arguments() bool {
+func (d Document) Arguments() bool {
 	for _, cmd := range d.Commands {
 		if len(cmd.Arguments) > 0 {
 			return true
@@ -125,7 +125,7 @@ func (d OpenCliDocument) Arguments() bool {
 }
 
 // Flags returns true if any of the commands have flags.
-func (d OpenCliDocument) Flags() bool {
+func (d Document) Flags() bool {
 	for _, cmd := range d.Commands {
 		if len(cmd.Flags) > 0 {
 			return true
@@ -136,7 +136,7 @@ func (d OpenCliDocument) Flags() bool {
 }
 
 // VisibleFlags returns true if any of the commands have visible flags.
-func (d OpenCliDocument) VisibleFlags() bool {
+func (d Document) VisibleFlags() bool {
 	for _, cmd := range d.Commands {
 		for _, flag := range cmd.Flags {
 			if !flag.Hidden {
@@ -149,7 +149,7 @@ func (d OpenCliDocument) VisibleFlags() bool {
 }
 
 // EnumeratedArgs returns true if any fixed arguments on any commands contain enumerated values.
-func (d OpenCliDocument) FixedEnumeratedArgs() bool {
+func (d Document) FixedEnumeratedArgs() bool {
 	for _, cmd := range d.Commands {
 		for _, arg := range cmd.Arguments {
 			if len(arg.Choices) > 0 && !arg.Variadic {
@@ -162,7 +162,7 @@ func (d OpenCliDocument) FixedEnumeratedArgs() bool {
 }
 
 // EnumeratedArgs returns true if any variadic arguments on any commands contain enumerated values.
-func (d OpenCliDocument) VariadicEnumeratedArgs() bool {
+func (d Document) VariadicEnumeratedArgs() bool {
 	for _, cmd := range d.Commands {
 		for _, arg := range cmd.Arguments {
 			if len(arg.Choices) > 0 && arg.Variadic {
@@ -175,7 +175,7 @@ func (d OpenCliDocument) VariadicEnumeratedArgs() bool {
 }
 
 // EnumeratedFlags returns true if any fixed type flags on any commands contain enumerated values.
-func (d OpenCliDocument) FixedEnumeratedFlags() bool {
+func (d Document) FixedEnumeratedFlags() bool {
 	for _, cmd := range d.Commands {
 		for _, flag := range cmd.Flags {
 			if len(flag.Choices) > 0 && !flag.Variadic {
@@ -188,7 +188,7 @@ func (d OpenCliDocument) FixedEnumeratedFlags() bool {
 }
 
 // EnumeratedFlags returns true if any variadic type flags on any commands contain enumerated values.
-func (d OpenCliDocument) VariadicEnumeratedFlags() bool {
+func (d Document) VariadicEnumeratedFlags() bool {
 	for _, cmd := range d.Commands {
 		for _, flag := range cmd.Flags {
 			if len(flag.Choices) > 0 && flag.Variadic {
@@ -258,41 +258,41 @@ func (cmd Command) VariadicEnumeratedFlags() bool {
 	return false
 }
 
-// UnmarshalYAML ummarshalls the given YAML file into an OpenCliDocument domain object.
-func UnmarshalYAML(path string) (OpenCliDocument, error) {
+// UnmarshalYAML ummarshalls the given YAML file into an Document domain object.
+func UnmarshalYAML(path string) (Document, error) {
 	contents, err := os.ReadFile(path)
 	if err != nil {
-		return OpenCliDocument{}, err
+		return Document{}, err
 	}
 	// validate the document
 	err = ValidateDocumentYAML(contents)
 	if err != nil {
-		return OpenCliDocument{}, err
+		return Document{}, err
 	}
 	var doc oclidoc.OpenCliDocument
 	err = yaml.Unmarshal(contents, &doc)
 	if err != nil {
-		return OpenCliDocument{}, err
+		return Document{}, err
 	}
 	// return the domain-oriented struct
 	return docFromUnmarshalled(doc)
 }
 
-// UnmarshalJSON ummarshalls the given JSON file into an OpenCliDocument domain object.
-func UnmarshalJSON(path string) (OpenCliDocument, error) {
+// UnmarshalJSON ummarshalls the given JSON file into an Document domain object.
+func UnmarshalJSON(path string) (Document, error) {
 	contents, err := os.ReadFile(path)
 	if err != nil {
-		return OpenCliDocument{}, err
+		return Document{}, err
 	}
 	// validate the document
 	err = ValidateDocumentJSON(contents)
 	if err != nil {
-		return OpenCliDocument{}, err
+		return Document{}, err
 	}
 	var doc oclidoc.OpenCliDocument
 	err = json.Unmarshal(contents, &doc)
 	if err != nil {
-		return OpenCliDocument{}, err
+		return Document{}, err
 	}
 	// return the domain-oriented struct
 	return docFromUnmarshalled(doc)
@@ -349,7 +349,7 @@ func (t *CommandTrie) Insert(command Command) {
 
 // rootCommandLine uses a template to render the root-level command usage line.
 // e.g.: `ocli {command} <arguments> [flags]`.`
-func (d OpenCliDocument) rootCommandLine() (string, error) {
+func (d Document) rootCommandLine() (string, error) {
 	rootLine := bytes.NewBuffer([]byte{})
 	rootTmpl := template.Must(template.New("root_line.tmpl").Parse(`{{.Info.Binary}}{{if .VisibleCommands}} {command}{{end}}{{if .Arguments}} <arguments>{{end}}{{if .VisibleFlags}} [flags]{{end}}`))
 
@@ -374,8 +374,8 @@ func (n *CommandTrieNode) indexOfSubcommand(name string) int {
 ------------------------------------------------------------------------------------------------- */
 
 // fromUnmarshalled translates the raw unmarshalled struct to the domain struct
-func docFromUnmarshalled(doc oclidoc.OpenCliDocument) (OpenCliDocument, error) {
-	domainDoc := OpenCliDocument{
+func docFromUnmarshalled(doc oclidoc.OpenCliDocument) (Document, error) {
+	domainDoc := Document{
 		Info: Info{
 			Binary: doc.Info.Binary,
 			Contact: Contact{
@@ -491,7 +491,7 @@ func translateFlag(flag oclidoc.Flag) Flag {
 	return domainFlag
 }
 
-func (d *OpenCliDocument) buildCommandTrie() error {
+func (d *Document) buildCommandTrie() error {
 	rootCmdLine, err := d.rootCommandLine()
 	if err != nil {
 		return err

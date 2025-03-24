@@ -1,10 +1,12 @@
-package ocli
+package oclidocs
 
 import (
 	"bytes"
 	"embed"
 	"fmt"
 	"text/template"
+
+	"github.com/bcdxn/opencli/pkg/oclispec"
 )
 
 // GenDocsOption is a functional option to configure the GenDocs function
@@ -13,7 +15,7 @@ type GenDocsOption func(*genDocsOptions)
 // GenDocs generates documentation for the given OpenCLI document in the specified format.
 // It accepts the OpenCLI document domain object and the desired output format for the documentation as parameters.
 // It returns the generated documentation as a byte slice.
-func GenDocs(doc OpenCliDocument, options ...GenDocsOption) []byte {
+func Generate(doc oclispec.Document, options ...GenDocsOption) []byte {
 	opts := &genDocsOptions{
 		Format:        "markdown",
 		IncludeBadge:  true,
@@ -65,10 +67,10 @@ type genDocsOptions struct {
 // docsTmplData represents the data used to render the documentation template.
 type docsTmplData struct {
 	Opts genDocsOptions
-	Doc  OpenCliDocument
+	Doc  oclispec.Document
 }
 
-//go:embed templates/docs/*
+//go:embed templates/*
 var docsTemplates embed.FS
 
 // getTemplate reads the format-appropariate template file(s) into memory -- a prerequisite for generating the documentation.
@@ -76,7 +78,7 @@ func getDocsTemplate(format string) *template.Template {
 	// Templates for a specific format are stored in a subdirectory with the name of the format nested within `templates/docs/`.
 	t, err := template.New("tmpl").ParseFS(
 		docsTemplates,
-		fmt.Sprintf("templates/docs/%s/*", format),
+		fmt.Sprintf("templates/%s/*", format),
 	)
 	if err != nil {
 		panic(err)

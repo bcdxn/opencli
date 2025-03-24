@@ -1,4 +1,4 @@
-package ocli
+package oclicode
 
 import (
 	"fmt"

@@ -1,17 +1,19 @@
-package ocli
+package oclicode
 
 import (
 	"bytes"
 	"embed"
 	"fmt"
 	"text/template"
+
+	"github.com/bcdxn/opencli/pkg/oclispec"
 )
 
 // GenCliOptions is a functional option to configure the GenCLI function
 type GenCliOptions func(*genCliOptions)
 
 // GenCLI generates CLI boilerplate for the given OpenCLI document using the specified framework.
-func GenCLI(doc OpenCliDocument, options ...GenCliOptions) ([]GenFile, error) {
+func Generate(doc oclispec.Document, options ...GenCliOptions) ([]GenFile, error) {
 	opts := &genCliOptions{
 		Package:   "cli",
 		Framework: "urfavecli",
@@ -56,10 +58,10 @@ type genCliOptions struct {
 // cliTmplData represents the data used to render the documentation template.
 type cliTmplData struct {
 	Opts genCliOptions
-	Doc  OpenCliDocument
+	Doc  oclispec.Document
 }
 
-//go:embed templates/cli/*
+//go:embed templates/*
 var cliTemplates embed.FS
 
 // getCliTemplate reads the framework-appropariate template file(s) into memory -- a prerequisite for generating the boilerplate code.
@@ -73,7 +75,7 @@ func getCliTemplate(framework string) *template.Template {
 		"ToString":     toString,
 	}).ParseFS(
 		cliTemplates,
-		fmt.Sprintf("templates/cli/%s/*", framework),
+		fmt.Sprintf("templates/%s/*", framework),
 	)
 	if err != nil {
 		panic(err)

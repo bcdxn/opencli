@@ -8,7 +8,9 @@ import (
 	"path"
 	"regexp"
 
-	"github.com/bcdxn/opencli/pkg/ocli"
+	"github.com/bcdxn/opencli/pkg/oclicode"
+	"github.com/bcdxn/opencli/pkg/oclidocs"
+	"github.com/bcdxn/opencli/pkg/oclispec"
 	urfavecli "github.com/urfave/cli/v3"
 )
 
@@ -16,12 +18,12 @@ type Impl struct{}
 
 func (Impl) OcliGenerateCli(ctx context.Context, c *urfavecli.Command, args OcliGenerateCliArgs, flags OcliGenerateCliFlags) error {
 	// unmarshal the document
-	doc, err := ocli.UnmarshalYAML(args.PathToSpec)
+	doc, err := oclispec.UnmarshalYAML(args.PathToSpec)
 	if err != nil {
 		return err
 	}
 
-	files, err := ocli.GenCLI(doc, ocli.Package(flags.Package), ocli.Framework(flags.Framework))
+	files, err := oclicode.Generate(doc, oclicode.Package(flags.Package), oclicode.Framework(flags.Framework))
 	if err != nil {
 		return err
 	}
@@ -40,13 +42,13 @@ func (Impl) OcliGenerateDocs(ctx context.Context, c *urfavecli.Command, args Ocl
 	jsonRE := regexp.MustCompile(`(?i)\.json$`)
 	yamlRE := regexp.MustCompile(`(?i)\.yaml$`)
 
-	var doc ocli.OpenCliDocument
+	var doc oclispec.Document
 	var err error
 
 	if jsonRE.MatchString(args.PathToSpec) {
-		doc, err = ocli.UnmarshalJSON(args.PathToSpec)
+		doc, err = oclispec.UnmarshalJSON(args.PathToSpec)
 	} else if yamlRE.MatchString(args.PathToSpec) {
-		doc, err = ocli.UnmarshalYAML(args.PathToSpec)
+		doc, err = oclispec.UnmarshalYAML(args.PathToSpec)
 	} else {
 		return errors.New("unsupported OpenCLI Document format - must be one of [JSON, YAML]")
 	}
@@ -55,7 +57,7 @@ func (Impl) OcliGenerateDocs(ctx context.Context, c *urfavecli.Command, args Ocl
 		return err
 	}
 
-	docs := ocli.GenDocs(doc)
+	docs := oclidocs.Generate(doc)
 
 	err = os.WriteFile(path.Join(args.PathToOutputDir, "docs.gen."+formatExtension(flags.Format)), docs, 0644)
 	return err
@@ -71,9 +73,9 @@ func (Impl) OcliSpecificationCheck(ctx context.Context, c *urfavecli.Command, ar
 	}
 
 	if jsonRE.MatchString(args.PathToSpec) {
-		err = ocli.ValidateDocumentJSON(doc)
+		err = oclispec.ValidateDocumentJSON(doc)
 	} else if yamlRE.MatchString(args.PathToSpec) {
-		err = ocli.ValidateDocumentYAML(doc)
+		err = oclispec.ValidateDocumentYAML(doc)
 	} else {
 		return errors.New("unsupported OpenCLI Document format - must be one of [JSON, YAML]")
 	}
@@ -88,7 +90,7 @@ func (Impl) OcliSpecificationCheck(ctx context.Context, c *urfavecli.Command, ar
 }
 
 func (Impl) OcliSpecificationVersions(ctx context.Context, c *urfavecli.Command) error {
-	versions := ocli.Versions()
+	versions := oclispec.Versions()
 
 	fmt.Print("Supported Versions:\n\n")
 	for _, v := range versions {

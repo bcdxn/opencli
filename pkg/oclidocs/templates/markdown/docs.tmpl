@@ -89,7 +89,7 @@ _{{.Doc.Info.Summary}}_
 
 {{.Description}}{{end}}
 
-{{if .Choices}}`enum`{{end}} `{{.Type}}`{{if .Variadic}} `variadic`{{end}}{{if .Required}} `required`{{end}}
+`{{.Type}}`{{if .Choices}} `enum`{{end}}{{if .Variadic}} `variadic`{{end}}{{if .Required}} `required`{{end}}
 
 {{- if .Choices}}
 
@@ -112,7 +112,7 @@ _{{.Doc.Info.Summary}}_
 
 {{.Description}}{{end}}
 
-{{if .Choices}}`enum`{{end}} `{{.Type}}`{{if .Variadic}} `variadic`{{end}}{{if .Required}} `required`{{end}}
+`{{.Type}}`{{if .Choices}} `enum`{{end}}{{if .Variadic}} `variadic`{{end}}{{if .Required}} `required`{{end}}
 
 {{- if .Choices}}
 

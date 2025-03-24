@@ -1,4 +1,4 @@
-package ocli
+package oclispec
 
 import (
 	"testing"
