@@ -71,8 +71,10 @@ commands:
   
   ocli generate {command} <arguments> [flags]:
     summary: "Commands used to generate code and/or documentation from an OpenCLI Spec document"
+    aliases:
+      - "gen"
     group: true
-  ocli generate docs <path-to-spec> [flags]:
+  ocli generate docs <path-to-spec> <path-to-output-dir> [flags]:
     summary: "Generate documentation from an OpenCLI Spec document"
     description: |
       The `generate docs` command will generate documentation from an OpenCLI
@@ -81,6 +83,10 @@ commands:
     arguments:
       - name: "path-to-spec"
         summary: "The path to the OpenCLI Spec that documentation will be generated from"
+        required: true
+        type: "string"
+      - name: "path-to-output-dir"
+        summary: "The path to the directory to house the generated docs"
         required: true
         type: "string"
     flags:
@@ -98,7 +104,7 @@ commands:
           - value: "man"
             description: "Plain text using [Man Page](https://en.wikipedia.org/wiki/Man_page) formatting"
         hint: "markdown"
-  ocli generate cli <path-to-spec> [flags]:
+  ocli generate cli <path-to-spec> <path-to-output-dir> [flags]:
     summary: "Generate CLI Boilerplate code from an OpenCLI Spec document"
     description: |
       The `generate cli` command will generate the boilerplate code for
@@ -108,6 +114,10 @@ commands:
     arguments:
       - name: "path-to-spec"
         summary: The path to the OpenCLI Spec that the CLI will be generated from
+        required: true
+        type: "string"
+      - name: "path-to-output-dir"
+        summary: "The path to the directory to house the generated code"
         required: true
         type: "string"
     flags:
@@ -120,11 +130,14 @@ commands:
         choices:
           - value: "cobra"
             description: "[Cobra](https://github.com/spf13/cobra?tab=readme-ov-file) is a popular CLI framework for Go"
-          - value: "urfave/cli"
+          - value: "urfavecli"
             description: "[urfave/cli](https://github.com/urfave/cli) is a declarative CLI framework for Go"
           - value: "yargs"
             description: "[yargs](https://yargs.js.org) is a popular CLI framework for Node.js"
           - value: "oclif"
             description: "[oclif](https://oclif.io) is a popular CLI framework written in Typescript"
-
-
+      - name: "package"
+        summary: "The package name used to house the generated code"
+        type: "string"
+        default: "cli"
+        required: true

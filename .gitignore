@@ -2,7 +2,6 @@ distschemas
 
 .vscode
 scratch*
-*.gen.go
 tmp*
 
 .DS_Store

@@ -14,7 +14,6 @@ _Like OpenAPI Spec, but for your CLIs_
 - Automatically document your CLI
 - Automatically generate CLI framework-specific code
 
-
 ## Example
 
 Let's describe the following CLI
@@ -75,6 +74,10 @@ commands:
 ```
 
 See a full example of an OpenCLI Document [here](https://github.com/bcdxn/opencli/blob/main/internal/cli.ocs.yaml) - the document that defines the OpenCLI CLI 🤯
+
+## OpenCLI CLI
+
+View the documentation - https://github.com/bcdxn/opencli/tree/main/docs
 
 ## Inspiration
 

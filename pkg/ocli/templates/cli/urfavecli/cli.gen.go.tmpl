@@ -12,5 +12,7 @@ import (
 
 func New(impl CLIHandlersInterface) *urfavecli.Command {
 {{template "cmd.tmpl" .Doc.CommandTrie.Root}}
+
+  {{.Doc.CommandTrie.Root.Command.Name | CamelCase}}Cmd.Version = "{{.Doc.Info.Version}}"
   return {{.Doc.CommandTrie.Root.Command.Name | CamelCase}}Cmd
 }

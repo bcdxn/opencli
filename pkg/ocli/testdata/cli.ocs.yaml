@@ -126,5 +126,3 @@ commands:
             description: "[yargs](https://yargs.js.org) is a popular CLI framework for Node.js"
           - value: "oclif"
             description: "[oclif](https://oclif.io) is a popular CLI framework written in Typescript"
-
-
