@@ -77,7 +77,7 @@ See a full example of an OpenCLI Document [here](https://github.com/bcdxn/opencl
 
 ## OpenCLI CLI
 
-View the documentation - https://github.com/bcdxn/opencli/tree/main/docs
+View the documentation - https://github.com/bcdxn/opencli/blob/main/docs/docs.gen.md
 
 ## Inspiration
 
