@@ -52,6 +52,13 @@ changelog:
       - "^test:"
 
 release:
+  draft: true
+  replace_existing_draft: true
+  replace_existing_artifacts: true
+  prerelease: auto
+  make_latest: true
+  header: |
+    ## ({{ .Date }})
   footer: >-
 
     ---
