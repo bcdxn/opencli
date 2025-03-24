@@ -4,8 +4,8 @@ info:
   title: "OpenCLI"
   summary: "A CLI for working with OpenCLI Specs"
   description: |
-    `ocli` is a command line interface designed to make working with OpenCLI
-    Spec documents easier. It provides a number of capabilities, including:
+    `ocli` is a command line interface designed to make working with [OpenCLI
+    Spec documents easier](https://github.com/bcdxn/opencli/tree/main). It provides a number of capabilities, including:
 
     - validating OpenCLI Spec documents
     - generating Documentation from OpenCLI Spec documents
@@ -26,7 +26,6 @@ info:
     url: "https://spdx.org/licenses/MIT.html"
   contact:
     name: "OpenCLI Team"
-    email: "developerteam@ocli-tbd.com"
     url: "https://github.com/bcdxn/opencli"
 
 

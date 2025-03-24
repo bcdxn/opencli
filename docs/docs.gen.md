@@ -5,8 +5,8 @@
 
 _A CLI for working with OpenCLI Specs_
 
-`ocli` is a command line interface designed to make working with OpenCLI
-Spec documents easier. It provides a number of capabilities, including:
+`ocli` is a command line interface designed to make working with [OpenCLI
+Spec documents easier](https://github.com/bcdxn/opencli/tree/main). It provides a number of capabilities, including:
 
 - validating OpenCLI Spec documents
 - generating Documentation from OpenCLI Spec documents
@@ -29,7 +29,6 @@ ocli generate --help
 
 OpenCLI Team  
 https://github.com/bcdxn/opencli  
-[developerteam@ocli-tbd.com](mailto:developerteam@ocli-tbd.com)
 
 ## Install
 
