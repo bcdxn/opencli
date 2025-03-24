@@ -73,7 +73,7 @@ commands:
           - value: "spanish"
 ```
 
-See a full example of an OpenCLI Document [here](https://github.com/bcdxn/opencli/blob/main/internal/cli.ocs.yaml) - the document that defines the OpenCLI CLI 🤯
+See a full example of an OpenCLI Document [here](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli.ocs.yaml) - the document that defines the OpenCLI CLI 🤯
 
 ## OpenCLI CLI
 
