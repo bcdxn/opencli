@@ -10,7 +10,7 @@ import (
   urfavecli "github.com/urfave/cli/v3"
 )
 
-func New(impl CLIHandlersInterface) *urfavecli.Command {
+func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
 
   ocliCmd := &urfavecli.Command{}
   ocliGenerateCmd := &urfavecli.Command{}
@@ -172,6 +172,6 @@ func New(impl CLIHandlersInterface) *urfavecli.Command {
 
 
 
-  ocliCmd.Version = "1.0.0-alpha.0"
+  ocliCmd.Version = version
   return ocliCmd
 }

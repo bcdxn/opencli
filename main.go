@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	cmd := cli.New(cli.Impl{})
+	cmd := cli.New(cli.Impl{}, cli.Version)
 
 	err := cmd.Run(context.Background(), os.Args)
 	if err != nil {
