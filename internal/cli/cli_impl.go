@@ -8,9 +8,9 @@ import (
 	"path"
 	"regexp"
 
-	"github.com/bcdxn/opencli/pkg/oclicode"
-	"github.com/bcdxn/opencli/pkg/oclidocs"
-	"github.com/bcdxn/opencli/pkg/oclispec"
+	"github.com/bcdxn/opencli/oclicode"
+	"github.com/bcdxn/opencli/oclidocs"
+	"github.com/bcdxn/opencli/oclispec"
 	urfavecli "github.com/urfave/cli/v3"
 )
 

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"text/template"
 
-	"github.com/bcdxn/opencli/pkg/oclispec"
+	"github.com/bcdxn/opencli/oclispec"
 )
 
 // GenDocsOption is a functional option to configure the GenDocs function

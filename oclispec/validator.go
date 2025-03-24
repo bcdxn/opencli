@@ -11,7 +11,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-//go:generate cp -r ../../spec/ ./distschemas
+//go:generate cp -r ../spec/ ./distschemas
 //go:embed distschemas
 var schemas embed.FS
 

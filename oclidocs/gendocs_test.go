@@ -4,7 +4,7 @@ import (
 	_ "embed"
 	"testing"
 
-	"github.com/bcdxn/opencli/pkg/oclispec"
+	"github.com/bcdxn/opencli/oclispec"
 )
 
 //go:embed testdata/ocli-docs.md
