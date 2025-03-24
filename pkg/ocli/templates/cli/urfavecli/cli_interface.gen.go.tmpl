@@ -18,7 +18,7 @@ type CLIHandlersInterface interface {
   // ```sh
   // {{.Line}}
   // ```
-  {{.Name | PascalCase}}(ctx context.Context, c *urfavecli.Command
+  {{.Name | PascalCase}}(ctx context.Context, cmd *urfavecli.Command
 {{- if .Arguments -}}
 , arguments  {{.Name | PascalCase}}Args
 {{- end -}}{{- if .Flags -}}

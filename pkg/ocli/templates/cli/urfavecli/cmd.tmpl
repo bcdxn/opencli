@@ -37,6 +37,7 @@
   {{- end}}
 
   {{- /* SET COMMAND ARGS */}}
+  {{- /* BUG IN URFAVE DOESN'T PARSE ARGS WHEN SPECIFYING MIN/MAX ARGS
   {{- if $cmd.Arguments }}
   {{$cmd.Name | CamelCase}}Cmd.Arguments = []urfavecli.Argument{
   {{- range $cmd.Arguments}}
@@ -56,6 +57,7 @@
   {{- end}}
   }
   {{- end}}
+  */}}
 
   {{- /* SET COMMAND FLAGS */}}
   {{- if $cmd.Flags}}
@@ -63,6 +65,11 @@
   {{- range $cmd.Flags}}
     &urfavecli.{{if eq .Type "string"}}String{{else}}Bool{{end}}{{if .Variadic}}Slice{{end}}Flag{
       Name: "{{.Name | EscapeString}}",
+      {{- if .Summary}}
+      Usage: "{{.Summary | EscapeString}}",
+      {{- else if .Description}}
+      Usage: "{{.Description | EscapeString}}",
+      {{- end}}
       Required: {{.Required}},
       {{- if .Default}}
       Value: {{if eq .Type "string"}}"{{.Default | EscapeString}}"{{else}}{{.Default}}{{end}},

@@ -42,7 +42,7 @@ func(ctx context.Context, cmd *urfavecli.Command) error {
     )
     {{- end}}
     if !validChoice {
-      return errors.New("Invalid value for argument <{{.Name | EscapeString}}>")
+      return errors.New("invalid value for argument <{{.Name | EscapeString}}>")
     }
 
     {{- end}}
