@@ -8,4 +8,5 @@ tmp*
 Thumbs.db
 vscode/*
 tmp
-dist
+dist# Added by goreleaser init:
+dist/

@@ -35,8 +35,8 @@ install:
     description: |
       You can visit the GitHub releases page of the project to download pre-compiled binaries
       appropriate for your system.
-  - name: "Go Get"
-    command: "go get github.com/bcdxn/opencli"
+  - name: "Go Install"
+    command: "go intall github.com/bcdxn/opencli"
       
 commands:
   ocli specification {command} <arguments> [flags]:
