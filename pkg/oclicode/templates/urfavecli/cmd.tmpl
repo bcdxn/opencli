@@ -1,0 +1,107 @@
+{{- template "commandVar" .}}
+{{- template "commandProps" . -}}
+
+{{define "commandVar" -}}
+{{- $node := . }}
+  {{$node.Command.Name | CamelCase}}Cmd := &urfavecli.Command{}
+{{- range $i, $subCmd := $node.Commands}}
+{{- template "commandVar" $subCmd}}
+{{- end}}
+
+{{- end}}
+{{- /* end of commandVar template */}}
+
+{{define "commandProps" -}}
+{{- $node := . }}
+{{$cmd := .Command}}
+
+  {{/* SET COMMAND NAME */ -}}
+  {{$cmd.Name | CamelCase}}Cmd.Name = "{{$node.Name | EscapeString}}"
+  {{/* SET COMMAND USAGE TEXT */ -}}
+  {{$cmd.Name | CamelCase}}Cmd.UsageText = "{{$cmd.Line | EscapeString}}"
+
+  {{- /* SET COMMAND SUMMARY */}}
+  {{- if $cmd.Summary}}
+  {{$cmd.Name | CamelCase}}Cmd.Usage = "{{$cmd.Summary | EscapeString}}"
+  {{- else if $cmd.Description}}
+  {{$cmd.Name | CamelCase}}Cmd.Usage = "{{$cmd.Summary | EscapeString}}"
+  {{- end}}
+
+  {{- /* SET COMMAND ALIASES */}}
+  {{- if $cmd.Aliases}}
+  {{$cmd.Name | CamelCase}}Cmd.Aliases = []string{
+  {{- range $cmd.Aliases}}
+    "{{ . }}",
+  {{- end}}
+  }
+  {{- end}}
+
+  {{- /* SET COMMAND ARGS */}}
+  {{- /* BUG IN URFAVE DOESN'T PARSE ARGS WHEN SPECIFYING MIN/MAX ARGS
+  {{- if $cmd.Arguments }}
+  {{$cmd.Name | CamelCase}}Cmd.Arguments = []urfavecli.Argument{
+  {{- range $cmd.Arguments}}
+    &urfavecli.StringArg{
+      Name: "{{.Name | EscapeString}}",
+      {{- if .Required}}
+      Min:  1,
+      {{- else}}
+      Min: 0,
+      {{- end}}
+      {{- if .Variadic}}
+      Max: -1,
+      {{- else}}
+      Max: 1,
+      {{- end}}
+    },
+  {{- end}}
+  }
+  {{- end}}
+  */}}
+
+  {{- /* SET COMMAND FLAGS */}}
+  {{- if $cmd.Flags}}
+  {{$cmd.Name | CamelCase}}Cmd.Flags = []urfavecli.Flag{
+  {{- range $cmd.Flags}}
+    &urfavecli.{{if eq .Type "string"}}String{{else}}Bool{{end}}{{if .Variadic}}Slice{{end}}Flag{
+      Name: "{{.Name | EscapeString}}",
+      {{- if .Summary}}
+      Usage: "{{.Summary | EscapeString}}",
+      {{- else if .Description}}
+      Usage: "{{.Description | EscapeString}}",
+      {{- end}}
+      Required: {{.Required}},
+      {{- if .Default}}
+      Value: {{if eq .Type "string"}}"{{.Default | EscapeString}}"{{else}}{{.Default}}{{end}},
+      {{- end}}
+      {{- if .Aliases}}
+      Aliases: []string{
+      {{- range .Aliases}}
+        "{{. | EscapeString}}",
+      {{- end}}
+      },
+      {{- end}}
+    },
+  {{- end}}
+  }
+  {{- end}}
+
+  {{- /* SET COMMAND SUBCOMMANDS */}}
+  {{- if .Commands }}
+  {{$cmd.Name | CamelCase}}Cmd.Commands = []*urfavecli.Command{
+    {{- range .Commands}}
+    {{.Command.Name | CamelCase}}Cmd,
+    {{- end}}
+  }
+  {{- end}}
+
+  {{- /* SET COMMAND ACTION */}}
+  {{- if not .Command.Group}}
+  {{$cmd.Name | CamelCase}}Cmd.Action = {{template "cmd_handler.tmpl" $cmd}}
+  {{- end}}
+{{- range $i, $subCmd := .Commands}}
+{{- template "commandProps" $subCmd}}
+{{- end}}
+
+{{- end}}
+{{- /* end of commandProps template */}}
