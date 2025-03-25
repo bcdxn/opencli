@@ -11,8 +11,8 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-//go:generate cp -r ../spec/ ./distschemas
-//go:embed distschemas
+//go:generate cp -r ../spec/ ./genschemas
+//go:embed genschemas
 var schemas embed.FS
 
 // ValidateDocumentJSON validates the given JSON document against the OpenCLI Specification.
@@ -81,7 +81,7 @@ func MustValidateDocumentYAML(document []byte) {
 
 // Versions returns a list of supported OpenCLI Specification versions.
 func Versions() []string {
-	specSchemaFiles, _ := schemas.ReadDir("distschemas")
+	specSchemaFiles, _ := schemas.ReadDir("genschemas")
 
 	var versionStrings []string
 	for _, entry := range specSchemaFiles {
@@ -106,7 +106,7 @@ func schemaValidator(version string) (*jsonschema.Schema, error) {
 		return nil, fmt.Errorf("missing 'opencliVersion' field in document")
 	}
 	// Read and unmarshal the JSON schema file for the selected OpenCLI Spec version
-	contents, err := schemas.ReadFile(fmt.Sprintf("distschemas/%s_specification.schema.json", version))
+	contents, err := schemas.ReadFile(fmt.Sprintf("genschemas/%s_specification.schema.json", version))
 	if err != nil {
 		return nil, fmt.Errorf("unsupported OpenCLI version %s; use one of %v", version, Versions())
 	}

@@ -65,6 +65,7 @@ type Global struct {
 // ExitCode represents a possible exit code of a CLI command
 type ExitCode struct {
 	Code        int
+	Status      string
 	Summary     string
 	Description string
 }
@@ -107,12 +108,17 @@ type Flag struct {
 	Choices     []Choice
 	Hidden      bool
 	Required    bool
-	Default     any
+	Default     DefaultValue
 }
 
 type Choice struct {
 	Value       string
 	Description string
+}
+
+type DefaultValue struct {
+	Bool   bool
+	String string
 }
 
 // NonHiddenCommands returns true if there are any commands where Hidden is false.
@@ -438,6 +444,7 @@ func translateGlobal(doc oclidoc.OpenCliDocument) Global {
 	for _, exitCode := range doc.Global.ExitCodes {
 		exitCodes = append(exitCodes, ExitCode{
 			Code:        exitCode.Code,
+			Status:      exitCode.Status,
 			Description: exitCode.Description,
 			Summary:     exitCode.Summary,
 		})
@@ -509,6 +516,10 @@ func translateFlag(flag oclidoc.Flag) Flag {
 		Variadic:    flag.Variadic,
 		Required:    flag.Required,
 		Hidden:      flag.Hidden,
+		Default: DefaultValue{
+			Bool:   flag.Default.Bool,
+			String: flag.Default.String,
+		},
 	}
 
 	for _, choice := range flag.Choices {
