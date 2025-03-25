@@ -7,6 +7,7 @@ type OpenCliDocument struct {
 	OpenCLIVersion string             `json:"opencliVersion" yaml:"opencliVersion"`
 	Info           Info               `json:"info" yaml:"info"`
 	Install        []Install          `json:"install" yaml:"install"`
+	Global         Global             `json:"global" yaml:"global"`
 	Commands       map[string]Command `json:"commands" yaml:"commands"`
 }
 
@@ -40,6 +41,17 @@ type Install struct {
 	Name        string `json:"name" yaml:"name"`
 	Command     string `json:"command" yaml:"command"`
 	URL         string `json:"url" yaml:"url"`
+	Description string `json:"description" yaml:"description"`
+}
+
+type Global struct {
+	ExitCodes []ExitCode `json:"exitCodes" yaml:"exitCodes"`
+}
+
+// ExitCode represents a possible exit code from the CLI.
+type ExitCode struct {
+	Code        int    `json:"code" yaml:"code"`
+	Summary     string `json:"summary" yaml:"summary"`
 	Description string `json:"description" yaml:"description"`
 }
 

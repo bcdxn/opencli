@@ -40,11 +40,15 @@ You can visit the GitHub releases page of the project to download pre-compiled b
 appropriate for your system.
 
 
-### Go Get
+### Go Install
 
 ```sh
-go get github.com/bcdxn/opencli
+go intall github.com/bcdxn/opencli
 ```
+## Exit Codes
+
+- `0` - The command was successful
+- `1` - The command failed
 
 ---
 
@@ -73,12 +77,12 @@ the `--language` flag.
 
 The path to the OpenCLI Spec that the CLI will be generated from
 
- `string` `required`
+`string` `required`
 ##### `<path-to-output-dir>`
 
 The path to the directory to house the generated code
 
- `string` `required`
+`string` `required`
 
 #### Flags
 
@@ -86,7 +90,7 @@ The path to the directory to house the generated code
 
 The framework of the CLI boilerplate to generate
 
-`enum` `string` `required`
+`string` `enum` `required`
 
 ###### Supported Values of `--framework`
 
@@ -98,7 +102,7 @@ The framework of the CLI boilerplate to generate
 
 The package name used to house the generated code
 
- `string` `required`
+`string` `required`
 
 ---
 ### `$ ocli generate docs <path-to-spec> <path-to-output-dir> [flags]`
@@ -115,12 +119,12 @@ generated using the `--format` flag.
 
 The path to the OpenCLI Spec that documentation will be generated from
 
- `string` `required`
+`string` `required`
 ##### `<path-to-output-dir>`
 
 The path to the directory to house the generated docs
 
- `string` `required`
+`string` `required`
 
 #### Flags
 
@@ -128,7 +132,7 @@ The path to the directory to house the generated docs
 
 The format of the documentation to generate
 
-`enum` `string` `required`
+`string` `enum` `required`
 
 ###### Supported Values of `--format`
 
@@ -164,7 +168,7 @@ by parsing it and checking it against the OpenCLI Specification.
 NOTE: The  format of the input file will be determined by the file extension.
 
 
- `string` `required`
+`string` `required`
 
 ---
 ### `$ ocli specification versions`

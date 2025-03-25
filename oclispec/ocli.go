@@ -19,6 +19,7 @@ type Document struct {
 	OpenCLIVersion string
 	Info           Info
 	Install        []Install
+	Global         Global
 	Commands       []Command
 	CommandTrie    *CommandTrie
 }
@@ -53,6 +54,18 @@ type Install struct {
 	Name        string
 	Command     string
 	URL         string
+	Description string
+}
+
+// Global contains information that applies to the CLI regardless of command context.
+type Global struct {
+	ExitCodes []ExitCode
+}
+
+// ExitCode represents a possible exit code of a CLI command
+type ExitCode struct {
+	Code        int
+	Summary     string
 	Description string
 }
 
@@ -404,6 +417,7 @@ func docFromUnmarshalled(doc oclidoc.OpenCliDocument) (Document, error) {
 			URL:         install.URL,
 		})
 	}
+	domainDoc.Global = translateGlobal(doc)
 	// Add commands
 	for cmd, cmdObj := range doc.Commands {
 		domainDoc.Commands = append(domainDoc.Commands, translateCommand(doc, cmd, cmdObj))
@@ -416,6 +430,22 @@ func docFromUnmarshalled(doc oclidoc.OpenCliDocument) (Document, error) {
 	domainDoc.buildCommandTrie()
 
 	return domainDoc, nil
+}
+
+func translateGlobal(doc oclidoc.OpenCliDocument) Global {
+	exitCodes := []ExitCode{}
+	// Add global exit codes
+	for _, exitCode := range doc.Global.ExitCodes {
+		exitCodes = append(exitCodes, ExitCode{
+			Code:        exitCode.Code,
+			Description: exitCode.Description,
+			Summary:     exitCode.Summary,
+		})
+	}
+
+	return Global{
+		ExitCodes: exitCodes,
+	}
 }
 
 func translateCommand(doc oclidoc.OpenCliDocument, cmd string, cmdObj oclidoc.Command) Command {

@@ -22,6 +22,9 @@
         "$ref": "#/$defs/InstallMethodItemObject"
       }
     },
+    "global": {
+      "$ref": "#/$defs/GlobalObject"
+    },
     "commands": {
       "type": "object",
       "description": "The commands available for the CLI. Each key should contain the full command starting with the CLI binary name (e.g.: `$.info.binary`)",
@@ -182,6 +185,24 @@
       ],
       "additionalProperties": false
     },
+    "GlobalObject": {
+      "type": "object",
+      "description": "properties that apply to all commands",
+      "properties": {
+        "exitCodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ExitCodeObject"
+          }
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FlagItemObject"
+          }
+        }
+      }
+    },
     "CommandItemObject": {
       "type": "object",
       "description": "Describes a command for the CLI.",
@@ -194,7 +215,7 @@
           "type": "string",
           "description": "A longer description of the command. This will appear in generated help output and documentation in addition to the summary. [Markdown](https://spec.commonmark.org) may be used for rich text representation."
         },
-        "aliases":{
+        "aliases": {
           "type": "array",
           "items": {
             "type": "string"
@@ -223,6 +244,12 @@
           "type": "boolean",
           "description": "If true, then the command it is a logical grouping of subcommands and is not an executable as a stand-alone command.",
           "default": false
+        },
+        "exitCodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ExitCodeObject"
+          }
         }
       },
       "additionalProperties": false
@@ -475,8 +502,30 @@
           "default": false
         }
       },
-      "required": ["name", "type"],
+      "required": [
+        "name",
+        "type"
+      ],
       "additionalProperties": false
+    },
+    "ExitCodeObject": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "The literal code that is returned by the CLI",
+          "type": "integer"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "summary"
+      ]
     }
   }
 }

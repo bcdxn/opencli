@@ -63,6 +63,19 @@ _{{.Doc.Info.Summary}}_
 {{- end -}}
 {{end -}}
 
+{{- if .Doc.Global.ExitCodes}}
+## Exit Codes
+{{range .Doc.Global.ExitCodes}}
+{{- if and (.Summary) (.Description)}}
+- `{{.Code}}` - {{.Summary}}
+  - {{.Description}}
+{{- else}}
+- `{{.Code}}` - {{.Summary}}
+{{- end}}
+
+{{- end}}
+{{- end}}
+
 {{- if and (.Doc.Commands) (.Doc.VisibleCommands) }}
 
 ---

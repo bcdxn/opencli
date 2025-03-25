@@ -28,7 +28,6 @@ info:
     name: "OpenCLI Team"
     url: "https://github.com/bcdxn/opencli"
 
-
 install:
   - name: "Binary Download"
     url: "https://github.com/bcdxn/opencli/releases"
@@ -37,6 +36,19 @@ install:
       appropriate for your system.
   - name: "Go Install"
     command: "go intall github.com/bcdxn/opencli"
+
+global:
+  exitCodes:
+    - code: 0
+      summary: "The command was successful"
+    - code: 1
+      summary: "The command failed"
+  flags:
+    - name: "help"
+      aliases:
+        - "h"
+      summary: "Short circuit the command and show a contextual help message"
+      type: "boolean"
       
 commands:
   ocli specification {command} <arguments> [flags]:
