@@ -59,6 +59,11 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
       Usage: "The package name used to house the generated code",
       Required: true,
     },
+    &urfavecli.BoolFlag{
+      Name: "dryrun",
+      Usage: "When true the docs contents will be output to stdout instead of the file",
+      Required: false,
+    },
   }
   ocliGenerateCliCmd.Action = func(ctx context.Context, cmd *urfavecli.Command) error {
     var validChoice bool
@@ -87,6 +92,7 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
       return errors.New("invalid value for argument --framework")
     }
     flags.Package = cmd.String("package")
+    flags.Dryrun = cmd.Bool("dryrun")
 
     return impl.OcliGenerateCli(ctx, cmd, args, flags)
   }
@@ -103,6 +109,11 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
       Aliases: []string{
         "f",
       },
+    },
+    &urfavecli.BoolFlag{
+      Name: "dryrun",
+      Usage: "When true the docs contents will be output to stdout instead of the file",
+      Required: false,
     },
   }
   ocliGenerateDocsCmd.Action = func(ctx context.Context, cmd *urfavecli.Command) error {
@@ -130,6 +141,7 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
     if !validChoice {
       return errors.New("invalid value for argument --format")
     }
+    flags.Dryrun = cmd.Bool("dryrun")
 
     return impl.OcliGenerateDocs(ctx, cmd, args, flags)
   }

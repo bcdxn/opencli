@@ -30,11 +30,13 @@ type OcliSpecificationCheckArgs struct {
 type OcliGenerateCliFlags struct {
   Framework string
   Package string
+  Dryrun bool
 }
 
 // OcliGenerateDocsFlag holds the parsed arguments that will be injected into the command handler implementation.
 type OcliGenerateDocsFlags struct {
   Format string
+  Dryrun bool
 }
 func validateChoices(choices []string, val string) bool {
 	for _, choice := range choices {

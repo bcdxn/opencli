@@ -10,9 +10,9 @@ import (
   urfavecli "github.com/urfave/cli/v3"
 )
 
-func New(impl CLIHandlersInterface) *urfavecli.Command {
+func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
 {{template "cmd.tmpl" .Doc.CommandTrie.Root}}
 
-  {{.Doc.CommandTrie.Root.Command.Name | CamelCase}}Cmd.Version = "{{.Doc.Info.Version}}"
+  {{.Doc.CommandTrie.Root.Command.Name | CamelCase}}Cmd.Version = version
   return {{.Doc.CommandTrie.Root.Command.Name | CamelCase}}Cmd
 }

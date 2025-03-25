@@ -59,6 +59,15 @@ func (Impl) OcliGenerateDocs(ctx context.Context, c *urfavecli.Command, args Ocl
 
 	docs := oclidocs.Generate(doc)
 
+	if flags.Dryrun {
+		fmt.Println("--dryrun enabled; skipping write to file")
+		fmt.Println("---")
+		fmt.Println("docs.gen.md")
+		fmt.Println(string(docs))
+		fmt.Println("---")
+		return nil
+	}
+
 	err = os.WriteFile(path.Join(args.PathToOutputDir, "docs.gen."+formatExtension(flags.Format)), docs, 0644)
 	return err
 }

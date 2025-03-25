@@ -35,13 +35,15 @@ install:
       You can visit the GitHub releases page of the project to download pre-compiled binaries
       appropriate for your system.
   - name: "Go Install"
-    command: "go intall github.com/bcdxn/opencli"
+    command: "go install github.com/bcdxn/opencli"
 
 global:
   exitCodes:
     - code: 0
+      status: "OK" 
       summary: "The command was successful"
     - code: 1
+      status: "INTERNAL_CLI_ERROR"
       summary: "The command failed"
   flags:
     - name: "help"
@@ -76,7 +78,8 @@ commands:
           this command will check the validity of the given OpenCLI document
           by parsing it and checking it against the OpenCLI Specification.
 
-          NOTE: The  format of the input file will be determined by the file extension.
+          > [!TIP]
+          > The  format of the input file will be determined by the file extension.
         required: true
         type: "string"
   
@@ -115,6 +118,10 @@ commands:
           - value: "man"
             description: "Plain text using [Man Page](https://en.wikipedia.org/wiki/Man_page) formatting"
         hint: "markdown"
+      - name: "dryrun"
+        summary: "When true the docs contents will be output to stdout instead of the file"
+        type: "boolean"
+        default: true
   ocli generate cli <path-to-spec> <path-to-output-dir> [flags]:
     summary: "Generate CLI Boilerplate code from an OpenCLI Spec document"
     description: |
@@ -128,7 +135,7 @@ commands:
         required: true
         type: "string"
       - name: "path-to-output-dir"
-        summary: "The path to the directory to house the generated code"
+        summary: "The path to the directory to house the generated docs"
         required: true
         type: "string"
     flags:
@@ -152,3 +159,8 @@ commands:
         type: "string"
         default: "cli"
         required: true
+      - name: "dryrun"
+        summary: "When true the docs contents will be output to stdout instead of the file"
+        type: "boolean"
+        default: true
+
