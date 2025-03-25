@@ -12,7 +12,7 @@ import (
 // GenCliOptions is a functional option to configure the GenCLI function
 type GenCliOptions func(*genCliOptions)
 
-// GenCLI generates CLI boilerplate for the given OpenCLI document using the specified framework.
+// Generate generates CLI boilerplate for the given OpenCLI document using the specified framework.
 func Generate(doc oclispec.Document, options ...GenCliOptions) ([]GenFile, error) {
 	opts := &genCliOptions{
 		Package:   "cli",

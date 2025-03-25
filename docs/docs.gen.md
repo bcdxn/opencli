@@ -43,13 +43,14 @@ appropriate for your system.
 ### Go Install
 
 ```sh
-go intall github.com/bcdxn/opencli
+go install github.com/bcdxn/opencli
 ```
 
 ## Exit Codes
 
 - `0` `OK` - The command was successful
 - `1` `INTERNAL_CLI_ERROR` - The command failed
+- `2` `BAD_USER_INPUT_ERROR` - Missing or invalid input
 
 ---
 
@@ -128,16 +129,18 @@ The framework of the CLI boilerplate to generate
 - `urfavecli` - [urfave/cli](https://github.com/urfave/cli) is a declarative CLI framework for Go
 - `yargs` - [yargs](https://yargs.js.org) is a popular CLI framework for Node.js
 - `oclif` - [oclif](https://oclif.io) is a popular CLI framework written in Typescript
+
 ##### `--package`
 
 The package name used to house the generated code
 
 `type:string` `enum:false` `default:cli` `variadic:false`
+
 ##### `--dryrun`
 
 When true the docs contents will be output to stdout instead of the file
 
-`type:boolean` `enum:false` `default:false` `variadic:false`
+`type:boolean` `enum:false` `default:true` `variadic:false`
 
 ---
 
@@ -176,11 +179,12 @@ The format of the documentation to generate
 - `markdown` - Plain text using standard [Markdown](https://commonmark.org).
 - `html` - A full static bundle that can be rendered in the browser.
 - `man` - Plain text using [Man Page](https://en.wikipedia.org/wiki/Man_page) formatting
+
 ##### `--dryrun`
 
 When true the docs contents will be output to stdout instead of the file
 
-`type:boolean` `enum:false` `default:false` `variadic:false`
+`type:boolean` `enum:false` `default:true` `variadic:false`
 
 ---
 

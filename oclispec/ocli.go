@@ -72,16 +72,18 @@ type ExitCode struct {
 
 // Command represents n OpenCLI command.
 type Command struct {
-	Line        string // The full command line as defined in the OpenCLI Spec Document
-	Name        string // The command part of the command line
-	Params      string // The args/flags part of the command line
-	Aliases     []string
-	Summary     string
-	Description string
-	Arguments   []Argument
-	Flags       []Flag
-	Hidden      bool
-	Group       bool
+	Line                 string // The full command line as defined in the OpenCLI Spec Document
+	Name                 string // The command part of the command line
+	Params               string // The args/flags part of the command line
+	Aliases              []string
+	Summary              string
+	Description          string
+	Arguments            []Argument
+	Flags                []Flag
+	Hidden               bool
+	Group                bool
+	CmdSpecificExitCodes []ExitCode
+	ExitCodes            []ExitCode
 }
 
 // Argument represents an OpenCLI command argument.
@@ -277,6 +279,60 @@ func (cmd Command) VariadicEnumeratedFlags() bool {
 	return false
 }
 
+func (cmd Command) InternalCliErrorCode() int {
+	for _, ec := range cmd.ExitCodes {
+		if ec.Status == "INTERNAL_CLI_ERROR" {
+			return ec.Code
+		}
+	}
+	return 1
+}
+
+func (cmd Command) BadUserInputErrorCode() int {
+	for _, ec := range cmd.ExitCodes {
+		if ec.Status == "BAD_USER_INPUT_ERROR" {
+			return ec.Code
+		}
+	}
+	return 2
+}
+
+func (cmd Command) UnauthenticatedErrorCode() int {
+	for _, ec := range cmd.ExitCodes {
+		if ec.Status == "UNAUTHENTICATED_ERROR" {
+			return ec.Code
+		}
+	}
+	return 3
+}
+
+func (cmd Command) UnauthorizedErrorCode() int {
+	for _, ec := range cmd.ExitCodes {
+		if ec.Status == "UNAUTHORIZED_ERROR" {
+			return ec.Code
+		}
+	}
+	return 4
+}
+
+func (cmd Command) CanceledErrorCode() int {
+	for _, ec := range cmd.ExitCodes {
+		if ec.Status == "CANCELED_ERROR" {
+			return ec.Code
+		}
+	}
+	return 5
+}
+
+func (cmd Command) NotImplementedCode() int {
+	for _, ec := range cmd.ExitCodes {
+		if ec.Status == "NOT_IMPLEMENTED_ERROR" {
+			return ec.Code
+		}
+	}
+	return 6
+}
+
 // UnmarshalYAML ummarshalls the given YAML file into an Document domain object.
 func UnmarshalYAML(path string) (Document, error) {
 	contents, err := os.ReadFile(path)
@@ -426,7 +482,7 @@ func docFromUnmarshalled(doc oclidoc.OpenCliDocument) (Document, error) {
 	domainDoc.Global = translateGlobal(doc)
 	// Add commands
 	for cmd, cmdObj := range doc.Commands {
-		domainDoc.Commands = append(domainDoc.Commands, translateCommand(doc, cmd, cmdObj))
+		domainDoc.Commands = append(domainDoc.Commands, translateCommand(doc, domainDoc, cmd, cmdObj))
 	}
 	// Sort command by `Line` property to ensure a stable order
 	sort.Slice(domainDoc.Commands, func(i, j int) bool {
@@ -450,12 +506,16 @@ func translateGlobal(doc oclidoc.OpenCliDocument) Global {
 		})
 	}
 
+	sort.Slice(exitCodes, func(i, j int) bool {
+		return exitCodes[i].Code <= exitCodes[j].Code
+	})
+
 	return Global{
 		ExitCodes: exitCodes,
 	}
 }
 
-func translateCommand(doc oclidoc.OpenCliDocument, cmd string, cmdObj oclidoc.Command) Command {
+func translateCommand(doc oclidoc.OpenCliDocument, domainDoc Document, cmd string, cmdObj oclidoc.Command) Command {
 	binRE := regexp.MustCompile(`^([^\S\r\n]*` + doc.Info.Binary + `[^\S\r\n]+)?`)
 	lineParamsRE := regexp.MustCompile(`[^\S\r\n][^A-Za-z]`)
 	line := binRE.ReplaceAllString(cmd, doc.Info.Binary+" ")
@@ -471,17 +531,22 @@ func translateCommand(doc oclidoc.OpenCliDocument, cmd string, cmdObj oclidoc.Co
 	for _, flag := range cmdObj.Flags {
 		flags = append(flags, translateFlag(flag))
 	}
+	// add exit codes to command
+	cmdSpecificExitCodes := translateCmdExitCodes(cmdObj)
+	mergedExitCodes := mergeGlobalCmdExitCodes(domainDoc, cmdSpecificExitCodes)
 	// return the translated command
 	return Command{
-		Aliases:     cmdObj.Aliases,
-		Description: cmdObj.Description,
-		Group:       cmdObj.Group,
-		Hidden:      cmdObj.Hidden,
-		Line:        line,
-		Name:        name,
-		Summary:     cmdObj.Summary,
-		Arguments:   args,
-		Flags:       flags,
+		Aliases:              cmdObj.Aliases,
+		Description:          cmdObj.Description,
+		Group:                cmdObj.Group,
+		Hidden:               cmdObj.Hidden,
+		Line:                 line,
+		Name:                 name,
+		Summary:              cmdObj.Summary,
+		Arguments:            args,
+		Flags:                flags,
+		CmdSpecificExitCodes: cmdSpecificExitCodes,
+		ExitCodes:            mergedExitCodes,
 	}
 }
 
@@ -530,6 +595,46 @@ func translateFlag(flag oclidoc.Flag) Flag {
 	}
 
 	return domainFlag
+}
+
+func translateCmdExitCodes(cmdObj oclidoc.Command) []ExitCode {
+	var exitCodes []ExitCode
+	statuses := map[string]struct{}{}
+	for _, ec := range cmdObj.ExitCodes {
+		statuses[ec.Status] = struct{}{}
+		exitCodes = append(exitCodes, ExitCode{
+			Code:        ec.Code,
+			Status:      ec.Status,
+			Summary:     ec.Summary,
+			Description: ec.Description,
+		})
+	}
+	// return sorted array of exit codes
+	sort.Slice(exitCodes, func(i, j int) bool {
+		return exitCodes[i].Code <= exitCodes[j].Code
+	})
+	return exitCodes
+}
+
+func mergeGlobalCmdExitCodes(doc Document, cmdExitCodes []ExitCode) []ExitCode {
+	var exitCodes []ExitCode
+	statuses := map[string]struct{}{}
+	// add cmd-specific exit codes
+	for _, ec := range cmdExitCodes {
+		statuses[ec.Status] = struct{}{}
+		exitCodes = append(exitCodes, ec)
+	}
+	// add global exit codes
+	for _, ec := range doc.Global.ExitCodes {
+		if _, ok := statuses[ec.Status]; !ok {
+			exitCodes = append(exitCodes, ec)
+		}
+	}
+	// return sorted array of exit codes
+	sort.Slice(exitCodes, func(i, j int) bool {
+		return exitCodes[i].Code <= exitCodes[j].Code
+	})
+	return exitCodes
 }
 
 func (d *Document) buildCommandTrie() error {

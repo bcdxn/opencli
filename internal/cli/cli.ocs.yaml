@@ -45,6 +45,9 @@ global:
     - code: 1
       status: "INTERNAL_CLI_ERROR"
       summary: "The command failed"
+    - code: 2
+      status: "BAD_USER_INPUT_ERROR"
+      summary: "Missing or invalid input"
   flags:
     - name: "help"
       aliases:

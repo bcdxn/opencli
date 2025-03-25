@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"os"
 
 	"github.com/bcdxn/opencli/internal/cli"
@@ -15,6 +16,6 @@ func main() {
 
 	err := cmd.Run(context.Background(), os.Args)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }

@@ -72,18 +72,19 @@ type Command struct {
 	Flags       []Flag     `json:"flags" yaml:"flags"`
 	Hidden      bool       `json:"hidden" yaml:"hidden"`
 	Group       bool       `json:"group" yaml:"group"`
+	ExitCodes   []ExitCode `json:"exitCodes" yaml:"exitCodes"`
 }
 
 // Argument represents an OpenCLI command argument.
 type Argument struct {
-	Name        string   `json:"name" yaml:"name"`
-	Summary     string   `json:"summary" yaml:"summary"`
-	Description string   `json:"description" yaml:"description"`
-	Type        string   `json:"type" yaml:"type"`
-	Variadic    bool     `json:"variadic" yaml:"variadic"`
-	Choices     []Choice `json:"choices" yaml:"choices"`
-	Required    bool     `json:"required" yaml:"required"`
-	Default     any      `json:"default" yaml:"default"`
+	Name        string       `json:"name" yaml:"name"`
+	Summary     string       `json:"summary" yaml:"summary"`
+	Description string       `json:"description" yaml:"description"`
+	Type        string       `json:"type" yaml:"type"`
+	Variadic    bool         `json:"variadic" yaml:"variadic"`
+	Choices     []Choice     `json:"choices" yaml:"choices"`
+	Required    bool         `json:"required" yaml:"required"`
+	Default     DefaultValue `json:"default" yaml:"default"`
 }
 
 // Flag represents an OpenCLI command flag.
@@ -113,37 +114,38 @@ type DefaultValue struct {
 }
 
 func (v *DefaultValue) UnmarshalJSON(bs []byte) error {
-	// first try unmarshalling a string value
-	var s string
-	err := json.Unmarshal(bs, &s)
-	if err == nil {
-		v.String = s
-		return nil
-	}
-	// next try unmarshalling a bool value
+	// first try unmarshalling a bool value
 	var b bool
-	err = json.Unmarshal(bs, &b)
+	err := json.Unmarshal(bs, &b)
 	if err == nil {
 		v.Bool = b
 		return nil
 	}
+	// next try unmarshalling a string value
+	var s string
+	err = json.Unmarshal(bs, &s)
+	if err == nil {
+		v.String = s
+		return nil
+	}
+
 	// The value was neither a string nor a bool and is therefore not allowed
 	return errors.New("expected bool or string but found neither")
 }
 
 func (v *DefaultValue) UnmarshalYAML(node *yaml.Node) error {
-	// first try unmarshalling a string value
-	var s string
-	err := yaml.Unmarshal([]byte(node.Value), &s)
-	if err == nil {
-		v.String = s
-		return nil
-	}
-	// next try unmarshalling a bool value
+	// first try unmarshalling a bool value
 	var b bool
-	err = yaml.Unmarshal([]byte(node.Value), &b)
+	err := yaml.Unmarshal([]byte(node.Value), &b)
 	if err == nil {
 		v.Bool = b
+		return nil
+	}
+	// next try unmarshalling a string value
+	var s string
+	err = yaml.Unmarshal([]byte(node.Value), &s)
+	if err == nil {
+		v.String = s
 		return nil
 	}
 	// The value was neither a string nor a bool and is therefore not allowed

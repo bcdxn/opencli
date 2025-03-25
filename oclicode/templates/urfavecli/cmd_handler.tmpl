@@ -1,3 +1,4 @@
+{{- $cmd := . -}}
 func(ctx context.Context, cmd *urfavecli.Command) error {
     {{- if or (.FixedEnumeratedArgs) (.VariadicEnumeratedArgs) (.FixedEnumeratedFlags) (.VariadicEnumeratedFlags)}}
     var validChoice bool
@@ -10,7 +11,7 @@ func(ctx context.Context, cmd *urfavecli.Command) error {
     {{- /* ENSURE REQUIRED ARGS */}}
     {{- if $arg.Required }}
     if cmd.NArg() < {{Inc $i}} {
-      return errors.New("missing required arg <{{.Name | EscapeString}}>")
+      return urfavecli.Exit("missing required arg <{{.Name | EscapeString}}>", {{$cmd.BadUserInputErrorCode}})
     }
     {{- end}}
 
@@ -42,7 +43,7 @@ func(ctx context.Context, cmd *urfavecli.Command) error {
     )
     {{- end}}
     if !validChoice {
-      return errors.New("invalid value for argument <{{.Name | EscapeString}}>")
+      return urfavecli.Exit("invalid value for argument <{{.Name | EscapeString}}>", {{$cmd.BadUserInputErrorCode}})
     }
 
     {{- end}}
@@ -56,6 +57,13 @@ func(ctx context.Context, cmd *urfavecli.Command) error {
     {{- /* ADD FLAGS */}}
     {{- range .Flags}}
     flags.{{.Name | PascalCase}} = cmd.{{if .Variadic}}StringSlice{{else if eq .Type "string"}}String{{else}}Bool{{end}}("{{.Name | EscapeString}}")
+
+    {{- /* Ensure Required Flags */}}
+    {{- if .Required}}
+    if !cmd.IsSet("{{.Name | EscapeString}}") {
+      return urfavecli.Exit("missing required flag --{{.Name | EscapeString}}", {{$cmd.BadUserInputErrorCode}})
+    }
+    {{- end}}
 
     {{- /* ENSURE ENUMERATION Flags */}}
     {{- if .Choices}}
@@ -80,7 +88,7 @@ func(ctx context.Context, cmd *urfavecli.Command) error {
     )
     {{- end}}
     if !validChoice {
-      return errors.New("invalid value for argument --{{.Name | EscapeString}}")
+      return urfavecli.Exit("invalid value for flag --{{.Name | EscapeString}}", {{$cmd.BadUserInputErrorCode}})
     }
 
     {{- end}}

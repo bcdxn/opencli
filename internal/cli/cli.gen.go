@@ -5,7 +5,6 @@ package cli
 
 import (
   "context"
-  "errors"
 
   urfavecli "github.com/urfave/cli/v3"
 )
@@ -49,7 +48,6 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
     &urfavecli.StringFlag{
       Name: "framework",
       Usage: "The framework of the CLI boilerplate to generate",
-      Required: true,
       Aliases: []string{
         "f",
       },
@@ -57,28 +55,31 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
     &urfavecli.StringFlag{
       Name: "package",
       Usage: "The package name used to house the generated code",
-      Required: true,
+      Value: "cli",
     },
     &urfavecli.BoolFlag{
       Name: "dryrun",
       Usage: "When true the docs contents will be output to stdout instead of the file",
-      Required: false,
+      Value: true,
     },
   }
   ocliGenerateCliCmd.Action = func(ctx context.Context, cmd *urfavecli.Command) error {
     var validChoice bool
     var args OcliGenerateCliArgs
     if cmd.NArg() < 1 {
-      return errors.New("missing required arg <path-to-spec>")
+      return urfavecli.Exit("missing required arg <path-to-spec>", 2)
     }
     args.PathToSpec = cmd.Args().Get(0)
     if cmd.NArg() < 2 {
-      return errors.New("missing required arg <path-to-output-dir>")
+      return urfavecli.Exit("missing required arg <path-to-output-dir>", 2)
     }
     args.PathToOutputDir = cmd.Args().Get(1)
     
     var flags OcliGenerateCliFlags
     flags.Framework = cmd.String("framework")
+    if !cmd.IsSet("framework") {
+      return urfavecli.Exit("missing required flag --framework", 2)
+    }
     validChoice = validateChoices(
       []string{
         "cobra",
@@ -89,9 +90,12 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
       flags.Framework,
     )
     if !validChoice {
-      return errors.New("invalid value for argument --framework")
+      return urfavecli.Exit("invalid value for flag --framework", 2)
     }
     flags.Package = cmd.String("package")
+    if !cmd.IsSet("package") {
+      return urfavecli.Exit("missing required flag --package", 2)
+    }
     flags.Dryrun = cmd.Bool("dryrun")
 
     return impl.OcliGenerateCli(ctx, cmd, args, flags)
@@ -105,7 +109,6 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
     &urfavecli.StringFlag{
       Name: "format",
       Usage: "The format of the documentation to generate",
-      Required: true,
       Aliases: []string{
         "f",
       },
@@ -113,23 +116,26 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
     &urfavecli.BoolFlag{
       Name: "dryrun",
       Usage: "When true the docs contents will be output to stdout instead of the file",
-      Required: false,
+      Value: true,
     },
   }
   ocliGenerateDocsCmd.Action = func(ctx context.Context, cmd *urfavecli.Command) error {
     var validChoice bool
     var args OcliGenerateDocsArgs
     if cmd.NArg() < 1 {
-      return errors.New("missing required arg <path-to-spec>")
+      return urfavecli.Exit("missing required arg <path-to-spec>", 2)
     }
     args.PathToSpec = cmd.Args().Get(0)
     if cmd.NArg() < 2 {
-      return errors.New("missing required arg <path-to-output-dir>")
+      return urfavecli.Exit("missing required arg <path-to-output-dir>", 2)
     }
     args.PathToOutputDir = cmd.Args().Get(1)
     
     var flags OcliGenerateDocsFlags
     flags.Format = cmd.String("format")
+    if !cmd.IsSet("format") {
+      return urfavecli.Exit("missing required flag --format", 2)
+    }
     validChoice = validateChoices(
       []string{
         "markdown",
@@ -139,7 +145,7 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
       flags.Format,
     )
     if !validChoice {
-      return errors.New("invalid value for argument --format")
+      return urfavecli.Exit("invalid value for flag --format", 2)
     }
     flags.Dryrun = cmd.Bool("dryrun")
 
@@ -166,7 +172,7 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
   ocliSpecificationCheckCmd.Action = func(ctx context.Context, cmd *urfavecli.Command) error {
     var args OcliSpecificationCheckArgs
     if cmd.NArg() < 1 {
-      return errors.New("missing required arg <path-to-spec>")
+      return urfavecli.Exit("missing required arg <path-to-spec>", 2)
     }
     args.PathToSpec = cmd.Args().Get(0)
 

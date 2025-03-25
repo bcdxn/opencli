@@ -97,7 +97,7 @@ _{{.Doc.Info.Summary}}_
 {{- if .Command.Description}}
 
 {{.Command.Description}}{{end}}
-{{- if .Command.Arguments}}
+{{- if .Command.Arguments}}{{/* BEGIN CMD ARGS */}}
 #### Arguments
 {{range .Command.Arguments}}
 ##### `<{{.Name}}{{if .Variadic}}...{{end}}>`
@@ -119,11 +119,12 @@ _{{.Doc.Info.Summary}}_
 {{- end}}
 {{- end}}
 {{- end}}
-{{- end}}
-{{- if and (.Command.Flags) (.Command.VisibleFlags)}}
+{{- end}}{{/* END CMD ARGS */}}
+{{- if and (.Command.Flags) (.Command.VisibleFlags)}}{{/* BEGIN CMD FLAGS */}}
 
 #### Flags
-{{range .Command.Flags}}{{if not .Hidden}}
+{{- range .Command.Flags}}{{if not .Hidden}}
+
 ##### `--{{.Name}}`
 {{- if .Summary}}
 
@@ -138,12 +139,26 @@ _{{.Doc.Info.Summary}}_
 
 ###### Supported Values of `--{{.Name}}`
 {{range .Choices}}
-- `{{.Value}}`{{if .Description}} - {{.Description}}{{end}}
+- `{{.Value}}`{{if .Description}} - {{.Description}}
+{{- end}}
+{{- end}}
+
 {{- end}}
 {{- end}}
 {{- end}}
+{{- end}}{{/* END CMD FLAGS */}}
+
+
+{{- if and (not .Command.Group) (.Command.CmdSpecificExitCodes)}}{{/* BEGIN CMD EXIT CODES */}}
+
+#### Exit Codes
+{{range .Command.CmdSpecificExitCodes}}
+- `{{.Code}}` `{{.Status}}` - {{.Summary}}
+{{- if .Description}}
+  - {{.Description}}
 {{- end}}
 {{- end}}
+{{- end}}{{/* END CMD EXIT CODES */}}
 
 ---{{/* END COMMAND BODY */}}
 {{- /* RECURSIVELY TRAVERSE COMMAND TRIE */}}

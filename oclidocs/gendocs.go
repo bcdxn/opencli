@@ -12,7 +12,7 @@ import (
 // GenDocsOption is a functional option to configure the GenDocs function
 type GenDocsOption func(*genDocsOptions)
 
-// GenDocs generates documentation for the given OpenCLI document in the specified format.
+// Generate generates documentation for the given OpenCLI document in the specified format.
 // It accepts the OpenCLI document domain object and the desired output format for the documentation as parameters.
 // It returns the generated documentation as a byte slice.
 func Generate(doc oclispec.Document, options ...GenDocsOption) []byte {

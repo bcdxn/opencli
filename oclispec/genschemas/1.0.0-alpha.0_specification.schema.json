@@ -516,8 +516,8 @@
           "description": "The enumerated exit code categories.",
           "choices": [
             "BAD_USER_INPUT_ERROR",
+            "UNAUTHENTICATED_ERROR",
             "UNAUTHORIZED_ERROR",
-            "FORBIDDEN_ERROR",
             "CANCELED_ERROR",
             "INTERNAL_CLI_ERROR",
             "NOT_IMPLEMENTED_ERROR",

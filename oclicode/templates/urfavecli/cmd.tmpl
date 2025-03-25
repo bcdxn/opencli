@@ -70,9 +70,11 @@
       {{- else if .Description}}
       Usage: "{{.Description | EscapeString}}",
       {{- end}}
-      Required: {{.Required}},
-      {{- if .Default}}
-      Value: {{if eq .Type "string"}}"{{.Default | EscapeString}}"{{else}}{{.Default}}{{end}},
+      {{- if eq .Type "string"}}{{if .Default.String}}
+      Value: "{{.Default.String | EscapeString}}",
+      {{- end}}{{end}}
+      {{- if eq .Type "boolean"}}
+      Value: {{.Default.Bool}},
       {{- end}}
       {{- if .Aliases}}
       Aliases: []string{
