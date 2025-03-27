@@ -1,0 +1,41 @@
+const yargs = require('yargs')
+require('./cli-interface.gen')
+
+/**
+ * Create a new instance of the CLI that can be run, e.g:
+ *
+ * ```js
+ * #!/usr/bin/env node
+ * // index.js
+ * const { NewCli } = require('./{{.Opts.Package}}/cli.gen');
+ * const { impl } = require('./your-implementation');
+ *
+ * async function main() {
+ *   const version = '1.0.0';
+ *   let cli = NewCli(impl, version);
+ * 
+ *   return cli.new(handlers, version).parseAsync();
+ * }
+ * ```
+ *
+ * @param {CliHandlersInterface} impl - The class implementing all of the command handlers
+ * @param {string} version - The version of the CLI to display for the `--version` flag
+ * @returns {yargs.Argv<{}>} - The yargs object ready to be parsed
+ */
+function NewCli(impl, version) {
+{{- range .Doc.CommandTrie.Root.Commands}}
+  {{template "cmd.tmpl" .}}
+{{- end}}
+
+{{- $rootCmd := .Doc.CommandTrie.Root.Command}}
+
+  return yargs.scriptName("{{$rootCmd.Name | EscapeString}}")
+    .usage("{{$rootCmd.Line | EscapeString}}")
+    {{- range .Doc.CommandTrie.Root.Commands}}
+    .command({{.Command.LeafName | CamelCase}}Cmd)
+    {{- end}}
+    .help()
+    .version(version);
+}
+
+module.exports.NewCli = NewCli;

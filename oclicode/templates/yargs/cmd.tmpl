@@ -1,0 +1,20 @@
+{{- template "commandVar" .}}
+{{- template "commandProps" .}}
+
+{{- define "commandVar" -}}
+{{- $node := . }}
+  let {{$node.Command.Name | CamelCase}}Cmd = {};
+{{- range $i, $subCmd := $node.Commands}}
+{{- template "commandVar" $subCmd}}
+{{- end}}
+{{- end}}
+{{- /* end of commandVar template */}}
+
+{{- define "commandProps" }}
+{{- $node := . }}
+{{- $name := $node.Command.Name | CamelCase}}
+  {{$name}}Cmd.command = "{{$node.Command.Name | EscapeString}}";
+{{- range $id, $subCmd := $node.Commands}}
+{{- template "commandProps" $subCmd}}
+{{- end}}
+{{- end}}
