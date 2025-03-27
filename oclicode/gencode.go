@@ -3,6 +3,7 @@ package oclicode
 import (
 	"bytes"
 	"embed"
+	"errors"
 	"fmt"
 	"text/template"
 
@@ -25,7 +26,14 @@ func Generate(doc oclispec.Document, options ...GenCliOptions) ([]GenFile, error
 
 	tmpl := getCliTemplate(opts.Framework)
 
-	return genUrfaveCli(tmpl, cliTmplData{*opts, doc})
+	switch opts.Framework {
+	case "urfavecli":
+		return genUrfaveCli(tmpl, cliTmplData{*opts, doc})
+	case "yargs":
+		return genYargsCli(tmpl, cliTmplData{*opts, doc})
+	}
+
+	return nil, errors.New("unsupported framework")
 }
 
 func Package(name string) GenCliOptions {
@@ -117,6 +125,33 @@ func genUrfaveCli(tmpl *template.Template, data cliTmplData) ([]GenFile, error) 
 		},
 		{
 			Name:     "cli.gen.go",
+			Contents: cliGenContents.Bytes(),
+		},
+	}, nil
+}
+
+func genYargsCli(tmpl *template.Template, data cliTmplData) ([]GenFile, error) {
+	cliInterfaceGenContents := bytes.NewBuffer([]byte{})
+	// `cli_interface.gen.js.tmpl` defines the interface that must be implemented to handle all of the CLI command actions.
+	err := tmpl.ExecuteTemplate(cliInterfaceGenContents, "cli_interface.gen.js.tmpl", data)
+	if err != nil {
+		return nil, err
+	}
+
+	cliGenContents := bytes.NewBuffer([]byte{})
+	// `cli.gen.go.tmpl` defines the constructor/entrypoint to the CLI program.
+	err = tmpl.ExecuteTemplate(cliGenContents, "cli.gen.js.tmpl", data)
+	if err != nil {
+		return nil, err
+	}
+
+	return []GenFile{
+		{
+			Name:     "cli-interface.gen.js",
+			Contents: cliInterfaceGenContents.Bytes(),
+		},
+		{
+			Name:     "cli.gen.js",
 			Contents: cliGenContents.Bytes(),
 		},
 	}, nil

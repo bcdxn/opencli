@@ -1,4 +1,4 @@
-package oclidoc
+package oclifile
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// oclidoc.go contains the OpenCLI domain types used when unmarshalling an OpenCLI Document.
+// oclidoc.go contains the OpenCLI domain types used when unmarshalling an OpenCLI Document file.
 
 // OpenCliDocument represents the OpenCLI document.
 type OpenCliDocument struct {
@@ -65,6 +65,7 @@ type ExitCode struct {
 
 // Command represents an OpenCLI command.
 type Command struct {
+	Line        string     // Not unmarshalled, but will be added during translation process
 	Summary     string     `json:"summary" yaml:"summary"`
 	Description string     `json:"description" yaml:"description"`
 	Aliases     []string   `json:"aliases" yaml:"aliases"`

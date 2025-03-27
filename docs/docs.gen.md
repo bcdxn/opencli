@@ -109,6 +109,7 @@ the `--language` flag.
 The path to the OpenCLI Spec that the CLI will be generated from
 
 `type:string` `enum:false` `variadic:false`
+
 ##### `<path-to-output-dir>`
 
 The path to the directory to house the generated docs
@@ -160,6 +161,7 @@ generated using the `--format` flag.
 The path to the OpenCLI Spec that documentation will be generated from
 
 `type:string` `enum:false` `variadic:false`
+
 ##### `<path-to-output-dir>`
 
 The path to the directory to house the generated docs

@@ -2,10 +2,11 @@ package oclispec
 
 import (
 	"testing"
+
+	"github.com/bcdxn/opencli/internal/oclifile"
 )
 
 func TestCommandTrieInsert(t *testing.T) {
-	trie := CommandTrie{}
 
 	expectedCmds := []string{
 		"ocli gen cli",
@@ -14,11 +15,25 @@ func TestCommandTrieInsert(t *testing.T) {
 		"ocli spec versions",
 	}
 
-	for _, cmd := range expectedCmds {
-		trie.Insert(Command{
-			Name: cmd,
-		})
+	doc := oclifile.OpenCliDocument{
+		Commands: map[string]oclifile.Command{
+			"ocli gen cli":       {},
+			"ocli gen doc":       {},
+			"ocli spec check":    {},
+			"ocli spec versions": {},
+		},
 	}
+
+	trie, err := buildCommandTrie(doc)
+	if err != nil {
+		t.Fatalf("unable to build trie for test: %v", err)
+	}
+
+	// for _, cmd := range expectedCmds {
+	// 	trie.Insert(Command{
+	// 		Name: cmd,
+	// 	})
+	// }
 
 	actualCmds := []string{}
 

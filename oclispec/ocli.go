@@ -1,14 +1,16 @@
 package oclispec
 
 import (
-	"bytes"
 	"encoding/json"
+	"fmt"
 	"os"
 	"regexp"
 	"sort"
-	"text/template"
+	"strings"
 
-	"github.com/bcdxn/opencli/internal/oclidoc"
+	"slices"
+
+	"github.com/bcdxn/opencli/internal/oclifile"
 	"gopkg.in/yaml.v3"
 )
 
@@ -20,7 +22,6 @@ type Document struct {
 	Info           Info
 	Install        []Install
 	Global         Global
-	Commands       []Command
 	CommandTrie    *CommandTrie
 }
 
@@ -74,6 +75,7 @@ type ExitCode struct {
 type Command struct {
 	Line                 string // The full command line as defined in the OpenCLI Spec Document
 	Name                 string // The command part of the command line
+	LeafName             string // The final command in the command line
 	Params               string // The args/flags part of the command line
 	Aliases              []string
 	Summary              string
@@ -95,7 +97,7 @@ type Argument struct {
 	Variadic    bool
 	Choices     []Choice
 	Required    bool
-	Default     any
+	Default     DefaultValue
 }
 
 // Flag represents an OpenCLI command flag.
@@ -123,102 +125,112 @@ type DefaultValue struct {
 	String string
 }
 
-// NonHiddenCommands returns true if there are any commands where Hidden is false.
-func (d Document) VisibleCommands() bool {
-	for _, cmd := range d.Commands {
-		if !cmd.Hidden {
-			return true
-		}
-	}
-
-	return false
-}
-
 // Arguments returns true if any of the commands have arguments.
 func (d Document) Arguments() bool {
-	for _, cmd := range d.Commands {
-		if len(cmd.Arguments) > 0 {
+	var argsHelper func(node *CommandTrieNode) bool
+	argsHelper = func(node *CommandTrieNode) bool {
+		if len(node.Command.Arguments) > 0 {
 			return true
 		}
+
+		return slices.ContainsFunc(node.Commands, argsHelper)
 	}
 
-	return false
+	return argsHelper(d.CommandTrie.Root)
 }
 
 // Flags returns true if any of the commands have flags.
 func (d Document) Flags() bool {
-	for _, cmd := range d.Commands {
-		if len(cmd.Flags) > 0 {
+	var flagsHelper func(node *CommandTrieNode) bool
+	flagsHelper = func(node *CommandTrieNode) bool {
+		if len(node.Command.Flags) > 0 {
 			return true
 		}
+
+		return slices.ContainsFunc(node.Commands, flagsHelper)
 	}
 
-	return false
+	return flagsHelper(d.CommandTrie.Root)
 }
 
 // VisibleFlags returns true if any of the commands have visible flags.
 func (d Document) VisibleFlags() bool {
-	for _, cmd := range d.Commands {
-		for _, flag := range cmd.Flags {
+	var flagsHelper func(node *CommandTrieNode) bool
+	flagsHelper = func(node *CommandTrieNode) bool {
+		for _, flag := range node.Command.Flags {
 			if !flag.Hidden {
 				return true
 			}
 		}
+
+		return slices.ContainsFunc(node.Commands, flagsHelper)
 	}
 
-	return false
+	return flagsHelper(d.CommandTrie.Root)
 }
 
 // EnumeratedArgs returns true if any fixed arguments on any commands contain enumerated values.
 func (d Document) FixedEnumeratedArgs() bool {
-	for _, cmd := range d.Commands {
-		for _, arg := range cmd.Arguments {
+	var helper func(node *CommandTrieNode) bool
+	helper = func(node *CommandTrieNode) bool {
+		for _, arg := range node.Command.Arguments {
 			if len(arg.Choices) > 0 && !arg.Variadic {
 				return true
 			}
 		}
+
+		return slices.ContainsFunc(node.Commands, helper)
 	}
 
-	return false
+	return helper(d.CommandTrie.Root)
 }
 
 // EnumeratedArgs returns true if any variadic arguments on any commands contain enumerated values.
 func (d Document) VariadicEnumeratedArgs() bool {
-	for _, cmd := range d.Commands {
-		for _, arg := range cmd.Arguments {
+	var helper func(node *CommandTrieNode) bool
+	helper = func(node *CommandTrieNode) bool {
+		for _, arg := range node.Command.Arguments {
 			if len(arg.Choices) > 0 && arg.Variadic {
 				return true
 			}
 		}
+
+		return slices.ContainsFunc(node.Commands, helper)
 	}
 
-	return false
+	return helper(d.CommandTrie.Root)
 }
 
 // EnumeratedFlags returns true if any fixed type flags on any commands contain enumerated values.
 func (d Document) FixedEnumeratedFlags() bool {
-	for _, cmd := range d.Commands {
-		for _, flag := range cmd.Flags {
+	var helper func(node *CommandTrieNode) bool
+	helper = func(node *CommandTrieNode) bool {
+		for _, flag := range node.Command.Flags {
 			if len(flag.Choices) > 0 && !flag.Variadic {
 				return true
 			}
 		}
+
+		return slices.ContainsFunc(node.Commands, helper)
 	}
 
-	return false
+	return helper(d.CommandTrie.Root)
 }
 
 // EnumeratedFlags returns true if any variadic type flags on any commands contain enumerated values.
 func (d Document) VariadicEnumeratedFlags() bool {
-	for _, cmd := range d.Commands {
-		for _, flag := range cmd.Flags {
-			if len(flag.Choices) > 0 && flag.Variadic {
+	var helper func(node *CommandTrieNode) bool
+	helper = func(node *CommandTrieNode) bool {
+		for _, flag := range node.Command.Flags {
+			if len(flag.Choices) > 0 && !flag.Variadic {
 				return true
 			}
 		}
+
+		return slices.ContainsFunc(node.Commands, helper)
 	}
 
-	return false
+	return helper(d.CommandTrie.Root)
 }
 
 // NonHiddenFlags returns true if there are any flags for the given command where Hidden isfalse.
@@ -344,7 +356,7 @@ func UnmarshalYAML(path string) (Document, error) {
 	if err != nil {
 		return Document{}, err
 	}
-	var doc oclidoc.OpenCliDocument
+	var doc oclifile.OpenCliDocument
 	err = yaml.Unmarshal(contents, &doc)
 	if err != nil {
 		return Document{}, err
@@ -364,7 +376,7 @@ func UnmarshalJSON(path string) (Document, error) {
 	if err != nil {
 		return Document{}, err
 	}
-	var doc oclidoc.OpenCliDocument
+	var doc oclifile.OpenCliDocument
 	err = json.Unmarshal(contents, &doc)
 	if err != nil {
 		return Document{}, err
@@ -378,7 +390,12 @@ func UnmarshalJSON(path string) (Document, error) {
 
 var wsRE = regexp.MustCompile(`[^\S\r\n]+`)
 
+// CommandTrie is a data structure similar to a [Trie](https://en.wikipedia.org/wiki/Trie).
+// Instead of each node containing letters in a string, it contains a command in the command line.
+// This allows us to ensure that grouping commands that may not otherwise be defined in the OpenCLI Doc are accounted for.
+// Grouping commands are commands that are not executable and exist only as an internal node in the trie (not a leaf).
 type CommandTrie struct {
+	doc  oclifile.OpenCliDocument
 	Root *CommandTrieNode
 }
 
@@ -389,52 +406,81 @@ type CommandTrieNode struct {
 	Commands []*CommandTrieNode
 }
 
-func (t *CommandTrie) Insert(command Command) {
-	cmds := wsRE.Split(command.Name, -1)
+func (t *CommandTrie) Insert(cmdLine string, cmd oclifile.Command) {
+	cmdLineNoParams := regexp.MustCompile(`[^\S\r\n][^A-Za-z]`).Split(cmdLine, -1)[0]
+	argsRE := regexp.MustCompile(`<.*>`)
+	flagsRE := regexp.MustCompile(`\[.*\]`)
+	cmds := wsRE.Split(cmdLineNoParams, -1)
 
 	if t.Root == nil {
+		rootParams := []string{}
+		if len(cmds) > 0 {
+			rootParams = append(rootParams, "{command}")
+		}
+		if argsRE.MatchString(cmdLine) {
+			rootParams = append(rootParams, "<arguments>")
+		}
+		if flagsRE.MatchString(cmdLine) {
+			rootParams = append(rootParams, "[flags]")
+		}
+
 		t.Root = &CommandTrieNode{
 			Name: cmds[0],
 			Command: Command{
-				Name:  cmds[0],
-				Group: true,
+				Line:        strings.Join(append([]string{cmds[0]}, rootParams...), " "),
+				Name:        cmds[0],
+				LeafName:    cmds[0],
+				Params:      strings.Join(rootParams, " "),
+				Summary:     t.doc.Info.Summary,
+				Description: t.doc.Info.Description,
+				Group:       true,
 			},
 		}
 	}
+
+	nameSegments := []string{cmds[0]}
 
 	node := t.Root
 	for i := 1; i < len(cmds); i++ {
 		cmdIndex := node.indexOfSubcommand(cmds[i])
 
 		if cmdIndex < 0 {
-			node.Commands = append(node.Commands, &CommandTrieNode{
+			newNode := &CommandTrieNode{
 				Name: cmds[i],
-			})
+			}
+			// add derived data; this may be overwritten by command definitions in the file
+			cmdParams := []string{}
+			isGroup := false
+			if i < len(cmds)-1 { // if there are other commands left in the line, we're at an internal node in the trie
+				cmdParams = append(cmdParams, "{command}")
+				isGroup = true
+			}
+			if argsRE.MatchString(cmdLine) {
+				cmdParams = append(cmdParams, "<arguments>")
+			}
+			if flagsRE.MatchString(cmdLine) {
+				cmdParams = append(cmdParams, "[flags]")
+			}
+			nameSegments = append(nameSegments, cmds[i])
+			newNode.Command = Command{
+				Line:     strings.Join(append(nameSegments, cmdParams...), " "),
+				Name:     strings.Join(nameSegments, " "),
+				LeafName: cmds[i],
+				Params:   strings.Join(cmdParams, " "),
+				Group:    isGroup,
+			}
+			node.Commands = append(node.Commands, newNode)
 			cmdIndex = len(node.Commands) - 1
 		}
 
 		node = node.Commands[cmdIndex]
 	}
 
-	node.Command = command
+	node.Command = translateCommand(cmdLine, cmd)
 }
 
 /* Private receiver methods
 ------------------------------------------------------------------------------------------------- */
-
-// rootCommandLine uses a template to render the root-level command usage line.
-// e.g.: `ocli {command} <arguments> [flags]`.`
-func (d Document) rootCommandLine() (string, error) {
-	rootLine := bytes.NewBuffer([]byte{})
-	rootTmpl := template.Must(template.New("root_line.tmpl").Parse(`{{.Info.Binary}}{{if .VisibleCommands}} {command}{{end}}{{if .Arguments}} <arguments>{{end}}{{if .VisibleFlags}} [flags]{{end}}`))
-
-	err := rootTmpl.Execute(rootLine, d)
-	if err != nil {
-		return "", nil
-	}
-
-	return rootLine.String(), nil
-}
 
 func (n *CommandTrieNode) indexOfSubcommand(name string) int {
 	for i, cmd := range n.Commands {
@@ -449,7 +495,13 @@ func (n *CommandTrieNode) indexOfSubcommand(name string) int {
 ------------------------------------------------------------------------------------------------- */
 
 // fromUnmarshalled translates the raw unmarshalled struct to the domain struct
-func docFromUnmarshalled(doc oclidoc.OpenCliDocument) (Document, error) {
+func docFromUnmarshalled(doc oclifile.OpenCliDocument) (Document, error) {
+	// First ensure all command lines are 'absolute paths' that start with the binary
+	err := validateCommandLines(doc)
+	if err != nil {
+		return Document{}, err
+	}
+
 	domainDoc := Document{
 		Info: Info{
 			Binary: doc.Info.Binary,
@@ -479,22 +531,20 @@ func docFromUnmarshalled(doc oclidoc.OpenCliDocument) (Document, error) {
 			URL:         install.URL,
 		})
 	}
+	// Add globals, e.g. flags, exit codes, etc.
 	domainDoc.Global = translateGlobal(doc)
-	// Add commands
-	for cmd, cmdObj := range doc.Commands {
-		domainDoc.Commands = append(domainDoc.Commands, translateCommand(doc, domainDoc, cmd, cmdObj))
-	}
-	// Sort command by `Line` property to ensure a stable order
-	sort.Slice(domainDoc.Commands, func(i, j int) bool {
-		return domainDoc.Commands[i].Name < domainDoc.Commands[j].Name
-	})
 	// Build hierarchical CommandTrie
-	domainDoc.buildCommandTrie()
+	trie, err := buildCommandTrie(doc)
+	if err != nil {
+		return Document{}, err
+	}
+
+	domainDoc.CommandTrie = trie
 
 	return domainDoc, nil
 }
 
-func translateGlobal(doc oclidoc.OpenCliDocument) Global {
+func translateGlobal(doc oclifile.OpenCliDocument) Global {
 	exitCodes := []ExitCode{}
 	// Add global exit codes
 	for _, exitCode := range doc.Global.ExitCodes {
@@ -515,42 +565,77 @@ func translateGlobal(doc oclidoc.OpenCliDocument) Global {
 	}
 }
 
-func translateCommand(doc oclidoc.OpenCliDocument, domainDoc Document, cmd string, cmdObj oclidoc.Command) Command {
-	binRE := regexp.MustCompile(`^([^\S\r\n]*` + doc.Info.Binary + `[^\S\r\n]+)?`)
-	lineParamsRE := regexp.MustCompile(`[^\S\r\n][^A-Za-z]`)
-	line := binRE.ReplaceAllString(cmd, doc.Info.Binary+" ")
-	name := line
-	name = lineParamsRE.Split(name, -1)[0]
+func validateCommandLines(doc oclifile.OpenCliDocument) error {
+	binRE := regexp.MustCompile(`^` + doc.Info.Binary)
+
+	for key := range doc.Commands {
+		if !binRE.MatchString(key) {
+			return fmt.Errorf("cmd `%s` must be an absolute path starting with the binary", key)
+		}
+	}
+
+	return nil
+}
+
+func translateCommand(cmdLine string, cmd oclifile.Command) Command {
+	name, leaf, params := parseCommandLine(cmdLine)
 	// add arguments to command
 	var args []Argument
-	for _, arg := range cmdObj.Arguments {
+	for _, arg := range cmd.Arguments {
 		args = append(args, translateArgument(arg))
 	}
 	// add flags to command
 	var flags []Flag
-	for _, flag := range cmdObj.Flags {
+	for _, flag := range cmd.Flags {
 		flags = append(flags, translateFlag(flag))
 	}
 	// add exit codes to command
-	cmdSpecificExitCodes := translateCmdExitCodes(cmdObj)
-	mergedExitCodes := mergeGlobalCmdExitCodes(domainDoc, cmdSpecificExitCodes)
-	// return the translated command
-	return Command{
-		Aliases:              cmdObj.Aliases,
-		Description:          cmdObj.Description,
-		Group:                cmdObj.Group,
-		Hidden:               cmdObj.Hidden,
-		Line:                 line,
+	cmdSpecificExitCodes := translateCmdExitCodes(cmd)
+	command := Command{
+		Aliases:              cmd.Aliases,
+		Group:                cmd.Group,
+		Hidden:               cmd.Hidden,
+		Line:                 cmdLine,
 		Name:                 name,
-		Summary:              cmdObj.Summary,
+		LeafName:             leaf,
+		Params:               params,
 		Arguments:            args,
 		Flags:                flags,
 		CmdSpecificExitCodes: cmdSpecificExitCodes,
-		ExitCodes:            mergedExitCodes,
 	}
+	// Set attributes IFF they are not zero values overwriting non-zero values
+	if cmd.Description != "" {
+		command.Description = cmd.Description
+	}
+	if cmd.Summary != "" {
+		command.Summary = cmd.Summary
+	}
+	// return the translated command
+	return command
 }
 
-func translateArgument(arg oclidoc.Argument) Argument {
+// parseCommandLine returns three distinct segments of the command line
+// name - the absolute command line path without the parameters
+// leaf - the final command segment in the absolute command line path
+// params - the `{command} <arguments> [flags]` part of the command line if present
+func parseCommandLine(cmdLine string) (string, string, string) {
+	lineParamsRE := regexp.MustCompile(`[^\S\r\n][^A-Za-z]`)
+	name := cmdLine
+	params := ""
+	split := lineParamsRE.Split(name, -1)
+	if len(split) > 0 {
+		name = split[0]
+	}
+	if len(split) > 1 {
+		params = split[1]
+	}
+	commandSegments := regexp.MustCompile(`[^\S\r\n]`).Split(name, -1)
+	leaf := commandSegments[len(commandSegments)-1]
+
+	return name, leaf, params
+}
+
+func translateArgument(arg oclifile.Argument) Argument {
 	domainArg := Argument{
 		Name:        arg.Name,
 		Summary:     arg.Summary,
@@ -558,6 +643,10 @@ func translateArgument(arg oclidoc.Argument) Argument {
 		Type:        arg.Type,
 		Variadic:    arg.Variadic,
 		Required:    arg.Required,
+		Default: DefaultValue{
+			Bool:   arg.Default.Bool,
+			String: arg.Default.String,
+		},
 	}
 
 	for _, choice := range arg.Choices {
@@ -570,7 +659,7 @@ func translateArgument(arg oclidoc.Argument) Argument {
 	return domainArg
 }
 
-func translateFlag(flag oclidoc.Flag) Flag {
+func translateFlag(flag oclifile.Flag) Flag {
 	domainFlag := Flag{
 		Name:        flag.Name,
 		Aliases:     flag.Aliases,
@@ -597,7 +686,7 @@ func translateFlag(flag oclidoc.Flag) Flag {
 	return domainFlag
 }
 
-func translateCmdExitCodes(cmdObj oclidoc.Command) []ExitCode {
+func translateCmdExitCodes(cmdObj oclifile.Command) []ExitCode {
 	var exitCodes []ExitCode
 	statuses := map[string]struct{}{}
 	for _, ec := range cmdObj.ExitCodes {
@@ -637,27 +726,18 @@ func mergeGlobalCmdExitCodes(doc Document, cmdExitCodes []ExitCode) []ExitCode {
 	return exitCodes
 }
 
-func (d *Document) buildCommandTrie() error {
-	rootCmdLine, err := d.rootCommandLine()
-	if err != nil {
-		return err
+func buildCommandTrie(doc oclifile.OpenCliDocument) (*CommandTrie, error) {
+	trie := &CommandTrie{doc: doc}
+	// Fist sort the command lines alphabetically so we have a deterministic order in our Trie
+	var commandLines []string
+	for cmdLine := range doc.Commands {
+		commandLines = append(commandLines, cmdLine)
 	}
-
-	trie := &CommandTrie{}
-
-	trie.Insert(Command{
-		Name:        d.Info.Binary,
-		Line:        rootCmdLine,
-		Summary:     d.Info.Summary,
-		Description: d.Info.Description,
-		Group:       true,
-	})
-
-	for _, cmd := range d.Commands {
-		trie.Insert(cmd)
+	sort.Strings(commandLines)
+	// Insert each command line into the trie
+	for _, cmdLine := range commandLines {
+		trie.Insert(cmdLine, doc.Commands[cmdLine])
 	}
-
-	d.CommandTrie = trie
-
-	return nil
+	// return the constructed trie
+	return trie, nil
 }
