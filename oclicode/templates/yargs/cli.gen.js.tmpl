@@ -32,7 +32,7 @@ function NewCli(impl, version) {
   return yargs.scriptName("{{$rootCmd.Name | EscapeString}}")
     .usage("{{$rootCmd.Line | EscapeString}}")
     {{- range .Doc.CommandTrie.Root.Commands}}
-    .command({{.Command.LeafName | CamelCase}}Cmd)
+    .command({{.Command.Name | CamelCase}}Cmd)
     {{- end}}
     .help()
     .version(version);

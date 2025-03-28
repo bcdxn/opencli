@@ -51,3 +51,7 @@ func toString(v any) string {
 
 	return fmt.Sprintf("%v", v)
 }
+
+func decrement(n int) int {
+	return n - 1
+}

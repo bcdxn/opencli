@@ -9,39 +9,49 @@
  */
 class CliHandlersInterface {
   constructor() {}
-  {{- range .Doc.Commands}}{{if not .Group}}
+  {{- template "cmd_interface_func" .Doc.CommandTrie.Root}}
 
-  /**
+ 
+}
+
+{{- define "cmd_interface_func" }}
+{{- if not .Command.Group}}
+ /**
   * Handles the invocation of:
   * 
   * ```sh
-  * {{.Line}}
+  * {{.Command.Line}}
   * ```
   * @param {yargs.Argv<{}>} argv
-  {{- if .Arguments}}{{/* BEGIN ARGS JSDOC */}}
+  {{- if .Command.Arguments}}{{/* BEGIN ARGS JSDOC */}}
   * @param {object} args
-  {{- range .Arguments}}
+  {{- range .Command.Arguments}}
   * @param {{"{"}}{{.Type}}{{"}"}} {{template "arg_param_name" .}}
   {{- end}}
   {{- end}}{{/* END ARGS JSDOC */}}
-  {{- if .Flags}}{{/* BEGIN FLAGS JSDOC */}}
+  {{- if .Command.Flags}}{{/* BEGIN FLAGS JSDOC */}}
   * @param {object} flags
-  {{- range .Flags}}
+  {{- range .Command.Flags}}
   * @param {{"{"}}{{.Type}}{{"}"}} {{template "flag_param_name" .}}
   {{- end}}
   {{- end}}{{/* END FLAGS JSDOC */}}
   */
-  async {{.Name | CamelCase}}(yargs
-  {{- if .Arguments -}}
+  async {{.Command.Name | CamelCase}}(yargs
+  {{- if .Command.Arguments -}}
   , args
-  {{- end -}}{{- if .Flags -}}
+  {{- end -}}{{- if .Command.Flags -}}
   , flags
   {{- end -}}
   ) {
-    throw new Error('Not Implemented - `{{.Name | CamelCase}}` command handler is not implemented');
+    throw new Error('Not Implemented - `{{.Command.Name | CamelCase}}` command handler is not implemented');
   }
-  {{- end}}{{end}}
-}
+{{- end}}
+
+{{- range .Commands}}
+{{template "cmd_interface_func" .}}
+{{- end}}
+
+{{- end}}
 
 {{- define "arg_param_name" -}}
 {{if not .Required}}[{{end}}args.{{.Name | CamelCase}}{{if not .Required}}]{{end}}

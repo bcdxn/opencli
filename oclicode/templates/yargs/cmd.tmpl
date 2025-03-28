@@ -13,8 +13,75 @@
 {{- define "commandProps" }}
 {{- $node := . }}
 {{- $name := $node.Command.Name | CamelCase}}
-  {{$name}}Cmd.command = "{{$node.Command.Name | EscapeString}}";
+  {{$name}}Cmd.command = "{{$node.Command.LeafName | EscapeString}}";
+  {{$name}}Cmd.describe = "{{if $node.Command.Summary}}{{$node.Command.Summary}}{{else}}{{$node.Command.Description}}{{end}}";
+  {{- if .Command.Aliases}}
+  {{- $last := len .Command.Aliases}}
+  {{- $last = Decrement $last}}
+  {{$name}}Cmd.aliases = [{{range $i, $alias := .Command.Aliases}}"{{$alias | EscapeString}}"{{if lt $i $last}}, {{end}}{{end}}]
+  {{- end}}
+  // add builder function
+  {{$name}}Cmd.builder = function (yargs) {
+    return yargs
+      .usage("{{.Command.Line | EscapeString}}")
+    {{- template "args" .}}
+    {{- template "flags" .}}
+    {{- range .Commands}}
+      .command({{.Command.Name | CamelCase}}Cmd)
+    {{- end}}
+  }
+  {{- if not .Command.Group}}
+  
+  // add handler function
+  {{$name}}Cmd.handler = function (argv) {
+    console.log("invoked!");
+  }
+  {{- end}}
+
 {{- range $id, $subCmd := $node.Commands}}
 {{- template "commandProps" $subCmd}}
+{{- end}}
+{{- end}}
+
+{{- define "args"}}
+{{- range .Command.Arguments}}
+      .positional("<{{.Name | EscapeString}}>", {
+        {{- if or (.Summary) (.Description)}}
+        describe: "{{if .Summary}}{{.Summary}}{{else}}{{.Description}}{{end}}",
+        {{- end}}
+        {{- if .Choices}}
+        {{- $last := len .Choices}}
+        {{- $last = Decrement $last}}
+        choices: [{{range $i, $choice := .Choices}}"{{$choice.Value}}"{{if lt $i $last}}, {{end}}{{end}}],
+        {{- end}}
+        {{- if .Default.String}}
+        default: "{{.Default.String}}",{{else if eq .Type "boolean"}}default: {{.Default.Bool}},
+        {{- end}}
+        type: "{{.Type}}"
+      })
+{{- end}}
+{{- end}}
+
+{{- define "flags"}}
+{{- range .Command.Flags}}
+      .option("{{.Name | EscapeString}}", {
+        {{- if or (.Summary) (.Description)}}
+        describe: "{{if .Summary}}{{.Summary}}{{else}}{{.Description}}{{end}}",
+        {{- end}}
+        {{- if .Choices}}
+        {{- $last := len .Choices}}
+        {{- $last = Decrement $last}}
+        choices: [{{range $i, $choice := .Choices}}"{{$choice.Value}}"{{if lt $i $last}}, {{end}}{{end}}],
+        {{- end}}
+        {{- if .Default.String}}
+        default: "{{.Default.String}}",{{else if eq .Type "boolean"}}default: {{.Default.Bool}},
+        {{- end}}
+        {{- if .Aliases}}
+        {{- $last := len .Aliases}}
+        {{- $last = Decrement $last}}
+        alias: [{{range $i, $alias := .Aliases}}"{{$alias | EscapeString}}"{{if lt $i $last}}, {{end}}{{end}}],
+        {{- end}}
+        type: "{{.Type}}"
+      })
 {{- end}}
 {{- end}}

@@ -81,6 +81,7 @@ func getCliTemplate(framework string) *template.Template {
 		"EscapeString": escapeString,
 		"Inc":          increment,
 		"ToString":     toString,
+		"Decrement":    decrement,
 	}).ParseFS(
 		cliTemplates,
 		fmt.Sprintf("templates/%s/*", framework),
