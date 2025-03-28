@@ -8,45 +8,53 @@ package {{.Opts.Package}}
 /* CLI argument types
 ------------------------------------------------------------------------------------------------- */
 
-{{- range $i, $cmd := .Doc.Commands}}
-{{- if not .Group}}
-{{- if .Arguments}}
+{{- template "command_args" .Doc.CommandTrie.Root}}
+{{- end}}
 
-// {{.Name | PascalCase}}Args holds the parsed arguments that will be injected into the command handler implementation.
-type {{.Name | PascalCase}}Args struct {
-{{- range .Arguments}}
+{{- define "command_args"}}
+{{- if .Command.Arguments}}
+
+// {{.Command.Name | PascalCase}}Args holds the parsed arguments that will be injected into the command handler implementation.
+type {{.Command.Name | PascalCase}}Args struct {
+{{- range .Command.Arguments}}
   {{.Name | PascalCase}} {{if .Variadic}}[]{{end}}{{if eq .Type "string"}}string{{else}}bool{{end}}
 {{- end}}
 }
-
-{{- end}}
-{{- end}}
-{{- end}}
 {{- end}}
 
+{{- range .Commands}}
+{{- template "command_args" .}}
+{{- end}}
+
+{{- end}}
 
 {{- if .Doc.Flags}}
 
 /* CLI flag types
 ------------------------------------------------------------------------------------------------- */
 
-{{- range $i, $cmd := .Doc.Commands}}
-{{- if not .Group}}
-{{- if .Flags}}
+{{- template "command_flags" .Doc.CommandTrie.Root}}
+{{- end}}
 
-// {{.Name | PascalCase}}Flag holds the parsed arguments that will be injected into the command handler implementation.
-type {{.Name | PascalCase}}Flags struct {
-{{- range .Flags}}
+{{- define "command_flags"}}
+{{- if .Command.Flags}}
+
+// {{.Command.Name | PascalCase}}Flags holds the parsed flags that will be injected into the command handler implementation.
+type {{.Command.Name | PascalCase}}Flags struct {
+{{- range .Command.Flags}}
   {{.Name | PascalCase}} {{if .Variadic}}[]{{end}}{{if eq .Type "string"}}string{{else}}bool{{end}}
 {{- end}}
 }
+{{- end}}
 
+{{- range .Commands}}
+{{- template "command_flags" .}}
 {{- end}}
-{{- end}}
-{{- end}}
+
 {{- end}}
 
 {{- if or (.Doc.FixedEnumeratedArgs) (.Doc.FixedEnumeratedFlags)}}
+
 func validateChoices(choices []string, val string) bool {
 	for _, choice := range choices {
 		if choice == val {
@@ -58,7 +66,9 @@ func validateChoices(choices []string, val string) bool {
 }
 {{- end}}
 
+
 {{- if or (.Doc.VariadicEnumeratedArgs) (.Doc.VariadicEnumeratedFlags)}}
+
 func validateChoicesSlice(choices []string, values []string) bool {
 	for _, val := range values {
 		valid := false
@@ -74,5 +84,4 @@ func validateChoicesSlice(choices []string, values []string) bool {
 	}
 	return true
 }
-
 {{- end}}

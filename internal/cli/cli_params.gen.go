@@ -26,18 +26,19 @@ type OcliSpecificationCheckArgs struct {
 /* CLI flag types
 ------------------------------------------------------------------------------------------------- */
 
-// OcliGenerateCliFlag holds the parsed arguments that will be injected into the command handler implementation.
+// OcliGenerateCliFlags holds the parsed flags that will be injected into the command handler implementation.
 type OcliGenerateCliFlags struct {
   Framework string
   Package string
   Dryrun bool
 }
 
-// OcliGenerateDocsFlag holds the parsed arguments that will be injected into the command handler implementation.
+// OcliGenerateDocsFlags holds the parsed flags that will be injected into the command handler implementation.
 type OcliGenerateDocsFlags struct {
   Format string
   Dryrun bool
 }
+
 func validateChoices(choices []string, val string) bool {
 	for _, choice := range choices {
 		if choice == val {

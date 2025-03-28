@@ -222,7 +222,7 @@ func (d Document) VariadicEnumeratedFlags() bool {
 	var helper func(node *CommandTrieNode) bool
 	helper = func(node *CommandTrieNode) bool {
 		for _, flag := range node.Command.Flags {
-			if len(flag.Choices) > 0 && !flag.Variadic {
+			if len(flag.Choices) > 0 && flag.Variadic {
 				return true
 			}
 		}

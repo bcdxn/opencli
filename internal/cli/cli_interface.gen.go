@@ -13,6 +13,7 @@ import (
 // An implementation of this interface will be injected into the generated CLI wrapper code.
 type CLIHandlersInterface interface {
 
+
   // OcliGenerateCli handles the invocation of:
   // 
   // ```sh
@@ -26,6 +27,7 @@ type CLIHandlersInterface interface {
   // ocli generate docs <path-to-spec> <path-to-output-dir> [flags]
   // ```
   OcliGenerateDocs(ctx context.Context, cmd *urfavecli.Command, arguments  OcliGenerateDocsArgs, flags OcliGenerateDocsFlags) error
+
 
   // OcliSpecificationCheck handles the invocation of:
   // 

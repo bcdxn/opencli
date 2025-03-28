@@ -12,18 +12,26 @@ import (
 // CLIHandlersInterface represents the handlers required to implement all commands of the CLI.
 // An implementation of this interface will be injected into the generated CLI wrapper code.
 type CLIHandlersInterface interface {
-{{range .Doc.Commands}}{{if not .Group}}
-  // {{.Name | PascalCase}} handles the invocation of:
+{{- template "cmd_interface_func" .Doc.CommandTrie.Root}}
+}
+
+{{- define "cmd_interface_func"}}
+{{- if not .Command.Group}}
+  // {{.Command.Name | PascalCase}} handles the invocation of:
   // 
   // ```sh
-  // {{.Line}}
+  // {{.Command.Line}}
   // ```
-  {{.Name | PascalCase}}(ctx context.Context, cmd *urfavecli.Command
-{{- if .Arguments -}}
-, arguments  {{.Name | PascalCase}}Args
-{{- end -}}{{- if .Flags -}}
-, flags {{.Name | PascalCase}}Flags
+  {{.Command.Name | PascalCase}}(ctx context.Context, cmd *urfavecli.Command
+{{- if .Command.Arguments -}}
+, arguments  {{.Command.Name | PascalCase}}Args
+{{- end -}}{{- if .Command.Flags -}}
+, flags {{.Command.Name | PascalCase}}Flags
 {{- end -}}
 ) error
-{{end}}{{end -}}
-}
+{{- end}}
+
+{{- range .Commands}}
+{{template "cmd_interface_func" .}}
+{{- end}}
+{{- end}}
