@@ -233,6 +233,24 @@ func (d Document) VariadicEnumeratedFlags() bool {
 	return helper(d.CommandTrie.Root)
 }
 
+func (d Document) InternalCliErrorCode() int {
+	for _, ec := range d.Global.ExitCodes {
+		if ec.Status == "INTERNAL_CLI_ERROR" {
+			return ec.Code
+		}
+	}
+	return 1
+}
+
+func (d Document) BadUserInputErrorCode() int {
+	for _, ec := range d.Global.ExitCodes {
+		if ec.Status == "BAD_USER_INPUT_ERROR" {
+			return ec.Code
+		}
+	}
+	return 2
+}
+
 // NonHiddenFlags returns true if there are any flags for the given command where Hidden isfalse.
 func (cmd Command) VisibleFlags() bool {
 	visible := false

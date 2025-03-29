@@ -23,7 +23,7 @@ func (Impl) OcliGenerateCli(ctx context.Context, c *urfavecli.Command, args Ocli
 		return err
 	}
 
-	files, err := oclicode.Generate(doc, oclicode.Package(flags.Package), oclicode.Framework(flags.Framework))
+	files, err := oclicode.Generate(doc, oclicode.GoPackage(flags.GoPackage), oclicode.Framework(flags.Framework))
 	if err != nil {
 		return err
 	}

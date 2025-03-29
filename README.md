@@ -45,32 +45,32 @@ commands:
     arguments:
       - name: "name"
         summary: "A name to include the greeting"
-        required: false
+        required: true
         type: "string"
     flags:
       - name: "language"
         summary: "The language of the greeting"
-        required: false
         type: "string"
         choices:
           - value: "english"
           - value: "spanish"
+        default: "english"
 
   pleasantries farewell <name> [flags]:
     summary: "Say goodbye"
     arguments:
       - name: "name"
         summary: "A name to include in the farewell"
-        required: false
+        required: true
         type: "string"
     flags:
       - name: "language"
         summary: "The language of the greeting"
-        required: false
         type: "string"
         choices:
           - value: "english"
           - value: "spanish"
+        default: "english"
 ```
 
 See a full example of an OpenCLI Document [here](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli.ocs.yaml) - the document that defines the OpenCLI CLI 🤯

@@ -54,8 +54,16 @@ global:
         - "h"
       summary: "Short circuit the command and show a contextual help message"
       type: "boolean"
+    - name: "version"
+      aliases: ["v"]
+      summary: "List the release version of the CLI"
+      type: "boolean"
+      default: false
       
 commands:
+  ocli {command} <arguments> [flags]:
+    group: true
+
   ocli specification {command} <arguments> [flags]:
     aliases:
       - "spec"
@@ -157,11 +165,11 @@ commands:
             description: "[yargs](https://yargs.js.org) is a popular CLI framework for Node.js"
           - value: "oclif"
             description: "[oclif](https://oclif.io) is a popular CLI framework written in Typescript"
-      - name: "package"
-        summary: "The package name used to house the generated code"
+      - name: "go-package"
+        summary: "The package name used to house the generated code; required for go frameworks."
         type: "string"
         default: "cli"
-        required: true
+        required: false
       - name: "dryrun"
         summary: "When true the docs contents will be output to stdout instead of the file"
         type: "boolean"

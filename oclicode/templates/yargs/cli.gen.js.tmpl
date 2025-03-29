@@ -1,41 +1,113 @@
-const yargs = require('yargs')
-require('./cli-interface.gen')
+const yargs = require('yargs');
+const { hideBin } = require('yargs/helpers');
+require('./cli-interface.gen');
 
 /**
- * Create a new instance of the CLI that can be run, e.g:
+ * Cli represents a configured command line interface App that can be run.
  *
- * ```js
- * #!/usr/bin/env node
- * // index.js
- * const { NewCli } = require('./{{.Opts.Package}}/cli.gen');
- * const { impl } = require('./your-implementation');
- *
- * async function main() {
- *   const version = '1.0.0';
- *   let cli = NewCli(impl, version);
- * 
- *   return cli.new(handlers, version).parseAsync();
- * }
- * ```
+ * @class
+ */
+class Cli {
+  /**
+   * Create a new instance of the CLI that can be run, e.g:
+   *
+   * ```js
+   * #!/usr/bin/env node
+   * // index.js
+   * const { Cli } = require('./{{.Opts.GoPackage}}/cli.gen');
+   * const { impl } = require('./your-implementation');
+   *
+   * async function main() {
+   *   const version = '1.0.0';
+   *   let cli = new Cli(impl, version);
+   * 
+   *   cli.new(handlers, version).parseAsync();
+   *   return cli.run();
+   * }
+   *
+   * main();
+   * ```
+   *
+   * @param {CliHandlersInterface} impl - The class implementing all of the command handlers
+   * @param {string} version - The version of the CLI to display for the `--version` flag
+   * @returns {yargs.Argv<{}>} - The yargs object ready to be parsed
+   */
+  constructor(impl, version) {
+    this._yargs = newCli(impl, version)
+  }
+
+  /**
+   * Get direct access to the underlying yargs object.
+   *
+   * @returns {yargs.Argv<{}>}
+   */
+  yargs() {
+    return this._yargs
+  }
+
+  /**
+   * Run the CLI.
+   *
+   * @returns Promise<>
+   */
+  async run() {
+    return this._yargs.parseAsync()
+  }
+}
+
+module.exports.Cli = Cli
+
+/**
+ * Create a new instance of the CLI that can be run.
  *
  * @param {CliHandlersInterface} impl - The class implementing all of the command handlers
  * @param {string} version - The version of the CLI to display for the `--version` flag
  * @returns {yargs.Argv<{}>} - The yargs object ready to be parsed
  */
-function NewCli(impl, version) {
+function newCli(impl, version) {
 {{- range .Doc.CommandTrie.Root.Commands}}
   {{template "cmd.tmpl" .}}
 {{- end}}
 
 {{- $rootCmd := .Doc.CommandTrie.Root.Command}}
 
-  return yargs.scriptName("{{$rootCmd.Name | EscapeString}}")
+  return yargs(hideBin(process.argv)).scriptName("{{$rootCmd.Name | EscapeString}}")
     .usage("{{$rootCmd.Line | EscapeString}}")
     {{- range .Doc.CommandTrie.Root.Commands}}
     .command({{.Command.Name | CamelCase}}Cmd)
     {{- end}}
     .help()
-    .version(version);
+    .version(version)
+    .fail(async (msg, err, yargs) => {
+      if (msg) {
+        console.log(yargs.help())
+        console.log("\n", "Error", "-", msg);
+
+        if (/^invalid values:/i.test(msg)) {
+          process.exit({{.Doc.BadUserInputErrorCode}});
+        } else if (/^missing required argument/i.test(msg)) {
+          process.exit({{.Doc.BadUserInputErrorCode}});
+        } else {
+          process.exit({{.Doc.InternalCliErrorCode}});
+        }
+      } else if (err) {
+        console.log(yargs.help());
+        console.log("\n", err.name, "-", err.message);
+        process.exit(err.code ?? {{.Doc.InternalCliErrorCode}});
+      }
+    });
 }
 
-module.exports.NewCli = NewCli;
+/**
+ * Force the node process to exit with the given code.
+ *
+ * @param {number} code The exit code that will be returned to the calling shell
+ * @param {string} [msg] The error message to display before exiting
+ */
+function exitCli(code, msg) {
+  if (msg) {
+    console.log(msg);
+  }
+
+  process.exit(code);
+}

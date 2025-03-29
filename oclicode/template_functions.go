@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+
+	"github.com/bcdxn/opencli/oclispec"
 )
 
 var breakRE = regexp.MustCompile(`(?:[^\S\r\n]|[^0-9A-Za-z])+`)
@@ -54,4 +56,10 @@ func toString(v any) string {
 
 func decrement(n int) int {
 	return n - 1
+}
+
+func addCmdDepth(n int, cmd oclispec.Command) int {
+	cmdSegments := regexp.MustCompile(`[^\S\r\n]`).Split(cmd.Name, -1)
+	// we subtract 1 because we don't want to include the binary in the command length
+	return len(cmdSegments) + n - 1
 }

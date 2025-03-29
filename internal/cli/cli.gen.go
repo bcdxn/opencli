@@ -22,7 +22,6 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
 
   ocliCmd.Name = "ocli"
   ocliCmd.UsageText = "ocli {command} <arguments> [flags]"
-  ocliCmd.Usage = "A CLI for working with OpenCLI Specs"
   ocliCmd.Commands = []*urfavecli.Command{
     ocliGenerateCmd,
     ocliSpecificationCmd,
@@ -53,8 +52,8 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
       },
     },
     &urfavecli.StringFlag{
-      Name: "package",
-      Usage: "The package name used to house the generated code",
+      Name: "go-package",
+      Usage: "The package name used to house the generated code; required for go frameworks.",
       Value: "cli",
     },
     &urfavecli.BoolFlag{
@@ -92,10 +91,7 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
     if !validChoice {
       return urfavecli.Exit("invalid value for flag --framework", 2)
     }
-    flags.Package = cmd.String("package")
-    if !cmd.IsSet("package") {
-      return urfavecli.Exit("missing required flag --package", 2)
-    }
+    flags.GoPackage = cmd.String("go-package")
     flags.Dryrun = cmd.Bool("dryrun")
 
     return impl.OcliGenerateCli(ctx, cmd, args, flags)

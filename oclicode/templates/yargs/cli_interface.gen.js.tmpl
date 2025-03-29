@@ -22,28 +22,28 @@ class CliHandlersInterface {
   * ```sh
   * {{.Command.Line}}
   * ```
-  * @param {yargs.Argv<{}>} argv
+  * @param {yargs.Argv<{}>} yargv - The result of yargs parsing the argv.
   {{- if .Command.Arguments}}{{/* BEGIN ARGS JSDOC */}}
-  * @param {object} args
+  * @param {object} args - Named positional argument parameters
   {{- range .Command.Arguments}}
-  * @param {{"{"}}{{.Type}}{{"}"}} {{template "arg_param_name" .}}
+  * @param {{"{"}}{{.Type}}{{"}"}} {{template "arg_param_name" .}}{{if .Summary}} - {{.Summary}}{{end}}
   {{- end}}
   {{- end}}{{/* END ARGS JSDOC */}}
   {{- if .Command.Flags}}{{/* BEGIN FLAGS JSDOC */}}
-  * @param {object} flags
+  * @param {object} flags - Named flag parameters
   {{- range .Command.Flags}}
-  * @param {{"{"}}{{.Type}}{{"}"}} {{template "flag_param_name" .}}
+  * @param {{"{"}}{{.Type}}{{"}"}} {{template "flag_param_name" .}}{{if .Summary}} - {{.Summary}}{{end}}
   {{- end}}
   {{- end}}{{/* END FLAGS JSDOC */}}
   */
-  async {{.Command.Name | CamelCase}}(yargs
+  async {{.Command.Name | CamelCase}}(yargv
   {{- if .Command.Arguments -}}
   , args
   {{- end -}}{{- if .Command.Flags -}}
   , flags
   {{- end -}}
   ) {
-    throw new Error('Not Implemented - `{{.Command.Name | CamelCase}}` command handler is not implemented');
+    return Promise.reject(new Error('Not Implemented - `{{.Command.Name | CamelCase}}` command handler is not implemented'));
   }
 {{- end}}
 
@@ -60,3 +60,5 @@ class CliHandlersInterface {
 {{- define "flag_param_name" -}}
 {{if not .Required}}[{{end}}flags.{{.Name | CamelCase}}{{if not .Required}}]{{end}}
 {{- end}}
+
+module.exports.CliHandlersInterface = CliHandlersInterface;

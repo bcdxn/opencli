@@ -29,7 +29,7 @@ type OcliSpecificationCheckArgs struct {
 // OcliGenerateCliFlags holds the parsed flags that will be injected into the command handler implementation.
 type OcliGenerateCliFlags struct {
   Framework string
-  Package string
+  GoPackage string
   Dryrun bool
 }
 

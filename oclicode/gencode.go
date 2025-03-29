@@ -16,7 +16,7 @@ type GenCliOptions func(*genCliOptions)
 // Generate generates CLI boilerplate for the given OpenCLI document using the specified framework.
 func Generate(doc oclispec.Document, options ...GenCliOptions) ([]GenFile, error) {
 	opts := &genCliOptions{
-		Package:   "cli",
+		GoPackage: "cli",
 		Framework: "urfavecli",
 	}
 
@@ -36,9 +36,9 @@ func Generate(doc oclispec.Document, options ...GenCliOptions) ([]GenFile, error
 	return nil, errors.New("unsupported framework")
 }
 
-func Package(name string) GenCliOptions {
+func GoPackage(name string) GenCliOptions {
 	return func(opts *genCliOptions) {
-		opts.Package = name
+		opts.GoPackage = name
 	}
 }
 
@@ -59,7 +59,7 @@ type GenFile struct {
 // genDocsOptions represents the configurable options when generating documentation.
 // The options are meant to be configured using the functional options pattern.
 type genCliOptions struct {
-	Package   string
+	GoPackage string
 	Framework string
 }
 
@@ -81,7 +81,8 @@ func getCliTemplate(framework string) *template.Template {
 		"EscapeString": escapeString,
 		"Inc":          increment,
 		"ToString":     toString,
-		"Decrement":    decrement,
+		"Dec":          decrement,
+		"AddCmdDepth":  addCmdDepth,
 	}).ParseFS(
 		cliTemplates,
 		fmt.Sprintf("templates/%s/*", framework),

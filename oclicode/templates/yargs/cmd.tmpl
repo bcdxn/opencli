@@ -17,7 +17,7 @@
   {{$name}}Cmd.describe = "{{if $node.Command.Summary}}{{$node.Command.Summary}}{{else}}{{$node.Command.Description}}{{end}}";
   {{- if .Command.Aliases}}
   {{- $last := len .Command.Aliases}}
-  {{- $last = Decrement $last}}
+  {{- $last = Dec $last}}
   {{$name}}Cmd.aliases = [{{range $i, $alias := .Command.Aliases}}"{{$alias | EscapeString}}"{{if lt $i $last}}, {{end}}{{end}}]
   {{- end}}
   // add builder function
@@ -32,10 +32,7 @@
   }
   {{- if not .Command.Group}}
   
-  // add handler function
-  {{$name}}Cmd.handler = function (argv) {
-    console.log("invoked!");
-  }
+  {{template "cmd_handler.tmpl" .}}
   {{- end}}
 
 {{- range $id, $subCmd := $node.Commands}}
@@ -51,7 +48,7 @@
         {{- end}}
         {{- if .Choices}}
         {{- $last := len .Choices}}
-        {{- $last = Decrement $last}}
+        {{- $last = Dec $last}}
         choices: [{{range $i, $choice := .Choices}}"{{$choice.Value}}"{{if lt $i $last}}, {{end}}{{end}}],
         {{- end}}
         {{- if .Default.String}}
@@ -70,16 +67,21 @@
         {{- end}}
         {{- if .Choices}}
         {{- $last := len .Choices}}
-        {{- $last = Decrement $last}}
+        {{- $last = Dec $last}}
         choices: [{{range $i, $choice := .Choices}}"{{$choice.Value}}"{{if lt $i $last}}, {{end}}{{end}}],
         {{- end}}
         {{- if .Default.String}}
-        default: "{{.Default.String}}",{{else if eq .Type "boolean"}}default: {{.Default.Bool}},
+        default: "{{.Default.String}}",
+        {{- else if eq .Type "boolean"}}
+        default: {{.Default.Bool}},
         {{- end}}
         {{- if .Aliases}}
         {{- $last := len .Aliases}}
-        {{- $last = Decrement $last}}
+        {{- $last = Dec $last}}
         alias: [{{range $i, $alias := .Aliases}}"{{$alias | EscapeString}}"{{if lt $i $last}}, {{end}}{{end}}],
+        {{- end}}
+        {{- if .Required}}
+        demandOption: true,
         {{- end}}
         type: "{{.Type}}"
       })

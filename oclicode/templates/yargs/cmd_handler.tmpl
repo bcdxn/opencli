@@ -1,0 +1,35 @@
+{{- $cmd := .Command }}
+{{- $name := $cmd.Name | CamelCase}}
+  // add handler function
+  {{$name}}Cmd.handler = function (yargv) {
+    {{- if $cmd.Arguments}}{{/*BEGIN ARGUMENTS*/}}
+    const args = {
+    {{- $last := len $cmd.Arguments}}
+    {{- $last = Dec $last}}
+    {{- range $i, $arg := $cmd.Arguments}}
+      {{$arg.Name | CamelCase}}: yargv._[{{AddCmdDepth $i $cmd}}]{{if lt $i $last}},{{end}}
+    {{- end}}
+    };
+    
+    {{- range $i, $arg := $cmd.Arguments}}
+    {{- if $arg.Required}}
+    if (yargv._.length < {{Inc (AddCmdDepth $i $cmd)}}) {
+      let e = new Error("Missing required argument: {{$arg.Name | EscapeString}}");
+      e.code = {{$cmd.BadUserInputErrorCode}};
+      return Promise.reject(e);
+    }
+    {{- end}}
+    {{- end}}
+    {{- end}}{{/*END ARGUMENTS*/}}
+
+    {{- if $cmd.Flags}}
+    {{- $last := len $cmd.Flags}}
+    {{- $last = Dec $last}}
+    const flags = {
+    {{- range $i, $flag := $cmd.Flags}}
+      {{$flag.Name | CamelCase}}: yargv["{{$flag.Name | EscapeString}}"]{{if lt $i $last}},{{end}}
+    {{- end}}
+    };
+    {{- end}}
+    return impl.{{$cmd.Name | CamelCase}}(yargv{{if $cmd.Arguments}}, args{{end}}{{if $cmd.Flags}}, flags{{end}})
+  }
