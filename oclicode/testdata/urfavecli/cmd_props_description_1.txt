@@ -1,0 +1,2 @@
+
+	myNeatNestedCmd.Usage = "A test description"

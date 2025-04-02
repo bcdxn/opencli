@@ -1,0 +1,9 @@
+{{- if .Command.Arguments }}
+	{{.Command.Name | CamelCase}}Cmd.Arguments = []urfavecli.Argument{
+	{{- range .Command.Arguments}}
+		&urfavecli.StringArg{
+			Name: "{{.Name | EscapeString}}",
+		},
+	{{- end}}
+	}
+{{- end}}

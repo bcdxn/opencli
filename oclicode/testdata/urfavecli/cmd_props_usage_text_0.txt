@@ -1,0 +1,2 @@
+
+	myNeatNestedCmd.UsageText = "my neat nested <arguments> [flags]"

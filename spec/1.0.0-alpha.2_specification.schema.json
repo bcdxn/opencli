@@ -391,106 +391,73 @@
             {
               "description": "The literal default value",
               "type": "boolean"
-            },
-            {
-              "type": "object",
-              "properties": {
-                "sources": {
-                  "description": "The possible sources of the default value; order is important as it determines the order of resolution.",
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "oneOf": [
-                      {
-                        "properties": {
-                          "type": {
-                            "description": "The source type of environment variable.",
-                            "type": "string",
-                            "choices": [
-                              "env"
-                            ]
-                          },
-                          "name": {
-                            "description": "The environmet variable name.",
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "type",
-                          "name"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "properties": {
-                          "type": {
-                            "description": "The source type of file.",
-                            "type": "string",
-                            "choices": [
-                              "file"
-                            ]
-                          },
-                          "format": {
-                            "description": "The expected format of the configuration file.",
-                            "type": "string"
-                          },
-                          "path": {
-                            "description": "The path to the configuration file.",
-                            "type": "string"
-                          },
-                          "name": {
-                            "description": "The property name within the file.",
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "type",
-                          "format",
-                          "path",
-                          "name"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "properties": {
-                          "type": {
-                            "description": "the source type of 'constant'",
-                            "type": "string",
-                            "choices": [
-                              "const"
-                            ]
-                          },
-                          "value": {
-                            "description": "The literal default value",
-                            "oneOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "number"
-                              },
-                              {
-                                "type": "boolean"
-                              }
-                            ]
-                          }
-                        },
-                        "required": [
-                          "type",
-                          "value"
-                        ],
-                        "additionalProperties": false
-                      }
-                    ]
-                  },
-                  "minItems": 1
-                }
-              },
-              "required": [
-                "sources"
-              ]
             }
           ]
+        },
+        "alternativeSources": {
+          "description": "The possible sources of the default value; order is important as it determines the order of resolution.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "oneOf": [
+              {
+                "properties": {
+                  "type": {
+                    "description": "The source type of environment variable.",
+                    "type": "string",
+                    "choices": [
+                      "env"
+                    ]
+                  },
+                  "name": {
+                    "description": "The environmet variable name.",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type",
+                  "name"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "properties": {
+                  "type": {
+                    "description": "The source type of file.",
+                    "type": "string",
+                    "choices": [
+                      "file"
+                    ]
+                  },
+                  "format": {
+                    "description": "The expected format of the configuration file.",
+                    "type": "string",
+                    "choices": [
+                      "json",
+                      "toml",
+                      "yaml"
+                    ]
+                  },
+                  "path": {
+                    "description": "The path to the configuration file.",
+                    "type": "string"
+                  },
+                  "property": {
+                    "description": "The property name within the file. For YAML and JSON files this can be a [json-path](https://datatracker.ietf.org/doc/html/rfc9535).",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type",
+                  "format",
+                  "path",
+                  "property"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "minItems": 1
         },
         "hidden": {
           "type": "boolean",

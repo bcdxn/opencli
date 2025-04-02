@@ -1,0 +1,46 @@
+{{- $cmd := .Command -}}
+{{- if not $cmd.Group}}
+{{- if $cmd.Arguments}}
+		var args {{$cmd.Name | PascalCase}}Args
+
+		{{- /* MANUALLY ENFORCE REQUIRED */}}
+		{{- range $i, $arg := $cmd.Arguments}}
+		{{- if $arg.Required}}
+		if cmd.NArg() < {{Inc $i}} {
+			return urfavecli.Exit("missing required arg <{{$arg.Name | EscapeString}}>", {{$cmd.BadUserInputErrorCode}})
+		}
+		{{- end}}
+		{{- end}}
+
+		{{- /* SET VALUE IN ARGS VAR */}}
+		{{- range $i, $arg := $cmd.Arguments}}
+		{{- if $arg.Variadic}}
+		args.{{$arg.Name | PascalCase}} = cmd.Args().Slice()[{{$i}}:]
+		{{- else}}
+		args.{{$arg.Name | PascalCase}} = cmd.Args().Get({{$i}})
+		{{- end}}
+		{{- end}}
+
+		{{- /* ENSURE ENUMERATION ARGS */}}
+		{{- if or ($cmd.FixedEnumeratedArgs) ($cmd.VariadicEnumeratedArgs)}}
+
+		var validArgChoice bool
+		{{- end}}
+		{{- range $i, $arg := $cmd.Arguments}}
+		{{- if $arg.Choices}}
+		validArgChoice = validateChoices{{if $arg.Variadic}}Slice{{end}}(
+			[]string{
+				{{- range $arg.Choices}}
+				"{{.Value | EscapeString}}",
+				{{- end}}
+			},
+			args.{{.Name | PascalCase}},
+		)
+		if !validArgChoice {
+			return urfavecli.Exit("invalid value for argument <{{$arg.Name | EscapeString}}>", {{$cmd.BadUserInputErrorCode}})
+		}
+		{{- end}}
+		{{- end}}{{- /* END ENSURE ENUMERATION ARGS */}}
+
+{{- end}}
+{{- end}}

@@ -10,6 +10,18 @@ import (
 
 var breakRE = regexp.MustCompile(`(?:[^\S\r\n]|[^0-9A-Za-z])+`)
 
+func funcmap() map[string]any {
+	return map[string]any{
+		"PascalCase":   pascalCase,
+		"CamelCase":    camelCase,
+		"EscapeString": escapeString,
+		"Inc":          increment,
+		"ToString":     toString,
+		"Dec":          decrement,
+		"AddCmdDepth":  addCmdDepth,
+	}
+}
+
 func pascalCase(s string) string {
 	segments := breakRE.Split(s, -1)
 	pascalCasedSegments := []string{}

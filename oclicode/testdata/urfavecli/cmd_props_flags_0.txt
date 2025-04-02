@@ -1,0 +1,28 @@
+
+	myNeatNestedCmd.Flags = []urfavecli.Flag{
+		&urfavecli.StringFlag{
+			Name: "one-flag",
+			Usage: "A test summary",
+			Aliases: []string{
+				"o",
+				"f",
+			},
+			Value: "default_const",
+			Sources: urfavecli.NewValueSourceChain(
+				urfavecli.EnvVar("SOME_VAR"),
+				altsrc.YAML("some.var", "~/config.yaml").Chain[0],
+				altsrc.JSON("some.var", "~/config.json").Chain[0],
+				altsrc.TOML("some.var", "~/config").Chain[0],
+			),
+			Hidden: false,
+		},
+		&urfavecli.BoolFlag{
+			Name: "two-flag",
+			Usage: "A test description",
+			Hidden: false,
+		},
+		&urfavecli.StringSliceFlag{
+			Name: "three-flag",
+			Hidden: true,
+		},
+	}

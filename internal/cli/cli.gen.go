@@ -4,9 +4,10 @@
 package cli
 
 import (
-  "context"
+	"context"
 
-  urfavecli "github.com/urfave/cli/v3"
+	"github.com/urfave/cli-altsrc/v3"
+	urfavecli "github.com/urfave/cli/v3"
 )
 
 func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
@@ -55,6 +56,14 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
       Name: "go-package",
       Usage: "The package name used to house the generated code; required for go frameworks.",
       Value: "cli",
+      Sources: urfavecli.NewValueSourceChain(
+        urfavecli.EnvVar("OCLI_CODEGEN_GO_PACKAGE"),
+        altsrc.YAML("codegen.go.package", "./tmp/config.yaml").Chain[0],
+      ),
+      // Sources: urfavecli.NewValueSourceChain(
+      //   urfavecli.EnvVar("OCLI_CODEGEN_GO_PACKAGE"),
+      //   altsrc.YAML("codegen.go.package", "./tmp/config.yaml"),
+      // ),
     },
     &urfavecli.BoolFlag{
       Name: "dryrun",

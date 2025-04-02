@@ -53,6 +53,7 @@ type Install struct {
 
 type Global struct {
 	ExitCodes []ExitCode `json:"exitCodes" yaml:"exitCodes"`
+	Flags     []Flag     `json:"flags" yaml:"flags"`
 }
 
 // ExitCode represents a possible exit code from the CLI.
@@ -90,17 +91,18 @@ type Argument struct {
 
 // Flag represents an OpenCLI command flag.
 type Flag struct {
-	Name        string       `json:"name" yaml:"name"`
-	Aliases     []string     `json:"aliases" yaml:"aliases"`
-	Hint        string       `json:"hint" yaml:"hint"`
-	Summary     string       `json:"summary" yaml:"summary"`
-	Description string       `json:"description" yaml:"description"`
-	Type        string       `json:"type" yaml:"type"`
-	Variadic    bool         `json:"variadic" yaml:"variadic"`
-	Choices     []Choice     `json:"choices" yaml:"choices"`
-	Hidden      bool         `json:"hidden" yaml:"hidden"`
-	Required    bool         `json:"required" yaml:"required"`
-	Default     DefaultValue `json:"default" yaml:"default"`
+	Name        string              `json:"name" yaml:"name"`
+	Aliases     []string            `json:"aliases" yaml:"aliases"`
+	Hint        string              `json:"hint" yaml:"hint"`
+	Summary     string              `json:"summary" yaml:"summary"`
+	Description string              `json:"description" yaml:"description"`
+	Type        string              `json:"type" yaml:"type"`
+	Variadic    bool                `json:"variadic" yaml:"variadic"`
+	Choices     []Choice            `json:"choices" yaml:"choices"`
+	Hidden      bool                `json:"hidden" yaml:"hidden"`
+	Required    bool                `json:"required" yaml:"required"`
+	Default     DefaultValue        `json:"default" yaml:"default"`
+	AltSources  []AlternativeSource `json:"alternativeSources" yaml:"alternativeSources"`
 }
 
 // Choice represents an enumeration of an argument/flag
@@ -110,6 +112,7 @@ type Choice struct {
 }
 
 type DefaultValue struct {
+	IsSet  bool
 	Bool   bool
 	String string
 }
@@ -120,6 +123,7 @@ func (v *DefaultValue) UnmarshalJSON(bs []byte) error {
 	err := json.Unmarshal(bs, &b)
 	if err == nil {
 		v.Bool = b
+		v.IsSet = true
 		return nil
 	}
 	// next try unmarshalling a string value
@@ -127,6 +131,7 @@ func (v *DefaultValue) UnmarshalJSON(bs []byte) error {
 	err = json.Unmarshal(bs, &s)
 	if err == nil {
 		v.String = s
+		v.IsSet = true
 		return nil
 	}
 
@@ -140,6 +145,7 @@ func (v *DefaultValue) UnmarshalYAML(node *yaml.Node) error {
 	err := yaml.Unmarshal([]byte(node.Value), &b)
 	if err == nil {
 		v.Bool = b
+		v.IsSet = true
 		return nil
 	}
 	// next try unmarshalling a string value
@@ -147,8 +153,71 @@ func (v *DefaultValue) UnmarshalYAML(node *yaml.Node) error {
 	err = yaml.Unmarshal([]byte(node.Value), &s)
 	if err == nil {
 		v.String = s
+		v.IsSet = true
 		return nil
 	}
 	// The value was neither a string nor a bool and is therefore not allowed
 	return errors.New("expected bool or string but found neither")
+}
+
+type AlternativeSource struct {
+	Type                string
+	EnvironmentVariable string
+	File                FileSource
+}
+
+func (s *AlternativeSource) UnmarshalJSON(bs []byte) error {
+	// first try unmarshalling an environment variable source
+	var env EnvironmentVariableSource
+	err := json.Unmarshal(bs, &env)
+	if err != nil {
+		s.EnvironmentVariable = env.Name
+		s.Type = env.Type
+		return nil
+	}
+
+	// next try unmarshalling a file source
+	var file FileSource
+	err = json.Unmarshal(bs, &file)
+	if err != nil {
+		s.File = file
+		s.Type = file.Type
+		return nil
+	}
+
+	return errors.New("expected EnvironmentVariable or File alternative source but found neither")
+}
+
+func (s *AlternativeSource) UnmarshalYAML(node *yaml.Node) error {
+	// first try unmarshalling an environment variable source
+	var env EnvironmentVariableSource
+	err := yaml.Unmarshal([]byte(node.Value), &env)
+	if err != nil {
+		s.EnvironmentVariable = env.Name
+		s.Type = env.Type
+		return nil
+	}
+
+	// next try unmarshalling a file source
+	var file FileSource
+	err = yaml.Unmarshal([]byte(node.Value), &file)
+	if err != nil {
+		s.File = file
+		s.Type = file.Type
+		return nil
+	}
+
+	return errors.New("expected EnvironmentVariable or File alternative source but found neither")
+}
+
+type EnvironmentVariableSource struct {
+	Type string `json:"type" yaml:"type"`
+	Name string `json:"name" yaml:"name"`
+}
+
+type FileSource struct {
+	Type     string `json:"type" yaml:"type"`
+	Format   string `json:"format" yaml:"format"`
+	Path     string `json:"path" yaml:"path"`
+	Property string `json:"property" yaml:"property"`
 }

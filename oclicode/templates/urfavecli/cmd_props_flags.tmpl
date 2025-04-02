@@ -1,0 +1,36 @@
+	{{- if .Command.Flags}}
+	{{.Command.Name | CamelCase}}Cmd.Flags = []urfavecli.Flag{
+	{{- range .Command.Flags}}
+		&urfavecli.{{if eq .Type "string"}}String{{else}}Bool{{end}}{{if .Variadic}}Slice{{end}}Flag{
+			Name: "{{.Name | EscapeString}}",
+			{{- if .Summary}}
+			Usage: "{{.Summary | EscapeString}}",
+			{{- else if .Description}}
+			Usage: "{{.Description | EscapeString}}",
+			{{- end}}
+			{{- if .Aliases}}
+			Aliases: []string{
+			{{- range .Aliases}}
+				"{{. | EscapeString}}",
+			{{- end}}
+			},
+			{{- end}}
+			{{- if .Default.IsSet}}
+			Value: {{if eq .Type "string"}}"{{.Default.String}}"{{else}}{{.Default.Bool}}{{end}},
+			{{- end}}
+			{{- if .AltSources}}
+			Sources: urfavecli.NewValueSourceChain(
+			{{- range .AltSources}}
+				{{- if eq .Type "env"}}
+				urfavecli.EnvVar("{{.EnvironmentVariable}}"),
+				{{- else}}
+				altsrc.{{if eq .File.Format "yaml"}}YAML{{else if eq .File.Format "json"}}JSON{{else}}TOML{{end}}("{{.File.Property | EscapeString}}", "{{.File.Path | EscapeString}}").Chain[0],
+				{{- end}}
+			{{- end}}
+			),
+			{{- end}}
+			Hidden: {{.Hidden}},
+		},
+	{{- end}}
+	}
+	{{- end}}

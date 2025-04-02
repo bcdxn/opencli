@@ -1,0 +1,5 @@
+{{- if .Command.Summary}}
+	{{.Command.Name | CamelCase}}Cmd.Usage = "{{.Command.Summary | EscapeString}}"
+{{- else if .Command.Description}}
+	{{.Command.Name | CamelCase}}Cmd.Usage = "{{.Command.Description | EscapeString}}"
+{{- end}}

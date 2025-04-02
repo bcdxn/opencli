@@ -1,0 +1,6 @@
+
+	myNeatNestedCmd.Commands = []*urfavecli.Command{
+		myNeatNestedOneCmd,
+		myNeatNestedTwoCmd,
+		myNeatNestedThreeCmd,
+	}

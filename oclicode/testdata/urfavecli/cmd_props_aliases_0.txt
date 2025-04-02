@@ -1,0 +1,6 @@
+
+	myNeatNestedCmd.Aliases = []string{
+		"a",
+		"b",
+		"c",
+	}

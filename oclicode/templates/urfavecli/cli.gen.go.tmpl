@@ -12,6 +12,30 @@ import (
 func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
 {{template "cmd.tmpl" .Doc.CommandTrie.Root}}
 
+  {{- if .Doc.Global.Flags}}
+  // Add global flags
+  {{.Doc.CommandTrie.Root.Command.Name | CamelCase}}Cmd.Flags = []urfavecli.Flag{
+  {{- range .Doc.Global.Flags}}
+    &urfavecli.{{if eq .Type "string"}}String{{else}}Bool{{end}}{{if .Variadic}}Slice{{end}}Flag{
+      Name: "{{.Name | EscapeString}}",
+      {{- if .Summary}}
+      Usage: "{{.Summary | EscapeString}}",
+      {{- else if .Description}}
+      Usage: "{{.Description | EscapeString}}",
+      {{- end}}
+      {{- if .Aliases}}
+      Aliases: []string{
+      {{- range .Aliases}}
+        "{{. | EscapeString}}",
+      {{- end}}
+      }
+      {{- end}}
+      Local: false,
+    },
+  {{- end}}
+  }
+  {{- end}}
+
   {{.Doc.CommandTrie.Root.Command.Name | CamelCase}}Cmd.Version = version
   return {{.Doc.CommandTrie.Root.Command.Name | CamelCase}}Cmd
 }

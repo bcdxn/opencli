@@ -1,4 +1,4 @@
-opencliVersion: "1.0.0-alpha.0"
+opencliVersion: "1.0.0-alpha.2"
 
 info:
   title: "OpenCLI"
@@ -49,16 +49,24 @@ global:
       status: "BAD_USER_INPUT_ERROR"
       summary: "Missing or invalid input"
   flags:
-    - name: "help"
-      aliases:
-        - "h"
-      summary: "Short circuit the command and show a contextual help message"
-      type: "boolean"
-    - name: "version"
-      aliases: ["v"]
-      summary: "List the release version of the CLI"
-      type: "boolean"
-      default: false
+    - name: "config"
+      summary: "Path to the config file"
+      type: "string"
+      required: false
+      default: "~/.ocli/config.yaml"
+      alternativeSources:
+        - type: "env"
+          name: "OCLI_CONFIG_FILE"
+    # - name: "help"
+    #   aliases:
+    #     - "h"
+    #   summary: "Short circuit the command and show a contextual help message"
+    #   type: "boolean"
+    # - name: "version"
+    #   aliases: ["v"]
+    #   summary: "List the release version of the CLI"
+    #   type: "boolean"
+    #   default: false
       
 commands:
   ocli {command} <arguments> [flags]:
@@ -128,11 +136,19 @@ commands:
             description: "A full static bundle that can be rendered in the browser."
           - value: "man"
             description: "Plain text using [Man Page](https://en.wikipedia.org/wiki/Man_page) formatting"
-        hint: "markdown"
+        default: "markdown"
+        alternativeSources:
+          - type: "env"
+            name: "OCLI_DOCS_FORMAT"
+          - type: "file"
+            format: "yaml"
+            path: "~/.ocli/config.yaml"
+            property: "docs.format"
       - name: "dryrun"
         summary: "When true the docs contents will be output to stdout instead of the file"
         type: "boolean"
         default: true
+
   ocli generate cli <path-to-spec> <path-to-output-dir> [flags]:
     summary: "Generate CLI Boilerplate code from an OpenCLI Spec document"
     description: |

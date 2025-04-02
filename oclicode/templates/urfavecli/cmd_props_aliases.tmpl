@@ -1,0 +1,7 @@
+{{- if .Command.Aliases}}
+	{{.Command.Name | CamelCase}}Cmd.Aliases = []string{
+{{- range .Command.Aliases}}
+		"{{ . }}",
+{{- end}}
+	}
+{{- end}}

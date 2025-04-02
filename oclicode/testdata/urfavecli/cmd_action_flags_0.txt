@@ -1,0 +1,34 @@
+
+		var flags MyNeatNestedFlags
+		flags.FlagOne = cmd.Bool("flag-one")
+		flags.FlagTwo = cmd.String("flag-two")
+		flags.FlagThree = cmd.StringSlice("flag-three")
+		if !cmd.IsSet("flag-one") {
+			return urfavecli.Exit("missing required flag --flag-one", 2)
+		}
+		if !cmd.IsSet("flag-three") {
+			return urfavecli.Exit("missing required flag --flag-three", 2)
+		}
+
+		var validFlagChoice bool
+		validFlagChoice = validateChoices(
+			[]string{
+				"c1",
+				"c2",
+				"",
+			},
+			args.FlagTwo,
+		)
+		if !validFlagChoice {
+			return urfavecli.Exit("invalid value for flag --flag-two", 2)
+		}
+		validFlagChoice = validateChoicesSlice(
+			[]string{
+				"c1",
+				"c2",
+			},
+			args.FlagThree,
+		)
+		if !validFlagChoice {
+			return urfavecli.Exit("invalid value for flag --flag-three", 2)
+		}

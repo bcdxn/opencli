@@ -1,0 +1,34 @@
+
+		var args MyNeatNestedArgs
+		if cmd.NArg() < 1 {
+			return urfavecli.Exit("missing required arg <first-arg>", 2)
+		}
+		if cmd.NArg() < 2 {
+			return urfavecli.Exit("missing required arg <second-arg>", 2)
+		}
+		args.FirstArg = cmd.Args().Get(0)
+		args.SecondArg = cmd.Args().Get(1)
+		args.ThirdArg = cmd.Args().Slice()[2:]
+
+		var validArgChoice bool
+		validArgChoice = validateChoices(
+			[]string{
+				"c1",
+				"c2",
+				"c3",
+			},
+			args.SecondArg,
+		)
+		if !validArgChoice {
+			return urfavecli.Exit("invalid value for argument <second-arg>", 2)
+		}
+		validArgChoice = validateChoicesSlice(
+			[]string{
+				"c1",
+				"c2",
+			},
+			args.ThirdArg,
+		)
+		if !validArgChoice {
+			return urfavecli.Exit("invalid value for argument <third-arg>", 2)
+		}

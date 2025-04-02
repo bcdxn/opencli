@@ -1,0 +1,45 @@
+{{- $cmd := .Command -}}
+{{- if not $cmd.Group}}
+{{- if $cmd.Flags}}
+		var flags {{$cmd.Name | PascalCase}}Flags
+
+		{{- /* SET VALUE IN FLAGS VAR */}}
+		{{- range $cmd.Flags}}
+		flags.{{.Name | PascalCase}} = cmd.{{if .Variadic}}StringSlice{{else if eq .Type "string"}}String{{else}}Bool{{end}}("{{.Name | EscapeString}}")
+		{{- end}}
+
+		{{- /* MANUALLY ENFORCE REQUIRED */}}
+		{{- range $cmd.Flags}}
+		{{- if .Required}}
+		if !cmd.IsSet("{{.Name | EscapeString}}") {
+			return urfavecli.Exit("missing required flag --{{.Name | EscapeString}}", {{$cmd.BadUserInputErrorCode}})
+		}
+		{{- end}}
+		{{- end}}
+
+		{{- /* ENSURE ENUMERATION FlAGS */}}
+		{{- if or ($cmd.FixedEnumeratedFlags) ($cmd.VariadicEnumeratedFlags)}}
+
+		var validFlagChoice bool
+		{{- end}}
+		{{- range $i, $flag := $cmd.Flags}}
+		{{- if $flag.Choices}}
+		validFlagChoice = validateChoices{{if $flag.Variadic}}Slice{{end}}(
+			[]string{
+				{{- range $flag.Choices}}
+				"{{.Value | EscapeString}}",
+				{{- end}}
+				{{- if not $flag.Required}}
+				"",
+				{{- end}}
+			},
+			args.{{.Name | PascalCase}},
+		)
+		if !validFlagChoice {
+			return urfavecli.Exit("invalid value for flag --{{$flag.Name | EscapeString}}", {{$cmd.BadUserInputErrorCode}})
+		}
+		{{- end}}
+		{{- end}}{{- /* END ENSURE ENUMERATION FLAGS */}}
+
+{{- end}}
+{{- end}}

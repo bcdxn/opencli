@@ -61,6 +61,7 @@ type Install struct {
 // Global contains information that applies to the CLI regardless of command context.
 type Global struct {
 	ExitCodes []ExitCode
+	Flags     []Flag
 }
 
 // ExitCode represents a possible exit code of a CLI command
@@ -113,6 +114,7 @@ type Flag struct {
 	Hidden      bool
 	Required    bool
 	Default     DefaultValue
+	AltSources  []AlternativeSource
 }
 
 type Choice struct {
@@ -121,8 +123,21 @@ type Choice struct {
 }
 
 type DefaultValue struct {
+	IsSet  bool
 	Bool   bool
 	String string
+}
+
+type AlternativeSource struct {
+	Type                string
+	EnvironmentVariable string
+	File                FileSource
+}
+
+type FileSource struct {
+	Format   string
+	Path     string
+	Property string
 }
 
 // Arguments returns true if any of the commands have arguments.
@@ -578,8 +593,14 @@ func translateGlobal(doc oclifile.OpenCliDocument) Global {
 		return exitCodes[i].Code <= exitCodes[j].Code
 	})
 
+	var globalFlags []Flag
+	for _, flag := range doc.Global.Flags {
+		globalFlags = append(globalFlags, translateFlag(flag))
+	}
+
 	return Global{
 		ExitCodes: exitCodes,
+		Flags:     globalFlags,
 	}
 }
 
@@ -662,6 +683,7 @@ func translateArgument(arg oclifile.Argument) Argument {
 		Variadic:    arg.Variadic,
 		Required:    arg.Required,
 		Default: DefaultValue{
+			IsSet:  arg.Default.IsSet,
 			Bool:   arg.Default.Bool,
 			String: arg.Default.String,
 		},
@@ -689,6 +711,7 @@ func translateFlag(flag oclifile.Flag) Flag {
 		Required:    flag.Required,
 		Hidden:      flag.Hidden,
 		Default: DefaultValue{
+			IsSet:  flag.Default.IsSet,
 			Bool:   flag.Default.Bool,
 			String: flag.Default.String,
 		},

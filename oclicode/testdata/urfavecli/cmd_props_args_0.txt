@@ -1,0 +1,9 @@
+
+	myNeatNestedCmd.Arguments = []urfavecli.Argument{
+		&urfavecli.StringArg{
+			Name: "one",
+		},
+		&urfavecli.StringArg{
+			Name: "two",
+		},
+	}

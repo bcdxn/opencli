@@ -75,15 +75,7 @@ var cliTemplates embed.FS
 // getCliTemplate reads the framework-appropariate template file(s) into memory -- a prerequisite for generating the boilerplate code.
 func getCliTemplate(framework string) *template.Template {
 	// Templates for a specific framework are stored in a subdirectory with the name of the framework nested within `templates/cli/`.
-	t, err := template.New("tmpl").Funcs(map[string]any{
-		"PascalCase":   pascalCase,
-		"CamelCase":    camelCase,
-		"EscapeString": escapeString,
-		"Inc":          increment,
-		"ToString":     toString,
-		"Dec":          decrement,
-		"AddCmdDepth":  addCmdDepth,
-	}).ParseFS(
+	t, err := template.New("tmpl").Funcs(funcmap()).ParseFS(
 		cliTemplates,
 		fmt.Sprintf("templates/%s/*", framework),
 	)
