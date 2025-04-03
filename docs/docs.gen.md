@@ -62,24 +62,6 @@ go install github.com/bcdxn/opencli
 `group` `nonexecutable`
 
 
-A CLI for working with OpenCLI Specs
-
-`ocli` is a command line interface designed to make working with [OpenCLI
-Spec documents](https://github.com/bcdxn/opencli/tree/main) easier. It provides a number of capabilities, including:
-
-- validating OpenCLI Spec documents
-- generating Documentation from OpenCLI Spec documents
-- generating boilerplate for various CLI frameworks from OpenCLI Spec
-  documents
-
-The commands are documented below. You can also find out more about each
-command using the contextual `--help` flag. e.g.:
-
-```sh
-ocli generate --help
-```
-
-
 ---
 
 
@@ -131,11 +113,25 @@ The framework of the CLI boilerplate to generate
 - `yargs` - [yargs](https://yargs.js.org) is a popular CLI framework for Node.js
 - `oclif` - [oclif](https://oclif.io) is a popular CLI framework written in Typescript
 
-##### `--package`
+###### Alternative Sources
 
-The package name used to house the generated code
+| Type | Name | Property |
+|:-----|:-----|:---------|
+| Environment Variable | `OCLI_CLI_FRAMEWORK` | N/A |
+| File (yaml) | `~/.ocli/config.yaml` | `cli.framework` |
+
+##### `--go-package`
+
+The package name used to house the generated code; required for go frameworks.
 
 `type:string` `enum:false` `default:cli` `variadic:false`
+
+###### Alternative Sources
+
+| Type | Name | Property |
+|:-----|:-----|:---------|
+| Environment Variable | `OCLI_CLI_GO_PACKAGE` | N/A |
+| File (yaml) | `~/.ocli/config.yaml` | `cli.go_package` |
 
 ##### `--dryrun`
 
@@ -174,13 +170,33 @@ The path to the directory to house the generated docs
 
 The format of the documentation to generate
 
-`type:string` `enum:true` `variadic:false`
+`type:string` `enum:true` `default:markdown` `variadic:false`
 
 ###### Supported Values of `--format`
 
 - `markdown` - Plain text using standard [Markdown](https://commonmark.org).
 - `html` - A full static bundle that can be rendered in the browser.
 - `man` - Plain text using [Man Page](https://en.wikipedia.org/wiki/Man_page) formatting
+
+###### Alternative Sources
+
+| Type | Name | Property |
+|:-----|:-----|:---------|
+| Environment Variable | `OCLI_DOCS_FORMAT` | N/A |
+| File (yaml) | `~/.ocli/config.yaml` | `docs.format` |
+
+##### `--footer`
+
+Include the footer in the docs
+
+`type:boolean` `enum:false` `default:true` `variadic:false`
+
+###### Alternative Sources
+
+| Type | Name | Property |
+|:-----|:-----|:---------|
+| Environment Variable | `OCLI_DOCS_FOOTER` | N/A |
+| File (yaml) | `~/.ocli/config.yaml` | `docs.footer` |
 
 ##### `--dryrun`
 

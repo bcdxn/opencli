@@ -141,10 +141,26 @@ _{{.Doc.Info.Summary}}_
 - `{{.Value}}`{{if .Description}} - {{.Description}}
 {{- end}}
 {{- end}}
+ 
+{{- end}}
+{{- end}}
 
+{{- if .AltSources}}
+
+###### Alternative Sources
+
+| Type | Name | Property |
+|:-----|:-----|:---------|
+{{- range .AltSources}}
+{{- if eq .Type "env"}}
+| Environment Variable | `{{.EnvironmentVariable}}` | N/A |
+{{- else}}
+| File ({{.File.Format}}) | `{{.File.Path}}` | `{{.File.Property}}` |
 {{- end}}
 {{- end}}
 {{- end}}
+{{- end}}
+
 {{- end}}{{/* END CMD FLAGS */}}
 
 
