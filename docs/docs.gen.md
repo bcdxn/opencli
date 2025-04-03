@@ -70,7 +70,7 @@ go install github.com/bcdxn/opencli
 `group` `nonexecutable`
 
 
-Commands used to generate code and/or documentation from an OpenCLI Spec document
+Commands used code/docs generation from an OpenCLI Spec document
 
 ---
 
@@ -108,10 +108,7 @@ The framework of the CLI boilerplate to generate
 
 ###### Supported Values of `--framework`
 
-- `cobra` - [Cobra](https://github.com/spf13/cobra?tab=readme-ov-file) is a popular CLI framework for Go
 - `urfavecli` - [urfave/cli](https://github.com/urfave/cli) is a declarative CLI framework for Go
-- `yargs` - [yargs](https://yargs.js.org) is a popular CLI framework for Node.js
-- `oclif` - [oclif](https://oclif.io) is a popular CLI framework written in Typescript
 
 ###### Alternative Sources
 
@@ -175,8 +172,6 @@ The format of the documentation to generate
 ###### Supported Values of `--format`
 
 - `markdown` - Plain text using standard [Markdown](https://commonmark.org).
-- `html` - A full static bundle that can be rendered in the browser.
-- `man` - Plain text using [Man Page](https://en.wikipedia.org/wiki/Man_page) formatting
 
 ###### Alternative Sources
 

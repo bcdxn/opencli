@@ -26,6 +26,14 @@ func Generate(doc oclispec.Document, options ...GenCliOptions) ([]GenFile, error
 
 	tmpl := getCliTemplate(opts.Framework)
 
+	// Before generating the code, ensure the root-level command has a summary/description
+	if doc.CommandTrie.Root.Command.Summary == "" {
+		doc.CommandTrie.Root.Command.Summary = doc.Info.Summary
+	}
+	if doc.CommandTrie.Root.Command.Description == "" {
+		doc.CommandTrie.Root.Command.Description = doc.Info.Description
+	}
+
 	switch opts.Framework {
 	case "urfavecli":
 		return genUrfaveCli(tmpl, cliTmplData{*opts, doc})

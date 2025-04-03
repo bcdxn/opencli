@@ -1,3 +1,4 @@
+{{- /* THERE APPEARS TO BE A BUG IN URFAVE/CLI V3 THAT MAKES ARGS NOT PARSE WHEN DECLARED
 {{- if .Command.Arguments }}
 	{{.Command.Name | CamelCase}}Cmd.Arguments = []urfavecli.Argument{
 	{{- range .Command.Arguments}}
@@ -7,3 +8,4 @@
 	{{- end}}
 	}
 {{- end}}
+*/ -}}

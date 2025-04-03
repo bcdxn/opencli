@@ -36,6 +36,7 @@ type OcliGenerateCliFlags struct {
 // OcliGenerateDocsFlags holds the parsed flags that will be injected into the command handler implementation.
 type OcliGenerateDocsFlags struct {
   Format string
+  Footer bool
   Dryrun bool
 }
 
