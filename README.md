@@ -28,7 +28,7 @@ $ pleasantries farewell Jane --language=spanish
 The CLI above can be described using an OpenCLI Specification Document like:
 
 ```yaml
-opencliVersion: 1.0.0-alpha.0
+opencliVersion: 1.0.0-alpha.3
 
 info:
   title: Pleasantries
