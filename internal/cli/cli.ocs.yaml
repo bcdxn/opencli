@@ -18,7 +18,7 @@ info:
     ```sh
     ocli generate --help
     ```
-  version: "1.0.0-alpha.0"
+  version: "1.0.0-alpha.3"
   binary: "ocli"
   license:
     name: "MIT"
@@ -83,7 +83,7 @@ commands:
         type: "string"
   
   ocli generate {command} <arguments> [flags]:
-    summary: "Commands used code/docs generation from an OpenCLI Spec document"
+    summary: "Commands used to generate code/docs from an OpenCLI Spec document"
     aliases:
       - "gen"
     group: true

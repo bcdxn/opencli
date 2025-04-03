@@ -70,7 +70,7 @@ go install github.com/bcdxn/opencli
 `group` `nonexecutable`
 
 
-Commands used code/docs generation from an OpenCLI Spec document
+Commands used to generate code/docs from an OpenCLI Spec document
 
 ---
 
