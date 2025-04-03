@@ -33,7 +33,7 @@
 				"",
 				{{- end}}
 			},
-			args.{{.Name | PascalCase}},
+			flags.{{.Name | PascalCase}},
 		)
 		if !validFlagChoice {
 			return urfavecli.Exit("invalid value for flag --{{$flag.Name | EscapeString}}", {{$cmd.BadUserInputErrorCode}})

@@ -266,6 +266,21 @@ func (d Document) BadUserInputErrorCode() int {
 	return 2
 }
 
+func (d Document) AltSources() bool {
+	var helper func(node *CommandTrieNode) bool
+	helper = func(node *CommandTrieNode) bool {
+		for _, flag := range node.Command.Flags {
+			if len(flag.AltSources) > 0 {
+				return true
+			}
+		}
+
+		return slices.ContainsFunc(node.Commands, helper)
+	}
+
+	return helper(d.CommandTrie.Root)
+}
+
 // NonHiddenFlags returns true if there are any flags for the given command where Hidden isfalse.
 func (cmd Command) VisibleFlags() bool {
 	visible := false
@@ -721,6 +736,18 @@ func translateFlag(flag oclifile.Flag) Flag {
 		domainFlag.Choices = append(domainFlag.Choices, Choice{
 			Value:       choice.Value,
 			Description: choice.Description,
+		})
+	}
+
+	for _, src := range flag.AltSources {
+		domainFlag.AltSources = append(domainFlag.AltSources, AlternativeSource{
+			Type:                src.Type,
+			EnvironmentVariable: src.EnvironmentVariable,
+			File: FileSource{
+				Format:   src.File.Format,
+				Path:     src.File.Path,
+				Property: src.File.Property,
+			},
 		})
 	}
 

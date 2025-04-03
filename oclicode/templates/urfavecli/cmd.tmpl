@@ -15,14 +15,14 @@
 {{- $node := . }}
 {{$cmd := .Command}}
 
-  {{template "cmd_props_name.tmpl" $node}}
-  {{template "cmd_props_usage_text.tmpl" $node}}
-  {{template "cmd_props_description.tmpl" $node}}
-  {{template "cmd_props_aliases.tmpl" $node}}
-  {{template "cmd_props_args.tmpl" $node}}
-  {{template "cmd_props_flags.tmpl" $node}}
-  {{template "cmd_props_commands.tmpl" $node}}
-  {{template "cmd_props_action.tmpl" $node}}
+  {{- template "cmd_props_name.tmpl" $node}}
+  {{- template "cmd_props_usage_text.tmpl" $node}}
+  {{- template "cmd_props_description.tmpl" $node}}
+  {{- template "cmd_props_aliases.tmpl" $node}}
+  {{- template "cmd_props_args.tmpl" $node}}
+  {{- template "cmd_props_flags.tmpl" $node}}
+  {{- template "cmd_props_commands.tmpl" $node}}
+  {{- template "cmd_props_action.tmpl" $node}}
 
 {{- range $i, $subCmd := .Commands}}
 {{- template "commandProps" $subCmd}}

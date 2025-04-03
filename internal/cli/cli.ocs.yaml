@@ -48,25 +48,6 @@ global:
     - code: 2
       status: "BAD_USER_INPUT_ERROR"
       summary: "Missing or invalid input"
-  flags:
-    - name: "config"
-      summary: "Path to the config file"
-      type: "string"
-      required: false
-      default: "~/.ocli/config.yaml"
-      alternativeSources:
-        - type: "env"
-          name: "OCLI_CONFIG_FILE"
-    # - name: "help"
-    #   aliases:
-    #     - "h"
-    #   summary: "Short circuit the command and show a contextual help message"
-    #   type: "boolean"
-    # - name: "version"
-    #   aliases: ["v"]
-    #   summary: "List the release version of the CLI"
-    #   type: "boolean"
-    #   default: false
       
 commands:
   ocli {command} <arguments> [flags]:
@@ -75,7 +56,6 @@ commands:
   ocli specification {command} <arguments> [flags]:
     aliases:
       - "spec"
-      - "sp"
     summary: "Commands related to the OpenCLI Specification"
     group: true
   ocli specification versions:
@@ -144,6 +124,17 @@ commands:
             format: "yaml"
             path: "~/.ocli/config.yaml"
             property: "docs.format"
+      - name: "footer"
+        summary: "Include the footer in the docs"
+        type: "boolean"
+        default: true
+        alternativeSources:
+          - type: "env"
+            name: "OCLI_DOCS_FOOTER"
+          - type: "file"
+            format: "yaml"
+            path: "~/.ocli/config.yaml"
+            property: "docs.footer"
       - name: "dryrun"
         summary: "When true the docs contents will be output to stdout instead of the file"
         type: "boolean"
@@ -181,11 +172,25 @@ commands:
             description: "[yargs](https://yargs.js.org) is a popular CLI framework for Node.js"
           - value: "oclif"
             description: "[oclif](https://oclif.io) is a popular CLI framework written in Typescript"
+        alternativeSources:
+          - type: "env"
+            name: "OCLI_CLI_FRAMEWORK"
+          - type: "file"
+            format: "yaml"
+            path: "~/.ocli/config.yaml"
+            property: "cli.framework"
       - name: "go-package"
         summary: "The package name used to house the generated code; required for go frameworks."
         type: "string"
         default: "cli"
         required: false
+        alternativeSources:
+          - type: "env"
+            name: "OCLI_CLI_GO_PACKAGE"
+          - type: "file"
+            format: "yaml"
+            path: "~/.ocli/config.yaml"
+            property: "cli.go_package"
       - name: "dryrun"
         summary: "When true the docs contents will be output to stdout instead of the file"
         type: "boolean"

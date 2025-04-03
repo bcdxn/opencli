@@ -17,7 +17,7 @@
 				"c2",
 				"",
 			},
-			args.FlagTwo,
+			flags.FlagTwo,
 		)
 		if !validFlagChoice {
 			return urfavecli.Exit("invalid value for flag --flag-two", 2)
@@ -27,7 +27,7 @@
 				"c1",
 				"c2",
 			},
-			args.FlagThree,
+			flags.FlagThree,
 		)
 		if !validFlagChoice {
 			return urfavecli.Exit("invalid value for flag --flag-three", 2)

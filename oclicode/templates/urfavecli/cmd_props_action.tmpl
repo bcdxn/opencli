@@ -1,59 +1,10 @@
 {{- $cmd := .Command -}}
 {{- if not $cmd.Group}}
   {{$cmd.Name | CamelCase}}Cmd.Action = func(ctx context.Context, cmd *urfavecli.Command) error {
-    {{- if or (.FixedEnumeratedArgs) (.VariadicEnumeratedArgs) (.FixedEnumeratedFlags) (.VariadicEnumeratedFlags)}}
-    var validChoice bool
-    {{- end}}
-
+   
     {{template "cmd_action_args.tmpl" .}}
+    {{template "cmd_action_flags.tmpl" .}}
 
-    
-    
-    {{- if .Flags}}
-    
-    var flags {{.Name | PascalCase}}Flags
-
-    {{- /* ADD FLAGS */}}
-    {{- range .Flags}}
-    flags.{{.Name | PascalCase}} = cmd.{{if .Variadic}}StringSlice{{else if eq .Type "string"}}String{{else}}Bool{{end}}("{{.Name | EscapeString}}")
-
-    {{- /* Ensure Required Flags */}}
-    {{- if .Required}}
-    if !cmd.IsSet("{{.Name | EscapeString}}") {
-      return urfavecli.Exit("missing required flag --{{.Name | EscapeString}}", {{$cmd.BadUserInputErrorCode}})
-    }
-    {{- end}}
-
-    {{- /* ENSURE ENUMERATION Flags */}}
-    {{- if .Choices}}
-
-    {{- if .Variadic}}
-    validChoice = validateChoicesSlice(
-      []string{
-        {{- range .Choices}}
-        "{{.Value | EscapeString}}",
-        {{- end}}
-      },
-      flags.{{.Name | PascalCase}},
-    )
-    {{- else}}
-    validChoice = validateChoices(
-      []string{
-        {{- range .Choices}}
-        "{{.Value | EscapeString}}",
-        {{- end}}
-      },
-      flags.{{.Name | PascalCase}},
-    )
-    {{- end}}
-    if !validChoice {
-      return urfavecli.Exit("invalid value for flag --{{.Name | EscapeString}}", {{$cmd.BadUserInputErrorCode}})
-    }
-
-    {{- end}}
-    {{- end}}
-    {{- end}}
-
-    return impl.{{.Name | PascalCase}}(ctx, cmd{{if .Arguments}}, args{{end}}{{if .Flags}}, flags{{end}})
+    return impl.{{$cmd.Name | PascalCase}}(ctx, cmd{{if $cmd.Arguments}}, args{{end}}{{if $cmd.Flags}}, flags{{end}})
   }
 {{- end}}
