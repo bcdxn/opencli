@@ -11,7 +11,7 @@ _Like OpenAPI Spec, but for your CLIs_
 
 - Promote contract first development
 - Decouple implementation of commands from the CLI Framework
-- Automatically document your CLI
+- Automatically generate documentation your CLI
 - Automatically generate CLI framework-specific code
 
 ## Example
