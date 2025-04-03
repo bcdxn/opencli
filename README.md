@@ -73,11 +73,17 @@ commands:
         default: "english"
 ```
 
-See a full example of an OpenCLI Document [here](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli.ocs.yaml) - the document that defines the OpenCLI CLI 🤯
+## OpenCLI CLI 🤯
 
-## OpenCLI CLI
+See a full example of an OpenCLI Document in action.
 
-View the documentation - https://github.com/bcdxn/opencli/blob/main/docs/docs.gen.md
+- The spec that defines the OpenCLI CLI [here](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli.ocs.yaml)
+- The markdown documentation automatically generated from the spec [here](https://github.com/bcdxn/opencli/blob/main/docs/docs.gen.md)
+- The CLI interface and boilerplate code generated from the spec [here](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli_interface.gen.go) and [here](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli.gen.go)
+
+## Releases
+
+Start using OpenCLI Specification Documents to describe your CLIs. Head over to the [releases page](https://github.com/bcdxn/opencli/releases) to download the CLI for your system.
 
 ## Inspiration
 
