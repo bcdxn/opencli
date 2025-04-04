@@ -149,15 +149,14 @@ _{{.Doc.Info.Summary}}_
 
 ###### Alternative Sources
 
-| Type | Name | Property |
-|:-----|:-----|:---------|
 {{- range .AltSources}}
 {{- if eq .Type "env"}}
-| Environment Variable | `{{.EnvironmentVariable}}` | N/A |
+- `env:${{.EnvironmentVariable}}`
 {{- else}}
-| File ({{.File.Format}}) | `{{.File.Path}}` | `{{.File.Property}}` |
+- `{{.File.Path}}:{{.File.Property}}`
 {{- end}}
 {{- end}}
+
 {{- end}}
 {{- end}}
 
