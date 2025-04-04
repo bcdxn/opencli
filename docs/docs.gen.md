@@ -109,13 +109,11 @@ The framework of the CLI boilerplate to generate
 ###### Supported Values of `--framework`
 
 - `urfavecli` - [urfave/cli](https://github.com/urfave/cli) is a declarative CLI framework for Go
+- `yargs` - [yargs](https://yargs.js.org) is a popular CLI framework for Node.js
 
 ###### Alternative Sources
-
-| Type | Name | Property |
-|:-----|:-----|:---------|
-| Environment Variable | `OCLI_CLI_FRAMEWORK` | N/A |
-| File (yaml) | `~/.ocli/config.yaml` | `cli.framework` |
+- `env:$OCLI_CLI_FRAMEWORK`
+- `~/.ocli/config.yaml:cli.framework`
 
 ##### `--go-package`
 
@@ -124,11 +122,23 @@ The package name used to house the generated code; required for go frameworks.
 `type:string` `enum:false` `default:cli` `variadic:false`
 
 ###### Alternative Sources
+- `env:$OCLI_CLI_GO_PACKAGE`
+- `~/.ocli/config.yaml:cli.go_package`
 
-| Type | Name | Property |
-|:-----|:-----|:---------|
-| Environment Variable | `OCLI_CLI_GO_PACKAGE` | N/A |
-| File (yaml) | `~/.ocli/config.yaml` | `cli.go_package` |
+##### `--module-type`
+
+Indicates the module type of the generated code; required when generating a yargs CLI.
+
+`type:string` `enum:true` `variadic:false`
+
+###### Supported Values of `--module-type`
+
+- `cjs` - CommonJS style require/export
+- `mjs` - ECMAScript Modules style import/export
+
+###### Alternative Sources
+- `env:$OCLI_CLI_MODULE_TYPE`
+- `~/.ocli/config.yaml:cli.module_type`
 
 ##### `--dryrun`
 
@@ -174,11 +184,8 @@ The format of the documentation to generate
 - `markdown` - Plain text using standard [Markdown](https://commonmark.org).
 
 ###### Alternative Sources
-
-| Type | Name | Property |
-|:-----|:-----|:---------|
-| Environment Variable | `OCLI_DOCS_FORMAT` | N/A |
-| File (yaml) | `~/.ocli/config.yaml` | `docs.format` |
+- `env:$OCLI_DOCS_FORMAT`
+- `~/.ocli/config.yaml:docs.format`
 
 ##### `--footer`
 
@@ -187,11 +194,8 @@ Include the footer in the docs
 `type:boolean` `enum:false` `default:true` `variadic:false`
 
 ###### Alternative Sources
-
-| Type | Name | Property |
-|:-----|:-----|:---------|
-| Environment Variable | `OCLI_DOCS_FOOTER` | N/A |
-| File (yaml) | `~/.ocli/config.yaml` | `docs.footer` |
+- `env:$OCLI_DOCS_FOOTER`
+- `~/.ocli/config.yaml:docs.footer`
 
 ##### `--dryrun`
 

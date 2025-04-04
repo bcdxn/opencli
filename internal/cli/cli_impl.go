@@ -2,7 +2,6 @@ package cli
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -20,22 +19,22 @@ func (Impl) OcliGenerateCli(ctx context.Context, c *urfavecli.Command, args Ocli
 	// unmarshal the document
 	doc, err := oclispec.UnmarshalYAML(args.PathToSpec)
 	if err != nil {
-		return err
+		return urfavecli.Exit(err.Error(), ExitCodeBadUserInputError)
 	}
 
 	files, err := oclicode.Generate(doc, oclicode.GoPackage(flags.GoPackage), oclicode.Framework(flags.Framework))
 	if err != nil {
-		return err
+		return urfavecli.Exit(err.Error(), ExitCodeInternalCliError)
 	}
 
 	for _, file := range files {
 		err = os.WriteFile(path.Join(args.PathToOutputDir, file.Name), file.Contents, 0644)
 		if err != nil {
-			return err
+			return urfavecli.Exit(err.Error(), ExitCodeInternalCliError)
 		}
 	}
 
-	return err
+	return nil
 }
 
 func (Impl) OcliGenerateDocs(ctx context.Context, c *urfavecli.Command, args OcliGenerateDocsArgs, flags OcliGenerateDocsFlags) error {
@@ -50,11 +49,11 @@ func (Impl) OcliGenerateDocs(ctx context.Context, c *urfavecli.Command, args Ocl
 	} else if yamlRE.MatchString(args.PathToSpec) {
 		doc, err = oclispec.UnmarshalYAML(args.PathToSpec)
 	} else {
-		return errors.New("unsupported OpenCLI Document format - must be one of [JSON, YAML]")
+		return urfavecli.Exit("unsupported OpenCLI Document format - must be one of [JSON, YAML]", ExitCodeBadUserInputError)
 	}
 	// unmarshal the document
 	if err != nil {
-		return err
+		return urfavecli.Exit(err.Error(), ExitCodeBadUserInputError)
 	}
 
 	docs := oclidocs.Generate(doc)
@@ -69,7 +68,7 @@ func (Impl) OcliGenerateDocs(ctx context.Context, c *urfavecli.Command, args Ocl
 	}
 
 	err = os.WriteFile(path.Join(args.PathToOutputDir, "docs.gen."+formatExtension(flags.Format)), docs, 0644)
-	return err
+	return urfavecli.Exit(err.Error(), ExitCodeInternalCliError)
 }
 
 func (Impl) OcliSpecificationCheck(ctx context.Context, c *urfavecli.Command, args OcliSpecificationCheckArgs) error {
@@ -78,7 +77,7 @@ func (Impl) OcliSpecificationCheck(ctx context.Context, c *urfavecli.Command, ar
 
 	doc, err := os.ReadFile(args.PathToSpec)
 	if err != nil {
-		return err
+		return urfavecli.Exit(err.Error(), ExitCodeInternalCliError)
 	}
 
 	if jsonRE.MatchString(args.PathToSpec) {
@@ -86,12 +85,12 @@ func (Impl) OcliSpecificationCheck(ctx context.Context, c *urfavecli.Command, ar
 	} else if yamlRE.MatchString(args.PathToSpec) {
 		err = oclispec.ValidateDocumentYAML(doc)
 	} else {
-		return errors.New("unsupported OpenCLI Document format - must be one of [JSON, YAML]")
+		return urfavecli.Exit("unsupported OpenCLI Document format - must be one of [JSON, YAML]", ExitCodeBadUserInputError)
 	}
 
 	if err != nil {
 		fmt.Println("OpenCLI Document is invalid ❌")
-		return err
+		return urfavecli.Exit(err.Error(), ExitCodeBadUserInputError)
 	}
 
 	fmt.Println("OpenCLI Document is valid ✅")

@@ -30,6 +30,7 @@ type OcliSpecificationCheckArgs struct {
 type OcliGenerateCliFlags struct {
   Framework string
   GoPackage string
+  ModuleType string
   Dryrun bool
 }
 

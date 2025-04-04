@@ -1,0 +1,20 @@
+package {{.Opts.GoPackage}}
+
+const (
+{{- range .Doc.Global.ExitCodes}}
+	ExitCode{{.Status | PascalCase}} = {{.Code}}
+{{- end}}
+{{- template "cmd_exit_codes" .Doc.CommandTrie.Root}}
+)
+
+{{- define "cmd_exit_codes"}}
+{{- $node := . }}
+{{- range $i, $exit := .Command.CmdSpecificExitCodes}}
+	ExitCode{{$node.Command.Name | PascalCase}}{{$exit.Status | PascalCase}} = {{$exit.Code}}
+{{- end}}
+
+{{- range .Commands}}
+{{- template "cmd_exit_codes" .}}
+{{- end}}
+
+{{- end}}

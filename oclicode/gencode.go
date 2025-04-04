@@ -15,10 +15,7 @@ type GenCliOptions func(*genCliOptions)
 
 // Generate generates CLI boilerplate for the given OpenCLI document using the specified framework.
 func Generate(doc oclispec.Document, options ...GenCliOptions) ([]GenFile, error) {
-	opts := &genCliOptions{
-		GoPackage: "cli",
-		Framework: "urfavecli",
-	}
+	opts := &genCliOptions{}
 
 	for _, opt := range options {
 		opt(opts)
@@ -44,15 +41,21 @@ func Generate(doc oclispec.Document, options ...GenCliOptions) ([]GenFile, error
 	return nil, errors.New("unsupported framework")
 }
 
-func GoPackage(name string) GenCliOptions {
+func GoPackage(pkg string) GenCliOptions {
 	return func(opts *genCliOptions) {
-		opts.GoPackage = name
+		opts.GoPackage = pkg
 	}
 }
 
 func Framework(name string) GenCliOptions {
 	return func(opts *genCliOptions) {
 		opts.Framework = name
+	}
+}
+
+func ModuleType(moduleType string) GenCliOptions {
+	return func(opts *genCliOptions) {
+		opts.Framework = moduleType
 	}
 }
 
@@ -67,8 +70,9 @@ type GenFile struct {
 // genDocsOptions represents the configurable options when generating documentation.
 // The options are meant to be configured using the functional options pattern.
 type genCliOptions struct {
-	GoPackage string
-	Framework string
+	Framework  string
+	GoPackage  string
+	ModuleType string
 }
 
 // cliTmplData represents the data used to render the documentation template.
@@ -109,6 +113,13 @@ func genUrfaveCli(tmpl *template.Template, data cliTmplData) ([]GenFile, error) 
 		return nil, err
 	}
 
+	cliExitCodesGenContents := bytes.NewBuffer([]byte{})
+	// `cli_params.gen.go.tmpl` defines all of the injected argument/flag types.
+	err = tmpl.ExecuteTemplate(cliExitCodesGenContents, "cli_exitcodes.gen.go.tmpl", data)
+	if err != nil {
+		return nil, err
+	}
+
 	cliGenContents := bytes.NewBuffer([]byte{})
 	// `cli.gen.go.tmpl` defines the constructor/entrypoint to the CLI program.
 	err = tmpl.ExecuteTemplate(cliGenContents, "cli.gen.go.tmpl", data)
@@ -124,6 +135,10 @@ func genUrfaveCli(tmpl *template.Template, data cliTmplData) ([]GenFile, error) 
 		{
 			Name:     "cli_params.gen.go",
 			Contents: cliParamsGenContents.Bytes(),
+		},
+		{
+			Name:     "cli_exitcodes.gen.go",
+			Contents: cliExitCodesGenContents.Bytes(),
 		},
 		{
 			Name:     "cli.gen.go",

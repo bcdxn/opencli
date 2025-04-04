@@ -167,11 +167,11 @@ commands:
         choices:
           - value: "urfavecli"
             description: "[urfave/cli](https://github.com/urfave/cli) is a declarative CLI framework for Go"
+          - value: "yargs"
+            description: "[yargs](https://yargs.js.org) is a popular CLI framework for Node.js"
           # coming soon...
           # - value: "cobra"
           #   description: "[Cobra](https://github.com/spf13/cobra?tab=readme-ov-file) is a popular CLI framework for Go"
-          # - value: "yargs"
-          #   description: "[yargs](https://yargs.js.org) is a popular CLI framework for Node.js"
           # - value: "oclif"
           #   description: "[oclif](https://oclif.io) is a popular CLI framework written in Typescript"
         alternativeSources:
@@ -193,6 +193,22 @@ commands:
             format: "yaml"
             path: "~/.ocli/config.yaml"
             property: "cli.go_package"
+      - name: "module-type"
+        summary: "Indicates the module type of the generated code; required when generating a yargs CLI."
+        type: "string"
+        required: false
+        alternativeSources:
+          - type: "env"
+            name: "OCLI_CLI_MODULE_TYPE"
+          - type: "file"
+            format: "yaml"
+            path: "~/.ocli/config.yaml"
+            property: "cli.module_type"
+        choices:
+          - value: cjs
+            description: CommonJS style require/export
+          - value: mjs
+            description: ECMAScript Modules style import/export
       - name: "dryrun"
         summary: "When true the docs contents will be output to stdout instead of the file"
         type: "boolean"

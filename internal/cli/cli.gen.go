@@ -30,7 +30,7 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
 
 	ocliGenerateCmd.Name = "generate"
 	ocliGenerateCmd.UsageText = "ocli generate {command} <arguments> [flags]"
-	ocliGenerateCmd.Usage = "Commands used code/docs generation from an OpenCLI Spec document"
+	ocliGenerateCmd.Usage = "Commands used to generate code/docs from an OpenCLI Spec document"
 	ocliGenerateCmd.Aliases = []string{
 		"gen",
 	}
@@ -65,6 +65,15 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
 			),
 			Hidden: false,
 		},
+		&urfavecli.StringFlag{
+			Name: "module-type",
+			Usage: "Indicates the module type of the generated code; required when generating a yargs CLI.",
+			Sources: urfavecli.NewValueSourceChain(
+				urfavecli.EnvVar("OCLI_CLI_MODULE_TYPE"),
+				altsrc.YAML("cli.module_type", "~/.ocli/config.yaml").Chain[0],
+			),
+			Hidden: false,
+		},
 		&urfavecli.BoolFlag{
 			Name: "dryrun",
 			Usage: "When true the docs contents will be output to stdout instead of the file",
@@ -88,6 +97,7 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
 		var flags OcliGenerateCliFlags
 		flags.Framework = cmd.String("framework")
 		flags.GoPackage = cmd.String("go-package")
+		flags.ModuleType = cmd.String("module-type")
 		flags.Dryrun = cmd.Bool("dryrun")
 		if !cmd.IsSet("framework") {
 			return urfavecli.Exit("missing required flag --framework", 2)
@@ -97,11 +107,23 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
 		validFlagChoice = validateChoices(
 			[]string{
 				"urfavecli",
+				"yargs",
 			},
 			flags.Framework,
 		)
 		if !validFlagChoice {
 			return urfavecli.Exit("invalid value for flag --framework", 2)
+		}
+		validFlagChoice = validateChoices(
+			[]string{
+				"cjs",
+				"mjs",
+				"",
+			},
+			flags.ModuleType,
+		)
+		if !validFlagChoice {
+			return urfavecli.Exit("invalid value for flag --module-type", 2)
 		}
 
     return impl.OcliGenerateCli(ctx, cmd, args, flags)
