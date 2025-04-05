@@ -82,30 +82,30 @@ commands:
         required: true
         type: "string"
   
-  ocli generate {command} <arguments> [flags]:
+  ocli generate {command} [flags]:
     summary: "Commands used to generate code/docs from an OpenCLI Spec document"
     aliases:
       - "gen"
     group: true
-  ocli generate docs <path-to-spec> <path-to-output-dir> [flags]:
+  ocli generate docs [flags]:
     summary: "Generate documentation from an OpenCLI Spec document"
     description: |
       The `generate docs` command will generate documentation from an OpenCLI
       Spec document. You can specify the format of the documentation to be
       generated using the `--format` flag.
-    arguments:
-      - name: "path-to-spec"
+    flags:
+      - name: "spec-file"
+        aliases: ["s"]
         summary: "The path to the OpenCLI Spec that documentation will be generated from"
         required: true
         type: "string"
-      - name: "path-to-output-dir"
-        summary: "The path to the directory to house the generated docs"
+      - name: output-dir
+        aliases: ["o"]
+        summary: "The path to the directory where the generated docs will be output"
         required: true
         type: "string"
-    flags:
       - name: "format"
-        aliases:
-          - "f"
+        aliases: ["f"]
         summary: "The format of the documentation to generate"
         type: "string"
         required: true
@@ -117,7 +117,6 @@ commands:
           #   description: "A full static bundle that can be rendered in the browser."
           # - value: "man"
           #   description: "Plain text using [Man Page](https://en.wikipedia.org/wiki/Man_page) formatting"
-        default: "markdown"
         alternativeSources:
           - type: "env"
             name: "OCLI_DOCS_FORMAT"
@@ -141,26 +140,26 @@ commands:
         type: "boolean"
         default: true
 
-  ocli generate cli <path-to-spec> <path-to-output-dir> [flags]:
+  ocli generate cli [flags]:
     summary: "Generate CLI Boilerplate code from an OpenCLI Spec document"
     description: |
       The `generate cli` command will generate the boilerplate code for
       various CLI frameworks from an OpenCLI Spec document. You can specify the
       language of the CLI to be generated using
       the `--language` flag.
-    arguments:
-      - name: "path-to-spec"
-        summary: The path to the OpenCLI Spec that the CLI will be generated from
-        required: true
-        type: "string"
-      - name: "path-to-output-dir"
-        summary: "The path to the directory to house the generated docs"
-        required: true
-        type: "string"
     flags:
+      - name: "spec-file"
+        aliases: ["s"]
+        summary: "The path to the OpenCLI Spec that code will be generated from"
+        required: true
+        type: "string"
+      - name: output-dir
+        aliases: ["o"]
+        summary: "The path to the directory where the generated code will be output"
+        required: true
+        type: "string"
       - name: "framework"
-        aliases:
-          - "f"
+        aliases: ["f"]
         summary: "The framework of the CLI boilerplate to generate"
         required: true
         type: "string"
@@ -207,10 +206,10 @@ commands:
         choices:
           - value: cjs
             description: CommonJS style require/export
-          - value: mjs
-            description: ECMAScript Modules style import/export
+          # - value: mjs
+          #   description: ECMAScript Modules style import/export
       - name: "dryrun"
-        summary: "When true the docs contents will be output to stdout instead of the file"
+        summary: "When true the CLI code contents will be output to stdout instead of the file"
         type: "boolean"
         default: true
 

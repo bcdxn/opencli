@@ -109,31 +109,32 @@ func TestTemplatesUrfave(t *testing.T) {
 				},
 			},
 		},
-		{
-			name:     "Command Arguments",
-			template: "./templates/urfavecli/cmd_props_args.tmpl",
-			expected: "./testdata/urfavecli/cmd_props_args_0.txt",
-			data: oclispec.CommandTrieNode{
-				Name: "nested",
-				Command: oclispec.Command{
-					Name: "my neat nested",
-					Arguments: []oclispec.Argument{
-						{
-							Name:        "one",
-							Type:        "string",
-							Summary:     "a test summary",
-							Description: "a test description",
-						},
-						{
-							Name:        "two",
-							Type:        "string",
-							Summary:     "a test summary",
-							Description: "a test description",
-						},
-					},
-				},
-			},
-		},
+		// issues with urfave cli argument configs; so we've removed the config generation and corresponding test.
+		// {
+		// 	name:     "Command Arguments",
+		// 	template: "./templates/urfavecli/cmd_props_args.tmpl",
+		// 	expected: "./testdata/urfavecli/cmd_props_args_0.txt",
+		// 	data: oclispec.CommandTrieNode{
+		// 		Name: "nested",
+		// 		Command: oclispec.Command{
+		// 			Name: "my neat nested",
+		// 			Arguments: []oclispec.Argument{
+		// 				{
+		// 					Name:        "one",
+		// 					Type:        "string",
+		// 					Summary:     "a test summary",
+		// 					Description: "a test description",
+		// 				},
+		// 				{
+		// 					Name:        "two",
+		// 					Type:        "string",
+		// 					Summary:     "a test summary",
+		// 					Description: "a test description",
+		// 				},
+		// 			},
+		// 		},
+		// 	},
+		// },
 		{
 			name:     "Command Flags",
 			template: "./templates/urfavecli/cmd_props_flags.tmpl",

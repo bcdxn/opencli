@@ -15,20 +15,35 @@ import (
 
 type Impl struct{}
 
-func (Impl) OcliGenerateCli(ctx context.Context, c *urfavecli.Command, args OcliGenerateCliArgs, flags OcliGenerateCliFlags) error {
+func (Impl) OcliGenerateCli(ctx context.Context, c *urfavecli.Command, flags OcliGenerateCliFlags) error {
 	// unmarshal the document
-	doc, err := oclispec.UnmarshalYAML(args.PathToSpec)
+	doc, err := oclispec.UnmarshalYAML(flags.SpecFile)
 	if err != nil {
 		return urfavecli.Exit(err.Error(), ExitCodeBadUserInputError)
 	}
 
-	files, err := oclicode.Generate(doc, oclicode.GoPackage(flags.GoPackage), oclicode.Framework(flags.Framework))
+	files, err := oclicode.Generate(
+		doc, oclicode.GoPackage(flags.GoPackage),
+		oclicode.Framework(flags.Framework),
+		oclicode.ModuleType(flags.ModuleType),
+	)
 	if err != nil {
 		return urfavecli.Exit(err.Error(), ExitCodeInternalCliError)
 	}
 
+	if flags.Dryrun {
+		fmt.Println("--dryrun enabled; skipping write to file")
+		for _, f := range files {
+			fmt.Println("\n\n========================================================================")
+			fmt.Println("FILE: ", f.Name)
+			fmt.Println("------------------------------------------------------------------------")
+			fmt.Println(string(f.Contents))
+		}
+		return nil
+	}
+
 	for _, file := range files {
-		err = os.WriteFile(path.Join(args.PathToOutputDir, file.Name), file.Contents, 0644)
+		err = os.WriteFile(path.Join(flags.OutputDir, file.Name), file.Contents, 0644)
 		if err != nil {
 			return urfavecli.Exit(err.Error(), ExitCodeInternalCliError)
 		}
@@ -37,17 +52,17 @@ func (Impl) OcliGenerateCli(ctx context.Context, c *urfavecli.Command, args Ocli
 	return nil
 }
 
-func (Impl) OcliGenerateDocs(ctx context.Context, c *urfavecli.Command, args OcliGenerateDocsArgs, flags OcliGenerateDocsFlags) error {
+func (Impl) OcliGenerateDocs(ctx context.Context, c *urfavecli.Command, flags OcliGenerateDocsFlags) error {
 	jsonRE := regexp.MustCompile(`(?i)\.json$`)
 	yamlRE := regexp.MustCompile(`(?i)\.yaml$`)
 
 	var doc oclispec.Document
 	var err error
 
-	if jsonRE.MatchString(args.PathToSpec) {
-		doc, err = oclispec.UnmarshalJSON(args.PathToSpec)
-	} else if yamlRE.MatchString(args.PathToSpec) {
-		doc, err = oclispec.UnmarshalYAML(args.PathToSpec)
+	if jsonRE.MatchString(flags.SpecFile) {
+		doc, err = oclispec.UnmarshalJSON(flags.SpecFile)
+	} else if yamlRE.MatchString(flags.SpecFile) {
+		doc, err = oclispec.UnmarshalYAML(flags.SpecFile)
 	} else {
 		return urfavecli.Exit("unsupported OpenCLI Document format - must be one of [JSON, YAML]", ExitCodeBadUserInputError)
 	}
@@ -56,19 +71,30 @@ func (Impl) OcliGenerateDocs(ctx context.Context, c *urfavecli.Command, args Ocl
 		return urfavecli.Exit(err.Error(), ExitCodeBadUserInputError)
 	}
 
-	docs := oclidocs.Generate(doc)
+	files, err := oclidocs.Generate(doc)
+	if err != nil {
+		return urfavecli.Exit(err.Error(), ExitCodeInternalCliError)
+	}
 
 	if flags.Dryrun {
 		fmt.Println("--dryrun enabled; skipping write to file")
-		fmt.Println("---")
-		fmt.Println("docs.gen.md")
-		fmt.Println(string(docs))
-		fmt.Println("---")
+		for _, f := range files {
+			fmt.Println("\n\n========================================================================")
+			fmt.Println("FILE: ", f.Name)
+			fmt.Println("------------------------------------------------------------------------")
+			fmt.Println(string(f.Contents))
+		}
 		return nil
 	}
 
-	err = os.WriteFile(path.Join(args.PathToOutputDir, "docs.gen."+formatExtension(flags.Format)), docs, 0644)
-	return urfavecli.Exit(err.Error(), ExitCodeInternalCliError)
+	for _, file := range files {
+		err = os.WriteFile(path.Join(flags.OutputDir, file.Name), file.Contents, 0644)
+		if err != nil {
+			return urfavecli.Exit(err.Error(), ExitCodeInternalCliError)
+		}
+	}
+
+	return nil
 }
 
 func (Impl) OcliSpecificationCheck(ctx context.Context, c *urfavecli.Command, args OcliSpecificationCheckArgs) error {

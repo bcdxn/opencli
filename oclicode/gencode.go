@@ -21,8 +21,6 @@ func Generate(doc oclispec.Document, options ...GenCliOptions) ([]GenFile, error
 		opt(opts)
 	}
 
-	tmpl := getCliTemplate(opts.Framework)
-
 	// Before generating the code, ensure the root-level command has a summary/description
 	if doc.CommandTrie.Root.Command.Summary == "" {
 		doc.CommandTrie.Root.Command.Summary = doc.Info.Summary
@@ -33,9 +31,9 @@ func Generate(doc oclispec.Document, options ...GenCliOptions) ([]GenFile, error
 
 	switch opts.Framework {
 	case "urfavecli":
-		return genUrfaveCli(tmpl, cliTmplData{*opts, doc})
+		return genUrfaveCli(cliTmplData{*opts, doc})
 	case "yargs":
-		return genYargsCli(tmpl, cliTmplData{*opts, doc})
+		return genYargsCli(cliTmplData{*opts, doc})
 	}
 
 	return nil, errors.New("unsupported framework")
@@ -55,7 +53,7 @@ func Framework(name string) GenCliOptions {
 
 func ModuleType(moduleType string) GenCliOptions {
 	return func(opts *genCliOptions) {
-		opts.Framework = moduleType
+		opts.ModuleType = moduleType
 	}
 }
 
@@ -98,7 +96,9 @@ func getCliTemplate(framework string) *template.Template {
 	return t
 }
 
-func genUrfaveCli(tmpl *template.Template, data cliTmplData) ([]GenFile, error) {
+func genUrfaveCli(data cliTmplData) ([]GenFile, error) {
+	tmpl := getCliTemplate(data.Opts.Framework)
+
 	cliInterfaceGenContents := bytes.NewBuffer([]byte{})
 	// `cli_interface.gen.go.tmpl` defines the interface that must be implemented to handle all of the CLI command actions.
 	err := tmpl.ExecuteTemplate(cliInterfaceGenContents, "cli_interface.gen.go.tmpl", data)
@@ -147,7 +147,13 @@ func genUrfaveCli(tmpl *template.Template, data cliTmplData) ([]GenFile, error) 
 	}, nil
 }
 
-func genYargsCli(tmpl *template.Template, data cliTmplData) ([]GenFile, error) {
+func genYargsCli(data cliTmplData) ([]GenFile, error) {
+	if data.Opts.ModuleType == "" {
+		return nil, errors.New("module type not specified. select cjs or mjs")
+	}
+
+	tmpl := getCliTemplate(data.Opts.Framework + "-" + data.Opts.ModuleType)
+
 	cliInterfaceGenContents := bytes.NewBuffer([]byte{})
 	// `cli_interface.gen.js.tmpl` defines the interface that must be implemented to handle all of the CLI command actions.
 	err := tmpl.ExecuteTemplate(cliInterfaceGenContents, "cli_interface.gen.js.tmpl", data)

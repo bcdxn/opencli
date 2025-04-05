@@ -29,7 +29,7 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
 	}
 
 	ocliGenerateCmd.Name = "generate"
-	ocliGenerateCmd.UsageText = "ocli generate {command} <arguments> [flags]"
+	ocliGenerateCmd.UsageText = "ocli generate {command} [flags]"
 	ocliGenerateCmd.Usage = "Commands used to generate code/docs from an OpenCLI Spec document"
 	ocliGenerateCmd.Aliases = []string{
 		"gen",
@@ -40,9 +40,25 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
 	}
 
 	ocliGenerateCliCmd.Name = "cli"
-	ocliGenerateCliCmd.UsageText = "ocli generate cli <path-to-spec> <path-to-output-dir> [flags]"
+	ocliGenerateCliCmd.UsageText = "ocli generate cli [flags]"
 	ocliGenerateCliCmd.Usage = "Generate CLI Boilerplate code from an OpenCLI Spec document"
 	ocliGenerateCliCmd.Flags = []urfavecli.Flag{
+		&urfavecli.StringFlag{
+			Name: "spec-file",
+			Usage: "The path to the OpenCLI Spec that code will be generated from",
+			Aliases: []string{
+				"s",
+			},
+			Hidden: false,
+		},
+		&urfavecli.StringFlag{
+			Name: "output-dir",
+			Usage: "The path to the directory where the generated code will be output",
+			Aliases: []string{
+				"o",
+			},
+			Hidden: false,
+		},
 		&urfavecli.StringFlag{
 			Name: "framework",
 			Usage: "The framework of the CLI boilerplate to generate",
@@ -84,21 +100,20 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
   ocliGenerateCliCmd.Action = func(ctx context.Context, cmd *urfavecli.Command) error {
    
     
-		var args OcliGenerateCliArgs
-		if cmd.NArg() < 1 {
-			return urfavecli.Exit("missing required arg <path-to-spec>", 2)
-		}
-		if cmd.NArg() < 2 {
-			return urfavecli.Exit("missing required arg <path-to-output-dir>", 2)
-		}
-		args.PathToSpec = cmd.Args().Get(0)
-		args.PathToOutputDir = cmd.Args().Get(1)
     
 		var flags OcliGenerateCliFlags
+		flags.SpecFile = cmd.String("spec-file")
+		flags.OutputDir = cmd.String("output-dir")
 		flags.Framework = cmd.String("framework")
 		flags.GoPackage = cmd.String("go-package")
 		flags.ModuleType = cmd.String("module-type")
 		flags.Dryrun = cmd.Bool("dryrun")
+		if !cmd.IsSet("spec-file") {
+			return urfavecli.Exit("missing required flag --spec-file", 2)
+		}
+		if !cmd.IsSet("output-dir") {
+			return urfavecli.Exit("missing required flag --output-dir", 2)
+		}
 		if !cmd.IsSet("framework") {
 			return urfavecli.Exit("missing required flag --framework", 2)
 		}
@@ -126,13 +141,29 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
 			return urfavecli.Exit("invalid value for flag --module-type", 2)
 		}
 
-    return impl.OcliGenerateCli(ctx, cmd, args, flags)
+    return impl.OcliGenerateCli(ctx, cmd, flags)
   }
 
 	ocliGenerateDocsCmd.Name = "docs"
-	ocliGenerateDocsCmd.UsageText = "ocli generate docs <path-to-spec> <path-to-output-dir> [flags]"
+	ocliGenerateDocsCmd.UsageText = "ocli generate docs [flags]"
 	ocliGenerateDocsCmd.Usage = "Generate documentation from an OpenCLI Spec document"
 	ocliGenerateDocsCmd.Flags = []urfavecli.Flag{
+		&urfavecli.StringFlag{
+			Name: "spec-file",
+			Usage: "The path to the OpenCLI Spec that documentation will be generated from",
+			Aliases: []string{
+				"s",
+			},
+			Hidden: false,
+		},
+		&urfavecli.StringFlag{
+			Name: "output-dir",
+			Usage: "The path to the directory where the generated docs will be output",
+			Aliases: []string{
+				"o",
+			},
+			Hidden: false,
+		},
 		&urfavecli.StringFlag{
 			Name: "format",
 			Usage: "The format of the documentation to generate",
@@ -166,20 +197,19 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
   ocliGenerateDocsCmd.Action = func(ctx context.Context, cmd *urfavecli.Command) error {
    
     
-		var args OcliGenerateDocsArgs
-		if cmd.NArg() < 1 {
-			return urfavecli.Exit("missing required arg <path-to-spec>", 2)
-		}
-		if cmd.NArg() < 2 {
-			return urfavecli.Exit("missing required arg <path-to-output-dir>", 2)
-		}
-		args.PathToSpec = cmd.Args().Get(0)
-		args.PathToOutputDir = cmd.Args().Get(1)
     
 		var flags OcliGenerateDocsFlags
+		flags.SpecFile = cmd.String("spec-file")
+		flags.OutputDir = cmd.String("output-dir")
 		flags.Format = cmd.String("format")
 		flags.Footer = cmd.Bool("footer")
 		flags.Dryrun = cmd.Bool("dryrun")
+		if !cmd.IsSet("spec-file") {
+			return urfavecli.Exit("missing required flag --spec-file", 2)
+		}
+		if !cmd.IsSet("output-dir") {
+			return urfavecli.Exit("missing required flag --output-dir", 2)
+		}
 		if !cmd.IsSet("format") {
 			return urfavecli.Exit("missing required flag --format", 2)
 		}
@@ -195,7 +225,7 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
 			return urfavecli.Exit("invalid value for flag --format", 2)
 		}
 
-    return impl.OcliGenerateDocs(ctx, cmd, args, flags)
+    return impl.OcliGenerateDocs(ctx, cmd, flags)
   }
 
 	ocliSpecificationCmd.Name = "specification"

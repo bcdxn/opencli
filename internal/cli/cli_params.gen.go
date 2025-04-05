@@ -6,18 +6,6 @@ package cli
 /* CLI argument types
 ------------------------------------------------------------------------------------------------- */
 
-// OcliGenerateCliArgs holds the parsed arguments that will be injected into the command handler implementation.
-type OcliGenerateCliArgs struct {
-  PathToSpec string
-  PathToOutputDir string
-}
-
-// OcliGenerateDocsArgs holds the parsed arguments that will be injected into the command handler implementation.
-type OcliGenerateDocsArgs struct {
-  PathToSpec string
-  PathToOutputDir string
-}
-
 // OcliSpecificationCheckArgs holds the parsed arguments that will be injected into the command handler implementation.
 type OcliSpecificationCheckArgs struct {
   PathToSpec string
@@ -28,6 +16,8 @@ type OcliSpecificationCheckArgs struct {
 
 // OcliGenerateCliFlags holds the parsed flags that will be injected into the command handler implementation.
 type OcliGenerateCliFlags struct {
+  SpecFile string
+  OutputDir string
   Framework string
   GoPackage string
   ModuleType string
@@ -36,6 +26,8 @@ type OcliGenerateCliFlags struct {
 
 // OcliGenerateDocsFlags holds the parsed flags that will be injected into the command handler implementation.
 type OcliGenerateDocsFlags struct {
+  SpecFile string
+  OutputDir string
   Format string
   Footer bool
   Dryrun bool

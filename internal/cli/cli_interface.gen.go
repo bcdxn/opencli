@@ -17,16 +17,16 @@ type CLIHandlersInterface interface {
   // OcliGenerateCli handles the invocation of:
   // 
   // ```sh
-  // ocli generate cli <path-to-spec> <path-to-output-dir> [flags]
+  // ocli generate cli [flags]
   // ```
-  OcliGenerateCli(ctx context.Context, cmd *urfavecli.Command, arguments  OcliGenerateCliArgs, flags OcliGenerateCliFlags) error
+  OcliGenerateCli(ctx context.Context, cmd *urfavecli.Command, flags OcliGenerateCliFlags) error
 
   // OcliGenerateDocs handles the invocation of:
   // 
   // ```sh
-  // ocli generate docs <path-to-spec> <path-to-output-dir> [flags]
+  // ocli generate docs [flags]
   // ```
-  OcliGenerateDocs(ctx context.Context, cmd *urfavecli.Command, arguments  OcliGenerateDocsArgs, flags OcliGenerateDocsFlags) error
+  OcliGenerateDocs(ctx context.Context, cmd *urfavecli.Command, flags OcliGenerateDocsFlags) error
 
 
   // OcliSpecificationCheck handles the invocation of:

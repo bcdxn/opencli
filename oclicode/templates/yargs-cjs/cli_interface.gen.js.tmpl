@@ -10,9 +10,9 @@
 class CliHandlersInterface {
   constructor() {}
   {{- template "cmd_interface_func" .Doc.CommandTrie.Root}}
-
- 
 }
+
+module.exports.CliHandlersInterface = CliHandlersInterface;
 
 {{- define "cmd_interface_func" }}
 {{- if not .Command.Group}}
@@ -54,11 +54,9 @@ class CliHandlersInterface {
 {{- end}}
 
 {{- define "arg_param_name" -}}
-{{if not .Required}}[{{end}}args.{{.Name | CamelCase}}{{if not .Required}}]{{end}}
+{{if not .Required}}[{{end}}args.{{.Name | CamelCase}}{{if .Default}}={{.Default}}{{end}}{{if not .Required}}]{{end}}
 {{- end}}
 
 {{- define "flag_param_name" -}}
-{{if not .Required}}[{{end}}flags.{{.Name | CamelCase}}{{if not .Required}}]{{end}}
+{{if not .Required}}[{{end}}flags.{{.Name | CamelCase}}{{if .Default.IsSet}}={{if eq .Type "string"}}{{.Default.String}}{{else}}{{.Default.Bool}}{{end}}{{end}}{{if not .Required}}]{{end}}
 {{- end}}
-
-module.exports.CliHandlersInterface = CliHandlersInterface;

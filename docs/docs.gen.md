@@ -65,7 +65,7 @@ go install github.com/bcdxn/opencli
 ---
 
 
-### `$ ocli generate {command} <arguments> [flags]`
+### `$ ocli generate {command} [flags]`
 
 `group` `nonexecutable`
 
@@ -75,7 +75,7 @@ Commands used to generate code/docs from an OpenCLI Spec document
 ---
 
 
-### `$ ocli generate cli <path-to-spec> <path-to-output-dir> [flags]`
+### `$ ocli generate cli [flags]`
 
 Generate CLI Boilerplate code from an OpenCLI Spec document
 
@@ -84,21 +84,20 @@ various CLI frameworks from an OpenCLI Spec document. You can specify the
 language of the CLI to be generated using
 the `--language` flag.
 
-#### Arguments
-
-##### `<path-to-spec>`
-
-The path to the OpenCLI Spec that the CLI will be generated from
-
-`type:string` `enum:false` `variadic:false`
-
-##### `<path-to-output-dir>`
-
-The path to the directory to house the generated docs
-
-`type:string` `enum:false` `variadic:false`
 
 #### Flags
+
+##### `--spec-file`
+
+The path to the OpenCLI Spec that code will be generated from
+
+`type:string` `enum:false` `variadic:false`
+
+##### `--output-dir`
+
+The path to the directory where the generated code will be output
+
+`type:string` `enum:false` `variadic:false`
 
 ##### `--framework`
 
@@ -134,7 +133,6 @@ Indicates the module type of the generated code; required when generating a yarg
 ###### Supported Values of `--module-type`
 
 - `cjs` - CommonJS style require/export
-- `mjs` - ECMAScript Modules style import/export
 
 ###### Alternative Sources
 - `env:$OCLI_CLI_MODULE_TYPE`
@@ -142,14 +140,14 @@ Indicates the module type of the generated code; required when generating a yarg
 
 ##### `--dryrun`
 
-When true the docs contents will be output to stdout instead of the file
+When true the CLI code contents will be output to stdout instead of the file
 
 `type:boolean` `enum:false` `default:true` `variadic:false`
 
 ---
 
 
-### `$ ocli generate docs <path-to-spec> <path-to-output-dir> [flags]`
+### `$ ocli generate docs [flags]`
 
 Generate documentation from an OpenCLI Spec document
 
@@ -157,27 +155,26 @@ The `generate docs` command will generate documentation from an OpenCLI
 Spec document. You can specify the format of the documentation to be
 generated using the `--format` flag.
 
-#### Arguments
 
-##### `<path-to-spec>`
+#### Flags
+
+##### `--spec-file`
 
 The path to the OpenCLI Spec that documentation will be generated from
 
 `type:string` `enum:false` `variadic:false`
 
-##### `<path-to-output-dir>`
+##### `--output-dir`
 
-The path to the directory to house the generated docs
+The path to the directory where the generated docs will be output
 
 `type:string` `enum:false` `variadic:false`
-
-#### Flags
 
 ##### `--format`
 
 The format of the documentation to generate
 
-`type:string` `enum:true` `default:markdown` `variadic:false`
+`type:string` `enum:true` `variadic:false`
 
 ###### Supported Values of `--format`
 
