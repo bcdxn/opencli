@@ -16,8 +16,12 @@ func TestGenDocsMarkdown(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	actual := Generate(ocs)
-	if string(actual) != expected {
-		t.Errorf("generated documentation did not match expectation, FOUND:\n[[%s]]\n==========\nEXPECTED:\n[[%s]]\n==========\n", string(actual), expected)
+	docs, err := Generate(ocs)
+	if err != nil {
+		t.Errorf("error generating docs - %v", err)
+	}
+	actual := string(docs[0].Contents)
+	if actual != expected {
+		t.Errorf("generated documentation did not match expectation, FOUND:\n[[%s]]\n==========\nEXPECTED:\n[[%s]]\n==========\n", actual, expected)
 	}
 }
