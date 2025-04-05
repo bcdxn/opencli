@@ -1,4 +1,4 @@
-opencliVersion: "1.0.0-alpha.4"
+opencliVersion: "1.0.0-alpha.5"
 
 info:
   title: "OpenCLI"
@@ -18,7 +18,7 @@ info:
     ```sh
     ocli generate --help
     ```
-  version: "1.0.0-alpha.3"
+  version: "1.0.0-alpha.5"
   binary: "ocli"
   license:
     name: "MIT"
@@ -35,7 +35,7 @@ install:
       You can visit the GitHub releases page of the project to download pre-compiled binaries
       appropriate for your system.
   - name: "Go Install"
-    command: "go install github.com/bcdxn/opencli"
+    command: "go install github.com/bcdxn/opencli/cmd/ocli@latest"
 
 global:
   exitCodes:

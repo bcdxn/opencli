@@ -92,7 +92,7 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
 		},
 		&urfavecli.BoolFlag{
 			Name: "dryrun",
-			Usage: "When true the docs contents will be output to stdout instead of the file",
+			Usage: "When true the CLI code contents will be output to stdout instead of the file",
 			Value: true,
 			Hidden: false,
 		},
@@ -132,7 +132,6 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
 		validFlagChoice = validateChoices(
 			[]string{
 				"cjs",
-				"mjs",
 				"",
 			},
 			flags.ModuleType,
@@ -170,7 +169,6 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
 			Aliases: []string{
 				"f",
 			},
-			Value: "markdown",
 			Sources: urfavecli.NewValueSourceChain(
 				urfavecli.EnvVar("OCLI_DOCS_FORMAT"),
 				altsrc.YAML("docs.format", "~/.ocli/config.yaml").Chain[0],

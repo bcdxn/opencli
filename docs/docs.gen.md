@@ -43,7 +43,7 @@ appropriate for your system.
 ### Go Install
 
 ```sh
-go install github.com/bcdxn/opencli
+go install github.com/bcdxn/opencli/cmd/ocli@latest
 ```
 
 ## Exit Codes
