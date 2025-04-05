@@ -115,11 +115,11 @@ func (Impl) OcliSpecificationCheck(ctx context.Context, c *urfavecli.Command, ar
 	}
 
 	if err != nil {
-		fmt.Println("OpenCLI Document is invalid ❌")
+		fmt.Println("❌ OpenCLI Document is invalid")
 		return urfavecli.Exit(err.Error(), ExitCodeBadUserInputError)
 	}
 
-	fmt.Println("OpenCLI Document is valid ✅")
+	fmt.Println("✅ OpenCLI Document is valid")
 	return nil
 }
 

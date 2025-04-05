@@ -9,7 +9,7 @@
       "type": "string",
       "description": "This property MUST be the exact version number of the OpenCLI Specification that this OpenCLI Document uses. The opencli field SHOULD be used by tooling to interpret the OpenCLI Document. This field is not related to the CLI info.version string.",
       "choices": [
-        "0.0.1"
+        "1.0.0-alpha.4"
       ]
     },
     "info": {
