@@ -4,8 +4,15 @@
 package {{.Opts.GoPackage}}
 
 const (
+{{- if .Doc.Global.ExitCodes }}
 {{- range .Doc.Global.ExitCodes}}
 	ExitCode{{.Status | PascalCase}} = {{.Code}}
+{{- end}}
+{{- else}}
+	ExitCodeSuccess = 0
+  ExitCodeInternalCliError = 1
+	ExitCodeBadUserInputError = 2
+	UnauthenticatedErrorCode = 3
 {{- end}}
 {{- template "cmd_exit_codes" .Doc.CommandTrie.Root}}
 )

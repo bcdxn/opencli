@@ -15,8 +15,7 @@ _Like OpenAPI Spec, but for your CLIs_
 - [Overview](#overview)
 - [Benefits](#benefits)
 - [OpenCLI CLI](#opencli-cli)
-- [Example](#example)
-- [Complex Example](#a-more-complex-example)
+- [Examples](#examples)
 - [The Spec](#the-spec)
 - [Releases](#releases)
 - [Inspiration](#inspiration)
@@ -38,7 +37,9 @@ Use the CLI to validate specs, generate docs and generate boilerplate code.
 
 - [Markdown Docs](https://github.com/bcdxn/opencli/blob/main/docs/docs.gen.md)
 
-## Example
+## Examples
+
+### Pleasantries CLI
 
 Let's describe the following CLI
 
@@ -99,30 +100,34 @@ commands:
         default: "english"
 ```
 
-From this example we can generate documentation:
+From this example we can generate documentation using the follow command:
 
 ```sh
 ocli gen docs \
-  --spec-file ./cli.yaml \
+  --spec-file ./cli.osc.yaml \
   --output-dir ./docs \
   --format markdown \
   --dryrun=false
 ```
 
-And we can generate CLI Framework boilerplate code:
+You can see the generated documentation [here](https://github.com/bcdxn/opencli/blob/main/examples/markdown-docs/docs.gen.md).
+
+Next, we can generate CLI Framework boilerplate code using the following command:
 
 ```sh
 ocli gen cli \
-  --spec-file ./cli.yaml \
+  --spec-file ./cli.osc.yaml \
   --output-dir ./internal/cli \
   --framework urfavecli \
   --go-package cli \
   --dryrun=false
 ```
 
-## A More Complex Example
+You can see the generated code [here](https://github.com/bcdxn/opencli/blob/main/examples/urfavecli).
 
-See a full example of an OpenCLI Document in action - The OpenCLI CLI uses an OpenCLI Spec and the OpenCLI CLI to generate itself 🤯
+### OpenCLI CLI
+
+The OpenCLI CLI uses an OpenCLI Spec and the OpenCLI CLI to generate itself 🤯
 
 - The spec that defines the OpenCLI CLI - [here](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli.ocs.yaml)
 - The markdown documentation automatically generated from the spec - [here](https://github.com/bcdxn/opencli/blob/main/docs/docs.gen.md)

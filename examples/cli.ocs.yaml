@@ -1,0 +1,43 @@
+opencliVersion: 1.0.0-alpha.5
+
+info:
+  title: Pleasantries
+  summary: A fun CLI to greet or bid farewell
+  version: 1.0.0
+  binary: pleasantries
+      
+commands:
+  pleasantries {command} <name> [flags]:
+    group: true
+
+  pleasantries greet <name> [flags]:
+    summary: "Say hello"
+    arguments:
+      - name: "name"
+        summary: "A name to include the greeting"
+        required: true
+        type: "string"
+    flags:
+      - name: "language"
+        summary: "The language of the greeting"
+        type: "string"
+        choices:
+          - value: "english"
+          - value: "spanish"
+        default: "english"
+
+  pleasantries farewell <name> [flags]:
+    summary: "Say goodbye"
+    arguments:
+      - name: "name"
+        summary: "A name to include in the farewell"
+        required: true
+        type: "string"
+    flags:
+      - name: "language"
+        summary: "The language of the greeting"
+        type: "string"
+        choices:
+          - value: "english"
+          - value: "spanish"
+        default: "english"
