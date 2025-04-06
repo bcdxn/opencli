@@ -1,6 +1,6 @@
 # OpenCLI Specification
 
-Define your CLI in a declarative, language-agnostic document that can be used to generate documentation and boilerplate code.
+Define your Command Line Interface (CLI) in a declarative, language-agnostic document that can be used to generate documentation and boilerplate code.
 
 _Like OpenAPI Spec, but for your CLIs_
 
