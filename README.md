@@ -1,18 +1,30 @@
 # OpenCLI Specification
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/bcdxn/opencli.svg)](https://pkg.go.dev/github.com/bcdxn/opencli)
-![ocli-badge](https://img.shields.io/badge/OpenCLI_Spec-Compliant-brightgreen?link=https%3A%2F%2Fgithub.com%2Fbcdxn%2Fopencli)
-
 Define your CLI in a declarative, language-agnostic document that can be used to generate documentation and boilerplate code.
 
 _Like OpenAPI Spec, but for your CLIs_
 
-## OpenCLI Specs Benefits
+---
+
+[![Go Reference](https://pkg.go.dev/badge/github.com/bcdxn/opencli.svg)](https://pkg.go.dev/github.com/bcdxn/opencli)
+![ocli-badge](https://img.shields.io/badge/OpenCLI_Spec-Compliant-brightgreen?link=https%3A%2F%2Fgithub.com%2Fbcdxn%2Fopencli)
+
+## Overview
+
+OpenCLI specification is a document specification that can be used to describe CLIs. Spec-compliant documents are meant to be human-readable but the tooling supports documentation generation in a variety of formats.
+
+## Benefits
 
 - Promote contract first development
 - Decouple implementation of commands from the CLI Framework
 - Automatically generate documentation your CLI
 - Automatically generate CLI framework-specific code
+
+## OpenCLI CLI
+
+Use the CLI to validate specs, generate docs and generate boilerplate code.
+
+- [Markdown Docs](https://github.com/bcdxn/opencli/blob/main/docs/docs.gen.md)
 
 ## Example
 
@@ -73,13 +85,20 @@ commands:
         default: "english"
 ```
 
-## OpenCLI CLI 🤯
+## Full Example
 
-See a full example of an OpenCLI Document in action.
+See a full example of an OpenCLI Document in action - The OpenCLI CLI uses an OpenCLI Spec and the OpenCLI CLI to generate itself 🤯
 
 - The spec that defines the OpenCLI CLI [here](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli.ocs.yaml)
 - The markdown documentation automatically generated from the spec [here](https://github.com/bcdxn/opencli/blob/main/docs/docs.gen.md)
-- The CLI interface and boilerplate code generated from the spec [here](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli_interface.gen.go) and [here](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli.gen.go)
+- The boilerplate code generated from the spec
+  - [generated interface](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli_interface.gen.go)
+  - [generated framework boilerplate](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli.gen.go)
+  - [generated parameter types](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli_params.gen.go)
+ 
+## The Spec
+
+The full spec is described by JSON Schema - https://github.com/bcdxn/opencli/tree/main/spec
 
 ## Releases
 
