@@ -49,7 +49,7 @@ $ pleasantries farewell Jane --language=spanish
 # adios Jane
 ```
 
-The CLI above can be described using an OpenCLI Specification Document like:
+The CLI above can be described using an OpenCLI Specification Document in YAML (or JSON):
 
 ```yaml
 # cli.yaml
