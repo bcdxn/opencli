@@ -10,6 +10,17 @@ _Like OpenAPI Spec, but for your CLIs_
 [![Go Report Card](https://goreportcard.com/badge/github.com/bcdxn/opencli)](https://goreportcard.com/report/github.com/bcdxn/opencli)
 ![OpenCLI Compliant](https://img.shields.io/badge/OpenCLI_Spec-Compliant-brightgreen?link=https%3A%2F%2Fgithub.com%2Fbcdxn%2Fopencli)
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Benefits](#benefits)
+- [OpenCLI CLI](#opencli-cli)
+- [Example](#example)
+- [Complex Example](#a-more-complex-example)
+- [The Spec](#the-spec)
+- [Releases](#releases)
+- [Inspiration](#inspiration)
+
 ## Overview
 
 OpenCLI specification is a document specification that can be used to describe CLIs. Spec-compliant documents are meant to be human-readable but the tooling supports documentation generation in a variety of formats.
@@ -109,7 +120,7 @@ ocli gen cli \
   --dryrun=false
 ```
 
-## Full Example
+## A More Complex Example
 
 See a full example of an OpenCLI Document in action - The OpenCLI CLI uses an OpenCLI Spec and the OpenCLI CLI to generate itself 🤯
 
