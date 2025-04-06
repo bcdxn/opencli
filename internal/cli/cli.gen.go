@@ -255,7 +255,7 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
 
 	ocliSpecificationVersionsCmd.Name = "versions"
 	ocliSpecificationVersionsCmd.UsageText = "ocli specification versions"
-	ocliSpecificationVersionsCmd.Usage = "Print the versions of the OpenCLI Specificatons that are supported"
+	ocliSpecificationVersionsCmd.Usage = "Print the versions of the OpenCLI Specifications that are supported"
   ocliSpecificationVersionsCmd.Action = func(ctx context.Context, cmd *urfavecli.Command) error {
    
     

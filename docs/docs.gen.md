@@ -240,7 +240,7 @@ by parsing it and checking it against the OpenCLI Specification.
 
 ### `$ ocli specification versions`
 
-Print the versions of the OpenCLI Specificatons that are supported
+Print the versions of the OpenCLI Specifications that are supported
 
 The `versions` command will print the versions of the OpenCLI
 Specification that are available and supported by this version of the

@@ -59,7 +59,7 @@ commands:
     summary: "Commands related to the OpenCLI Specification"
     group: true
   ocli specification versions:
-    summary: "Print the versions of the OpenCLI Specificatons that are supported"
+    summary: "Print the versions of the OpenCLI Specifications that are supported"
     description: |
       The `versions` command will print the versions of the OpenCLI
       Specification that are available and supported by this version of the
