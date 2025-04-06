@@ -7,7 +7,8 @@ _Like OpenAPI Spec, but for your CLIs_
 ---
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/bcdxn/opencli.svg)](https://pkg.go.dev/github.com/bcdxn/opencli)
-![ocli-badge](https://img.shields.io/badge/OpenCLI_Spec-Compliant-brightgreen?link=https%3A%2F%2Fgithub.com%2Fbcdxn%2Fopencli)
+[![Go Report Card](https://goreportcard.com/badge/github.com/bcdxn/opencli)](https://goreportcard.com/report/github.com/bcdxn/opencli)
+![OpenCLI Compliant](https://img.shields.io/badge/OpenCLI_Spec-Compliant-brightgreen?link=https%3A%2F%2Fgithub.com%2Fbcdxn%2Fopencli)
 
 ## Overview
 
