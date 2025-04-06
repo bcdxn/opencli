@@ -113,8 +113,8 @@ ocli gen cli \
 
 See a full example of an OpenCLI Document in action - The OpenCLI CLI uses an OpenCLI Spec and the OpenCLI CLI to generate itself 🤯
 
-- The spec that defines the OpenCLI CLI [here](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli.ocs.yaml)
-- The markdown documentation automatically generated from the spec [here](https://github.com/bcdxn/opencli/blob/main/docs/docs.gen.md)
+- The spec that defines the OpenCLI CLI - [here](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli.ocs.yaml)
+- The markdown documentation automatically generated from the spec - [here](https://github.com/bcdxn/opencli/blob/main/docs/docs.gen.md)
 - The boilerplate code generated from the spec
   - [generated interface](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli_interface.gen.go)
   - [generated framework boilerplate](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli.gen.go)
