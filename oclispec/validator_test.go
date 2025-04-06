@@ -16,7 +16,7 @@ func TestValidateDocumentJSON(t *testing.T) {
 		{
 			name: "valid document",
 			document: []byte(`{
-				"opencliVersion": "1.0.0-alpha.0",
+				"opencliVersion": "1.0.0-alpha.6",
 				"info": {
 					"binary": "test",
 					"title": "Test OpenCLI Specification",
@@ -73,7 +73,7 @@ func TestValidateDocumentYAML(t *testing.T) {
 		{
 			name: "valid document",
 			document: []byte(`
-opencliVersion: "1.0.0-alpha.0"
+opencliVersion: "1.0.0-alpha.6"
 info:
   binary: "test"	
   title: "Test OpenCLI Specification"
@@ -101,7 +101,7 @@ commands: {}
 		},
 		{
 			name: "invalid document",
-			document: []byte(`opencliVersion: "1.0.0-alpha.0"
+			document: []byte(`opencliVersion: "1.0.0-alpha.6"
 key: "value"
       `),
 			wantErr: true,
@@ -120,7 +120,7 @@ key: "value"
 
 // TestVersions tests the Versions function by comparing the expected versions with the actual versions.
 func TestVersions(t *testing.T) {
-	expectedVersions := []string{"1.0.0-alpha.0"}
+	expectedVersions := []string{"1.0.0-alpha.6"}
 	actualVersions := Versions()
 
 	if len(actualVersions) != len(expectedVersions) {
