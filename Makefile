@@ -8,17 +8,29 @@ test: generate
 
 version = $(shell git describe --tags HEAD)
 
+.PHONY: build
+build: generate
+	go run cmd/ocli/main.go gen docs \
+		--spec-file ./internal/cli/cli.ocs.yaml \
+		--output-dir ./docs \
+		--format markdown \
+		--dryrun=false
+	
+	go run cmd/ocli/main.go gen cli \
+		--spec-file ./internal/cli/cli.ocs.yaml \
+		--output-dir ./internal/cli \
+		--framework urfavecli \
+		--go-package cli \
+		--dryrun=false
+
 .PHONY: examples
-examples: generate
-	echo "updating examples::::"
-	echo "generate example docs"
+examples: build
 	go run cmd/ocli/main.go gen docs \
 		--spec-file ./examples/cli.ocs.yaml \
 		--output-dir ./examples/markdown-docs \
 		--format markdown \
 		--dryrun=false
 	
-	echo "generate example yargs CLI"
 	go run cmd/ocli/main.go gen cli \
 		--spec-file ./examples/cli.ocs.yaml \
 		--output-dir ./examples/yargs \
@@ -26,7 +38,6 @@ examples: generate
 		--module-type cjs \
 		--dryrun=false
 	
-	echo "generate example Urfave/CLI"
 	go run cmd/ocli/main.go gen cli \
 		--spec-file ./examples/cli.ocs.yaml \
 		--output-dir ./examples/urfavecli/cli \
