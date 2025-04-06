@@ -11,3 +11,5 @@ tmp
 dist# Added by goreleaser init:
 dist/
 build/
+
+node_modules

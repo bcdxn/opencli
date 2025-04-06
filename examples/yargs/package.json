@@ -1,0 +1,14 @@
+{
+  "name": "pleasantries",
+  "version": "1.0.0",
+  "description": "An example CLI using Yargs code generated from OpenCLI specs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "yargs": "^17.7.2"
+  }
+}

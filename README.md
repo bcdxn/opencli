@@ -123,7 +123,7 @@ ocli gen cli \
   --dryrun=false
 ```
 
-You can see the generated code [here](https://github.com/bcdxn/opencli/blob/main/examples/urfavecli).
+You can see the generated code [here (go)](https://github.com/bcdxn/opencli/blob/main/examples/urfavecli) and [here (js)](https://github.com/bcdxn/opencli/blob/main/examples/yargs).
 
 ### OpenCLI CLI
 
