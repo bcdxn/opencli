@@ -41,7 +41,9 @@ $ pleasantries farewell Jane --language=spanish
 The CLI above can be described using an OpenCLI Specification Document like:
 
 ```yaml
-opencliVersion: 1.0.0-alpha.3
+# cli.yaml
+
+opencliVersion: 1.0.0-alpha.5
 
 info:
   title: Pleasantries
@@ -84,6 +86,27 @@ commands:
           - value: "english"
           - value: "spanish"
         default: "english"
+```
+
+From this example we can generate documentation:
+
+```sh
+ocli gen docs \
+  --spec-file ./cli.yaml \
+  --output-dir ./docs \
+  --format markdown \
+  --dryrun=false
+```
+
+And we can generate CLI Framework boilerplate code:
+
+```sh
+ocli gen cli \
+  --spec-file ./cli.yaml \
+  --output-dir ./internal/cli \
+  --framework urfavecli \
+  --go-package cli \
+  --dryrun=false
 ```
 
 ## Full Example
