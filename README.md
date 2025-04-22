@@ -62,7 +62,7 @@ info:
   summary: A fun CLI to greet or bid farewell
   version: 1.0.0
   binary: pleasantries
-      
+
 commands:
   pleasantries {command} <name> [flags]:
     group: true
@@ -135,7 +135,7 @@ The OpenCLI CLI uses an OpenCLI Spec and the OpenCLI CLI to generate itself 🤯
   - [generated interface](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli_interface.gen.go)
   - [generated framework boilerplate](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli.gen.go)
   - [generated parameter types](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli_params.gen.go)
- 
+
 ## The Spec
 
 The full spec is described by JSON Schema - https://github.com/bcdxn/opencli/tree/main/spec
@@ -146,8 +146,8 @@ Start using OpenCLI Specification Documents to describe your CLIs. Head over to 
 
 ## Inspiration
 
-* [OpenAPI Specification](https://swagger.io/specification/)
-* Code generation tools like:
+- [OpenAPI Specification](https://swagger.io/specification/)
+- Code generation tools like:
   - [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen)
   - [ogen](https://ogen.dev)
-* Stripe's [amazing looking CLI documentation](https://docs.stripe.com/cli)
+- Stripe's [amazing looking CLI documentation](https://docs.stripe.com/cli)
