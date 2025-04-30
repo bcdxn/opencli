@@ -11,7 +11,7 @@ info:
     - generating Documentation from OpenCLI Spec documents
     - generating boilerplate for various CLI frameworks from OpenCLI Spec
       documents
-    
+
     The commands are documented below. You can also find out more about each
     command using the contextual `--help` flag. e.g.:
 
@@ -40,7 +40,7 @@ install:
 global:
   exitCodes:
     - code: 0
-      status: "OK" 
+      status: "OK"
       summary: "The command was successful"
     - code: 1
       status: "INTERNAL_CLI_ERROR"
@@ -48,7 +48,11 @@ global:
     - code: 2
       status: "BAD_USER_INPUT_ERROR"
       summary: "Missing or invalid input"
-      
+  configFiles:
+    yamlcfg:
+      path: "~/.ocli/config.yaml"
+      type: "YAML"
+
 commands:
   ocli {command} <arguments> [flags]:
     group: true
@@ -81,7 +85,7 @@ commands:
           > The  format of the input file will be determined by the file extension.
         required: true
         type: "string"
-  
+
   ocli generate {command} [flags]:
     summary: "Commands used to generate code/docs from an OpenCLI Spec document"
     aliases:
@@ -121,8 +125,7 @@ commands:
           - type: "env"
             name: "OCLI_DOCS_FORMAT"
           - type: "file"
-            format: "yaml"
-            path: "~/.ocli/config.yaml"
+            name: "yamlcfg"
             property: "docs.format"
       - name: "footer"
         summary: "Include the footer in the docs"
@@ -132,8 +135,7 @@ commands:
           - type: "env"
             name: "OCLI_DOCS_FOOTER"
           - type: "file"
-            format: "yaml"
-            path: "~/.ocli/config.yaml"
+            name: "yamlcfg"
             property: "docs.footer"
       - name: "dryrun"
         summary: "When true the docs contents will be output to stdout instead of the file"
@@ -177,8 +179,7 @@ commands:
           - type: "env"
             name: "OCLI_CLI_FRAMEWORK"
           - type: "file"
-            format: "yaml"
-            path: "~/.ocli/config.yaml"
+            name: "yamlcfg"
             property: "cli.framework"
       - name: "go-package"
         summary: "The package name used to house the generated code; required for go frameworks."
@@ -189,8 +190,7 @@ commands:
           - type: "env"
             name: "OCLI_CLI_GO_PACKAGE"
           - type: "file"
-            format: "yaml"
-            path: "~/.ocli/config.yaml"
+            name: "yamlcfg"
             property: "cli.go_package"
       - name: "module-type"
         summary: "Indicates the module type of the generated code; required when generating a yargs CLI."
@@ -200,8 +200,7 @@ commands:
           - type: "env"
             name: "OCLI_CLI_MODULE_TYPE"
           - type: "file"
-            format: "yaml"
-            path: "~/.ocli/config.yaml"
+            name: "yamlcfg"
             property: "cli.module_type"
         choices:
           - value: cjs
@@ -212,4 +211,3 @@ commands:
         summary: "When true the CLI code contents will be output to stdout instead of the file"
         type: "boolean"
         default: true
-

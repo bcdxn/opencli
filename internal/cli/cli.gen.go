@@ -5,8 +5,7 @@ package cli
 
 import (
   "context"
-  
-  altsrc "github.com/urfave/cli-altsrc/v3"
+
   urfavecli "github.com/urfave/cli/v3"
 )
 
@@ -65,29 +64,17 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
 			Aliases: []string{
 				"f",
 			},
-			Sources: urfavecli.NewValueSourceChain(
-				urfavecli.EnvVar("OCLI_CLI_FRAMEWORK"),
-				altsrc.YAML("cli.framework", "~/.ocli/config.yaml").Chain[0],
-			),
 			Hidden: false,
 		},
 		&urfavecli.StringFlag{
 			Name: "go-package",
 			Usage: "The package name used to house the generated code; required for go frameworks.",
 			Value: "cli",
-			Sources: urfavecli.NewValueSourceChain(
-				urfavecli.EnvVar("OCLI_CLI_GO_PACKAGE"),
-				altsrc.YAML("cli.go_package", "~/.ocli/config.yaml").Chain[0],
-			),
 			Hidden: false,
 		},
 		&urfavecli.StringFlag{
 			Name: "module-type",
 			Usage: "Indicates the module type of the generated code; required when generating a yargs CLI.",
-			Sources: urfavecli.NewValueSourceChain(
-				urfavecli.EnvVar("OCLI_CLI_MODULE_TYPE"),
-				altsrc.YAML("cli.module_type", "~/.ocli/config.yaml").Chain[0],
-			),
 			Hidden: false,
 		},
 		&urfavecli.BoolFlag{
@@ -169,20 +156,12 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
 			Aliases: []string{
 				"f",
 			},
-			Sources: urfavecli.NewValueSourceChain(
-				urfavecli.EnvVar("OCLI_DOCS_FORMAT"),
-				altsrc.YAML("docs.format", "~/.ocli/config.yaml").Chain[0],
-			),
 			Hidden: false,
 		},
 		&urfavecli.BoolFlag{
 			Name: "footer",
 			Usage: "Include the footer in the docs",
 			Value: true,
-			Sources: urfavecli.NewValueSourceChain(
-				urfavecli.EnvVar("OCLI_DOCS_FOOTER"),
-				altsrc.YAML("docs.footer", "~/.ocli/config.yaml").Chain[0],
-			),
 			Hidden: false,
 		},
 		&urfavecli.BoolFlag{

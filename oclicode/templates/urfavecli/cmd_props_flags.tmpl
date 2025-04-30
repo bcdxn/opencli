@@ -18,17 +18,6 @@
 			{{- if .Default.IsSet}}
 			Value: {{if eq .Type "string"}}"{{.Default.String}}"{{else}}{{.Default.Bool}}{{end}},
 			{{- end}}
-			{{- if .AltSources}}
-			Sources: urfavecli.NewValueSourceChain(
-			{{- range .AltSources}}
-				{{- if eq .Type "env"}}
-				urfavecli.EnvVar("{{.EnvironmentVariable}}"),
-				{{- else}}
-				altsrc.{{if eq .File.Format "yaml"}}YAML{{else if eq .File.Format "json"}}JSON{{else}}TOML{{end}}("{{.File.Property | EscapeString}}", "{{.File.Path | EscapeString}}").Chain[0],
-				{{- end}}
-			{{- end}}
-			),
-			{{- end}}
 			Hidden: {{.Hidden}},
 		},
 	{{- end}}

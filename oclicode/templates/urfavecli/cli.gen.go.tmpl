@@ -5,9 +5,7 @@ package {{.Opts.GoPackage}}
 
 import (
   "context"
-  {{if .Doc.AltSources}}
-  altsrc "github.com/urfave/cli-altsrc/v3"
-  {{- end}}
+
   urfavecli "github.com/urfave/cli/v3"
 )
 
