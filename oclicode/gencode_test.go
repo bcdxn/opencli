@@ -162,24 +162,27 @@ func TestTemplatesUrfave(t *testing.T) {
 								{
 									Type: "file",
 									File: oclispec.FileSource{
+										Name:     "yaml",
 										Format:   "yaml",
-										Path:     "~/config.yaml",
+										Path:     "cfg.yaml",
 										Property: "some.var",
 									},
 								},
 								{
 									Type: "file",
 									File: oclispec.FileSource{
+										Name:     "json",
 										Format:   "json",
-										Path:     "~/config.json",
+										Path:     "cfg.json",
 										Property: "some.var",
 									},
 								},
 								{
 									Type: "file",
 									File: oclispec.FileSource{
+										Name:     "toml",
 										Format:   "toml",
-										Path:     "~/config",
+										Path:     "cfg.toml",
 										Property: "some.var",
 									},
 								},

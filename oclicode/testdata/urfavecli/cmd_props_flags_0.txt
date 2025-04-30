@@ -10,9 +10,9 @@
 			Value: "default_const",
 			Sources: urfavecli.NewValueSourceChain(
 				urfavecli.EnvVar("SOME_VAR"),
-				altsrc.YAML("some.var", "~/config.yaml").Chain[0],
-				altsrc.JSON("some.var", "~/config.json").Chain[0],
-				altsrc.TOML("some.var", "~/config").Chain[0],
+				tomlsrc.TOML("some.var", yamlConfigFile),
+				jsonsrc.JSON("some.var", jsonConfigFile),
+				tomlsrc.TOML("some.var", tomlConfigFile),
 			),
 			Hidden: false,
 		},

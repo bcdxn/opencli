@@ -60,8 +60,9 @@ type Install struct {
 
 // Global contains information that applies to the CLI regardless of command context.
 type Global struct {
-	ExitCodes []ExitCode
-	Flags     []Flag
+	ExitCodes   []ExitCode
+	Flags       []Flag
+	ConfigFiles map[string]ConfigFile
 }
 
 // ExitCode represents a possible exit code of a CLI command
@@ -70,6 +71,11 @@ type ExitCode struct {
 	Status      string
 	Summary     string
 	Description string
+}
+
+type ConfigFile struct {
+	Format string
+	Path   string
 }
 
 // Command represents n OpenCLI command.
@@ -135,8 +141,9 @@ type AlternativeSource struct {
 }
 
 type FileSource struct {
-	Format   string
+	Name     string
 	Path     string
+	Format   string
 	Property string
 }
 
@@ -524,7 +531,16 @@ func (t *CommandTrie) Insert(cmdLine string, cmd oclifile.Command) {
 		node = node.Commands[cmdIndex]
 	}
 
-	node.Command = translateCommand(cmdLine, cmd)
+	configFiles := map[string]ConfigFile{}
+
+	for name, configFile := range t.doc.Global.ConfigFiles {
+		configFiles[name] = ConfigFile{
+			Format: configFile.Format,
+			Path:   configFile.Path,
+		}
+	}
+
+	node.Command = translateCommand(configFiles, cmdLine, cmd)
 }
 
 /* Private receiver methods
@@ -608,9 +624,17 @@ func translateGlobal(doc oclifile.OpenCliDocument) Global {
 		return exitCodes[i].Code <= exitCodes[j].Code
 	})
 
+	configFiles := map[string]ConfigFile{}
+	for name, configFile := range doc.Global.ConfigFiles {
+		configFiles[name] = ConfigFile{
+			Format: configFile.Format,
+			Path:   configFile.Path,
+		}
+	}
+
 	var globalFlags []Flag
 	for _, flag := range doc.Global.Flags {
-		globalFlags = append(globalFlags, translateFlag(flag))
+		globalFlags = append(globalFlags, translateFlag(configFiles, flag))
 	}
 
 	return Global{
@@ -631,7 +655,7 @@ func validateCommandLines(doc oclifile.OpenCliDocument) error {
 	return nil
 }
 
-func translateCommand(cmdLine string, cmd oclifile.Command) Command {
+func translateCommand(configFiles map[string]ConfigFile, cmdLine string, cmd oclifile.Command) Command {
 	name, leaf, params := parseCommandLine(cmdLine)
 	// add arguments to command
 	var args []Argument
@@ -641,7 +665,7 @@ func translateCommand(cmdLine string, cmd oclifile.Command) Command {
 	// add flags to command
 	var flags []Flag
 	for _, flag := range cmd.Flags {
-		flags = append(flags, translateFlag(flag))
+		flags = append(flags, translateFlag(configFiles, flag))
 	}
 	// add exit codes to command
 	cmdSpecificExitCodes := translateCmdExitCodes(cmd)
@@ -714,7 +738,7 @@ func translateArgument(arg oclifile.Argument) Argument {
 	return domainArg
 }
 
-func translateFlag(flag oclifile.Flag) Flag {
+func translateFlag(configFiles map[string]ConfigFile, flag oclifile.Flag) Flag {
 	domainFlag := Flag{
 		Name:        flag.Name,
 		Aliases:     flag.Aliases,
@@ -740,15 +764,27 @@ func translateFlag(flag oclifile.Flag) Flag {
 	}
 
 	for _, src := range flag.AltSources {
-		domainFlag.AltSources = append(domainFlag.AltSources, AlternativeSource{
-			Type:                src.Type,
-			EnvironmentVariable: src.EnvironmentVariable,
-			File: FileSource{
-				Format:   src.File.Format,
-				Path:     src.File.Path,
-				Property: src.File.Property,
-			},
-		})
+		if src.Type == "env" {
+			domainFlag.AltSources = append(domainFlag.AltSources, AlternativeSource{
+				Type:                src.Type,
+				EnvironmentVariable: src.EnvironmentVariable,
+			})
+		} else {
+			if _, ok := configFiles[src.File.Name]; !ok {
+				// TODO bubble up error
+				panic("file name not found in doc.global.configFiles: " + src.File.Name)
+			}
+
+			domainFlag.AltSources = append(domainFlag.AltSources, AlternativeSource{
+				Type: src.Type,
+				File: FileSource{
+					Name:     src.File.Name,
+					Path:     configFiles[src.File.Name].Path,
+					Format:   configFiles[src.File.Name].Format,
+					Property: src.File.Property,
+				},
+			})
+		}
 	}
 
 	return domainFlag

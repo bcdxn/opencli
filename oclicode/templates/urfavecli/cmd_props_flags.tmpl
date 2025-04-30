@@ -18,8 +18,30 @@
 			{{- if .Default.IsSet}}
 			Value: {{if eq .Type "string"}}"{{.Default.String}}"{{else}}{{.Default.Bool}}{{end}},
 			{{- end}}
+			{{- template "cmd_props_flags_altsrc.tmpl" .}}
 			Hidden: {{.Hidden}},
 		},
 	{{- end}}
 	}
 	{{- end}}
+
+{{- define "cmd_props_flags_altsrc.tmpl"}}
+	{{- if .AltSources}}
+			Sources: urfavecli.NewValueSourceChain(
+			{{- range .AltSources}}
+				{{- if eq .Type "env"}}
+				urfavecli.EnvVar("{{.EnvironmentVariable}}"),
+				{{- else}}
+				{{- if eq .File.Format "YAML"}}
+				yamlsrc.YAML
+				{{- else if eq .File.Format "json"}}
+				jsonsrc.JSON
+				{{- else}}
+				tomlsrc.TOML
+				{{- end -}}
+				("{{.File.Property | EscapeString}}", {{.File.Name | CamelCase}}ConfigFile),
+				{{- end}}
+			{{- end}}
+			),
+	{{- end}}
+{{- end}}

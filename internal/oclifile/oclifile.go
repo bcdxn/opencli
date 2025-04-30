@@ -7,7 +7,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// oclidoc.go contains the OpenCLI domain types used when unmarshalling an OpenCLI Document file.
+// oclidoc.go contains the types used when unmarshalling an OpenCLI Document file.
 
 // OpenCliDocument represents the OpenCLI document.
 type OpenCliDocument struct {
@@ -52,8 +52,9 @@ type Install struct {
 }
 
 type Global struct {
-	ExitCodes []ExitCode `json:"exitCodes" yaml:"exitCodes"`
-	Flags     []Flag     `json:"flags" yaml:"flags"`
+	ExitCodes   []ExitCode            `json:"exitCodes" yaml:"exitCodes"`
+	Flags       []Flag                `json:"flags" yaml:"flags"`
+	ConfigFiles map[string]ConfigFile `json:"configFiles" yaml:"configFiles"`
 }
 
 // ExitCode represents a possible exit code from the CLI.
@@ -62,6 +63,11 @@ type ExitCode struct {
 	Status      string `json:"status" yaml:"status"`
 	Summary     string `json:"summary" yaml:"summary"`
 	Description string `json:"description" yaml:"description"`
+}
+
+type ConfigFile struct {
+	Format string `json:"format" yaml:"format"`
+	Path   string `json:"path" yaml:"path"`
 }
 
 // Command represents an OpenCLI command.
@@ -275,7 +281,6 @@ type EnvironmentVariableSource struct {
 
 type FileSource struct {
 	Type     string `json:"type" yaml:"type"`
-	Format   string `json:"format" yaml:"format"`
-	Path     string `json:"path" yaml:"path"`
+	Name     string `json:"name" yaml:"name"`
 	Property string `json:"property" yaml:"property"`
 }
