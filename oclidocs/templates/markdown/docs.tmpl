@@ -150,7 +150,7 @@ _{{.Doc.Info.Summary}}_
 ###### Alternative Sources
 
 {{- range .AltSources}}
-{{- if eq .Type "env"}}
+{{- if eq .Type "$ENV"}}
 - `env:${{.EnvironmentVariable}}`
 {{- else}}
 - `{{.File.Path}}:{{.File.Property}}`
