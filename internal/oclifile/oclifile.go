@@ -97,18 +97,18 @@ type Argument struct {
 
 // Flag represents an OpenCLI command flag.
 type Flag struct {
-	Name        string             `json:"name" yaml:"name"`
-	Aliases     []string           `json:"aliases" yaml:"aliases"`
-	Hint        string             `json:"hint" yaml:"hint"`
-	Summary     string             `json:"summary" yaml:"summary"`
-	Description string             `json:"description" yaml:"description"`
-	Type        string             `json:"type" yaml:"type"`
-	Variadic    bool               `json:"variadic" yaml:"variadic"`
-	Choices     []Choice           `json:"choices" yaml:"choices"`
-	Hidden      bool               `json:"hidden" yaml:"hidden"`
-	Required    bool               `json:"required" yaml:"required"`
-	Default     DefaultValue       `json:"default" yaml:"default"`
-	AltSources  AlternativeSources `json:"alternativeSources" yaml:"alternativeSources"`
+	Name        string              `json:"name" yaml:"name"`
+	Aliases     []string            `json:"aliases" yaml:"aliases"`
+	Hint        string              `json:"hint" yaml:"hint"`
+	Summary     string              `json:"summary" yaml:"summary"`
+	Description string              `json:"description" yaml:"description"`
+	Type        string              `json:"type" yaml:"type"`
+	Variadic    bool                `json:"variadic" yaml:"variadic"`
+	Choices     []Choice            `json:"choices" yaml:"choices"`
+	Hidden      bool                `json:"hidden" yaml:"hidden"`
+	Required    bool                `json:"required" yaml:"required"`
+	Default     DefaultValue        `json:"default" yaml:"default"`
+	AltSources  []AlternativeSource `json:"alternativeSources" yaml:"alternativeSources"`
 }
 
 // Choice represents an enumeration of an argument/flag
@@ -167,120 +167,6 @@ func (v *DefaultValue) UnmarshalYAML(node *yaml.Node) error {
 }
 
 type AlternativeSource struct {
-	Type                string
-	EnvironmentVariable string
-	File                FileSource
-}
-
-type AlternativeSources []AlternativeSource
-
-type rawMessageYAML struct {
-	unmarshal func(interface{}) error
-}
-
-func (msg *rawMessageYAML) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	msg.unmarshal = unmarshal
-	return nil
-}
-
-func (msg *rawMessageYAML) Unmarshal(v interface{}) error {
-	res := msg.unmarshal(v)
-	return res
-}
-
-func (s *AlternativeSources) UnmarshalJSON(bs []byte) error {
-	var sources []json.RawMessage
-	err := json.Unmarshal(bs, &sources)
-
-	if err != nil {
-		return err
-	}
-
-	for _, source := range sources {
-		var altSrc AlternativeSource
-		err := json.Unmarshal(source, &altSrc)
-		if err != nil {
-			return err
-		} else {
-			*s = append(*s, altSrc)
-		}
-	}
-
-	return nil
-}
-
-func (s *AlternativeSources) UnmarshalYAML(node *yaml.Node) error {
-	var sources []rawMessageYAML
-	err := node.Decode(&sources)
-	if err != nil {
-		return err
-	}
-
-	for _, source := range sources {
-		var altSrc AlternativeSource
-		err := source.Unmarshal(&altSrc)
-		// // err := yaml.Unmarshal(source, &altSrc)
-		if err != nil {
-			return err
-		} else {
-			*s = append(*s, altSrc)
-		}
-	}
-
-	return nil
-}
-
-func (s *AlternativeSource) UnmarshalJSON(bs []byte) error {
-	// first try unmarshalling an environment variable source
-	var env EnvironmentVariableSource
-	err := json.Unmarshal(bs, &env)
-	if err != nil {
-		s.EnvironmentVariable = env.Name
-		s.Type = env.Type
-		return nil
-	}
-
-	// next try unmarshalling a file source
-	var file FileSource
-	err = json.Unmarshal(bs, &file)
-	if err != nil {
-		s.File = file
-		s.Type = file.Type
-		return nil
-	}
-
-	return errors.New("expected EnvironmentVariable or File alternative source but found neither")
-}
-
-func (s *AlternativeSource) UnmarshalYAML(node *yaml.Node) error {
-	// first try unmarshalling an environment variable source
-	var env EnvironmentVariableSource
-	err := node.Decode(&env)
-	if err == nil && env.Type == "env" {
-		s.EnvironmentVariable = env.Name
-		s.Type = env.Type
-		return nil
-	}
-
-	// next try unmarshalling a file source
-	var file FileSource
-	err = node.Decode(&file)
-	if err == nil && file.Type == "file" {
-		s.File = file
-		s.Type = file.Type
-		return nil
-	}
-
-	return errors.New("expected EnvironmentVariable or File alternative source but found neither")
-}
-
-type EnvironmentVariableSource struct {
-	Type string `json:"type" yaml:"type"`
-	Name string `json:"name" yaml:"name"`
-}
-
-type FileSource struct {
-	Type     string `json:"type" yaml:"type"`
-	Name     string `json:"name" yaml:"name"`
-	Property string `json:"property" yaml:"property"`
+	Name     string
+	Property string
 }

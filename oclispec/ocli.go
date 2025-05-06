@@ -273,12 +273,43 @@ func (d Document) BadUserInputErrorCode() int {
 	return 2
 }
 
-func (d Document) AltSources() bool {
+func (d Document) AltSourcesEnv() bool {
 	var helper func(node *CommandTrieNode) bool
 	helper = func(node *CommandTrieNode) bool {
 		for _, flag := range node.Command.Flags {
-			if len(flag.AltSources) > 0 {
-				return true
+			for _, src := range flag.AltSources {
+				if src.Type == "$ENV" {
+					return true
+				}
+			}
+		}
+
+		return slices.ContainsFunc(node.Commands, helper)
+	}
+
+	return helper(d.CommandTrie.Root)
+}
+
+func (d Document) AltSourcesYAML() bool {
+	return d.altSourcesFile("YAML")
+}
+
+func (d Document) AltSourcesJSON() bool {
+	return d.altSourcesFile("JSON")
+}
+
+func (d Document) AltSourcesTOML() bool {
+	return d.altSourcesFile("TOML")
+}
+
+func (d Document) altSourcesFile(kind string) bool {
+	var helper func(node *CommandTrieNode) bool
+	helper = func(node *CommandTrieNode) bool {
+		for _, flag := range node.Command.Flags {
+			for _, src := range flag.AltSources {
+				if src.Type == "$FILE" && src.File.Format == kind {
+					return true
+				}
 			}
 		}
 
@@ -764,24 +795,24 @@ func translateFlag(configFiles map[string]ConfigFile, flag oclifile.Flag) Flag {
 	}
 
 	for _, src := range flag.AltSources {
-		if src.Type == "env" {
+		if src.Name == "$ENV" {
 			domainFlag.AltSources = append(domainFlag.AltSources, AlternativeSource{
-				Type:                src.Type,
-				EnvironmentVariable: src.EnvironmentVariable,
+				Type:                src.Name,
+				EnvironmentVariable: src.Property,
 			})
 		} else {
-			if _, ok := configFiles[src.File.Name]; !ok {
+			if _, ok := configFiles[src.Name]; !ok {
 				// TODO bubble up error
-				panic("file name not found in doc.global.configFiles: " + src.File.Name)
+				panic("file name not found in doc.global.configFiles: " + src.Name)
 			}
 
 			domainFlag.AltSources = append(domainFlag.AltSources, AlternativeSource{
-				Type: src.Type,
+				Type: "$FILE",
 				File: FileSource{
-					Name:     src.File.Name,
-					Path:     configFiles[src.File.Name].Path,
-					Format:   configFiles[src.File.Name].Format,
-					Property: src.File.Property,
+					Name:     src.Name,
+					Path:     configFiles[src.Name].Path,
+					Format:   configFiles[src.Name].Format,
+					Property: src.Property,
 				},
 			})
 		}
