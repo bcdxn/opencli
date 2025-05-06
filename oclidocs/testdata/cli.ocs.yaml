@@ -1,11 +1,11 @@
-opencliVersion: 1.0.0-alpha.6
+opencliVersion: 1.0.0-alpha.7
 
 info:
   title: Pleasantries
   summary: A fun CLI to greet or bid farewell
   version: 1.0.0
   binary: pleasantries
-      
+
 commands:
   pleasantries {command} <name> [flags]:
     group: true
