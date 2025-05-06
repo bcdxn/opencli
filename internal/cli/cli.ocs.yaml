@@ -62,6 +62,7 @@ commands:
       - "spec"
     summary: "Commands related to the OpenCLI Specification"
     group: true
+
   ocli specification versions:
     summary: "Print the versions of the OpenCLI Specifications that are supported"
     description: |
@@ -91,6 +92,7 @@ commands:
     aliases:
       - "gen"
     group: true
+
   ocli generate docs [flags]:
     summary: "Generate documentation from an OpenCLI Spec document"
     description: |
@@ -122,20 +124,18 @@ commands:
           # - value: "man"
           #   description: "Plain text using [Man Page](https://en.wikipedia.org/wiki/Man_page) formatting"
         alternativeSources:
-          - type: "env"
-            name: "OCLI_DOCS_FORMAT"
-          - type: "file"
-            name: "yamlcfg"
+          - name: "$ENV"
+            property: "OCLI_DOCS_FORMAT"
+          - name: "yamlcfg"
             property: "docs.format"
       - name: "footer"
         summary: "Include the footer in the docs"
         type: "boolean"
         default: true
         alternativeSources:
-          - type: "env"
-            name: "OCLI_DOCS_FOOTER"
-          - type: "file"
-            name: "yamlcfg"
+          - name: "$ENV"
+            property: "OCLI_DOCS_FOOTER"
+          - name: "yamlcfg"
             property: "docs.footer"
       - name: "dryrun"
         summary: "When true the docs contents will be output to stdout instead of the file"
@@ -176,10 +176,9 @@ commands:
           # - value: "oclif"
           #   description: "[oclif](https://oclif.io) is a popular CLI framework written in Typescript"
         alternativeSources:
-          - type: "env"
-            name: "OCLI_CLI_FRAMEWORK"
-          - type: "file"
-            name: "yamlcfg"
+          - name: "$ENV"
+            property: "OCLI_CLI_FRAMEWORK"
+          - name: "yamlcfg"
             property: "cli.framework"
       - name: "go-package"
         summary: "The package name used to house the generated code; required for go frameworks."
@@ -187,20 +186,18 @@ commands:
         default: "cli"
         required: false
         alternativeSources:
-          - type: "env"
-            name: "OCLI_CLI_GO_PACKAGE"
-          - type: "file"
-            name: "yamlcfg"
+          - name: "$ENV"
+            property: "OCLI_CLI_GO_PACKAGE"
+          - name: "yamlcfg"
             property: "cli.go_package"
       - name: "module-type"
         summary: "Indicates the module type of the generated code; required when generating a yargs CLI."
         type: "string"
         required: false
         alternativeSources:
-          - type: "env"
-            name: "OCLI_CLI_MODULE_TYPE"
-          - type: "file"
-            name: "yamlcfg"
+          - name: "$ENV"
+            property: "OCLI_CLI_MODULE_TYPE"
+          - name: "yamlcfg"
             property: "cli.module_type"
         choices:
           - value: cjs

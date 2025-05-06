@@ -425,53 +425,21 @@
           "type": "array",
           "items": {
             "type": "object",
-            "oneOf": [
-              {
-                "properties": {
-                  "type": {
-                    "description": "The source type of environment variable.",
-                    "type": "string",
-                    "choices": [
-                      "env"
-                    ]
-                  },
-                  "name": {
-                    "description": "The environmet variable name.",
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "type",
-                  "name"
-                ],
-                "additionalProperties": false
+            "properties": {
+              "name": {
+                "description": "The name of the source; it can be `$ENV` indicating the property is sourced from an environment variable OR it can be the name of a file configured in the global.configConfigs section of the document.",
+                "type": "string"
               },
-              {
-                "properties": {
-                  "type": {
-                    "description": "The source type of file.",
-                    "type": "string",
-                    "choices": [
-                      "file"
-                    ]
-                  },
-                  "name": {
-                    "description": "The name of the config file; must be defined in the $.global.configFiles section.",
-                    "type": "string"
-                  },
-                  "property": {
-                    "description": "The property name within the file. For YAML and JSON files this can be a [json-path](https://datatracker.ietf.org/doc/html/rfc9535).",
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "type",
-                  "name",
-                  "property"
-                ],
-                "additionalProperties": false
+              "property": {
+                "description": "The property name within the environment or file.",
+                "type": "string"
               }
-            ]
+            },
+            "required": [
+              "name",
+              "property"
+            ],
+            "additionalProperties": false
           },
           "minItems": 1
         },
