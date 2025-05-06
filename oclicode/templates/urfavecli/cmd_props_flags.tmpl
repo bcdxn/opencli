@@ -29,7 +29,7 @@
 	{{- if .AltSources}}
 			Sources: urfavecli.NewValueSourceChain(
 			{{- range .AltSources}}
-				{{- if eq .Type "env"}}
+				{{- if eq .Type "$ENV"}}
 				urfavecli.EnvVar("{{.EnvironmentVariable}}"),
 				{{- else}}
 				{{- if eq .File.Format "YAML"}}
@@ -39,7 +39,7 @@
 				{{- else}}
 				tomlsrc.TOML
 				{{- end -}}
-				("{{.File.Property | EscapeString}}", {{.File.Name | CamelCase}}ConfigFile),
+				("{{.File.Property | EscapeString}}", {{.File.Name | CamelCase}}CfgFile{}),
 				{{- end}}
 			{{- end}}
 			),

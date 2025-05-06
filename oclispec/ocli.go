@@ -669,8 +669,9 @@ func translateGlobal(doc oclifile.OpenCliDocument) Global {
 	}
 
 	return Global{
-		ExitCodes: exitCodes,
-		Flags:     globalFlags,
+		ExitCodes:   exitCodes,
+		Flags:       globalFlags,
+		ConfigFiles: configFiles,
 	}
 }
 

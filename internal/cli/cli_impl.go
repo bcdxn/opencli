@@ -101,15 +101,11 @@ func (Impl) OcliSpecificationCheck(ctx context.Context, c *urfavecli.Command, ar
 	jsonRE := regexp.MustCompile(`(?i)\.json$`)
 	yamlRE := regexp.MustCompile(`(?i)\.yaml$`)
 
-	doc, err := os.ReadFile(args.PathToSpec)
-	if err != nil {
-		return urfavecli.Exit(err.Error(), ExitCodeInternalCliError)
-	}
-
+	var err error
 	if jsonRE.MatchString(args.PathToSpec) {
-		err = oclispec.ValidateDocumentJSON(doc)
+		_, err = oclispec.UnmarshalJSON(args.PathToSpec)
 	} else if yamlRE.MatchString(args.PathToSpec) {
-		err = oclispec.ValidateDocumentYAML(doc)
+		_, err = oclispec.UnmarshalYAML(args.PathToSpec)
 	} else {
 		return urfavecli.Exit("unsupported OpenCLI Document format - must be one of [JSON, YAML]", ExitCodeBadUserInputError)
 	}

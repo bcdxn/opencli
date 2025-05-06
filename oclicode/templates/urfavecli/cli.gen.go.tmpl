@@ -7,6 +7,15 @@ import (
   "context"
 
   urfavecli "github.com/urfave/cli/v3"
+  {{- if .Doc.AltSourcesYAML }}
+  yamlsrc "github.com/urfave/cli-altsrc/v3/yaml"
+  {{- end}}
+  {{- if .Doc.AltSourcesJSON }}
+  jsonsrc "github.com/urfave/cli-altsrc/v3/json"
+  {{- end}}
+  {{- if .Doc.AltSourcesTOML }}
+  tomlsrc "github.com/urfave/cli-altsrc/v3/toml"
+  {{- end}}
 )
 
 func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
@@ -39,3 +48,11 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
   {{.Doc.CommandTrie.Root.Command.Name | CamelCase}}Cmd.Version = version
   return {{.Doc.CommandTrie.Root.Command.Name | CamelCase}}Cmd
 }
+
+{{- range $name, $file := .Doc.Global.ConfigFiles}}
+
+type {{$name | CamelCase}}CfgFile struct {}
+func (cfg {{$name | CamelCase}}CfgFile) SourceURI() string {
+  return "{{$file.Path | EscapeString}}"
+}
+{{- end}}

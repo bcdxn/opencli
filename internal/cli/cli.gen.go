@@ -7,6 +7,7 @@ import (
   "context"
 
   urfavecli "github.com/urfave/cli/v3"
+  yamlsrc "github.com/urfave/cli-altsrc/v3/yaml"
 )
 
 func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
@@ -64,17 +65,29 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
 			Aliases: []string{
 				"f",
 			},
+			Sources: urfavecli.NewValueSourceChain(
+				urfavecli.EnvVar("OCLI_CLI_FRAMEWORK"),
+				yamlsrc.YAML("cli.framework", yamlcfgCfgFile{}),
+			),
 			Hidden: false,
 		},
 		&urfavecli.StringFlag{
 			Name: "go-package",
 			Usage: "The package name used to house the generated code; required for go frameworks.",
 			Value: "cli",
+			Sources: urfavecli.NewValueSourceChain(
+				urfavecli.EnvVar("OCLI_CLI_GO_PACKAGE"),
+				yamlsrc.YAML("cli.go_package", yamlcfgCfgFile{}),
+			),
 			Hidden: false,
 		},
 		&urfavecli.StringFlag{
 			Name: "module-type",
 			Usage: "Indicates the module type of the generated code; required when generating a yargs CLI.",
+			Sources: urfavecli.NewValueSourceChain(
+				urfavecli.EnvVar("OCLI_CLI_MODULE_TYPE"),
+				yamlsrc.YAML("cli.module_type", yamlcfgCfgFile{}),
+			),
 			Hidden: false,
 		},
 		&urfavecli.BoolFlag{
@@ -156,12 +169,20 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
 			Aliases: []string{
 				"f",
 			},
+			Sources: urfavecli.NewValueSourceChain(
+				urfavecli.EnvVar("OCLI_DOCS_FORMAT"),
+				yamlsrc.YAML("docs.format", yamlcfgCfgFile{}),
+			),
 			Hidden: false,
 		},
 		&urfavecli.BoolFlag{
 			Name: "footer",
 			Usage: "Include the footer in the docs",
 			Value: true,
+			Sources: urfavecli.NewValueSourceChain(
+				urfavecli.EnvVar("OCLI_DOCS_FOOTER"),
+				yamlsrc.YAML("docs.footer", yamlcfgCfgFile{}),
+			),
 			Hidden: false,
 		},
 		&urfavecli.BoolFlag{
@@ -247,4 +268,9 @@ func New(impl CLIHandlersInterface, version string) *urfavecli.Command {
 
   ocliCmd.Version = version
   return ocliCmd
+}
+
+type yamlcfgCfgFile struct {}
+func (cfg yamlcfgCfgFile) SourceURI() string {
+  return "~/.ocli/config.yaml"
 }
