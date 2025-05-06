@@ -199,7 +199,7 @@
           "type": "object",
           "description": "an object where each property is an identifier of a config file that can be referenced elsewhere in the OpenCLI Spec Document.",
           "patternProperties": {
-            "^[0-9A-Zaz_]+$": {
+            "^[A-Za-z_][0-9A-Za-z_]*$": {
               "type": "object",
               "properties": {
                 "format": {
@@ -216,10 +216,11 @@
                   "description": "The path to the config file"
                 }
               },
-              "required": ["type", "path"]
+              "required": ["format", "path"],
+              "additionalProperties": false
             }
           },
-          "minItems": 1
+          "additionalProperties": false
         },
         "flags": {
           "type": "array",

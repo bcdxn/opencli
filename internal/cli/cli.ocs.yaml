@@ -51,7 +51,7 @@ global:
   configFiles:
     yamlcfg:
       path: "~/.ocli/config.yaml"
-      type: "YAML"
+      format: "YAML"
 
 commands:
   ocli {command} <arguments> [flags]:
