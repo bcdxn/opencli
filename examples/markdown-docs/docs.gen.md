@@ -27,7 +27,7 @@ Say goodbye
 
 A name to include in the farewell
 
-`type:string` `enum:false` `variadic:false`
+`string`
 
 #### Flags
 
@@ -35,7 +35,7 @@ A name to include in the farewell
 
 The language of the greeting
 
-`type:string` `enum:true` `default:english` `variadic:false`
+`string` `enum` `default:english`
 
 ###### Supported Values of `--language`
 
@@ -54,7 +54,7 @@ Say hello
 
 A name to include the greeting
 
-`type:string` `enum:false` `variadic:false`
+`string`
 
 #### Flags
 
@@ -62,7 +62,7 @@ A name to include the greeting
 
 The language of the greeting
 
-`type:string` `enum:true` `default:english` `variadic:false`
+`string` `enum` `default:english`
 
 ###### Supported Values of `--language`
 

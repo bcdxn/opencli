@@ -127,7 +127,7 @@ You can see the generated code [here (go)](https://github.com/bcdxn/opencli/blob
 
 ### OpenCLI CLI
 
-The OpenCLI CLI uses an OpenCLI Spec and the OpenCLI CLI to generate itself 🤯
+The OpenCLI CLI uses an OpenCLI Spec and the OpenCLI CLI to generate it's own boilerplate code 🤯
 
 - The spec that defines the OpenCLI CLI - [here](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli.ocs.yaml)
 - The markdown documentation automatically generated from the spec - [here](https://github.com/bcdxn/opencli/blob/main/docs/docs.gen.md)

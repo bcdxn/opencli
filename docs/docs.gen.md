@@ -91,19 +91,19 @@ the `--language` flag.
 
 The path to the OpenCLI Spec that code will be generated from
 
-`type:string` `enum:false` `variadic:false`
+`string`
 
 ##### `--output-dir`
 
 The path to the directory where the generated code will be output
 
-`type:string` `enum:false` `variadic:false`
+`string`
 
 ##### `--framework`
 
 The framework of the CLI boilerplate to generate
 
-`type:string` `enum:true` `variadic:false`
+`string` `enum`
 
 ###### Supported Values of `--framework`
 
@@ -118,7 +118,7 @@ The framework of the CLI boilerplate to generate
 
 The package name used to house the generated code; required for go frameworks.
 
-`type:string` `enum:false` `default:cli` `variadic:false`
+`string` `default:cli`
 
 ###### Alternative Sources
 - `env:$OCLI_CLI_GO_PACKAGE`
@@ -128,7 +128,7 @@ The package name used to house the generated code; required for go frameworks.
 
 Indicates the module type of the generated code; required when generating a yargs CLI.
 
-`type:string` `enum:true` `variadic:false`
+`string` `enum`
 
 ###### Supported Values of `--module-type`
 
@@ -142,7 +142,7 @@ Indicates the module type of the generated code; required when generating a yarg
 
 When true the CLI code contents will be output to stdout instead of the file
 
-`type:boolean` `enum:false` `default:true` `variadic:false`
+`boolean` `default:true`
 
 ---
 
@@ -162,19 +162,19 @@ generated using the `--format` flag.
 
 The path to the OpenCLI Spec that documentation will be generated from
 
-`type:string` `enum:false` `variadic:false`
+`string`
 
 ##### `--output-dir`
 
 The path to the directory where the generated docs will be output
 
-`type:string` `enum:false` `variadic:false`
+`string`
 
 ##### `--format`
 
 The format of the documentation to generate
 
-`type:string` `enum:true` `variadic:false`
+`string` `enum`
 
 ###### Supported Values of `--format`
 
@@ -188,7 +188,7 @@ The format of the documentation to generate
 
 Include the footer in the docs
 
-`type:boolean` `enum:false` `default:true` `variadic:false`
+`boolean` `default:true`
 
 ###### Alternative Sources
 - `env:$OCLI_DOCS_FOOTER`
@@ -198,7 +198,7 @@ Include the footer in the docs
 
 When true the docs contents will be output to stdout instead of the file
 
-`type:boolean` `enum:false` `default:true` `variadic:false`
+`boolean` `default:true`
 
 ---
 
@@ -233,7 +233,7 @@ by parsing it and checking it against the OpenCLI Specification.
 > The  format of the input file will be determined by the file extension.
 
 
-`type:string` `enum:false` `variadic:false`
+`string`
 
 ---
 

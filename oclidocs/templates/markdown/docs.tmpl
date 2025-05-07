@@ -107,7 +107,7 @@ _{{.Doc.Info.Summary}}_
 
 {{.Description}}{{end}}
 
-`type:{{.Type}}` `enum:{{if .Choices}}true{{else}}false{{end}}` `variadic:{{.Variadic}}`
+`{{.Type}}`{{if .Choices}} `enum`{{end}}{{ if .Variadic}} `variadic`{{end}}
 
 
 {{- if .Choices}}
@@ -132,7 +132,7 @@ _{{.Doc.Info.Summary}}_
 
 {{.Description}}{{end}}
 
-`type:{{.Type}}` `enum:{{if .Choices}}true{{else}}false{{end}}`{{if eq .Type "string"}}{{if .Default.String}} `default:{{.Default.String}}`{{end}}{{else}} `default:{{.Default.Bool}}`{{end}} `variadic:{{.Variadic}}`
+`{{.Type}}`{{if .Choices}} `enum`{{end}}{{if eq .Type "string"}}{{if .Default.String}} `default:{{.Default.String}}`{{end}}{{else}} `default:{{.Default.Bool}}`{{end}}{{ if .Variadic}} `variadic`{{end}}
 
 {{- if .Choices}}
 

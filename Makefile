@@ -47,8 +47,6 @@ examples: build
 
 .PHONY: release
 release: examples
-	
-	
 	echo "building OpenCLI version $(version)::::"
 	goreleaser release --clean --skip=publish
 
