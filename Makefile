@@ -10,40 +10,22 @@ version = $(shell git describe --tags HEAD)
 
 .PHONY: build
 build: generate
-	go run cmd/ocli/main.go gen docs \
-		--spec-file ./internal/cli/cli.ocs.yaml \
-		--output-dir ./docs \
+	go run cmd/cobra/main.go gen docs \
+		--out ./docs \
 		--format markdown \
-		--dryrun=false
-	
-	go run cmd/ocli/main.go gen cli \
-		--spec-file ./internal/cli/cli.ocs.yaml \
-		--output-dir ./internal/cli \
-		--framework urfavecli \
-		--go-package cli \
-		--dryrun=false
+		opencli.ocs.yaml
 
 .PHONY: examples
 examples: build
-	go run cmd/ocli/main.go gen docs \
-		--spec-file ./examples/cli.ocs.yaml \
-		--output-dir ./examples/markdown-docs \
+	go run cmd/cobra/main.go gen docs \
+		--out ./examples/docs \
 		--format markdown \
-		--dryrun=false
+		./examples/petstore-cli.ocs.yaml
 	
-	go run cmd/ocli/main.go gen cli \
-		--spec-file ./examples/cli.ocs.yaml \
-		--output-dir ./examples/yargs \
-		--framework yargs \
-		--module-type cjs \
-		--dryrun=false
-	
-	go run cmd/ocli/main.go gen cli \
-		--spec-file ./examples/cli.ocs.yaml \
-		--output-dir ./examples/urfavecli/cli \
-		--framework urfavecli \
-		--go-package cli \
-		--dryrun=false
+	go run cmd/cobra/main.go gen docs \
+		--out ./examples/docs \
+		--format markdown \
+		./examples/pleasantries-cli.ocs.yaml
 
 .PHONY: release
 release: examples
@@ -56,3 +38,23 @@ clean:
 
 .PHONY: all
 all: test release
+
+.PHONY: copy-wasm-exec
+copy-wasm-exec:
+	cp -f "$$(go env GOROOT)/lib/wasm/wasm_exec.js" web/public/wasm_exec.js
+
+.PHONY: build-wasm
+build-wasm: copy-wasm-exec
+	GOOS=js GOARCH=wasm go build -o web/public/opencli.wasm ./cmd/wasm/main.go
+
+.PHONY: build-ui
+build-ui: build-wasm
+	cd web && npm ci && npm run build
+
+.PHONY: dev-wasm
+dev-wasm: copy-wasm-exec
+	GOOS=js GOARCH=wasm go build -o web/public/opencli.wasm ./cmd/wasm/main.go
+
+.PHONY: dev
+dev: dev-wasm
+	cd web && npm run dev

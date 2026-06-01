@@ -1,0 +1,167 @@
+opencliVersion: "1.0.0-alpha.7"
+
+info:
+  title: "OpenCLI"
+  summary: "A CLI for working with OpenCLI Specs"
+  description: |
+    `ocli` is a command line interface designed to make working with [OpenCLI
+    Spec documents](https://github.com/bcdxn/opencli/tree/main) easier. It provides a number of capabilities, including:
+
+    - validating OpenCLI Spec documents
+    - generating Documentation from OpenCLI Spec documents
+
+    The commands are documented below. You can also find out more about each
+    command using the contextual `--help` flag. e.g.:
+
+    ```sh
+    ocli gen --help
+    ```
+  version: "1.0.0-alpha.8"
+  binary: "ocli"
+  license:
+    name: "MIT"
+    spdxId: "MIT"
+    url: "https://spdx.org/licenses/MIT.html"
+  contact:
+    name: "OpenCLI Team"
+    url: "https://github.com/bcdxn/opencli"
+
+install:
+  - name: "Binary Download"
+    url: "https://github.com/bcdxn/opencli/releases"
+    description: |
+      You can visit the GitHub releases page of the project to download pre-compiled binaries
+      appropriate for your system.
+  - name: "Go Install"
+    command: "go install github.com/bcdxn/opencli/cmd/ocli@latest"
+
+global:
+  exitCodes:
+    - code: 0
+      status: "OK"
+      summary: "The command was successful"
+    - code: 1
+      status: "INTERNAL_CLI_ERROR"
+      summary: "The command failed"
+    - code: 2
+      status: "BAD_USER_INPUT_ERROR"
+      summary: "Missing or invalid input"
+  config:
+    yaml: ~/.petstore/config.yaml
+
+commands:
+  ocli {command} <arguments> [flags]:
+    group: true
+
+  ocli check <path-to-spec>:
+    summary: "Check an OpenCLI Spec document for errors"
+    description: |
+      The `check` command will validate an OpenCLI Spec document and return any
+      errors that are found.
+    args:
+      - name: "path-to-spec"
+        summary: The path to the OpenCLI Spec document to check
+        description: |
+          this command will check the validity of the given OpenCLI document
+          by parsing it and checking it against the OpenCLI Specification.
+
+          > [!TIP]
+          > The  format of the input file will be determined by the file extension.
+        required: true
+        type: "string"
+
+  ocli gen {command} [flags]:
+    summary: "Commands used to generate code/docs from an OpenCLI Spec document"
+    aliases:
+      - "gen"
+    group: true
+
+  ocli gen docs [flags]:
+    summary: "Generate documentation from an OpenCLI Spec document"
+    description: |
+      The `generate docs` command will generate documentation from an OpenCLI
+      Spec document. You can specify the format of the documentation to be
+      generated using the `--format` flag.
+    args:
+      - name: "spec-file"
+        summary: "The path to the OpenCLI Spec that documentation will be generated from"
+        required: true
+        type: "string"
+    flags:
+      - name: out
+        aliases: ["o"]
+        summary: "The path to the directory where the generated docs will be output"
+        required: true
+        type: "string"
+        default: "./docs"
+      - name: "format"
+        aliases: ["f"]
+        summary: "The format of the documentation to generate"
+        type: "string"
+        required: true
+        choices:
+          - value: "markdown"
+            description: "Plain text using standard [Markdown](https://commonmark.org)."
+          # coming soon
+          # - value: "html"
+          #   description: "A full static bundle that can be rendered in the browser."
+          # - value: "man"
+          #   description: "Plain text using [Man Page](https://en.wikipedia.org/wiki/Man_page) formatting"
+        alternativeSources:
+          - type: "$ENV"
+            property: "OCLI_DOCS_FORMAT"
+          - type: "$FILE"
+            property: "$.docs.format"
+      - name: "footer"
+        summary: "Include the footer in the docs"
+        type: "boolean"
+        default: true
+        alternativeSources:
+          - type: "$ENV"
+            property: "OCLI_DOCS_FOOTER"
+          - type: "$FILE"
+            property: "$.docs.footer"
+      - name: "dryrun"
+        summary: "When true the docs contents will be output to stdout instead of the file"
+        type: "boolean"
+        default: true
+
+  # COMING SOON...
+  # ocli gen cli [flags]:
+  #   summary: "Generate CLI Boilerplate code from an OpenCLI Spec document"
+  #   description: |
+  #     The `generate cli` command will generate the boilerplate code for
+  #     various CLI frameworks from an OpenCLI Spec document. You can specify the
+  #     language of the CLI to be generated using
+  #     the `--language` flag.
+  #   args:
+  #     - name: "spec-file"
+  #       summary: "The path to the OpenCLI Spec that code will be generated from"
+  #       required: true
+  #       type: "string"
+  #   flags:
+  #     - name: out
+  #       aliases: ["o"]
+  #       summary: "The path to the directory where the generated code will be output"
+  #       required: true
+  #       type: "string"
+  #     - name: "framework"
+  #       aliases: ["f"]
+  #       summary: "The framework of the CLI boilerplate to generate"
+  #       required: true
+  #       type: "string"
+  #       choices:
+  #         - value: "urfavecli"
+  #           description: "[urfave/cli](https://github.com/urfave/cli) is a declarative CLI framework for Go"
+  #         - value: "yargs"
+  #           description: "[yargs](https://yargs.js.org) is a popular CLI framework for Node.js"
+  #         # coming soon...
+  #         # - value: "cobra"
+  #         #   description: "[Cobra](https://github.com/spf13/cobra?tab=readme-ov-file) is a popular CLI framework for Go"
+  #         # - value: "oclif"
+  #         #   description: "[oclif](https://oclif.io) is a popular CLI framework written in Typescript"
+  #       alternativeSources:
+  #         - type: "$ENV"
+  #           property: "OCLI_CLI_FRAMEWORK"
+  #         - type: "$FILE"
+  #           property: "$.cli.framework"

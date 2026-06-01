@@ -1,15 +1,17 @@
-distschemas
+dist
 
 .vscode
-scratch*
-tmp*
 
 .DS_Store
 Thumbs.db
-vscode/*
-tmp
-dist# Added by goreleaser init:
+tmp*
+scratch*
 dist/
+out/
 build/
 
 node_modules
+
+# Generated WASM artifacts (produced by make build-wasm / make dev-wasm)
+web/public/wasm_exec.js
+web/public/opencli.wasm

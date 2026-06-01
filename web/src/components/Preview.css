@@ -1,0 +1,147 @@
+.preview-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.preview-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #f8f8f8;
+  flex-shrink: 0;
+}
+
+.preview-header-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.preview-header-group span {
+  font-weight: 600;
+  font-size: 13px;
+  color: #555;
+  margin-right: 2px;
+}
+
+.preview-body {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.preview-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.preview-raw {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  padding: 16px;
+  background: #fafafa;
+}
+
+.preview-raw code {
+  display: block;
+  font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: #333;
+}
+
+.preview-markdown {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  padding: 24px 32px;
+  line-height: 1.6;
+}
+
+.preview-markdown h1,
+.preview-markdown h2,
+.preview-markdown h3,
+.preview-markdown h4 {
+  margin-top: 1.2em;
+  margin-bottom: 0.4em;
+  font-weight: 600;
+}
+
+.preview-markdown p {
+  margin-bottom: 0.8em;
+}
+
+.preview-markdown code {
+  background: #f0f0f0;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+}
+
+.preview-markdown pre {
+  background: #f4f4f4;
+  padding: 12px 16px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin-bottom: 1em;
+}
+
+.preview-markdown pre code {
+  background: none;
+  padding: 0;
+}
+
+.preview-markdown table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 1em;
+}
+
+.preview-markdown th,
+.preview-markdown td {
+  border: 1px solid #ddd;
+  padding: 6px 12px;
+  text-align: left;
+}
+
+.preview-markdown th {
+  background: #f0f0f0;
+  font-weight: 600;
+}
+
+.preview-error {
+  padding: 16px;
+  color: #c0392b;
+  font-size: 13px;
+}
+
+/* Reuse toggle-btn from Editor.css via a shared class */
+.toggle-btn {
+  padding: 3px 10px;
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #333;
+  transition: background 0.1s, border-color 0.1s;
+}
+
+.toggle-btn.active {
+  background: #1a6bbf;
+  border-color: #1a6bbf;
+  color: #fff;
+}
+
+.toggle-btn:not(.active):hover {
+  background: #f0f0f0;
+}

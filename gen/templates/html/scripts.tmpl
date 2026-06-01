@@ -1,0 +1,255 @@
+{{define "scripts"}}
+<script>
+(function () {
+  "use strict";
+
+  var THEME_STORAGE_KEY = "ocli-theme";
+
+  function getStoredTheme() {
+    try {
+      var theme = window.localStorage.getItem(THEME_STORAGE_KEY);
+      return theme === "light" || theme === "dark" ? theme : null;
+    } catch (_err) {
+      return null;
+    }
+  }
+
+  function setStoredTheme(theme) {
+    try {
+      window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch (_err) {
+      // Ignore environments where localStorage is unavailable.
+    }
+  }
+
+  function getSystemTheme() {
+    if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      return "dark";
+    }
+    return "light";
+  }
+
+  function applyTheme(theme) {
+    var root = document.querySelector(".ocli");
+    if (!root) return;
+    root.setAttribute("data-theme", theme);
+
+    var toggle = document.querySelector("[data-theme-toggle]");
+    if (!toggle) return;
+    var isDark = theme === "dark";
+    toggle.setAttribute("aria-pressed", String(isDark));
+    toggle.setAttribute("aria-label", isDark ? "Switch to light theme" : "Switch to dark theme");
+    toggle.setAttribute("title", isDark ? "Switch to light theme" : "Switch to dark theme");
+  }
+
+  function initTheme() {
+    var toggle = document.querySelector("[data-theme-toggle]");
+    if (!toggle) return;
+
+    var mediaQuery = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+    var storedTheme = getStoredTheme();
+    var currentTheme = storedTheme || getSystemTheme();
+    applyTheme(currentTheme);
+
+    toggle.addEventListener("click", function () {
+      currentTheme = currentTheme === "dark" ? "light" : "dark";
+      applyTheme(currentTheme);
+      setStoredTheme(currentTheme);
+    });
+
+    if (!storedTheme && mediaQuery) {
+      var onSystemThemeChange = function (event) {
+        currentTheme = event.matches ? "dark" : "light";
+        applyTheme(currentTheme);
+      };
+
+      if (typeof mediaQuery.addEventListener === "function") {
+        mediaQuery.addEventListener("change", onSystemThemeChange);
+      } else if (typeof mediaQuery.addListener === "function") {
+        mediaQuery.addListener(onSystemThemeChange);
+      }
+    }
+  }
+
+  /* ── Scroll-spy ──────────────────────────────────────────────── */
+  function initScrollSpy() {
+    var main = document.querySelector(".ocli__main");
+    if (!main) return;
+
+    var sections = Array.from(main.querySelectorAll(".ocli-section[id]"));
+    var navLinks = Array.from(document.querySelectorAll(".ocli__nav-link[data-section]"));
+    if (!sections.length || !navLinks.length) return;
+
+    function getActiveId() {
+      var scrollTop = main.scrollTop;
+      var found = null;
+      for (var i = 0; i < sections.length; i++) {
+        var top = sections[i].offsetTop - 80;
+        if (scrollTop >= top) {
+          found = sections[i].id;
+        } else {
+          break;
+        }
+      }
+      return found || sections[0].id;
+    }
+
+    function updateNav() {
+      var activeId = getActiveId();
+      navLinks.forEach(function (link) {
+        if (link.dataset.section === activeId) {
+          link.classList.add("is-active");
+          // Ensure parent group item is open
+          var parentSublist = link.closest(".ocli__nav-sublist");
+          if (parentSublist) {
+            var parentItem = parentSublist.closest(".ocli__nav-item");
+            if (parentItem) parentItem.classList.add("is-open");
+          }
+          // Scroll nav link into view (within sidebar)
+          var sidebar = document.querySelector(".ocli__sidebar-body");
+          if (sidebar) {
+            var linkRect = link.getBoundingClientRect();
+            var sidebarRect = sidebar.getBoundingClientRect();
+            if (linkRect.bottom > sidebarRect.bottom || linkRect.top < sidebarRect.top) {
+              link.scrollIntoView({ block: "nearest", behavior: "smooth" });
+            }
+          }
+        } else {
+          link.classList.remove("is-active");
+        }
+      });
+    }
+
+    main.addEventListener("scroll", updateNav, { passive: true });
+    updateNav();
+  }
+
+  /* ── Smooth scroll on nav click ──────────────────────────────── */
+  function initNavClick() {
+    var navLinks = document.querySelectorAll(".ocli__nav-link[href^='#']");
+    var main = document.querySelector(".ocli__main");
+    if (!main) return;
+
+    navLinks.forEach(function (link) {
+      link.addEventListener("click", function (e) {
+        var id = link.getAttribute("href").slice(1);
+        var target = document.getElementById(id);
+        if (target) {
+          e.preventDefault();
+          var offset = target.offsetTop - 8;
+          main.scrollTo({ top: offset, behavior: "smooth" });
+        }
+      });
+    });
+  }
+
+  /* ── Collapsible group nav items ─────────────────────────────── */
+  function initCollapsible() {
+    var groupItems = document.querySelectorAll(".ocli__nav-item--group");
+    groupItems.forEach(function (item) {
+      var link = item.querySelector(":scope > .ocli__nav-link");
+      if (!link) return;
+      link.addEventListener("click", function (e) {
+        var href = link.getAttribute("href");
+        // If it's just an anchor to a section toggle expand/collapse
+        if (href && href.startsWith("#")) {
+          item.classList.toggle("is-open");
+        }
+      });
+    });
+  }
+
+  /* ── Sticky header detection ─────────────────────────────────── */
+  function initStickyHeaders() {
+    var main = document.querySelector(".ocli__main");
+    var headers = document.querySelectorAll(".ocli-section__sticky");
+    if (!("IntersectionObserver" in window) || !main) return;
+
+    headers.forEach(function (header) {
+      var sentinel = document.createElement("div");
+      // In normal flow so it scrolls with content; height:1px matches top:-1px on sticky
+      sentinel.style.cssText = "height:1px;pointer-events:none;visibility:hidden;";
+      header.parentNode.insertBefore(sentinel, header);
+
+      new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            header.classList.toggle("is-stuck", !entry.isIntersecting);
+          });
+        },
+        { root: main, threshold: 1 }
+      ).observe(sentinel);
+    });
+  }
+
+  /* ── Install tabs ────────────────────────────────────────────── */
+  function initInstallTabs() {
+    var tabLists = document.querySelectorAll(".ocli-tabs__tablist");
+    tabLists.forEach(function (tabList) {
+      tabList.addEventListener("click", function (e) {
+        var btn = e.target.closest(".ocli-tabs__tab");
+        if (!btn) return;
+        var container = tabList.closest(".ocli-tabs");
+        container.querySelectorAll(".ocli-tabs__tab").forEach(function (t) {
+          t.classList.remove("is-active");
+          t.setAttribute("aria-selected", "false");
+        });
+        container.querySelectorAll(".ocli-tabs__panel").forEach(function (p) {
+          p.classList.remove("is-active");
+        });
+        btn.classList.add("is-active");
+        btn.setAttribute("aria-selected", "true");
+        var panel = document.getElementById(btn.dataset.tab);
+        if (panel) panel.classList.add("is-active");
+      });
+    });
+  }
+
+  /* ── Deep link copy + scroll ─────────────────────────────────── */
+  function initDeepLinks() {
+    var main = document.querySelector(".ocli__main");
+    document.querySelectorAll(".ocli-deeplink-btn").forEach(function (btn) {
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        var href = btn.getAttribute("data-href");
+        var url = window.location.href.split("#")[0] + href;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url);
+        } else {
+          var ta = document.createElement("textarea");
+          ta.value = url;
+          ta.style.cssText = "position:fixed;top:-9999px;left:-9999px;";
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+        }
+        var id = href.slice(1);
+        var target = document.getElementById(id);
+        if (target && main) {
+          var isCmd = !!btn.closest(".ocli-section__cmd-anchor");
+          main.scrollTo({ top: target.offsetTop - (isCmd ? 0 : 60), behavior: "smooth" });
+        }
+      });
+    });
+  }
+
+  /* ── Boot ────────────────────────────────────────────────────── */
+  function init() {
+    initTheme();
+    initScrollSpy();
+    initNavClick();
+    initCollapsible();
+    initStickyHeaders();
+    initInstallTabs();
+    initDeepLinks();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+</script>
+{{end}}

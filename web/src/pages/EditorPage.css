@@ -1,0 +1,50 @@
+.editor-route {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+
+.panels {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  overflow: hidden;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* Allow flex items to shrink below content size */
+  overflow: hidden;
+  height: 100%;
+}
+
+.panels-divider {
+  flex: 0 0 4px;
+  background: #d0d0d0;
+  cursor: col-resize;
+  user-select: none;
+  transition: background-color 0.15s;
+}
+
+.panels-divider:hover {
+  background: #999;
+}
+
+.panels-divider:active {
+  background: #666;
+}
+
+/* Loading overlay shown until WASM is ready */
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+  z-index: 100;
+  font-size: 16px;
+  color: #555;
+}

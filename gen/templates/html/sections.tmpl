@@ -1,0 +1,144 @@
+{{define "sectionIntro"}}
+<section class="ocli-section" id="intro">
+  <div class="ocli-section__sticky">
+    <span class="ocli-section__sticky-title">Introduction</span>
+  </div>
+  <div class="ocli-section__intro-grid">
+    <div class="ocli-section__intro-left">
+      {{- if .Opts.IncludeBadge}}
+      <img src="https://img.shields.io/badge/OpenCLI_Spec-Compliant-brightgreen?link=https%3A%2F%2Fgithub.com%2Fbcdxn%2Fopencli"/>
+      {{- end}}
+      {{- if .Doc.Info.Summary}}
+      <p class="ocli-summary">{{.Doc.Info.Summary}}</p>
+      {{- end}}
+      {{- if .Doc.Info.Description}}
+      <div class="ocli-md">{{mdToHTML .Doc.Info.Description}}</div>
+      {{- end}}
+    </div>
+    <div class="ocli-section__intro-right">
+      {{- if .Doc.Info.License}}
+      <div class="ocli-meta-box">
+        <div class="ocli-meta-box__label">License</div>
+        <div class="ocli-meta-box__value">
+          {{- if .Doc.Info.License.URL}}
+          <a href="{{.Doc.Info.License.URL}}">{{.Doc.Info.License.Name}}</a>
+          {{- else if .Doc.Info.License.SpdxID}}
+          <a href="https://spdx.org/licenses/{{.Doc.Info.License.SpdxID}}.html">{{.Doc.Info.License.Name}}</a>
+          {{- else if .Doc.Info.License.Name}}
+          {{.Doc.Info.License.Name}}
+          {{- end}}
+        </div>
+      </div>
+      {{- end}}
+      {{- if .Doc.Info.Contact}}
+      <div class="ocli-meta-box">
+        <div class="ocli-meta-box__label">Contact</div>
+        <div class="ocli-meta-box__value">
+          {{- if .Doc.Info.Contact.Name}}<div>{{.Doc.Info.Contact.Name}}</div>{{- end}}
+          {{- if .Doc.Info.Contact.URL}}<div><a href="{{.Doc.Info.Contact.URL}}">{{.Doc.Info.Contact.URL}}</a></div>{{- end}}
+          {{- if .Doc.Info.Contact.Email}}<div><a href="mailto:{{.Doc.Info.Contact.Email}}">{{.Doc.Info.Contact.Email}}</a></div>{{- end}}
+        </div>
+      </div>
+      {{- end}}
+      {{- if .Doc.Info.Binary}}
+      <div class="ocli-meta-box">
+        <div class="ocli-meta-box__label">Binary</div>
+        <div class="ocli-meta-box__value"><code style="font-family:monospace;background:var(--ocli-bg-code);padding:2px 6px;border-radius:4px;">{{.Doc.Info.Binary}}</code></div>
+      </div>
+      {{- end}}
+    </div>
+  </div>
+</section>
+{{end}}
+
+{{define "sectionInstall"}}
+<section class="ocli-section" id="install">
+  <div class="ocli-section__sticky">
+    <span class="ocli-section__sticky-title">Installation</span>
+  </div>
+  <div class="ocli-section__body">
+    <div class="ocli-tabs">
+      <div class="ocli-tabs__tablist" role="tablist">
+        {{- range $i, $m := .Doc.Install}}
+        <button class="ocli-tabs__tab{{if eq $i 0}} is-active{{end}}"
+                role="tab"
+                aria-selected="{{if eq $i 0}}true{{else}}false{{end}}"
+                aria-controls="install-panel-{{$i}}"
+                data-tab="install-panel-{{$i}}">{{$m.Name}}</button>
+        {{- end}}
+      </div>
+      {{- range $i, $m := .Doc.Install}}
+      <div class="ocli-tabs__panel{{if eq $i 0}} is-active{{end}}"
+           id="install-panel-{{$i}}"
+           role="tabpanel">
+        {{- if $m.Description}}
+        <p class="ocli-tabs__panel-desc">{{$m.Description}}</p>
+        {{- end}}
+        {{- if $m.Command}}
+        <div class="ocli-code-block ocli-code-block--terminal">
+          <div class="ocli-code-block__header">
+            <span class="ocli-code-block__label">Command Line</span>
+          </div>
+          <pre class="ocli-code-block__body">{{$m.Command}}</pre>
+        </div>
+        {{- end}}
+        {{- if $m.URL}}
+        <div class="ocli-tabs__panel-url"><a href="{{$m.URL}}">{{$m.URL}}</a></div>
+        {{- end}}
+      </div>
+      {{- end}}
+    </div>
+  </div>
+</section>
+{{end}}
+
+{{define "sectionConfig"}}
+<section class="ocli-section" id="config">
+  <div class="ocli-section__sticky">
+    <span class="ocli-section__sticky-title">Configuration</span>
+  </div>
+  <div class="ocli-section__body">
+    <table class="ocli-table">
+      <thead>
+        <tr>
+          <th>Format</th>
+          <th>Path</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{- if .Doc.Global.Config.JSON}}
+        <tr><td>JSON</td><td><code>{{.Doc.Global.Config.JSON}}</code></td></tr>
+        {{- end}}
+        {{- if .Doc.Global.Config.TOML}}
+        <tr><td>TOML</td><td><code>{{.Doc.Global.Config.TOML}}</code></td></tr>
+        {{- end}}
+        {{- if .Doc.Global.Config.YAML}}
+        <tr><td>YAML</td><td><code>{{.Doc.Global.Config.YAML}}</code></td></tr>
+        {{- end}}
+      </tbody>
+    </table>
+  </div>
+</section>
+{{end}}
+
+{{define "sectionExitCodes"}}
+<section class="ocli-section" id="exit-codes">
+  <div class="ocli-section__sticky">
+    <span class="ocli-section__sticky-title">Exit Codes</span>
+  </div>
+  <div class="ocli-section__body">
+    {{- range .Doc.Global.ExitCodes}}
+    <div class="ocli-exit-code">
+      <span class="ocli-exit-code__code">{{.Code}}</span>
+      <div class="ocli-exit-code__details">
+        <div class="ocli-exit-code__status">{{.Status}}</div>
+        <div class="ocli-exit-code__summary">{{.Summary}}</div>
+        {{- if .Description}}
+        <div class="ocli-exit-code__desc">{{.Description}}</div>
+        {{- end}}
+      </div>
+    </div>
+    {{- end}}
+  </div>
+</section>
+{{end}}

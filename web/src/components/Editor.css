@@ -1,0 +1,92 @@
+.editor-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  border-right: 1px solid #e0e0e0;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.editor-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #f8f8f8;
+  flex-shrink: 0;
+}
+
+.editor-header span {
+  font-weight: 600;
+  font-size: 13px;
+  color: #555;
+  margin-right: 4px;
+}
+
+.editor-body {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+/* CodeMirror fills the editor body */
+.editor-body .cm-editor {
+  height: 100%;
+}
+
+.editor-body .cm-scroller {
+  overflow: auto;
+  height: 100%;
+}
+
+.editor-footer {
+  flex-shrink: 0;
+  border-top: 1px solid #e0e0e0;
+  max-height: 160px;
+  overflow-y: auto;
+  background: #fafafa;
+  font-size: 12px;
+}
+
+.validation-valid {
+  padding: 6px 12px;
+  color: #2d8a4e;
+  font-weight: 500;
+}
+
+.validation-errors {
+  padding: 4px 0;
+}
+
+.validation-error-item {
+  padding: 4px 12px;
+  color: #c0392b;
+  line-height: 1.4;
+}
+
+.validation-error-item .error-path {
+  font-weight: 600;
+}
+
+/* Toggle buttons */
+.toggle-btn {
+  padding: 3px 10px;
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #333;
+  transition: background 0.1s, border-color 0.1s;
+}
+
+.toggle-btn.active {
+  background: #1a6bbf;
+  border-color: #1a6bbf;
+  color: #fff;
+}
+
+.toggle-btn:not(.active):hover {
+  background: #f0f0f0;
+}

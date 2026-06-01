@@ -30,12 +30,14 @@ OpenCLI specification is a document specification that can be used to describe C
 - Decouple implementation of commands from the CLI Framework
 - Automatically generate documentation your CLI
 - Automatically generate CLI framework-specific code
+- Improve LLM and agent understanding of your CLI
 
 ## OpenCLI CLI
 
 Use the CLI to validate specs, generate docs and generate boilerplate code.
 
 - [Markdown Docs](https://github.com/bcdxn/opencli/blob/main/docs/docs.gen.md)
+- [OpenCLI Spec-compliant Document](https://github.com/bcdxn/opencli/blob/main/opencli.ocs.yaml)
 
 ## Examples
 
@@ -55,7 +57,7 @@ The CLI above can be described using an OpenCLI Specification Document in YAML (
 ```yaml
 # cli.yaml
 
-opencliVersion: 1.0.0-alpha.7
+opencliVersion: 1.0.0-alpha.8
 
 info:
   title: Pleasantries
@@ -69,7 +71,7 @@ commands:
 
   pleasantries greet <name> [flags]:
     summary: "Say hello"
-    arguments:
+    args:
       - name: "name"
         summary: "A name to include the greeting"
         required: true
@@ -85,7 +87,7 @@ commands:
 
   pleasantries farewell <name> [flags]:
     summary: "Say goodbye"
-    arguments:
+    args:
       - name: "name"
         summary: "A name to include in the farewell"
         required: true
@@ -104,41 +106,36 @@ From this example we can generate documentation using the follow command:
 
 ```sh
 ocli gen docs \
-  --spec-file ./cli.osc.yaml \
   --output-dir ./docs \
   --format markdown \
-  --dryrun=false
+  ./cli.osc.yaml
 ```
 
-You can see the generated documentation [here](https://github.com/bcdxn/opencli/blob/main/examples/markdown-docs/docs.gen.md).
+## Packages
 
-Next, we can generate CLI Framework boilerplate code using the following command:
+Don't want to use the CLI, and instead prefer library integration? You can use the the following packages:
+
+### `codec`
+
+Use this package to marshal and unmarshal OpenCLI Spec compliant documents
 
 ```sh
-ocli gen cli \
-  --spec-file ./cli.osc.yaml \
-  --output-dir ./internal/cli \
-  --framework urfavecli \
-  --go-package cli \
-  --dryrun=false
+go get github.com/bcdxn/opencli/codec
 ```
 
-You can see the generated code [here (go)](https://github.com/bcdxn/opencli/blob/main/examples/urfavecli) and [here (js)](https://github.com/bcdxn/opencli/blob/main/examples/yargs).
+### `validate`
 
-### OpenCLI CLI
+Use this package to validate OpenCLI Spec compliant documents
 
-The OpenCLI CLI uses an OpenCLI Spec and the OpenCLI CLI to generate it's own boilerplate code 🤯
-
-- The spec that defines the OpenCLI CLI - [here](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli.ocs.yaml)
-- The markdown documentation automatically generated from the spec - [here](https://github.com/bcdxn/opencli/blob/main/docs/docs.gen.md)
-- The boilerplate code generated from the spec
-  - [generated interface](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli_interface.gen.go)
-  - [generated framework boilerplate](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli.gen.go)
-  - [generated parameter types](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli_params.gen.go)
+```sh
+go get github.com/bcdxn/opencli/validate
+```
 
 ## The Spec
 
-The full spec is described by JSON Schema - https://github.com/bcdxn/opencli/tree/main/spec
+The full spec is described by JSON Schema - https://github.com/bcdxn/opencli/tree/main/spec.schema.json
+
+Not all rules can be adequately expressed in JSON Schema alone. Additional validation logical is implemented in the `validate` package.
 
 ## Releases
 

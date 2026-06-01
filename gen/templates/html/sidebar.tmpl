@@ -1,0 +1,82 @@
+{{define "sidebar"}}
+<nav class="ocli__sidebar" aria-label="Navigation">
+  <div class="ocli__sidebar-header">
+    <div class="ocli__sidebar-header-top">
+      <span class="ocli__sidebar-title">{{.Doc.Info.Title}}</span>
+      <button
+        class="ocli-theme-toggle"
+        type="button"
+        data-theme-toggle
+        aria-label="Switch to dark theme"
+        aria-pressed="false"
+      >
+        <span class="ocli-theme-toggle__thumb" aria-hidden="true">
+          <svg class="ocli-theme-toggle__icon ocli-theme-toggle__icon--sun" viewBox="0 0 24 24" focusable="false">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2.2M12 19.8V22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M2 12h2.2M19.8 12H22M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"></path>
+          </svg>
+          <svg class="ocli-theme-toggle__icon ocli-theme-toggle__icon--moon" viewBox="0 0 24 24" focusable="false">
+            <path d="M20.4 14.8A8.7 8.7 0 0 1 9.2 3.6a8.6 8.6 0 1 0 11.2 11.2z"></path>
+          </svg>
+        </span>
+      </button>
+    </div>
+    {{- if .Doc.Info.Version}}
+    <span class="ocli__sidebar-version">v{{.Doc.Info.Version}}</span>
+    {{- end}}
+  </div>
+  <div class="ocli__sidebar-body">
+    <div class="ocli__nav-section">
+      <div class="ocli__nav-section-label">Overview</div>
+      <ul class="ocli__nav-list">
+        <li class="ocli__nav-item">
+          <a class="ocli__nav-link" href="#intro" data-section="intro">Introduction</a>
+        </li>
+        {{- if .Doc.Install}}
+        <li class="ocli__nav-item">
+          <a class="ocli__nav-link" href="#install" data-section="install">Installation</a>
+        </li>
+        {{- end}}
+        {{- if .Doc.Global}}
+          {{- if or .Doc.Global.Config.JSON .Doc.Global.Config.TOML .Doc.Global.Config.YAML}}
+          <li class="ocli__nav-item">
+            <a class="ocli__nav-link" href="#config" data-section="config">Configuration</a>
+          </li>
+          {{- end}}
+          {{- if .Doc.Global.ExitCodes}}
+          <li class="ocli__nav-item">
+            <a class="ocli__nav-link" href="#exit-codes" data-section="exit-codes">Exit Codes</a>
+          </li>
+          {{- end}}
+        {{- end}}
+      </ul>
+    </div>
+    {{- if and .Doc.Commands .Doc.Commands.Commands}}
+    <div class="ocli__nav-section">
+      <div class="ocli__nav-section-label">Commands</div>
+      <ul class="ocli__nav-list">
+        {{- range .Doc.Commands.Commands}}{{template "sidebarItem" .}}{{end}}
+      </ul>
+    </div>
+    {{- end}}
+  </div>
+</nav>
+{{end}}
+
+{{define "sidebarItem"}}
+{{- if not .Hidden}}
+<li class="ocli__nav-item{{if and .Group .VisibleChildren}} ocli__nav-item--group{{end}}">
+  <a class="ocli__nav-link" href="#{{slugify .CommandLine}}" data-section="{{slugify .CommandLine}}">
+    <span>{{.Segment}}</span>
+    {{- if and .Group .VisibleChildren}}
+    <span class="ocli__nav-toggle">▸</span>
+    {{- end}}
+  </a>
+  {{- if and .Group .VisibleChildren}}
+  <ul class="ocli__nav-sublist">
+    {{- range .Commands}}{{template "sidebarItem" .}}{{end}}
+  </ul>
+  {{- end}}
+</li>
+{{- end}}
+{{end}}
