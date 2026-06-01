@@ -30,6 +30,7 @@ OpenCLI specification is a document specification that can be used to describe C
 - Decouple implementation of commands from the CLI Framework
 - Automatically generate documentation your CLI
 - Automatically generate CLI framework-specific code
+- Improve LLM and agent understanding of your CLI
 
 ## OpenCLI CLI
 
@@ -55,7 +56,7 @@ The CLI above can be described using an OpenCLI Specification Document in YAML (
 ```yaml
 # cli.yaml
 
-opencliVersion: 1.0.0-alpha.7
+opencliVersion: 1.0.0-alpha.8
 
 info:
   title: Pleasantries
@@ -136,9 +137,29 @@ The OpenCLI CLI uses an OpenCLI Spec and the OpenCLI CLI to generate it's own bo
   - [generated framework boilerplate](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli.gen.go)
   - [generated parameter types](https://github.com/bcdxn/opencli/blob/main/internal/cli/cli_params.gen.go)
 
+## Packages
+
+Don't want to use the CLI, and instead prefer library integration? You can use the the following packages:
+
+### `codec`
+
+Use this package to marshal and unmarshal OpenCLI Spec compliant documents
+
+```sh
+go get github.com/bcdxn/opencli/codec
+```
+
+### `validate`
+
+Use this package to validate OpenCLI Spec compliant documents
+
+```sh
+go get github.com/bcdxn/opencli/validate
+```
+
 ## The Spec
 
-The full spec is described by JSON Schema - https://github.com/bcdxn/opencli/tree/main/spec
+The full spec is described by JSON Schema - https://github.com/bcdxn/opencli/tree/main/spec.schema.json
 
 ## Releases
 
