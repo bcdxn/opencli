@@ -1,0 +1,401 @@
+opencliVersion: 1.0.0-alpha.7
+
+info:
+  title: PetStore CLI
+  summary: An example CLI Document describing operations a petstore CLI may provide.
+  description: |
+    `petstore` is an example command line interface designed to make working with the
+    [PetStore API](https://petstore3.swagger.io) easier. It provides a number of
+    capabilities, including:
+
+    - validating request parameters
+    - executing API requests
+    - parsing the API response
+    - handling API errors
+
+    The commands are documented below. You can also find out more about each
+    command using the contextual `--help` flag. e.g.:
+
+    ```sh
+    petstore --help
+    ```
+  version: 1.0.0
+  binary: petstore
+  license:
+    name: MIT
+    spdxId: MIT
+    url: https://spdx.org/licenses/MIT.html
+  contact:
+    name: OpenCLI Team
+    url: https://github.com/bcdxn/opencli
+
+install:
+  - name: Binary Download
+    url: https://github.com/bcdxn/petstorecli/releases
+    description: A fake releases endpoint - no real release of this CLI exists
+  - name: Go Install
+    command: go install github.com/bcdxn/petstore/cmd/cli@latest
+    description: A fake go install - no real release of this CLI exists
+
+global:
+  exitCodes:
+    - code: 0
+      status: OK
+      summary: The command was successful
+    - code: 1
+      status: INTERNAL_CLI_ERROR
+      summary: The command failed
+    - code: 2
+      status: BAD_USER_INPUT_ERROR
+      summary: Missing or invalid input
+  configFiles:
+    json: ~/.petstore/config.json
+    toml: ~/.petstore/config.toml
+    yaml: ~/.petstore/config.yaml
+
+commands:
+  petstore {command} <arguments> [flags]:
+    group: true
+
+  petstore list [flags]:
+    aliases:
+    - ls
+    summary: List all endpoints available
+
+  petstore pet {command} <arguments> [flags]:
+    summary: Commands for managing pets
+    group: true
+
+  petstore pet add [flags]:
+    summary: Add a new pet to the store
+    description: |
+      Create a new pet in the store using a JSON payload or explicit flags.
+    args:
+    - name: path-to-req-body
+      type: string
+      summary: The path to a JSON file containing the new pet payload
+      description: |
+        A JSON formatted file with the exact POST body to send as part of the request to add a
+        new pet to the store using the PetStore API. The exact schema can be found
+        [here](https://petstore3.swagger.io/api/v3/openapi.json#/components/schemas/PetPet). You
+        can use this option instead of passing individual flags.
+      required: false
+    flags:
+    - name: name
+      aliases:
+      - n
+      type: string
+      summary: The name of the pet
+    - name: photoUrls
+      aliases:
+      - p
+      type: string
+      summary: A list of photo URLs to display for the pet
+      description: |
+        Provide this flag multiple times to set multiple photo URLs.
+      variadic: true
+    - name: status
+      type: string
+      summary: The pet status in the store
+      choices:
+      - value: available
+      - value: pending
+      - value: sold
+    - name: tags
+      type: string
+      summary: Tags to assign to the pet
+      description: |
+        Provide this flag multiple times to add multiple tags.
+      variadic: true
+
+  petstore pet update [flags]:
+    summary: Update an existing pet
+    description: |
+      Update a pet using a JSON payload or explicit flags.
+    args:
+    - name: path-to-req-body
+      type: string
+      summary: The path to a JSON file containing the updated pet payload
+    flags:
+    - name: name
+      aliases:
+      - n
+      type: string
+      summary: The updated name of the pet
+    - name: status
+      type: string
+      summary: The updated pet status
+      choices:
+      - value: available
+      - value: pending
+      - value: sold
+    - name: photoUrls
+      aliases:
+      - p
+      type: string
+      summary: A list of photo URLs to display for the pet
+      description: |
+        Provide this flag multiple times to set multiple photo URLs.
+      variadic: true
+    - name: tags
+      type: string
+      summary: Tags to assign to the pet
+      description: |
+        Provide this flag multiple times to add multiple tags.
+      variadic: true
+
+  petstore pet find-by-status [flags]:
+    summary: Find pets by status
+    flags:
+    - name: status
+      type: string
+      summary: The status to filter pets by
+      choices:
+      - value: available
+      - value: pending
+      - value: sold
+      required: true
+
+  petstore pet find-by-tags [flags]:
+    summary: Find pets by tags
+    flags:
+    - name: tags
+      type: string
+      summary: The tags to filter pets by
+      description: |
+        Provide this flag multiple times to filter by multiple tags.
+      variadic: true
+      required: true
+
+  petstore pet get [flags]:
+    summary: Find pet by ID
+    flags:
+    - name: id
+      type: integer
+      summary: The ID of the pet to retrieve
+      required: true
+
+  petstore pet update-form [flags]:
+    summary: Update a pet using form data
+    flags:
+    - name: id
+      type: integer
+      summary: The ID of the pet to update
+      required: true
+    - name: name
+      type: string
+      summary: The new name for the pet
+    - name: status
+      type: string
+      summary: The new status for the pet
+      choices:
+      - value: available
+      - value: pending
+      - value: sold
+
+  petstore pet delete [flags]:
+    summary: Delete a pet
+    flags:
+    - name: id
+      type: integer
+      summary: The ID of the pet to delete
+      required: true
+    - name: api-key
+      type: string
+      summary: API key header used to authorize the delete request
+
+  petstore pet upload-image <path-to-file> [flags]:
+    summary: Upload an image for a pet
+    description: |
+      Upload a binary image file for the specified pet.
+    args:
+    - name: path-to-file
+      type: string
+      summary: The path to the file to upload
+      required: true
+    flags:
+    - name: id
+      type: integer
+      summary: The ID of the pet
+      required: true
+    - name: additionalMetadata
+      type: string
+      summary: Additional metadata to store with the uploaded image
+
+  petstore store {command} <arguments> [flags]:
+    summary: Commands for store operations
+    group: true
+
+  petstore store inventory:
+    summary: Returns pet inventories by status
+
+  petstore store order {command} <arguments> [flags]:
+    summary: Commands for purchase orders
+    group: true
+
+  petstore store order place [flags]:
+    summary: Place an order for a pet
+    description: |
+      Create a purchase order using a JSON payload or explicit flags.
+    args:
+    - name: path-to-order-body
+      type: string
+      summary: The path to a JSON file containing the order payload
+    flags:
+    - name: pet-id
+      type: integer
+      summary: The ID of the pet to order
+    - name: quantity
+      type: integer
+      summary: How many pets to order
+    - name: status
+      type: string
+      summary: The order status
+      choices:
+      - value: placed
+      - value: approved
+      - value: delivered
+    - name: complete
+      type: boolean
+      summary: Whether the order has been completed
+
+  petstore store order get [flags]:
+    summary: Find purchase order by ID
+    flags:
+    - name: id
+      type: integer
+      summary: The ID of the order to retrieve
+      required: true
+
+  petstore store order delete [flags]:
+    summary: Delete purchase order by ID
+    args:
+    - name: id
+      type: integer
+      summary: The ID of the order to delete
+      required: true
+
+  petstore user create <arguments> [flags]:
+    summary: Create a user
+    description: |
+      Create a new user using a JSON payload or explicit flags.
+    args:
+    - name: path-to-user-body
+      type: string
+      summary: The path to a JSON file containing the user payload
+      required: false
+    flags:
+    - name: username
+      type: string
+      summary: The user's username
+      required: false
+    - name: firstName
+      type: string
+      summary: The user's first name
+      required: false
+    - name: lastName
+      type: string
+      summary: The user's last name
+      required: false
+    - name: email
+      type: string
+      summary: The user's email address
+      required: false
+    - name: password
+      type: string
+      summary: The user's password
+      required: false
+    - name: phone
+      type: string
+      summary: The user's phone number
+      required: false
+    - name: status
+      type: integer
+      summary: The user's status
+      required: false
+
+  petstore user create-with-list <arguments>:
+    summary: Create multiple users with a list
+    description: |
+      Create multiple users using a JSON array payload.
+    args:
+    - name: path-to-users-body
+      type: string
+      summary: The path to a JSON file containing the user list payload
+      required: true
+
+  petstore user login [flags]:
+    summary: Log in a user
+    flags:
+    - name: username
+      type: string
+      summary: The user's username
+      required: false
+      alternativeSources:
+      - type: $ENV
+        property: PETSTORE_USER
+      - type: $FILE
+        property: $.auth.user
+    - name: password
+      type: string
+      summary: The user's password
+      required: false
+      alternativeSources:
+      - name: $ENV
+        property: PETSTORE_PASS
+      - name: $FILE
+        property: $.auth.pass
+
+  petstore user logout:
+    summary: Log out the current user
+
+  petstore user get [flags]:
+    summary: Get user by username
+    flags:
+    - name: username
+      type: string
+      summary: The username to look up
+      required: true
+
+  petstore user update [flags]:
+    summary: Update a user
+    description: |
+      Update a user's information using a JSON payload or explicit flags.
+    flags:
+    - name: username
+      type: string
+      summary: The username of the user to update
+      required: true
+    - name: firstName
+      type: string
+      summary: The user's first name
+      required: false
+    - name: lastName
+      type: string
+      summary: The user's last name
+      required: false
+    - name: email
+      type: string
+      summary: The user's email address
+      required: false
+    - name: password
+      type: string
+      summary: The user's password
+      required: false
+    - name: phone
+      type: string
+      summary: The user's phone number
+      required: false
+    - name: userStatus
+      type: integer
+      summary: The user's status
+      required: false
+
+  petstore user delete [flags]:
+    summary: Delete a user
+    hidden: true
+    flags:
+    - name: username
+      type: string
+      summary: The username of the user to delete
+      required: true

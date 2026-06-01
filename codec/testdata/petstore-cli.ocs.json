@@ -1,0 +1,545 @@
+{
+  "opencliVersion": "1.0.0-alpha.7",
+  "info": {
+    "binary": "petstore",
+    "contact": {
+      "name": "OpenCLI Team",
+      "url": "https://github.com/bcdxn/opencli"
+    },
+    "description": "`petstore` is an example command line interface designed to make working with the\n[PetStore API](https://petstore3.swagger.io) easier. It provides a number of\ncapabilities, including:\n\n- validating request parameters\n- executing API requests\n- parsing the API response\n- handling API errors\n\nThe commands are documented below. You can also find out more about each\ncommand using the contextual `--help` flag. e.g.:\n\n```sh\npetstore --help\n```\n",
+    "license": {
+      "name": "MIT",
+      "spdxId": "MIT",
+      "url": "https://spdx.org/licenses/MIT.html"
+    },
+    "summary": "An example CLI Document describing operations a petstore CLI may provide.",
+    "title": "PetStore CLI",
+    "version": "1.0.0"
+  },
+  "install": [
+    {
+      "description": "A fake releases endpoint - no real release of this CLI exists",
+      "name": "Binary Download",
+      "url": "https://github.com/bcdxn/petstorecli/releases"
+    },
+    {
+      "command": "go install github.com/bcdxn/petstore/cmd/cli@latest",
+      "description": "A fake go install - no real release of this CLI exists",
+      "name": "Go Install"
+    }
+  ],
+  "global": {
+    "configFiles": {
+      "json": "~/.petstore/config.json",
+      "toml": "~/.petstore/config.toml",
+      "yaml": "~/.petstore/config.yaml"
+    },
+    "exitCodes": [
+      {
+        "code": 0,
+        "status": "OK",
+        "summary": "The command was successful"
+      },
+      {
+        "code": 1,
+        "status": "INTERNAL_CLI_ERROR",
+        "summary": "The command failed"
+      },
+      {
+        "code": 2,
+        "status": "BAD_USER_INPUT_ERROR",
+        "summary": "Missing or invalid input"
+      }
+    ]
+  },
+  "commands": {
+    "petstore list [flags]": {
+      "aliases": ["ls"],
+      "summary": "List all endpoints available"
+    },
+    "petstore pet add [flags]": {
+      "args": [
+        {
+          "description": "A JSON formatted file with the exact POST body to send as part of the request to add a\nnew pet to the store using the PetStore API. The exact schema can be found\n[here](https://petstore3.swagger.io/api/v3/openapi.json#/components/schemas/PetPet). You\ncan use this option instead of passing individual flags.\n",
+          "name": "path-to-req-body",
+          "required": false,
+          "summary": "The path to a JSON file containing the new pet payload",
+          "type": "string"
+        }
+      ],
+      "description": "Create a new pet in the store using a JSON payload or explicit flags.\n",
+      "flags": [
+        {
+          "aliases": ["n"],
+          "name": "name",
+          "summary": "The name of the pet",
+          "type": "string"
+        },
+        {
+          "aliases": ["p"],
+          "description": "Provide this flag multiple times to set multiple photo URLs.\n",
+          "name": "photoUrls",
+          "summary": "A list of photo URLs to display for the pet",
+          "type": "string",
+          "variadic": true
+        },
+        {
+          "choices": [
+            {
+              "value": "available"
+            },
+            {
+              "value": "pending"
+            },
+            {
+              "value": "sold"
+            }
+          ],
+          "name": "status",
+          "summary": "The pet status in the store",
+          "type": "string"
+        },
+        {
+          "description": "Provide this flag multiple times to add multiple tags.\n",
+          "name": "tags",
+          "summary": "Tags to assign to the pet",
+          "type": "string",
+          "variadic": true
+        }
+      ],
+      "summary": "Add a new pet to the store"
+    },
+    "petstore pet delete [flags]": {
+      "flags": [
+        {
+          "name": "id",
+          "required": true,
+          "summary": "The ID of the pet to delete",
+          "type": "integer"
+        },
+        {
+          "name": "api-key",
+          "summary": "API key header used to authorize the delete request",
+          "type": "string"
+        }
+      ],
+      "summary": "Delete a pet"
+    },
+    "petstore pet find-by-status [flags]": {
+      "flags": [
+        {
+          "choices": [
+            {
+              "value": "available"
+            },
+            {
+              "value": "pending"
+            },
+            {
+              "value": "sold"
+            }
+          ],
+          "name": "status",
+          "required": true,
+          "summary": "The status to filter pets by",
+          "type": "string"
+        }
+      ],
+      "summary": "Find pets by status"
+    },
+    "petstore pet find-by-tags [flags]": {
+      "flags": [
+        {
+          "description": "Provide this flag multiple times to filter by multiple tags.\n",
+          "name": "tags",
+          "required": true,
+          "summary": "The tags to filter pets by",
+          "type": "string",
+          "variadic": true
+        }
+      ],
+      "summary": "Find pets by tags"
+    },
+    "petstore pet get [flags]": {
+      "flags": [
+        {
+          "name": "id",
+          "required": true,
+          "summary": "The ID of the pet to retrieve",
+          "type": "integer"
+        }
+      ],
+      "summary": "Find pet by ID"
+    },
+    "petstore pet update [flags]": {
+      "args": [
+        {
+          "name": "path-to-req-body",
+          "summary": "The path to a JSON file containing the updated pet payload",
+          "type": "string"
+        }
+      ],
+      "description": "Update a pet using a JSON payload or explicit flags.\n",
+      "flags": [
+        {
+          "aliases": ["n"],
+          "name": "name",
+          "summary": "The updated name of the pet",
+          "type": "string"
+        },
+        {
+          "choices": [
+            {
+              "value": "available"
+            },
+            {
+              "value": "pending"
+            },
+            {
+              "value": "sold"
+            }
+          ],
+          "name": "status",
+          "summary": "The updated pet status",
+          "type": "string"
+        },
+        {
+          "aliases": ["p"],
+          "description": "Provide this flag multiple times to set multiple photo URLs.\n",
+          "name": "photoUrls",
+          "summary": "A list of photo URLs to display for the pet",
+          "type": "string",
+          "variadic": true
+        },
+        {
+          "description": "Provide this flag multiple times to add multiple tags.\n",
+          "name": "tags",
+          "summary": "Tags to assign to the pet",
+          "type": "string",
+          "variadic": true
+        }
+      ],
+      "summary": "Update an existing pet"
+    },
+    "petstore pet update-form [flags]": {
+      "flags": [
+        {
+          "name": "id",
+          "required": true,
+          "summary": "The ID of the pet to update",
+          "type": "integer"
+        },
+        {
+          "name": "name",
+          "summary": "The new name for the pet",
+          "type": "string"
+        },
+        {
+          "choices": [
+            {
+              "value": "available"
+            },
+            {
+              "value": "pending"
+            },
+            {
+              "value": "sold"
+            }
+          ],
+          "name": "status",
+          "summary": "The new status for the pet",
+          "type": "string"
+        }
+      ],
+      "summary": "Update a pet using form data"
+    },
+    "petstore pet upload-image <path-to-file> [flags]": {
+      "args": [
+        {
+          "name": "path-to-file",
+          "required": true,
+          "summary": "The path to the file to upload",
+          "type": "string"
+        }
+      ],
+      "description": "Upload a binary image file for the specified pet.\n",
+      "flags": [
+        {
+          "name": "id",
+          "required": true,
+          "summary": "The ID of the pet",
+          "type": "integer"
+        },
+        {
+          "name": "additionalMetadata",
+          "summary": "Additional metadata to store with the uploaded image",
+          "type": "string"
+        }
+      ],
+      "summary": "Upload an image for a pet"
+    },
+    "petstore pet {command} <arguments> [flags]": {
+      "group": true,
+      "summary": "Commands for managing pets"
+    },
+    "petstore store inventory": {
+      "summary": "Returns pet inventories by status"
+    },
+    "petstore store order delete [flags]": {
+      "args": [
+        {
+          "name": "id",
+          "required": true,
+          "summary": "The ID of the order to delete",
+          "type": "integer"
+        }
+      ],
+      "summary": "Delete purchase order by ID"
+    },
+    "petstore store order get [flags]": {
+      "flags": [
+        {
+          "name": "id",
+          "required": true,
+          "summary": "The ID of the order to retrieve",
+          "type": "integer"
+        }
+      ],
+      "summary": "Find purchase order by ID"
+    },
+    "petstore store order place [flags]": {
+      "args": [
+        {
+          "name": "path-to-order-body",
+          "summary": "The path to a JSON file containing the order payload",
+          "type": "string"
+        }
+      ],
+      "description": "Create a purchase order using a JSON payload or explicit flags.\n",
+      "flags": [
+        {
+          "name": "pet-id",
+          "summary": "The ID of the pet to order",
+          "type": "integer"
+        },
+        {
+          "name": "quantity",
+          "summary": "How many pets to order",
+          "type": "integer"
+        },
+        {
+          "choices": [
+            {
+              "value": "placed"
+            },
+            {
+              "value": "approved"
+            },
+            {
+              "value": "delivered"
+            }
+          ],
+          "name": "status",
+          "summary": "The order status",
+          "type": "string"
+        },
+        {
+          "name": "complete",
+          "summary": "Whether the order has been completed",
+          "type": "boolean"
+        }
+      ],
+      "summary": "Place an order for a pet"
+    },
+    "petstore store order {command} <arguments> [flags]": {
+      "group": true,
+      "summary": "Commands for purchase orders"
+    },
+    "petstore store {command} <arguments> [flags]": {
+      "group": true,
+      "summary": "Commands for store operations"
+    },
+    "petstore user create <arguments> [flags]": {
+      "args": [
+        {
+          "name": "path-to-user-body",
+          "required": false,
+          "summary": "The path to a JSON file containing the user payload",
+          "type": "string"
+        }
+      ],
+      "description": "Create a new user using a JSON payload or explicit flags.\n",
+      "flags": [
+        {
+          "name": "username",
+          "required": false,
+          "summary": "The user's username",
+          "type": "string"
+        },
+        {
+          "name": "firstName",
+          "required": false,
+          "summary": "The user's first name",
+          "type": "string"
+        },
+        {
+          "name": "lastName",
+          "required": false,
+          "summary": "The user's last name",
+          "type": "string"
+        },
+        {
+          "name": "email",
+          "required": false,
+          "summary": "The user's email address",
+          "type": "string"
+        },
+        {
+          "name": "password",
+          "required": false,
+          "summary": "The user's password",
+          "type": "string"
+        },
+        {
+          "name": "phone",
+          "required": false,
+          "summary": "The user's phone number",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "required": false,
+          "summary": "The user's status",
+          "type": "integer"
+        }
+      ],
+      "summary": "Create a user"
+    },
+    "petstore user create-with-list <arguments>": {
+      "args": [
+        {
+          "name": "path-to-users-body",
+          "required": true,
+          "summary": "The path to a JSON file containing the user list payload",
+          "type": "string"
+        }
+      ],
+      "description": "Create multiple users using a JSON array payload.\n",
+      "summary": "Create multiple users with a list"
+    },
+    "petstore user delete [flags]": {
+      "flags": [
+        {
+          "name": "username",
+          "required": true,
+          "summary": "The username of the user to delete",
+          "type": "string"
+        }
+      ],
+      "hidden": true,
+      "summary": "Delete a user"
+    },
+    "petstore user get [flags]": {
+      "flags": [
+        {
+          "name": "username",
+          "required": true,
+          "summary": "The username to look up",
+          "type": "string"
+        }
+      ],
+      "summary": "Get user by username"
+    },
+    "petstore user login [flags]": {
+      "flags": [
+        {
+          "alternativeSources": [
+            {
+              "property": "PETSTORE_USER",
+              "type": "$ENV"
+            },
+            {
+              "property": "$.auth.user",
+              "type": "$FILE"
+            }
+          ],
+          "name": "username",
+          "required": false,
+          "summary": "The user's username",
+          "type": "string"
+        },
+        {
+          "alternativeSources": [
+            {
+              "name": "$ENV",
+              "property": "PETSTORE_PASS"
+            },
+            {
+              "name": "$FILE",
+              "property": "$.auth.pass"
+            }
+          ],
+          "name": "password",
+          "required": false,
+          "summary": "The user's password",
+          "type": "string"
+        }
+      ],
+      "summary": "Log in a user"
+    },
+    "petstore user logout": {
+      "summary": "Log out the current user"
+    },
+    "petstore user update [flags]": {
+      "description": "Update a user's information using a JSON payload or explicit flags.\n",
+      "flags": [
+        {
+          "name": "username",
+          "required": true,
+          "summary": "The username of the user to update",
+          "type": "string"
+        },
+        {
+          "name": "firstName",
+          "required": false,
+          "summary": "The user's first name",
+          "type": "string"
+        },
+        {
+          "name": "lastName",
+          "required": false,
+          "summary": "The user's last name",
+          "type": "string"
+        },
+        {
+          "name": "email",
+          "required": false,
+          "summary": "The user's email address",
+          "type": "string"
+        },
+        {
+          "name": "password",
+          "required": false,
+          "summary": "The user's password",
+          "type": "string"
+        },
+        {
+          "name": "phone",
+          "required": false,
+          "summary": "The user's phone number",
+          "type": "string"
+        },
+        {
+          "name": "userStatus",
+          "required": false,
+          "summary": "The user's status",
+          "type": "integer"
+        }
+      ],
+      "summary": "Update a user"
+    },
+    "petstore {command} <arguments> [flags]": {
+      "group": true
+    }
+  }
+}
