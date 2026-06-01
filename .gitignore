@@ -1,13 +1,11 @@
-distschemas
+gen
 
 .vscode
-scratch*
-tmp*
 
 .DS_Store
 Thumbs.db
-vscode/*
-tmp
+tmp*
+scratch*
 dist# Added by goreleaser init:
 dist/
 build/

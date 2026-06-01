@@ -172,14 +172,16 @@
         "configFiles": {
           "type": "object",
           "description": "An object where each property key is a supported file format and each property value is the path to a config file of that format; the defined paths are the expected locations of those config iles. Once defined, `alternativeSourced` referenced elsewhere in the OpenCLI Spec Document ca use the `$FILE` type.",
-          "json": {
-            "type": "string"
-          },
-          "toml": {
-            "type": "string"
-          },
-          "yaml": {
-            "type": "string"
+          "properties": {
+            "json": {
+              "type": "string"
+            },
+            "toml": {
+              "type": "string"
+            },
+            "yaml": {
+              "type": "string"
+            }
           },
           "additionalProperties": false,
           "minProperties": 1
@@ -438,15 +440,6 @@
       "type": "string",
       "enum": ["string", "number", "integer", "boolean"],
       "default": "string"
-    },
-    "ConfigFile": {
-      "type": "object",
-      "properties": {
-        "path": {
-          "type": "string"
-        }
-      },
-      "required": ["path"]
     }
   }
 }

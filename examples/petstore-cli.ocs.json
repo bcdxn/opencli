@@ -1,5 +1,5 @@
 {
-  "opencliVersion": "1.0.0-alpha.7",
+  "opencliVersion": "1.0.0-alpha.8",
   "info": {
     "binary": "petstore",
     "contact": {
@@ -471,11 +471,11 @@
         {
           "alternativeSources": [
             {
-              "name": "$ENV",
+              "type": "$ENV",
               "property": "PETSTORE_PASS"
             },
             {
-              "name": "$FILE",
+              "type": "$FILE",
               "property": "$.auth.pass"
             }
           ],
