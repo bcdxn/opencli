@@ -52,9 +52,9 @@ type ExitCode struct {
 }
 
 type Configuration struct {
-	Json string `json:"json,omitempty" yaml:"json,omitempty"`
-	Toml string `json:"toml,omitempty" yaml:"toml,omitempty"`
-	Yaml string `json:"yaml,omitempty" yaml:"yaml,omitempty"`
+	JSON string `json:"json,omitempty" yaml:"json,omitempty"`
+	TOML string `json:"toml,omitempty" yaml:"toml,omitempty"`
+	YAML string `json:"yaml,omitempty" yaml:"yaml,omitempty"`
 }
 
 type CommandItem struct {

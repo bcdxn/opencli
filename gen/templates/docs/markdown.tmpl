@@ -63,6 +63,19 @@ _{{.Doc.Info.Summary}}_
 {{- end -}}
 {{end -}}
 
+{{- if and .Doc.Global.Config (or .Doc.Global.Config.JSON .Doc.Global.Config.TOML .Doc.Global.Config.YAML)}}
+## Configuration
+
+| Type | Path |
+|:-----|:-----|
+{{- if .Doc.Global.Config.JSON}}
+| JSON | `{{.Doc.Global.Config.JSON}}` |{{end}}
+{{- if .Doc.Global.Config.TOML}}
+| TOML | `{{.Doc.Global.Config.TOML}}` |{{end}}
+{{- if .Doc.Global.Config.YAML}}
+| YAML | `{{.Doc.Global.Config.YAML}}` |{{end}}
+{{- end}}{{/* End Config */}}
+
 {{- if .Doc.Global.ExitCodes}}
 
 ## Exit Codes
@@ -73,7 +86,7 @@ _{{.Doc.Info.Summary}}_
 {{- end}}
 
 {{- end}}
-{{- end}}
+{{- end}}{{/* End ExitCodes */}}
 
 ---
 
