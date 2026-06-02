@@ -39,18 +39,19 @@ type InstallMethod struct {
 }
 
 type Global struct {
-	ExitCodes   []ExitCode  `json:"exitCodes,omitempty" yaml:"exitCodes,omitempty"`
-	ConfigFiles ConfigFiles `json:"configFiles" yaml:"configFiles"`
-	Flags       []FlagItem  `json:"flags,omitempty" yaml:"flags,omitempty"`
+	ExitCodes []ExitCode    `json:"exitCodes,omitempty" yaml:"exitCodes,omitempty"`
+	Config    Configuration `json:"config" yaml:"config"`
+	Flags     []FlagItem    `json:"flags,omitempty" yaml:"flags,omitempty"`
 }
 
 type ExitCode struct {
-	Code    int    `json:"code" yaml:"code"`
-	Status  string `json:"status" yaml:"status"`
-	Summary string `json:"summary" yaml:"summary"`
+	Code        int    `json:"code" yaml:"code"`
+	Status      string `json:"status" yaml:"status"`
+	Summary     string `json:"summary" yaml:"summary"`
+	Description string `json:"description,omitempty" yaml:"description,omitempty"`
 }
 
-type ConfigFiles struct {
+type Configuration struct {
 	Json string `json:"json,omitempty" yaml:"json,omitempty"`
 	Toml string `json:"toml,omitempty" yaml:"toml,omitempty"`
 	Yaml string `json:"yaml,omitempty" yaml:"yaml,omitempty"`
@@ -70,27 +71,49 @@ type CommandItem struct {
 	ExitCodes      []ExitCode
 	Commands       []*CommandItem
 	// Properties set during post processing of unmarshalling
-	Children         bool
-	ChildrenArgs     bool
-	ChildrenFlags    bool
-	CommandModifiers []string
-	ArgsModifiers    []string
-	FlagModifiers    []string
+	VisibleArgs          bool
+	VisibleFlags         bool
+	VisibleChildren      bool
+	VisibleChildrenArgs  bool
+	VisibleChildrenFlags bool
+	CommandModifiers     []string
+	ArgsModifiers        []string
+	FlagModifiers        []string
 }
 
 type ArgumentItem struct {
-	Name     string `json:"name" yaml:"name"`
-	Type     string `json:"type,omitempty" yaml:"type,omitempty"`
-	Variadic bool   `json:"variadic,omitempty" yaml:"variadic,omitempty"`
-	Summary  string `json:"summary,omitempty" yaml:"summary,omitempty"`
-	Required bool   `json:"required,omitempty" yaml:"required,omitempty"`
+	Name        string   `json:"name" yaml:"name"`
+	Type        string   `json:"type,omitempty" yaml:"type,omitempty"`
+	Variadic    bool     `json:"variadic,omitempty" yaml:"variadic,omitempty"`
+	Summary     string   `json:"summary,omitempty" yaml:"summary,omitempty"`
+	Description string   `json:"description,omitempty" yaml:"description,omitempty"`
+	Required    bool     `json:"required,omitempty" yaml:"required,omitempty"`
+	Default     any      `json:"default,omitempty" yaml:"default,omitempty"`
+	Hidden      bool     `json:"hidden,omitempty" yaml:"hidden,omitempty"`
+	Choices     []Choice `json:"choices,omitempty" yaml:"choices,omitempty"`
 }
 
 type FlagItem struct {
-	Name    string      `json:"name" yaml:"name"`
-	Aliases []string    `json:"aliases,omitempty" yaml:"aliases,omitempty"`
-	Type    string      `json:"type" yaml:"type"`
-	Summary string      `json:"summary,omitempty" yaml:"summary,omitempty"`
-	Default interface{} `json:"default,omitempty" yaml:"default,omitempty"`
-	Hidden  bool        `json:"hidden,omitempty" yaml:"hidden,omitempty"`
+	Name        string              `json:"name" yaml:"name"`
+	Aliases     []string            `json:"aliases,omitempty" yaml:"aliases,omitempty"`
+	Type        string              `json:"type" yaml:"type"`
+	Variadic    bool                `json:"variadic,omitempty" yaml:"variadic,omitempty"`
+	Summary     string              `json:"summary,omitempty" yaml:"summary,omitempty"`
+	Description string              `json:"description,omitempty" yaml:"description,omitempty"`
+	Required    bool                `json:"required,omitempty" yaml:"required,omitempty"`
+	Default     any                 `json:"default,omitempty" yaml:"default,omitempty"`
+	Hidden      bool                `json:"hidden,omitempty" yaml:"hidden,omitempty"`
+	Choices     []Choice            `json:"choices,omitempty" yaml:"choices,omitempty"`
+	AltSources  []AlternativeSource `json:"alternativeSources,omitempty" yaml:"alternativeSources,omitempty"`
+}
+
+type Choice struct {
+	// Value can be a string, float64, or bool due to the schema's mixed types.
+	Value       any    `json:"value"`
+	Description string `json:"description,omitempty"`
+}
+
+type AlternativeSource struct {
+	Type     string `json:"type" yaml:"type"`
+	Property string `json:"property" yaml:"property"`
 }

@@ -29,7 +29,7 @@
     }
   ],
   "global": {
-    "configFiles": {
+    "config": {
       "json": "~/.petstore/config.json",
       "toml": "~/.petstore/config.toml",
       "yaml": "~/.petstore/config.yaml"
@@ -101,8 +101,8 @@
         },
         {
           "description": "Provide this flag multiple times to add multiple tags.\n",
-          "name": "tags",
-          "summary": "Tags to assign to the pet",
+          "name": "tag",
+          "summary": "Tag to assign to the pet for grouping/sorting",
           "type": "string",
           "variadic": true
         }
@@ -280,7 +280,7 @@
     },
     "petstore pet {command} <arguments> [flags]": {
       "group": true,
-      "summary": "Commands for managing pets"
+      "summary": "A collection of commands for managing pets"
     },
     "petstore store inventory": {
       "summary": "Returns pet inventories by status"
@@ -353,11 +353,11 @@
     },
     "petstore store order {command} <arguments> [flags]": {
       "group": true,
-      "summary": "Commands for purchase orders"
+      "summary": "A collection of commands for purchase orders"
     },
     "petstore store {command} <arguments> [flags]": {
       "group": true,
-      "summary": "Commands for store operations"
+      "summary": "A collection of commands for store operations"
     },
     "petstore user create <arguments> [flags]": {
       "args": [

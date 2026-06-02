@@ -169,7 +169,7 @@
             "$ref": "#/$defs/ExitCodeObject"
           }
         },
-        "configFiles": {
+        "config": {
           "type": "object",
           "description": "An object where each property key is a supported file format and each property value is the path to a config file of that format; the defined paths are the expected locations of those config iles. Once defined, `alternativeSourced` referenced elsewhere in the OpenCLI Spec Document ca use the `$FILE` type.",
           "properties": {

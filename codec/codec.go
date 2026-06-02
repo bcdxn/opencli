@@ -130,22 +130,14 @@ func insertCommand(doc *spec.Document, rawCmdLine string, rawCmd rawCommandItem)
 		if cmdIndex < 0 {
 			// the command node does not exist in the Trie, add it
 			newNode := &spec.CommandItem{
-				Segment:        cmdSegments[i],
-				CommandLine:    strings.Join(cmdLineBuilder, " "),
-				CommandLineRaw: rawCmdLine,
-				Summary:        rawCmd.Summary,
-				Description:    rawCmd.Description,
-				Aliases:        rawCmd.Aliases,
-				Args:           rawCmd.Args,
-				Flags:          rawCmd.Flags,
-				Hidden:         rawCmd.Hidden,
-				Group:          rawCmd.Group,
-				ExitCodes:      rawCmd.ExitCodes,
+				Segment:     cmdSegments[i],
+				CommandLine: strings.Join(cmdLineBuilder, " "),
 			}
 			node.Commands = append(node.Commands, newNode)
 			cmdIndex = len(node.Commands) - 1
-		} else if i == len(cmdSegments)-1 { // leaf node
-			// We may have created the node in the Trie as part of a longer command line string
+		}
+
+		if i == len(cmdSegments)-1 { // leaf node
 			// Populate metadata for an existing node once its full command definition is reached.
 			node.Commands[cmdIndex].CommandLineRaw = rawCmdLine
 			node.Commands[cmdIndex].Summary = rawCmd.Summary
@@ -192,13 +184,32 @@ func postProcessingDFS(node *spec.CommandItem, rawDoc *rawDocument) {
 	// process node
 
 	// 1. If the command is not defined explicitly in the doc, then it must be a grouping
-	node.Group = !slices.Contains(rawDoc.MemoizedCommandLines, node.CommandLine)
+	node.Group = node.Group || !slices.Contains(rawDoc.MemoizedCommandLines, node.CommandLine)
 	// 2. If a command has subcommands it should be indicated
-	node.Children = len(node.Commands) > 0
+	for _, child := range node.Commands {
+		if !child.Hidden {
+			node.VisibleChildren = true
+			break
+		}
+	}
+	// 3. If a command has non-hidden arguments it should be indicated
+	for _, arg := range node.Args {
+		if !arg.Hidden {
+			node.VisibleArgs = true
+			break
+		}
+	}
+	// 4. if a command has non-hidden flags it should be indicated
+	for _, flag := range node.Flags {
+		if !flag.Hidden {
+			node.VisibleFlags = true
+			break
+		}
+	}
 	// 3. If a command's subcommands have arguments, it should be indicated
-	node.ChildrenArgs = node.Children && childrenArgs(node)
+	node.VisibleChildrenArgs = node.VisibleChildren && visibleChildrenArgs(node)
 	// 4. If a command's subcommands have flags, it should be indicated
-	node.ChildrenFlags = node.Children && childrenFlags(node)
+	node.VisibleChildrenFlags = node.VisibleChildren && visibleChildrenFlags(node)
 	// 5. Add the arguments modifiers
 	addModifiers(node)
 
@@ -208,18 +219,20 @@ func postProcessingDFS(node *spec.CommandItem, rawDoc *rawDocument) {
 	}
 }
 
-// childrenArgs returns true if at least one subcommand takes arguments
-func childrenArgs(node *spec.CommandItem) bool {
+// visibleChildrenArgs returns true if at least one subcommand takes arguments
+func visibleChildrenArgs(node *spec.CommandItem) bool {
 	if node == nil {
 		return false
 	}
 
 	for _, child := range node.Commands {
-		if len(child.Args) > 0 {
-			return true
+		for _, arg := range child.Args {
+			if !arg.Hidden {
+				return true
+			}
 		}
 		// recursively check for children
-		if childrenArgs(child) {
+		if visibleChildrenArgs(child) {
 			return true
 		}
 	}
@@ -227,18 +240,20 @@ func childrenArgs(node *spec.CommandItem) bool {
 	return false
 }
 
-// childrenArgs returns true if at least one subcommand takes arguments
-func childrenFlags(node *spec.CommandItem) bool {
+// visibleChildrenFlags returns true if at least one subcommand takes arguments
+func visibleChildrenFlags(node *spec.CommandItem) bool {
 	if node == nil {
 		return false
 	}
 
 	for _, child := range node.Commands {
-		if len(child.Flags) > 0 {
-			return true
+		for _, flag := range child.Flags {
+			if !flag.Hidden {
+				return true
+			}
 		}
 		// recursively check for children
-		if childrenFlags(child) {
+		if visibleChildrenFlags(child) {
 			return true
 		}
 	}
@@ -249,27 +264,29 @@ func childrenFlags(node *spec.CommandItem) bool {
 // argsModifiers returns the list of arguments modifiers that will display in documentation or the
 // the spec command line
 func addModifiers(node *spec.CommandItem) {
-	argModifiers := []string{}
 
-	if !node.Children {
+	if !node.VisibleChildren {
+		argModifiers := []string{}
 		for _, arg := range node.Args {
-			argModifiers = append(argModifiers, fmt.Sprintf("<%s>", arg.Name))
+			if !arg.Hidden {
+				argModifiers = append(argModifiers, fmt.Sprintf("<%s>", arg.Name))
+			}
 		}
-	} else if node.ChildrenArgs {
-		argModifiers = append(argModifiers, "<arguments>")
+		node.ArgsModifiers = argModifiers
+	} else if node.VisibleChildrenArgs {
+		node.ArgsModifiers = []string{"<arguments>"}
 	}
 
-	if node.ChildrenFlags || len(node.Flags) > 0 {
+	if node.VisibleChildrenFlags || node.VisibleFlags {
 		node.FlagModifiers = []string{"[flags]"}
 	} else {
 		node.FlagModifiers = []string{}
 	}
 
-	if node.Children {
+	if node.VisibleChildren {
 		node.CommandModifiers = []string{"{command}"}
 	} else {
 		node.CommandModifiers = []string{}
 	}
 
-	node.ArgsModifiers = argModifiers
 }

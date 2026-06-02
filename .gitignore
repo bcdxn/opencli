@@ -1,4 +1,4 @@
-gen
+dist
 
 .vscode
 
@@ -6,8 +6,8 @@ gen
 Thumbs.db
 tmp*
 scratch*
-dist# Added by goreleaser init:
 dist/
+out/
 build/
 
 node_modules

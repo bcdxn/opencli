@@ -48,7 +48,7 @@ global:
     - code: 2
       status: BAD_USER_INPUT_ERROR
       summary: Missing or invalid input
-  configFiles:
+  config:
     json: ~/.petstore/config.json
     toml: ~/.petstore/config.toml
     yaml: ~/.petstore/config.yaml
@@ -63,7 +63,7 @@ commands:
     summary: List all endpoints available
 
   petstore pet {command} <arguments> [flags]:
-    summary: Commands for managing pets
+    summary: A collection of commands for managing pets
     group: true
 
   petstore pet add [flags]:
@@ -101,9 +101,9 @@ commands:
       - value: available
       - value: pending
       - value: sold
-    - name: tags
+    - name: tag
       type: string
-      summary: Tags to assign to the pet
+      summary: Tag to assign to the pet for grouping/sorting
       description: |
         Provide this flag multiple times to add multiple tags.
       variadic: true
@@ -223,14 +223,14 @@ commands:
       summary: Additional metadata to store with the uploaded image
 
   petstore store {command} <arguments> [flags]:
-    summary: Commands for store operations
+    summary: A collection of commands for store operations
     group: true
 
   petstore store inventory:
     summary: Returns pet inventories by status
 
   petstore store order {command} <arguments> [flags]:
-    summary: Commands for purchase orders
+    summary: A collection of commands for purchase orders
     group: true
 
   petstore store order place [flags]:

@@ -10,9 +10,9 @@ import (
 	jsonschema "github.com/santhosh-tekuri/jsonschema/v6"
 )
 
-//go:generate mkdir -p gen
-//go:generate cp ../spec.schema.json ./gen/spec.schema.json
-//go:embed gen/spec.schema.json
+//go:generate mkdir -p out
+//go:generate cp ../spec.schema.json ./out/spec.schema.json
+//go:embed out/spec.schema.json
 var schemaBytes []byte
 
 var (
