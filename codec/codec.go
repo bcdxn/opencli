@@ -61,10 +61,10 @@ func buildSpecDoc(rawDoc rawDocument) *spec.Document {
 	doc.Install = rawDoc.Install
 	doc.OpenCLIVersion = rawDoc.OpenCLIVersion
 
-	for rawCmdLine, rawCmd := range rawDoc.Commands {
+	for _, rawCmd := range rawDoc.Commands.Entries() {
 		// memoize the raw command line string value (without the {commands} <arguments> [flags] modifiers)
-		rawDoc.MemoizedCommandLines = append(rawDoc.MemoizedCommandLines, paramsRE.Split(rawCmdLine, -1)[0])
-		insertCommand(&doc, rawCmdLine, rawCmd)
+		rawDoc.MemoizedCommandLines = append(rawDoc.MemoizedCommandLines, paramsRE.Split(rawCmd.Key, -1)[0])
+		insertCommand(&doc, rawCmd.Key, rawCmd.Value)
 	}
 	// run post processing to add/update values after building hierarchical command structure
 	postProcessing(&doc, &rawDoc)
