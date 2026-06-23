@@ -49,7 +49,7 @@ go install github.com/bcdxn/opencli/cmd/ocli@latest
 
 | Type | Path |
 |:-----|:-----|
-| YAML | `~/.petstore/config.yaml` |
+| YAML | `~/.ocli/config.yaml` |
 
 ## Exit Codes
 

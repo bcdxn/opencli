@@ -39,6 +39,15 @@ clean:
 .PHONY: all
 all: test release
 
+.PHONY: html-docs
+html-docs:
+	go run cmd/cobra/main.go gen docs \
+		--out ./docs \
+		--format html \
+		--html-flavor component \
+		opencli.ocs.yaml
+
+
 .PHONY: copy-wasm-exec
 copy-wasm-exec:
 	cp -f "$$(go env GOROOT)/lib/wasm/wasm_exec.js" web/public/wasm_exec.js

@@ -1,4 +1,4 @@
-opencliVersion: "1.0.0-alpha.7"
+opencliVersion: "1.0.0-alpha.8"
 
 info:
   title: "OpenCLI"
@@ -47,7 +47,7 @@ global:
       status: "BAD_USER_INPUT_ERROR"
       summary: "Missing or invalid input"
   config:
-    yaml: ~/.petstore/config.yaml
+    yaml: ~/.ocli/config.yaml
 
 commands:
   ocli {command} <arguments> [flags]:
