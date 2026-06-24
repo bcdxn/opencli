@@ -19,8 +19,7 @@ command using the contextual `--help` flag. e.g.:
 ocli gen --help
 ```
 
-
-#### License 
+#### License
 
 [MIT](https://spdx.org/licenses/MIT.html)
 
@@ -57,10 +56,23 @@ go install github.com/bcdxn/opencli/cmd/cobra@latest
 - `1` `INTERNAL_CLI_ERROR` - The command failed
 - `2` `BAD_USER_INPUT_ERROR` - Missing or invalid input
 
+## Global Flags
+
+##### `--help`
+
+contextual help
+
+`boolean`
+
+##### `--version`
+
+print the version of the CLI
+
+`boolean`
+
 ---
 
 ## Commands
-
 
 ### `$ ocli check <path-to-spec>`
 
@@ -84,8 +96,18 @@ by parsing it and checking it against the OpenCLI Specification.
 
 `string`
 
----
+#### Examples
 
+```sh
+# Validate a spec document
+
+$ ocli check ./examples/petstore-cli.ocs.yaml
+# ✓ Checking ./examples/petstore-cli.ocs.yaml
+#   Format: yaml
+# ✓ Document is valid
+```
+
+---
 
 ### `$ ocli gen {command} <arguments> [flags]`
 
@@ -94,7 +116,6 @@ by parsing it and checking it against the OpenCLI Specification.
 Commands used to generate code/docs from an OpenCLI Spec document
 
 ---
-
 
 ### `$ ocli gen docs <spec-file> [flags]`
 
@@ -132,6 +153,7 @@ The format of the documentation to generate
 - `html` - HTML formatted
 
 ###### Alternative Sources
+
 - `env:$OCLI_DOCS_FORMAT`
 - `file:$.docs.format`
 
@@ -157,6 +179,17 @@ Do not include the footer in the docs
 Do not include the OCLI badge
 
 `boolean`
+
+#### Examples
+
+```sh
+# generate markdown docs
+
+$ ocli gen docs -f markdown ./my-cli.ocs.yaml
+# → Reading spec:       ./my-cli.ocs.yaml
+# → Generating docs:    format=markdown, output=./docs
+# ✓ Documentation written to: docs/my-cli.ocs.md
+```
 
 ---
 

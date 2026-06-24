@@ -70,6 +70,7 @@ type CommandItem struct {
 	Hidden         bool
 	Group          bool
 	ExitCodes      []ExitCode
+	Examples       []Example
 	Commands       []*CommandItem
 	// Properties set during post processing of unmarshalling
 	VisibleArgs          bool
@@ -121,4 +122,9 @@ type Choice struct {
 type AlternativeSource struct {
 	Type     string `json:"type" yaml:"type"`
 	Property string `json:"property" yaml:"property"`
+}
+
+type Example struct {
+	Title   string `json:"title" yaml:"title"`
+	Content string `json:"content" yaml:"content"`
 }

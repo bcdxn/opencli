@@ -16,8 +16,7 @@ _{{.Doc.Info.Summary}}_
 {{- end}}
 
 {{- if .Doc.Info.License}}
-
-#### License 
+#### License
 {{if .Doc.Info.License.URL}}
 [{{.Doc.Info.License.Name}}]({{.Doc.Info.License.URL}})
 {{- else if .Doc.Info.License.SpdxID}}
@@ -87,6 +86,43 @@ _{{.Doc.Info.Summary}}_
 {{- end}}
 {{- end}}{{/* End ExitCodes */}}
 
+{{- if and .Doc.Global .Doc.Global.Flags}}
+
+## Global Flags
+{{- range .Doc.Global.Flags}}
+
+##### `--{{.Name}}`
+{{- if .Summary}}
+
+{{.Summary}}{{end}}
+{{if .Description}}
+{{.Description}}{{end}}
+`{{.Type}}`{{if .Choices}} `enum`{{end}}{{if .Default}} `default:{{.Default}}`{{end}}{{ if .Variadic}} `variadic`{{end}}
+
+{{- if .Choices}}
+
+###### Supported Values of `--{{.Name}}`
+{{range .Choices}}
+- `{{.Value}}`{{if .Description}} - {{.Description}}
+{{- end}}
+{{- end}}
+{{- end}}
+
+{{- if .AltSources}}
+
+###### Alternative Sources
+{{range .AltSources}}
+{{- if eq .Type "$ENV"}}
+- `env:${{.Property}}`
+{{- else}}
+- `file:{{.Property}}`
+{{- end}}
+{{- end}}
+{{- end}}
+
+{{- end}}
+{{- end}}
+
 ---
 
 ## Commands
@@ -99,7 +135,7 @@ _{{.Doc.Info.Summary}}_
 {{end}}
 
 {{define "commandSection"}}
-{{if not .Hidden}}{{if or (not .Group) (.Summary) (.Description)}}
+{{- if not .Hidden}}{{if or (not .Group) (.Summary) (.Description)}}
 ### `$ {{.CommandLine}}{{range .CommandModifiers}} {{.}}{{end}}{{range .ArgsModifiers}} {{.}}{{end}}{{range .FlagsModifiers}} {{.}}{{end}}`{{if .Group}}
 
 `group` `nonexecutable`
@@ -161,15 +197,13 @@ _{{.Doc.Info.Summary}}_
 {{- if .AltSources}}
 
 ###### Alternative Sources
-
-{{- range .AltSources}}
+{{range .AltSources}}
 {{- if eq .Type "$ENV"}}
 - `env:${{.Property}}`
 {{- else}}
 - `file:{{.Property}}`
 {{- end}}
 {{- end}}
-
 {{- end}}
 {{- end}}
 
@@ -186,6 +220,18 @@ _{{.Doc.Info.Summary}}_
 {{- end}}
 {{- end}}
 {{- end}}{{/* END CMD EXIT CODES */}}
+{{- if .Examples}}
+
+#### Examples
+{{range .Examples}}
+```sh
+{{if .Title}}# {{.Title}}
+
+{{end -}}
+{{.Content}}
+```
+{{- end}}
+{{- end}}
 
 ---{{/* END COMMAND BODY */}}
 {{- end}}

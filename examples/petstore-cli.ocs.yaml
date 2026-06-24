@@ -52,6 +52,15 @@ global:
     json: ~/.petstore/config.json
     toml: ~/.petstore/config.toml
     yaml: ~/.petstore/config.yaml
+  flags:
+    - name: "help"
+      summary: "contextual help"
+      type: boolean
+      default: false
+    - name: "version"
+      summary: "print the version of the CLI"
+      type: boolean
+      default: false
 
 commands:
   petstore {command} <arguments> [flags]:

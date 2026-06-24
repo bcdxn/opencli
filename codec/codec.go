@@ -167,6 +167,7 @@ func setCommandFields(cmd *spec.CommandItem, rawCmdLine string, rawCmd rawComman
 	cmd.Hidden = rawCmd.Hidden
 	cmd.Group = rawCmd.Group
 	cmd.ExitCodes = rawCmd.ExitCodes
+	cmd.Examples = rawCmd.Examples
 }
 
 // indexOfSubcommand finds the index of the command in the Trie-like structure's node.

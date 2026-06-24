@@ -24,4 +24,5 @@ type rawCommandItem struct {
 	Hidden      bool                `json:"hidden" yaml:"hidden"`
 	Group       bool                `json:"group" yaml:"group"`
 	ExitCodes   []spec.ExitCode     `json:"exitCodes,omitempty" yaml:"exitCodes,omitempty"`
+	Examples    []spec.Example      `json:"examples,omitempty" yaml:"examples,omitempty"`
 }

@@ -70,6 +70,9 @@
           "description": "The version of the OpenCLI Document which typically corresponds to the release version of your CLI."
         }
       },
+      "patternProperties": {
+        "^x-": {}
+      },
       "required": ["title", "binary", "version"],
       "additionalProperties": false
     },
@@ -90,6 +93,9 @@
           "format": "uri",
           "description": "A URL to the license used by the CLI."
         }
+      },
+      "patternProperties": {
+        "^x-": {}
       },
       "required": ["name"],
       "additionalProperties": false
@@ -124,6 +130,9 @@
           "required": ["url"]
         }
       ],
+      "patternProperties": {
+        "^x-": {}
+      },
       "additionalProperties": false
     },
     "InstallMethodItemObject": {
@@ -157,6 +166,9 @@
           "required": ["name", "url"]
         }
       ],
+      "patternProperties": {
+        "^x-": {}
+      },
       "additionalProperties": false
     },
     "GlobalObject": {
@@ -183,6 +195,9 @@
               "type": "string"
             }
           },
+          "patternProperties": {
+            "^x-": {}
+          },
           "additionalProperties": false,
           "minProperties": 1
         },
@@ -192,6 +207,9 @@
             "$ref": "#/$defs/FlagItemObject"
           }
         }
+      },
+      "patternProperties": {
+        "^x-": {}
       }
     },
     "CommandItemObject": {
@@ -229,7 +247,7 @@
         },
         "hidden": {
           "type": "boolean",
-          "description": "Determines if the command is hidden from generated help output and documentation.",
+          "description": "Determines if the command is hidden from generated help output and documentation. Note that the command is still documented in the OpenCLI document itself and so you should not include anything sensitive. Typically developer helper functions or alternative testing commands may be hidden.",
           "default": false
         },
         "group": {
@@ -242,7 +260,31 @@
           "items": {
             "$ref": "#/$defs/ExitCodeObject"
           }
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "description": "A short description of the example"
+              },
+              "content": {
+                "type": "string",
+                "description": "The content to be displayed in the example, typically a sample command line invocation with parameters."
+              }
+            },
+            "patternProperties": {
+              "^x-": {}
+            },
+            "required": ["content"],
+            "additionalProperties": false
+          }
         }
+      },
+      "patternProperties": {
+        "^x-": {}
       },
       "additionalProperties": false
     },
@@ -288,6 +330,9 @@
                 "description": "A description of the choice. This will appear in generated documentation"
               }
             },
+            "patternProperties": {
+              "^x-": {}
+            },
             "required": ["value"],
             "additionalProperties": false
           }
@@ -305,6 +350,9 @@
           "description": "Determines if the argument is mandatory. If required arguments are not supplied, the command will exit in error.",
           "default": false
         }
+      },
+      "patternProperties": {
+        "^x-": {}
       },
       "required": ["name"],
       "additionalProperties": false
@@ -357,6 +405,9 @@
                 "type": "string",
                 "description": "A description of the choice. This will appear in generated documentation"
               }
+            },
+            "patternProperties": {
+              "^x-": {}
             },
             "required": ["value"],
             "additionalProperties": false
@@ -412,6 +463,9 @@
                 "type": "string"
               }
             },
+            "patternProperties": {
+              "^x-": {}
+            },
             "required": ["type", "property"],
             "additionalProperties": false
           },
@@ -422,6 +476,9 @@
           "description": "Determines if the flag is hidden from generated help output and documentation.",
           "default": false
         }
+      },
+      "patternProperties": {
+        "^x-": {}
       },
       "required": ["name", "type"],
       "additionalProperties": false
@@ -452,6 +509,9 @@
         "description": {
           "type": "string"
         }
+      },
+      "patternProperties": {
+        "^x-": {}
       },
       "required": ["code", "status", "summary"],
       "additionalProperties": false

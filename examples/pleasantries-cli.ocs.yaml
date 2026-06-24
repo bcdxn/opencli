@@ -25,6 +25,11 @@ commands:
           - value: "english"
           - value: "spanish"
         default: "english"
+    examples:
+      - title: "greet the user"
+        content: |
+          $ pleasantries greet --language english John
+          # Hello, John
 
   pleasantries farewell <name> [flags]:
     summary: "Say goodbye"
@@ -41,3 +46,8 @@ commands:
           - value: "english"
           - value: "spanish"
         default: "english"
+    examples:
+      - title: "bid farewell to the user"
+        content: |
+          $ pleasantries farewell --language spanish Alice
+          # Adios, Alice

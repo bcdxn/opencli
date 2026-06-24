@@ -3,7 +3,6 @@ package codec_test
 import (
 	"bytes"
 	_ "embed"
-	"fmt"
 	"os"
 	"testing"
 
@@ -52,8 +51,6 @@ func TestMarshalJSON(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error writing output file: %v", err)
 	}
-
-	fmt.Println(string(actual))
 
 	if !bytes.Equal(actual, expected) {
 		t.Fatalf("marshaled JSON content does not match")

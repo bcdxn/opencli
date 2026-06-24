@@ -48,6 +48,15 @@ global:
       summary: "Missing or invalid input"
   config:
     yaml: ~/.ocli/config.yaml
+  flags:
+    - name: "help"
+      summary: "contextual help"
+      type: boolean
+      default: false
+    - name: "version"
+      summary: "print the version of the CLI"
+      type: boolean
+      default: false
 
 commands:
   ocli {command} <arguments> [flags]:
@@ -69,6 +78,13 @@ commands:
           > The  format of the input file will be determined by the file extension.
         required: true
         type: "string"
+    examples:
+      - title: Validate a spec document
+        content: |
+          $ ocli check ./examples/petstore-cli.ocs.yaml
+          # ✓ Checking ./examples/petstore-cli.ocs.yaml
+          #   Format: yaml
+          # ✓ Document is valid
 
   ocli gen {command} [flags]:
     summary: "Commands used to generate code/docs from an OpenCLI Spec document"
@@ -130,6 +146,13 @@ commands:
         summary: "Do not include the OCLI badge"
         type: "boolean"
         default: false
+    examples:
+      - title: "generate markdown docs"
+        content: |
+          $ ocli gen docs -f markdown ./my-cli.ocs.yaml
+          # → Reading spec:       ./my-cli.ocs.yaml
+          # → Generating docs:    format=markdown, output=./docs
+          # ✓ Documentation written to: docs/my-cli.ocs.md
 
   # COMING SOON...
   # ocli gen cli [flags]:

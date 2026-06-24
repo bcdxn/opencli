@@ -106,8 +106,8 @@ From this example we can generate documentation using the follow command:
 
 ```sh
 ocli gen docs \
-  --output-dir ./docs \
   --format markdown \
+  --out ./docs \
   ./cli.osc.yaml
 ```
 
@@ -115,9 +115,9 @@ To generate embeddable HTML docs as a script bundle:
 
 ```sh
 ocli gen docs \
-  --output-dir ./docs \
   --format html \
   --html-flavor embed \
+  --out ./docs \
   ./cli.ocs.yaml
 ```
 
