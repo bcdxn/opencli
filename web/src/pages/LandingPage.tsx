@@ -11,10 +11,10 @@ info:
   binary: pleasantries
 
 commands:
-  pleasantries {command} <name> [flags]:
+  pleasantries {command} <args> [flags]:
     group: true
 
-  pleasantries greet <name> [flags]:
+  pleasantries greet <args> [flags]:
     summary: "Say hello"
     args:
       - name: "name"
