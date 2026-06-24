@@ -2,6 +2,88 @@ import { Link } from "react-router-dom";
 import SiteHeader from "../components/SiteHeader";
 import "./LandingPage.css";
 
+const yamlSample = `opencliVersion: 1.0.0-alpha.8
+
+info:
+  title: Pleasantries CLI
+  summary: A fun CLI to greet the caller
+  version: 1.0.0
+  binary: pleasantries
+
+commands:
+  pleasantries {command} <name> [flags]:
+    group: true
+
+  pleasantries greet <name> [flags]:
+    summary: "Say hello"
+    args:
+      - name: "name"
+        required: true
+        type: "string"
+    flags:
+      - name: "language"
+        type: "string"
+        default: "english"`;
+
+function renderYamlValue(value: string): JSX.Element {
+  if (value.startsWith('"') || value.startsWith("'")) {
+    return <span className="yaml-string">{value}</span>;
+  }
+  if (value === "true" || value === "false") {
+    return <span className="yaml-bool">{value}</span>;
+  }
+  return <span className="yaml-value">{value}</span>;
+}
+
+function tokenizeYamlLine(line: string, i: number): JSX.Element {
+  if (line.trim() === "") {
+    return <span key={i}>{"\n"}</span>;
+  }
+
+  const indentMatch = line.match(/^(\s*)/);
+  const indent = indentMatch ? indentMatch[1] : "";
+  let rest = line.slice(indent.length);
+
+  if (rest.startsWith("#")) {
+    return (
+      <span key={i}>
+        {indent}
+        <span className="yaml-comment">{rest}</span>
+        {"\n"}
+      </span>
+    );
+  }
+
+  let bullet: JSX.Element | null = null;
+  if (rest.startsWith("- ")) {
+    bullet = <span className="yaml-bullet">{"- "}</span>;
+    rest = rest.slice(2);
+  }
+
+  const kvMatch = rest.match(/^([^:]+)(:)(\s*)(.*)$/);
+  if (kvMatch) {
+    const [, key, colon, space, value] = kvMatch;
+    return (
+      <span key={i}>
+        {indent}
+        {bullet}
+        <span className="yaml-key">{key}</span>
+        <span className="yaml-punct">{colon}</span>
+        {space}
+        {value ? renderYamlValue(value) : null}
+        {"\n"}
+      </span>
+    );
+  }
+
+  return (
+    <span key={i}>
+      {line}
+      {"\n"}
+    </span>
+  );
+}
+
 export default function LandingPage() {
   return (
     <div className="landing-route">
@@ -45,23 +127,13 @@ export default function LandingPage() {
               <span />
             </div>
             <div className="terminal-body">
-              <p>$ ocli check ./my-cli.ocs.yaml</p>
-              <p className="ok">→ Checking ./examples/petstore-cli.ocs.yaml</p>
-              <p className="ok">✓ Document is valid</p>
-              <p>$ ocli gen docs --format markdown ./my-cli.ocs.yaml</p>
-              <p className="ok">→ Reading spec: ./my-cli.ocs.yaml</p>
-              <p className="ok">
-                → Generating docs: format=markdown, output=./docs
-              </p>
-              <p className="ok">
-                ✓ Documentation written to: docs/my-cli.ocs.html
-              </p>
-              <p>$ ocli gen cli --framework cobra ./my-cli.ocs.yaml</p>
-              <p className="ok">→ Reading spec: ./my-cli.ocs.yaml</p>
-              <p className="ok">
-                → Generating CLI boilerplate: framework=cobra, output=./cli
-              </p>
-              <p className="ok">✓ Boilerplate written to: cli/...</p>
+              <pre>
+                <code>
+                  {yamlSample
+                    .split("\n")
+                    .map((line, i) => tokenizeYamlLine(line, i))}
+                </code>
+              </pre>
             </div>
           </section>
         </section>

@@ -26,7 +26,7 @@
 .landing-main {
   max-width: 1180px;
   margin: 0 auto;
-  padding: 72px 24px 96px;
+  padding: 30px 24px;
 }
 
 .hero-shell {
@@ -43,7 +43,6 @@
 .hero-copy h2 {
   padding: 5px 0 20px 0;
 }
-
 .hero-kicker {
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   color: var(--blue);
@@ -52,19 +51,19 @@
   font-weight: 700;
 }
 
-.hero h1 {
+.hero-copy h1 {
   margin: 18px 0 16px;
-  font-size: clamp(2.8rem, 6vw, 5.6rem);
+  font-size: clamp(1.5rem, 6vw, 2.5rem);
   line-height: 0.98;
   letter-spacing: -0.055em;
   color: var(--blue-strong);
 }
 
-.hero p {
+.hero-copy p {
   color: var(--muted);
   margin: 0;
   max-width: 540px;
-  font-size: clamp(1.03rem, 1.45vw, 1.28rem);
+  font-size: clamp(1.03rem, 1.45vw, 1.05rem);
   line-height: 1.55;
 }
 
@@ -161,7 +160,7 @@
   color: #16314d;
   padding: 26px;
   line-height: 1.8;
-  font-size: 0.95rem;
+  font-size: 0.7rem;
 }
 
 .terminal-body p {
@@ -175,6 +174,36 @@
 .terminal-body .muted {
   color: #71839a;
   margin-top: 12px;
+}
+
+.terminal-body .yaml-key {
+  color: #635bff;
+}
+
+.terminal-body .yaml-punct {
+  color: #9aa9bd;
+}
+
+.terminal-body .yaml-value {
+  color: #0a7b63;
+}
+
+.terminal-body .yaml-string {
+  color: #c35b00;
+}
+
+.terminal-body .yaml-bool {
+  color: #0a7b63;
+  font-style: italic;
+}
+
+.terminal-body .yaml-bullet {
+  color: #9aa9bd;
+}
+
+.terminal-body .yaml-comment {
+  color: #9aa9bd;
+  font-style: italic;
 }
 
 .benefits {
@@ -211,6 +240,93 @@
   line-height: 1.55;
 }
 
+.artifact-shot {
+  position: relative;
+  animation: rise-in 0.74s ease;
+}
+
+.artifact-body {
+  position: relative;
+  min-height: 420px;
+}
+
+.markdown-docs {
+  position: absolute;
+  top: 10px;
+  right: 20%;
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 10px;
+  box-shadow: 0 20px 44px rgba(50, 50, 93, 0.16);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 250, 255, 0.92)),
+    radial-gradient(circle at 0% 0%, rgba(10, 149, 255, 0.12), transparent 34%);
+}
+
+.vscode-docs-shot {
+  position: absolute;
+  right: 0;
+  top: 40%;
+  width: 50%;
+  margin: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #2f3750;
+  border: 1px solid rgba(50, 50, 93, 0.28);
+  box-shadow: 0 22px 44px rgba(50, 50, 93, 0.2);
+  z-index: 2;
+}
+
+.vscode-layout-illustration {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 19 / 14;
+}
+
+.example-label {
+  padding: 11px 18px;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.82rem;
+  color: #4f5f73;
+  border-bottom: 1px solid rgba(50, 50, 93, 0.08);
+  background: rgba(255, 255, 255, 0.64);
+}
+
+.example-body {
+  margin: 0;
+  min-height: 260px;
+  font-size: 0.89rem;
+  line-height: 1.65;
+  overflow-x: auto;
+}
+
+.generated-preview-shot {
+  display: flex;
+  flex-direction: column;
+}
+
+.generated-preview-body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding: 22px;
+  min-height: 260px;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(99, 91, 255, 0.1), transparent 36%),
+    linear-gradient(180deg, rgba(250, 252, 255, 0.9), rgba(243, 248, 255, 0.94));
+}
+
+.docs-pane {
+  transform: rotate(-1.2deg);
+}
+
+.code-pane {
+  transform: rotate(1deg);
+}
+
 @keyframes rise-in {
   from {
     opacity: 0;
@@ -242,6 +358,29 @@
   .benefits {
     grid-template-columns: 1fr;
   }
+
+  .generated-preview-body {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .example-body {
+    min-height: auto;
+  }
+
+  .artifact-body {
+    min-height: 390px;
+  }
+
+  .markdown-docs {
+    width: 94%;
+    height: 300px;
+    padding: 18px;
+  }
+
+  .vscode-docs-shot {
+    width: 86%;
+  }
 }
 
 @media (max-width: 640px) {
@@ -263,5 +402,24 @@
 
   .terminal-body {
     padding: 20px;
+  }
+
+  .artifact-body {
+    min-height: 332px;
+  }
+
+  .markdown-docs {
+    width: 96%;
+    height: 244px;
+    padding: 14px;
+    gap: 8px;
+  }
+
+  .md-line {
+    height: 8px;
+  }
+
+  .vscode-docs-shot {
+    width: 90%;
   }
 }
