@@ -86,7 +86,7 @@ func (a Actions) OcliGenDocs(args cliutils.OcliGenDocsArgs, flags cliutils.OcliG
 
 	if meta.format == gen.HTML {
 		switch strings.ToLower(flags.HTMLFlavor) {
-		case "component", "embedded", "embeddable":
+		case "embed":
 			opts = append(opts, gen.DocsWithHTMLFlavor(gen.EmbeddableComponent))
 		default:
 			opts = append(opts, gen.DocsWithHTMLFlavor(gen.StandalonePage))
@@ -107,9 +107,20 @@ func (a Actions) OcliGenDocs(args cliutils.OcliGenDocsArgs, flags cliutils.OcliG
 		return fmt.Errorf("failed to generate %s docs: %w", flags.Format, err)
 	}
 
-	// Write output file (strip spec extension, append doc format extension)
+	// Resolve output file path. HTML embed flavor is emitted as an embeddable JS asset.
 	baseName := strings.TrimSuffix(filepath.Base(args.PathToSpec), filepath.Ext(args.PathToSpec))
 	outFile := filepath.Join(flags.OutputDir, baseName+meta.fileExt)
+	if meta.format == gen.HTML {
+		switch strings.ToLower(flags.HTMLFlavor) {
+		case "embed":
+			outFile = filepath.Join(flags.OutputDir, "ocli-docs.js")
+		}
+	}
+
+	if err := os.MkdirAll(filepath.Dir(outFile), 0755); err != nil {
+		return fmt.Errorf("cannot create output directory %s: %w", filepath.Dir(outFile), err)
+	}
+
 	if err := os.WriteFile(outFile, output, 0644); err != nil {
 		return fmt.Errorf("failed to write output file %s: %w", outFile, err)
 	}

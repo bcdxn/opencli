@@ -31,13 +31,17 @@
 
 .hero-shell {
   display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(420px, 0.92fr);
+  grid-template-columns: minmax(0, 0.92fr) minmax(420px, 0.92fr);
   align-items: center;
   gap: 34px;
 }
 
 .hero-copy {
-  max-width: 680px;
+  max-width: 560px;
+}
+
+.hero-copy h2 {
+  padding: 5px 0 20px 0;
 }
 
 .hero-kicker {
@@ -59,7 +63,7 @@
 .hero p {
   color: var(--muted);
   margin: 0;
-  max-width: 620px;
+  max-width: 540px;
   font-size: clamp(1.03rem, 1.45vw, 1.28rem);
   line-height: 1.55;
 }
@@ -124,7 +128,7 @@
 
 .terminal-shot {
   width: 100%;
-  max-width: 560px;
+  max-width: 680px;
   margin-left: auto;
   border-radius: 24px;
   border: 1px solid rgba(50, 50, 93, 0.14);

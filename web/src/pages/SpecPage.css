@@ -16,6 +16,48 @@
   padding: 48px 24px 96px;
 }
 
+.spec-disclaimer {
+  margin: 0 0 18px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 1px solid rgba(50, 50, 93, 0.14);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(99, 91, 255, 0.09), transparent 38%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 255, 0.92));
+  box-shadow: 0 14px 36px rgba(50, 50, 93, 0.08);
+}
+
+.spec-disclaimer-title {
+  margin: 0 0 8px;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: #635bff;
+  font-size: 0.79rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.spec-disclaimer-copy {
+  margin: 0;
+  color: #425466;
+  font-size: 0.98rem;
+  line-height: 1.55;
+}
+
+.spec-disclaimer-copy + .spec-disclaimer-copy {
+  margin-top: 8px;
+}
+
+.spec-disclaimer code {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.89em;
+  color: #16314d;
+  background: rgba(99, 91, 255, 0.12);
+  border: 1px solid rgba(99, 91, 255, 0.24);
+  border-radius: 8px;
+  padding: 0.1em 0.45em;
+}
+
 .spec-shell {
   display: grid;
   grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
@@ -91,6 +133,14 @@
 
   .spec-main {
     padding: 32px 16px 72px;
+  }
+
+  .spec-disclaimer {
+    padding: 14px;
+  }
+
+  .spec-disclaimer-copy {
+    font-size: 0.94rem;
   }
 
   .spec-main pre {

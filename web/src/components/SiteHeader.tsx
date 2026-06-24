@@ -9,6 +9,7 @@ export default function SiteHeader() {
       </div>
       <nav className="header-nav">
         <Link to="/editor">Editor</Link>
+        <Link to="/docs">CLI Docs</Link>
         <Link to="/spec">Schema</Link>
         <a
           className="github-link"

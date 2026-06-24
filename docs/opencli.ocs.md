@@ -42,7 +42,7 @@ appropriate for your system.
 ### Go Install
 
 ```sh
-go install github.com/bcdxn/opencli/cmd/ocli@latest
+go install github.com/bcdxn/opencli/cmd/cobra@latest
 ```
 
 ## Configuration
@@ -129,26 +129,34 @@ The format of the documentation to generate
 ###### Supported Values of `--format`
 
 - `markdown` - Plain text using standard [Markdown](https://commonmark.org).
+- `html` - HTML formatted
 
 ###### Alternative Sources
 - `env:$OCLI_DOCS_FORMAT`
 - `file:$.docs.format`
 
-##### `--footer`
+##### `--html-flavor`
 
-Include the footer in the docs
+The type of HTML format
 
-`boolean` `default:true`
+`string` `enum` `default:page`
 
-###### Alternative Sources
-- `env:$OCLI_DOCS_FOOTER`
-- `file:$.docs.footer`
+###### Supported Values of `--html-flavor`
 
-##### `--dryrun`
+- `page` - Full standalone HTML document
+- `embed` - An embeddable js bundle including CSS and HTML
 
-When true the docs contents will be output to stdout instead of the file
+##### `--no-footer`
 
-`boolean` `default:true`
+Do not include the footer in the docs
+
+`boolean`
+
+##### `--no-badge`
+
+Do not include the OCLI badge
+
+`boolean`
 
 ---
 

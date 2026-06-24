@@ -33,7 +33,7 @@ install:
       You can visit the GitHub releases page of the project to download pre-compiled binaries
       appropriate for your system.
   - name: "Go Install"
-    command: "go install github.com/bcdxn/opencli/cmd/ocli@latest"
+    command: "go install github.com/bcdxn/opencli/cmd/cobra@latest"
 
 global:
   exitCodes:
@@ -102,9 +102,9 @@ commands:
         choices:
           - value: "markdown"
             description: "Plain text using standard [Markdown](https://commonmark.org)."
+          - value: "html"
+            description: "HTML formatted"
           # coming soon
-          # - value: "html"
-          #   description: "A full static bundle that can be rendered in the browser."
           # - value: "man"
           #   description: "Plain text using [Man Page](https://en.wikipedia.org/wiki/Man_page) formatting"
         alternativeSources:
@@ -112,19 +112,24 @@ commands:
             property: "OCLI_DOCS_FORMAT"
           - type: "$FILE"
             property: "$.docs.format"
-      - name: "footer"
-        summary: "Include the footer in the docs"
+      - name: "html-flavor"
+        summary: "The type of HTML format"
+        type: "string"
+        required: false
+        choices:
+          - value: "page"
+            description: "Full standalone HTML document"
+          - value: "embed"
+            description: "An embeddable js bundle including CSS and HTML"
+        default: "page"
+      - name: "no-footer"
+        summary: "Do not include the footer in the docs"
         type: "boolean"
-        default: true
-        alternativeSources:
-          - type: "$ENV"
-            property: "OCLI_DOCS_FOOTER"
-          - type: "$FILE"
-            property: "$.docs.footer"
-      - name: "dryrun"
-        summary: "When true the docs contents will be output to stdout instead of the file"
+        default: false
+      - name: "no-badge"
+        summary: "Do not include the OCLI badge"
         type: "boolean"
-        default: true
+        default: false
 
   # COMING SOON...
   # ocli gen cli [flags]:

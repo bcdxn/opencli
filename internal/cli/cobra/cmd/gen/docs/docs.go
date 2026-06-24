@@ -47,7 +47,7 @@ func NewCmdDocs(f *cliutils.Factory) *cobra.Command {
 	argsDef["spec-file"] = "path to spec file"
 	// Flags
 	command.Flags().StringVarP(&formatChoice, "format", "f", "markdown", "docs format (markdown, html)")
-	command.Flags().StringVar(&htmlFlavor, "html-flavor", "page", "html flavor (page, component)")
+	command.Flags().StringVar(&htmlFlavor, "html-flavor", "page", "html flavor (page, embed)")
 	command.Flags().StringVarP(&outputDir, "out", "o", "./docs", "output directory path")
 	command.Flags().BoolVar(&noBadge, "no-badge", false, "do not include the OpenCLI badge")
 	command.Flags().BoolVar(&noFooter, "no-footer", false, "do not include the 'created by OpenCLI' footer")

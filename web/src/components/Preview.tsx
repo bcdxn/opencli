@@ -14,6 +14,30 @@ interface PreviewProps {
 type OutputFormat = "markdown" | "html";
 type ViewMode = "rendered" | "raw";
 
+function toInlineScriptText(script: string): string {
+  // Prevent accidental early script termination when embedding generated JS in srcDoc.
+  return script.replace(/<\/(script)/gi, "<\\/$1");
+}
+
+function buildComponentPreviewDoc(componentScript: string): string {
+  const safeScript = toInlineScriptText(componentScript);
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpenCLI Docs Preview</title>
+  </head>
+  <body>
+    <div id="docs"></div>
+    <script>${safeScript}</script>
+    <script>
+      window.OcliDocs({ containerId: "docs" });
+    </script>
+  </body>
+</html>`;
+}
+
 export default function Preview({
   content,
   inputFormat,
@@ -25,8 +49,8 @@ export default function Preview({
   const [genError, setGenError] = useState("");
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
-  // Determine htmlFlavor based on current view mode
-  const htmlFlavor = viewMode === "rendered" ? "page" : "component";
+  // HTML output now uses embed flavor which emits an embeddable JS initializer.
+  const htmlFlavor = outputFormat === "html" ? "embed" : "page";
 
   useEffect(() => {
     if (!wasmReady || !content) return;
@@ -64,16 +88,17 @@ export default function Preview({
 
     if (outputFormat === "html") {
       if (viewMode === "rendered") {
+        const srcDoc = buildComponentPreviewDoc(generatedOutput);
         return (
           <iframe
             className="preview-iframe"
-            srcDoc={generatedOutput}
+            srcDoc={srcDoc}
             sandbox="allow-scripts"
             title="HTML Preview"
           />
         );
       }
-      // Raw HTML source
+      // Raw component script source
       return (
         <div className="preview-raw">
           <pre>

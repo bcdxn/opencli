@@ -107,10 +107,10 @@ func jsGenerateOCSDocs(this js.Value, args []js.Value) any {
 		switch htmlFlavor {
 		case "page":
 			opts = append(opts, gen.DocsWithHTMLFlavor(gen.StandalonePage))
-		case "component":
+		case "embed":
 			opts = append(opts, gen.DocsWithHTMLFlavor(gen.EmbeddableComponent))
 		default:
-			return failWith("unsupported htmlFlavor: must be 'page' or 'component'")
+			return failWith("unsupported htmlFlavor: must be 'page' or 'embed'")
 		}
 	default:
 		return failWith("unsupported outputFormat: must be 'markdown' or 'html'")

@@ -442,6 +442,46 @@ func TestOcliCheckOutputFormatting(t *testing.T) {
 	}
 }
 
+func TestOcliGenDocsHTMLComponentWritesJSAsset(t *testing.T) {
+	specDir := t.TempDir()
+	specPath := filepath.Join(specDir, "test-cli.ocs.yaml")
+	if err := os.WriteFile(specPath, []byte(validSpecYAML), 0644); err != nil {
+		t.Fatalf("failed to write temp spec file: %v", err)
+	}
+
+	outDir := filepath.Join(specDir, "docs")
+	output := &MockFileWriter{Buffer: &bytes.Buffer{}}
+	ios := &cliutils.IOStreams{Out: output}
+	actions := Actions{IOS: ios}
+
+	args := cliutils.OcliGenDocsArgs{PathToSpec: specPath}
+	flags := cliutils.OcliGenDocsFlags{
+		Format:     "html",
+		HTMLFlavor: "embed",
+		OutputDir:  outDir,
+	}
+
+	err := actions.OcliGenDocs(args, flags)
+	if err != nil {
+		t.Fatalf("unexpected error generating html embed docs: %v", err)
+	}
+
+	assetPath := filepath.Join(outDir, "ocli-docs.js")
+	asset, err := os.ReadFile(assetPath)
+	if err != nil {
+		t.Fatalf("expected embed asset %q to be created: %v", assetPath, err)
+	}
+
+	if !contains(string(asset), "global.OcliDocs = OcliDocs") {
+		t.Fatalf("expected embed asset to expose OcliDocs initializer")
+	}
+
+	legacyHTMLPath := filepath.Join(outDir, "test-cli.ocs.html")
+	if _, err := os.Stat(legacyHTMLPath); err == nil {
+		t.Fatalf("did not expect legacy embed html output at %q", legacyHTMLPath)
+	}
+}
+
 // Helper function to check if a string contains a substring
 func contains(str, substr string) bool {
 	return bytes.Contains([]byte(str), []byte(substr))

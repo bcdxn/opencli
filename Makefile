@@ -44,7 +44,7 @@ html-docs:
 	go run cmd/cobra/main.go gen docs \
 		--out ./docs \
 		--format html \
-		--html-flavor component \
+		--html-flavor embed \
 		opencli.ocs.yaml
 
 

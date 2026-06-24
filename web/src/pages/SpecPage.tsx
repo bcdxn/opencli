@@ -25,6 +25,16 @@ export default function SpecPage() {
     <div className="spec-page">
       <SiteHeader />
       <main className="spec-main">
+        <section className="spec-disclaimer" aria-label="Validation disclaimer">
+          <p className="spec-disclaimer-title">Validation note</p>
+          <p className="spec-disclaimer-copy">
+            This JSON Schema helps enforce structural validity, but not every
+            validation rule can be represented in JSON Schema alone.
+          </p>
+          <p className="spec-disclaimer-copy">
+            For full spec validation, run the <a href={`${import.meta.env.BASE_URL}docs#ocli-check`}>OpenCLI CLI</a> check command.
+          </p>
+        </section>
         <pre>{schema}</pre>
       </main>
     </div>

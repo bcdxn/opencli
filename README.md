@@ -22,7 +22,7 @@ _Like OpenAPI Spec, but for your CLIs_
 
 ## Overview
 
-OpenCLI specification is a document specification that can be used to describe CLIs. Spec-compliant documents are meant to be human-readable but the tooling supports documentation generation in a variety of formats.
+OpenCLI specification is a document specification that can be used to describe CLIs. Spec-compliant documents are meant to be human-readable and enable tooling automation.
 
 ## Benefits
 
@@ -109,6 +109,32 @@ ocli gen docs \
   --output-dir ./docs \
   --format markdown \
   ./cli.osc.yaml
+```
+
+To generate embeddable HTML docs as a script bundle:
+
+```sh
+ocli gen docs \
+  --output-dir ./docs \
+  --format html \
+  --html-flavor embed \
+  ./cli.ocs.yaml
+```
+
+This writes ./docs/ocli-docs.js. You can then mount it in any page:
+
+```html
+<html>
+  <head>
+    <script src="./assets/ocli-docs.js"></script>
+  </head>
+  <body>
+    <div id="docs"></div>
+    <script>
+      window.OcliDocs({ containerId: "docs" });
+    </script>
+  </body>
+</html>
 ```
 
 ## Packages

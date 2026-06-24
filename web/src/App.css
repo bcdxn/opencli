@@ -25,6 +25,10 @@ header {
   text-decoration: none;
 }
 
+.header-logo a:hover {
+  color: var(--blue);
+}
+
 .header-nav {
   display: flex;
   align-items: center;
@@ -61,18 +65,26 @@ header {
   position: relative;
 }
 
+.github-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  line-height: 1;
+  padding: 8px 12px;
+  border-radius: 999px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
 .github-link svg {
-  width: 16px;
-  height: 16px;
+  width: 1em;
+  height: 1em;
   fill: currentColor;
   flex-shrink: 0;
 }
 
 .github-link:hover {
   color: var(--blue-strong);
-  border-color: rgba(99, 91, 255, 0.28);
-  box-shadow: 0 12px 24px rgba(50, 50, 93, 0.1);
-  transform: translateY(-1px);
+  background: rgba(99, 91, 255, 0.08);
 }
 
 @media (max-width: 980px) {

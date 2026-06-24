@@ -11,22 +11,20 @@ export default function LandingPage() {
         <section className="hero-shell">
           <div className="hero-copy">
             <div className="hero-kicker">OPENCLI</div>
-            <h1>
-              Design your CLI once, then generate docs and tooling from it.
-            </h1>
+            <h1>Contract-First CLI Design</h1>
+            <h2>Define your interface. Automate the rest.</h2>
             <p>
-              OpenCLI is a contract-first specification for command line tools.
-              Describe your CLI in a document format that is both human readable
-              and machine readable. Validate it, and generate consistent
-              documentation.
+              OpenCLI is an open document specification for command-line tools.
+              Author verifiable, human-readable CLI definitions. Generate
+              documentation and framework-specific code from a single spec.
             </p>
 
             <div className="hero-actions">
               <Link className="button primary" to="/editor">
                 Open Live Editor
               </Link>
-              <Link className="button secondary" to="/spec">
-                View Specification
+              <Link className="button secondary" to="/docs">
+                View CLI Docs
               </Link>
             </div>
 
@@ -58,6 +56,12 @@ export default function LandingPage() {
               <p className="ok">
                 ✓ Documentation written to: docs/my-cli.ocs.html
               </p>
+              <p>$ ocli gen cli --framework cobra ./my-cli.ocs.yaml</p>
+              <p className="ok">→ Reading spec: ./my-cli.ocs.yaml</p>
+              <p className="ok">
+                → Generating CLI boilerplate: framework=cobra, output=./cli
+              </p>
+              <p className="ok">✓ Boilerplate written to: cli/...</p>
             </div>
           </section>
         </section>
