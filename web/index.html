@@ -59,25 +59,46 @@
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "SoftwareSourceCode",
-        "name": "OpenCLI Specification",
-        "description": "An open specification for describing command line interfaces.",
-        "url": "https://opencli.io",
-        "license": "https://opensource.org/licenses/MIT",
-        "programmingLanguage": [
-          "YAML",
-          "JSON"
-        ],
-        "codeRepository": "https://github.com/opencli/opencli",
-        "applicationCategory": "DeveloperApplication",
-        "keywords": [
-          "CLI",
-          "command line interface",
-          "OpenAPI",
-          "specification",
-          "developer tools",
-          "documentation generation",
-          "code generation"
+        "@graph": [
+          {
+            "@type": "TechArticle",
+            "@id": "https://opencli.io",
+            "headline": "The OpenCLI Specification Standard (OCS)",
+            "description": "A standard, language-agnostic interface description for command line interfaces.",
+            "inLanguage": "en",
+            "proficiencyLevel": "Expert",
+            "about": [
+              {
+                "@type": "SoftwareApplication",
+                "@id": "https://opencli.io",
+                "name": "OpenCLI CLI",
+                "applicationCategory": "DeveloperApplication",
+                "operatingSystem": "Linux, macOS, Windows",
+                "description": "Terminal-based console applications and command-line tools."
+              },
+              {
+                "@type": "ComputerLanguage",
+                "name": "JSON"
+              },
+              {
+                "@type": "ComputerLanguage",
+                "name": "YAML"
+              },
+              {
+                "@type": "ComputerLanguage",
+                "name": "GO"
+              }
+            ],
+            "mainEntity": {
+              "@type": "SoftwareSourceCode",
+              "@id": "https://opencli.io",
+              "name": "CLI Specification Schema & Tools",
+              "codeRepository": "https://github.com/bcdxn/opencli",
+              "programmingLanguage": ["JSON", "YAML", "GO"],
+              "license": "https://spdx.org/licenses/MIT",
+              "runtimePlatform": "Cross-platform shell environments"
+            }
+          }
         ]
       }
     </script>
