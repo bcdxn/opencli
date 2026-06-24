@@ -4,22 +4,6 @@ Define your Command Line Interface (CLI) in a declarative, language-agnostic doc
 
 _Like OpenAPI Spec, but for your CLIs_
 
----
-
-[![Go Reference](https://pkg.go.dev/badge/github.com/bcdxn/opencli.svg)](https://pkg.go.dev/github.com/bcdxn/opencli)
-[![Go Report Card](https://goreportcard.com/badge/github.com/bcdxn/opencli)](https://goreportcard.com/report/github.com/bcdxn/opencli)
-![OpenCLI Compliant](https://img.shields.io/badge/OpenCLI_Spec-Compliant-brightgreen?link=https%3A%2F%2Fgithub.com%2Fbcdxn%2Fopencli)
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Benefits](#benefits)
-- [OpenCLI CLI](#opencli-cli)
-- [Examples](#examples)
-- [The Spec](#the-spec)
-- [Releases](#releases)
-- [Inspiration](#inspiration)
-
 ## Overview
 
 OpenCLI specification is a document specification that can be used to describe CLIs. Spec-compliant documents are meant to be human-readable and enable tooling automation.
@@ -31,13 +15,6 @@ OpenCLI specification is a document specification that can be used to describe C
 - Automatically generate documentation your CLI
 - Automatically generate CLI framework-specific code
 - Improve LLM and agent understanding of your CLI
-
-## OpenCLI CLI
-
-Use the CLI to validate specs, generate docs and generate boilerplate code.
-
-- [Markdown Docs](https://github.com/bcdxn/opencli/blob/main/docs/opencli.ocs.md)
-- [OpenCLI Spec-compliant Document](https://github.com/bcdxn/opencli/blob/main/opencli.ocs.yaml)
 
 ## Examples
 
@@ -102,70 +79,9 @@ commands:
         default: "english"
 ```
 
-From this example we can generate documentation using the follow command:
-
-```sh
-ocli gen docs \
-  --output-dir ./docs \
-  --format markdown \
-  ./cli.osc.yaml
-```
-
-To generate embeddable HTML docs as a script bundle:
-
-```sh
-ocli gen docs \
-  --output-dir ./docs \
-  --format html \
-  --html-flavor embed \
-  ./cli.ocs.yaml
-```
-
-This writes ./docs/ocli-docs.js. You can then mount it in any page:
-
-```html
-<html>
-  <head>
-    <script src="./assets/ocli-docs.js"></script>
-  </head>
-  <body>
-    <div id="docs"></div>
-    <script>
-      window.OcliDocs({ containerId: "docs" });
-    </script>
-  </body>
-</html>
-```
-
-## Packages
-
-Don't want to use the CLI, and instead prefer library integration? You can use the the following packages:
-
-### `codec`
-
-Use this package to marshal and unmarshal OpenCLI Spec compliant documents
-
-```sh
-go get github.com/bcdxn/opencli/codec
-```
-
-### `validate`
-
-Use this package to validate OpenCLI Spec compliant documents
-
-```sh
-go get github.com/bcdxn/opencli/validate
-```
-
 ## The Spec
 
 The full spec is described by JSON Schema - https://github.com/bcdxn/opencli/tree/main/spec.schema.json
-
-Not all rules can be adequately expressed in JSON Schema alone. Additional validation logical is implemented in the `validate` package.
-
-## Releases
-
-Start using OpenCLI Specification Documents to describe your CLIs. Head over to the [releases page](https://github.com/bcdxn/opencli/releases) to download the CLI for your system.
 
 ## Inspiration
 

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Sitemap: https://opencli.io/sitemap.xml
+LLMS: https://opencli.io/llms.txt

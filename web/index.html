@@ -2,9 +2,37 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>OpenCLI Specification | OpenAPI for Command Line Interfaces</title>
+    <meta
+      name="description"
+      content="OpenCLI is an open specification for describing command line interfaces. Define CLI commands, arguments, options, validation rules, generate consistent documentation and deterministic CLI framework boilerplate code from machine-readable specification files."
+    />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+
+    <link rel="canonical" href="https://opencli.io/" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="sitemap" href="/sitemap.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="OpenCLI Specification" />
+    <meta
+    property="og:description"
+    content="OpenCLI is an open specification for command line interfaces - OpenAPI for CLIs. Define commands, arguments, and options in a machine-readable format, validate specifications, and generate consistent documentation and boilerplate code."
+    />
+    <meta property="og:url" content="https://opencli.io/" />
+    <meta property="og:image" content="https://opencli.io/social-card.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+
+    <meta name="twitter:title" content="OpenCLI Specification" />
+    <meta
+    name="twitter:description"
+    content="OpenAPI for command line interfaces."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://opencli.io/social-card.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OpenCLI Spec Editor</title>
     <!-- wasm_exec.js must load before the app bundle to provide the Go class -->
     <script src="./wasm_exec.js"></script>
     <script src="./ocli-docs.js"></script>
@@ -13,19 +41,58 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script type="text/javascript">
-    // Single Page Apps for GitHub Pages
-    // MIT License
-    // https://github.com/rafgraph/spa-github-pages
-    (function(l) {
-      if (l.search[1] === '/' ) {
-        var decoded = l.search.slice(1).split('&').map(function(s) {
-          return s.replace(/~and~/g, '&')
-        }).join('?');
-        window.history.replaceState(null, null,
-          l.pathname.slice(0, -1) + decoded + l.hash
-        );
+      // Single Page Apps for GitHub Pages
+      // MIT License
+      // https://github.com/rafgraph/spa-github-pages
+      (function(l) {
+        if (l.search[1] === '/' ) {
+          var decoded = l.search.slice(1).split('&').map(function(s) {
+            return s.replace(/~and~/g, '&')
+          }).join('?');
+          window.history.replaceState(null, null,
+            l.pathname.slice(0, -1) + decoded + l.hash
+          );
+        }
+      }(window.location));
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareSourceCode",
+        "name": "OpenCLI Specification",
+        "description": "An open specification for describing command line interfaces.",
+        "url": "https://opencli.io",
+        "license": "https://opensource.org/licenses/MIT",
+        "programmingLanguage": [
+          "YAML",
+          "JSON"
+        ],
+        "codeRepository": "https://github.com/opencli/opencli",
+        "applicationCategory": "DeveloperApplication",
+        "keywords": [
+          "CLI",
+          "command line interface",
+          "OpenAPI",
+          "specification",
+          "developer tools",
+          "documentation generation",
+          "code generation"
+        ]
       }
-    }(window.location));
-  </script>
+    </script>
+
+    <div id="seo-content">
+      <h1>OpenCLI Specification</h1>
+      <p>
+        OpenCLI is an open document specification for command line interfaces.
+        It enables CLI definitions that are human-readable, machine-readable,
+        and automatically verifiable.
+      </p>
+      <p>
+        Generate documentation, boilerplate CLI code, validate specifications, and build tooling
+        around standardized command definitions.
+      </p>
+    </div>
   </body>
 </html>
