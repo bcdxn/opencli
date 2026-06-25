@@ -1,0 +1,99 @@
+header {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 32px;
+  border-bottom: 1px solid rgba(50, 50, 93, 0.08);
+  background: rgba(255, 255, 255, 0.76);
+  backdrop-filter: blur(16px);
+  --muted: #425466;
+  --text: #0a2540;
+  color: var(--text);
+  font-family: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.header-logo a {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  color: var(--blue-strong);
+  font-size: 0.84rem;
+  text-decoration: none;
+}
+
+.header-logo a:hover {
+  color: var(--blue);
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.header-nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.header-nav a:hover {
+  color: var(--blue-strong);
+}
+
+.header-nav > a:not(.github-link) {
+  padding: 8px 12px;
+  border-radius: 999px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.header-nav > a:not(.github-link):hover {
+  background: rgba(99, 91, 255, 0.08);
+}
+
+.github-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  line-height: 1;
+  padding: 8px 12px;
+  border-radius: 999px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.github-link svg {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+.github-link:hover {
+  color: var(--blue-strong);
+  background: rgba(99, 91, 255, 0.08);
+}
+
+@media (max-width: 980px) {
+  header {
+    padding: 16px 18px;
+  }
+}
+
+@media (max-width: 640px) {
+  header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .header-nav {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}

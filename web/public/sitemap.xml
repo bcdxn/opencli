@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://opencli.io/</loc>
+    <loc>https://opencli.dev/</loc>
   </url>
   <url>
-    <loc>https://opencli.io/editor</loc>
+    <loc>https://opencli.dev/editor</loc>
   </url>
   <url>
-    <loc>https://opencli.io/docs</loc>
+    <loc>https://opencli.dev/docs</loc>
   </url>
   <url>
-    <loc>https://opencli.io/spec</loc>
+    <loc>https://opencli.dev/spec</loc>
   </url>
 </urlset>

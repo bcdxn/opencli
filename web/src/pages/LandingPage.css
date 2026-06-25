@@ -1,18 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap");
 
 .landing-route {
-  --bg: #f6f9fc;
-  --bg-2: #eef4ff;
-  --surface: rgba(255, 255, 255, 0.82);
-  --surface-strong: #ffffff;
-  --text: #0a2540;
-  --muted: #425466;
-  --line: rgba(50, 50, 93, 0.12);
-  --line-strong: rgba(50, 50, 93, 0.18);
-  --blue: #635bff;
-  --blue-strong: #0a2540;
-  --blue-soft: #e8efff;
-  --shadow: 0 24px 60px rgba(50, 50, 93, 0.12);
   min-height: 100vh;
   color: var(--text);
   background:

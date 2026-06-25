@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import "../App.css";
+import "./SiteHeader.css";
 
 export default function SiteHeader() {
   return (

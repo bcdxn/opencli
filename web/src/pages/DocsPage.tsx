@@ -12,7 +12,7 @@ export default function SpecPage() {
     <div className="docs-page">
       <SiteHeader />
       <main className="docs-main">
-        <div id="docs">hello</div>
+        <div id="docs"></div>
       </main>
     </div>
   );
