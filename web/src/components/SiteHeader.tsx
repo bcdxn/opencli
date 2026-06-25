@@ -10,7 +10,7 @@ export default function SiteHeader() {
       <nav className="header-nav">
         <Link to="/editor">Editor</Link>
         <Link to="/docs">CLI Docs</Link>
-        <Link to="/spec">Schema</Link>
+        <Link to="/schema">Schema</Link>
         <a
           className="github-link"
           href="https://github.com/bcdxn/opencli"

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import SiteHeader from "../components/SiteHeader";
 import "./LandingPage.css";
+import React from "react";
 
 const yamlSample = `opencliVersion: 1.0.0-alpha.8
 
@@ -25,7 +26,7 @@ commands:
         type: "string"
         default: "english"`;
 
-function renderYamlValue(value: string): JSX.Element {
+function renderYamlValue(value: string): React.JSX.Element {
   if (value.startsWith('"') || value.startsWith("'")) {
     return <span className="yaml-string">{value}</span>;
   }
@@ -35,7 +36,7 @@ function renderYamlValue(value: string): JSX.Element {
   return <span className="yaml-value">{value}</span>;
 }
 
-function tokenizeYamlLine(line: string, i: number): JSX.Element {
+function tokenizeYamlLine(line: string, i: number): React.JSX.Element {
   if (line.trim() === "") {
     return <span key={i}>{"\n"}</span>;
   }
@@ -54,7 +55,7 @@ function tokenizeYamlLine(line: string, i: number): JSX.Element {
     );
   }
 
-  let bullet: JSX.Element | null = null;
+  let bullet: React.JSX.Element | null = null;
   if (rest.startsWith("- ")) {
     bullet = <span className="yaml-bullet">{"- "}</span>;
     rest = rest.slice(2);

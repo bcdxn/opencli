@@ -47,7 +47,7 @@ export default function Preview({
   const [viewMode, setViewMode] = useState<ViewMode>("rendered");
   const [generatedOutput, setGeneratedOutput] = useState("");
   const [genError, setGenError] = useState("");
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // HTML output now uses embed flavor which emits an embeddable JS initializer.
   const htmlFlavor = outputFormat === "html" ? "embed" : "page";

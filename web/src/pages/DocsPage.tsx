@@ -1,8 +1,7 @@
 import { useEffect } from "react";
 import SiteHeader from "../components/SiteHeader";
-import "./SpecPage.css";
 
-export default function SpecPage() {
+export default function DocsPage() {
   useEffect(() => {
     if (window.OcliDocs) {
       window.OcliDocs({ containerId: "docs" });

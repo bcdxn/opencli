@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import SiteHeader from "../components/SiteHeader";
-import "./SpecPage.css";
+import "./SchemaPage.css";
 
 export default function SpecPage() {
   const [schema, setSchema] = useState("Loading schema...");
@@ -32,7 +32,11 @@ export default function SpecPage() {
             validation rule can be represented in JSON Schema alone.
           </p>
           <p className="spec-disclaimer-copy">
-            For full spec validation, run the <a href={`${import.meta.env.BASE_URL}docs#ocli-check`}>OpenCLI CLI</a> check command.
+            For full spec validation, run the{" "}
+            <a href={`${import.meta.env.BASE_URL}docs#ocli-check`}>
+              OpenCLI CLI
+            </a>{" "}
+            check command.
           </p>
         </section>
         <pre>{schema}</pre>

@@ -2,7 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import EditorPage from "./pages/EditorPage";
 import DocsPage from "./pages/DocsPage";
-import SpecPage from "./pages/SpecPage";
+import SchemaPage from "./pages/SchemaPage";
 import { useEffect } from "react";
 
 export default function App() {
@@ -22,7 +22,7 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/editor" element={<EditorPage />} />
         <Route path="/docs" element={<DocsPage />} />
-        <Route path="/spec" element={<SpecPage />} />
+        <Route path="/schema" element={<SchemaPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

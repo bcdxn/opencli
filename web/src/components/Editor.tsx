@@ -33,7 +33,7 @@ export default function Editor({
 
   const [errors, setErrors] = useState<ValidationError[]>([]);
   const [valid, setValid] = useState<boolean | null>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Create the CodeMirror editor once on mount
   useEffect(() => {
