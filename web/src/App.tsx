@@ -4,6 +4,7 @@ import EditorPage from "./pages/EditorPage";
 import DocsPage from "./pages/DocsPage";
 import SchemaPage from "./pages/SchemaPage";
 import { useEffect } from "react";
+import "./App.css";
 
 export default function App() {
   const baseUrl = import.meta.env.BASE_URL;

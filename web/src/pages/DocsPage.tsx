@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import SiteHeader from "../components/SiteHeader";
+import "./DocsPage.css";
 
 export default function DocsPage() {
   useEffect(() => {

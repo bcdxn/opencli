@@ -1,8 +1,9 @@
 header {
   position: sticky;
   top: 0;
-  z-index: 4;
+  z-index: 15;
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: space-between;
   gap: 20px;

@@ -8,6 +8,7 @@ html,
 body,
 #root {
   min-height: 100%;
+  max-height: 100%;
 }
 
 body {

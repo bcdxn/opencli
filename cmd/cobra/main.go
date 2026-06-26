@@ -1,15 +1,18 @@
 package main
 
 import (
+	"context"
 	"os"
 
-	oclicmd "github.com/bcdxn/opencli/internal/cli/cobra/ocli"
+	cli "github.com/bcdxn/opencli/internal/cli/app"
+	"github.com/bcdxn/opencli/internal/cli/gencli/gencobra"
 )
 
 // Version is set by goreleaser (ldflags) during build process
 var version = "DEV"
 
 func main() {
-	code := oclicmd.Main(version)
+	actions := cli.NewActions(version)
+	code := gencobra.Run(actions, context.Background())
 	os.Exit(code)
 }

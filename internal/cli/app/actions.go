@@ -1,4 +1,4 @@
-package app
+package cli
 
 import (
 	"fmt"
@@ -6,28 +6,43 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/MakeNowJust/heredoc"
 	"github.com/bcdxn/opencli/codec"
 	"github.com/bcdxn/opencli/gen"
-	cliutils "github.com/bcdxn/opencli/internal/cli/utils"
+	"github.com/bcdxn/opencli/internal/cli/gencli"
+	"github.com/bcdxn/opencli/spec"
 	"github.com/bcdxn/opencli/validate"
 )
 
-// Actions implements the cliutils Actions interface and can be passed via the cliutils.Factory
-type Actions struct {
-	IOS *cliutils.IOStreams
+// Ensure we conform to the generated ActionsInterface
+var _ gencli.ActionsInterface = (*Actions)(nil)
+
+func NewActions(version string) *Actions {
+	return &Actions{
+		IOS: &gencli.IOStreams{
+			In:     os.Stdin,
+			Out:    os.Stdout,
+			ErrOut: os.Stderr,
+		},
+	}
 }
 
-func (a Actions) OcliGenDocs(args cliutils.OcliGenDocsArgs, flags cliutils.OcliGenDocsFlags) error {
+// Actions implements the gencli Actions interface and can be passed via the gencli.Factory
+type Actions struct {
+	IOS *gencli.IOStreams
+}
+
+func (a Actions) OcliGenDocs(args gencli.OcliGenDocsArgs, flags gencli.OcliGenDocsFlags) error {
 	// Validate file exists and is not a directory
 	info, err := os.Stat(args.PathToSpec)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return cliutils.NewValidationError(fmt.Sprintf("file not found: %s", args.PathToSpec))
+			return gencli.NewValidationError(fmt.Sprintf("file not found: %s", args.PathToSpec))
 		}
-		return cliutils.NewValidationError(fmt.Sprintf("cannot access file: %s (%v)", args.PathToSpec, err))
+		return gencli.NewValidationError(fmt.Sprintf("cannot access file: %s (%v)", args.PathToSpec, err))
 	}
 	if info.IsDir() {
-		return cliutils.NewValidationError(fmt.Sprintf("path is a directory, not a file: %s", args.PathToSpec))
+		return gencli.NewValidationError(fmt.Sprintf("path is a directory, not a file: %s", args.PathToSpec))
 	}
 
 	// Select decoder by file extension
@@ -39,7 +54,7 @@ func (a Actions) OcliGenDocs(args cliutils.OcliGenDocsArgs, flags cliutils.OcliG
 	case ".yaml", ".yml":
 		// default
 	default:
-		return cliutils.NewValidationError(fmt.Sprintf("unsupported spec format: %s (only .json, .yaml, .yml are supported)", ext))
+		return gencli.NewValidationError(fmt.Sprintf("unsupported spec format: %s (only .json, .yaml, .yml are supported)", ext))
 	}
 
 	// Map the --format flag to a DocFormat; this map is the extension point for new formats
@@ -58,7 +73,7 @@ func (a Actions) OcliGenDocs(args cliutils.OcliGenDocsArgs, flags cliutils.OcliG
 		for k := range supportedFormats {
 			keys = append(keys, k)
 		}
-		return cliutils.NewValidationError(fmt.Sprintf("unsupported docs format: %q (supported: %s)", flags.Format, strings.Join(keys, ", ")))
+		return gencli.NewValidationError(fmt.Sprintf("unsupported docs format: %q (supported: %s)", flags.Format, strings.Join(keys, ", ")))
 	}
 
 	fmt.Fprintf(a.IOS.Out, "\n→ Reading spec:       %s\n", args.PathToSpec)
@@ -66,11 +81,11 @@ func (a Actions) OcliGenDocs(args cliutils.OcliGenDocsArgs, flags cliutils.OcliG
 	// Read and parse the spec document
 	data, err := os.ReadFile(args.PathToSpec)
 	if err != nil {
-		return cliutils.NewValidationError(fmt.Sprintf("cannot read file: %s (%v)", args.PathToSpec, err))
+		return gencli.NewValidationError(fmt.Sprintf("cannot read file: %s (%v)", args.PathToSpec, err))
 	}
 	doc, err := decode(data)
 	if err != nil {
-		return cliutils.NewValidationError(fmt.Sprintf("failed to parse spec: %v", err))
+		return gencli.NewValidationError(fmt.Sprintf("failed to parse spec: %v", err))
 	}
 
 	fmt.Fprintf(a.IOS.Out, "→ Generating docs:    format=%s, output=%s\n", flags.Format, flags.OutputDir)
@@ -131,24 +146,24 @@ func (a Actions) OcliGenDocs(args cliutils.OcliGenDocsArgs, flags cliutils.OcliG
 }
 
 // OcliCheck implements the `ocli check` command and uses the `validate` package to validate/check the specified document.
-func (a Actions) OcliCheck(args cliutils.OcliCheckArgs, flags cliutils.OcliCheckFlags) error {
+func (a Actions) OcliCheck(args gencli.OcliCheckArgs, flags gencli.OcliCheckFlags) error {
 	// Verify file exists and is readable
 	info, err := os.Stat(args.PathToSpec)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return cliutils.NewValidationError(fmt.Sprintf("file not found: %s", args.PathToSpec))
+			return gencli.NewValidationError(fmt.Sprintf("file not found: %s", args.PathToSpec))
 		}
-		return cliutils.NewValidationError(fmt.Sprintf("cannot access file: %s (%v)", args.PathToSpec, err))
+		return gencli.NewValidationError(fmt.Sprintf("cannot access file: %s (%v)", args.PathToSpec, err))
 	}
 
 	if info.IsDir() {
-		return cliutils.NewValidationError(fmt.Sprintf("path is a directory, not a file: %s", args.PathToSpec))
+		return gencli.NewValidationError(fmt.Sprintf("path is a directory, not a file: %s", args.PathToSpec))
 	}
 
 	// Read file content
 	data, err := os.ReadFile(args.PathToSpec)
 	if err != nil {
-		return cliutils.NewValidationError(fmt.Sprintf("cannot read file: %s (%v)", args.PathToSpec, err))
+		return gencli.NewValidationError(fmt.Sprintf("cannot read file: %s (%v)", args.PathToSpec, err))
 	}
 
 	// Determine format by file extension
@@ -161,7 +176,7 @@ func (a Actions) OcliCheck(args cliutils.OcliCheckArgs, flags cliutils.OcliCheck
 	case ".yaml", ".yml":
 		validationErr = validate.ValidateYAML(data)
 	default:
-		return cliutils.NewValidationError(fmt.Sprintf("unsupported file format: %s (only .json, .yaml, .yml are supported)", ext))
+		return gencli.NewValidationError(fmt.Sprintf("unsupported file format: %s (only .json, .yaml, .yml are supported)", ext))
 	}
 
 	// Output results
@@ -176,11 +191,127 @@ func (a Actions) OcliCheck(args cliutils.OcliCheckArgs, flags cliutils.OcliCheck
 		fmt.Fprintln(a.IOS.Out)
 
 		if flags.FailOnErr {
-			return cliutils.NewValidationError("document validation failed")
+			return gencli.NewValidationError("document validation failed")
 		}
 	} else {
 		fmt.Fprintf(a.IOS.Out, "✓ Document is valid\n\n")
 	}
 
 	return nil
+}
+
+func (a Actions) HelpFunc(cmd *spec.CommandItem) {
+	desc := cmd.Summary
+
+	if cmd.Description != "" {
+		desc = heredoc.Doc(cmd.Description)
+	}
+	fmt.Fprintf(a.IOS.Out, "%s\n\n", desc)
+	fmt.Fprint(a.IOS.Out, bold("USAGE:"))
+	modifiers := make([]string, 0)
+	if len(cmd.CommandModifiers) > 0 {
+		modifiers = append(modifiers, strings.Join(cmd.CommandModifiers, " "))
+	}
+	if len(cmd.ArgsModifiers) > 0 {
+		modifiers = append(modifiers, strings.Join(cmd.ArgsModifiers, " "))
+	}
+	if len(cmd.FlagsModifiers) > 0 {
+		modifiers = append(modifiers, strings.Join(cmd.FlagsModifiers, " "))
+	}
+	fmt.Fprintf(a.IOS.Out, "\n  %s %s", cmd.CommandLine, strings.Join(modifiers, " "))
+
+	// var subcommands []*cobra.Command
+	// for _, c := range cmd.Commands() {
+	// 	if !c.IsAvailableCommand() {
+	// 		continue
+	// 	}
+	// 	subcommands = append(subcommands, c)
+	// }
+
+	// if len(subcommands) > 0 {
+	// 	fmt.Fprint(w, bold("\n\nAVAILABLE COMMANDS:"))
+	// 	col1 := []string{}
+	// 	col2 := []string{}
+	// 	for _, c := range subcommands {
+	// 		col1 = append(col1, c.Name())
+	// 		col2 = append(col2, c.Short)
+	// 	}
+	// 	fmt.Fprint(w, columns(col1, col2, ": "))
+	// }
+
+	// if len(args) > 0 {
+	// 	fmt.Fprint(w, bold("\n\nARGUMENTS:"))
+	// 	col1 := []string{}
+	// 	col2 := []string{}
+	// 	for name, desc := range args {
+	// 		col1 = append(col1, fmt.Sprintf("<%s>", name))
+	// 		col2 = append(col2, desc)
+	// 	}
+	// 	fmt.Fprint(w, columns(col1, col2, " "))
+	// }
+
+	// flagUsages := cmd.LocalFlags().FlagUsages()
+	// if flagUsages != "" {
+	// 	fmt.Fprintln(w, bold("\n\nFLAGS:"))
+	// 	fmt.Fprint(w, flagUsages)
+	// } else {
+	// 	fmt.Fprint(w, "\n")
+	// }
+
+	// return nil
+}
+
+func (a Actions) UsageFunc(
+	cmdUsage string,
+	argsUsage string,
+	flagsUsage string,
+	subcommandsUsage string,
+) {
+	fmt.Fprint(a.IOS.Out, "usage function")
+}
+
+func (a Actions) IOStreams() *gencli.IOStreams {
+	return &gencli.IOStreams{
+		In:     os.Stdin,
+		Out:    os.Stdout,
+		ErrOut: os.Stderr,
+	}
+}
+
+func bold(str string) string {
+	return fmt.Sprintf("\033[1m%s\033[0m", str)
+}
+
+func columns(col1, col2 []string, delimiter string) string {
+	width := columnWidth(col1)
+
+	var sb strings.Builder
+	for i := range col1 {
+		sb.WriteString(fmt.Sprintf("\n  %s%s%s%s", col1[i], delimiter, pad(col1[i], " ", width), col2[i]))
+	}
+
+	return sb.String()
+}
+
+func columnWidth(rows []string) int {
+	max := 0
+
+	for _, row := range rows {
+		if len(row) > max {
+			max = len(row)
+		}
+	}
+
+	return max
+}
+
+func pad(str string, c string, l int) string {
+	padLen := l - len(str)
+
+	var sb strings.Builder
+	for range padLen {
+		sb.WriteString(c)
+	}
+
+	return sb.String()
 }
