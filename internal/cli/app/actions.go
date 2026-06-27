@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/MakeNowJust/heredoc"
 	"github.com/bcdxn/opencli/codec"
 	"github.com/bcdxn/opencli/gen"
 	"github.com/bcdxn/opencli/internal/cli/gencli"
@@ -19,17 +18,13 @@ var _ gencli.ActionsInterface = (*Actions)(nil)
 
 func NewActions(version string) *Actions {
 	return &Actions{
-		IOS: &gencli.IOStreams{
-			In:     os.Stdin,
-			Out:    os.Stdout,
-			ErrOut: os.Stderr,
-		},
+		IOS: gencli.DefaultIOS(),
 	}
 }
 
 // Actions implements the gencli Actions interface and can be passed via the gencli.Factory
 type Actions struct {
-	IOS *gencli.IOStreams
+	IOS gencli.IOStreams
 }
 
 func (a Actions) OcliGenDocs(args gencli.OcliGenDocsArgs, flags gencli.OcliGenDocsFlags) error {
@@ -76,7 +71,8 @@ func (a Actions) OcliGenDocs(args gencli.OcliGenDocsArgs, flags gencli.OcliGenDo
 		return gencli.NewValidationError(fmt.Sprintf("unsupported docs format: %q (supported: %s)", flags.Format, strings.Join(keys, ", ")))
 	}
 
-	fmt.Fprintf(a.IOS.Out, "\n→ Reading spec:       %s\n", args.PathToSpec)
+	stdout := a.IOS.Out()
+	fmt.Fprintf(stdout, "\n→ Reading spec:       %s\n", args.PathToSpec)
 
 	// Read and parse the spec document
 	data, err := os.ReadFile(args.PathToSpec)
@@ -88,7 +84,7 @@ func (a Actions) OcliGenDocs(args gencli.OcliGenDocsArgs, flags gencli.OcliGenDo
 		return gencli.NewValidationError(fmt.Sprintf("failed to parse spec: %v", err))
 	}
 
-	fmt.Fprintf(a.IOS.Out, "→ Generating docs:    format=%s, output=%s\n", flags.Format, flags.OutputDir)
+	fmt.Fprintf(stdout, "→ Generating docs:    format=%s, output=%s\n", flags.Format, flags.OutputDir)
 
 	// Ensure output directory exists
 	if err := os.MkdirAll(flags.OutputDir, 0755); err != nil {
@@ -140,7 +136,7 @@ func (a Actions) OcliGenDocs(args gencli.OcliGenDocsArgs, flags gencli.OcliGenDo
 		return fmt.Errorf("failed to write output file %s: %w", outFile, err)
 	}
 
-	fmt.Fprintf(a.IOS.Out, "✓ Documentation written to: %s\n\n", outFile)
+	fmt.Fprintf(stdout, "✓ Documentation written to: %s\n\n", outFile)
 
 	return nil
 }
@@ -180,138 +176,35 @@ func (a Actions) OcliCheck(args gencli.OcliCheckArgs, flags gencli.OcliCheckFlag
 	}
 
 	// Output results
-	fmt.Fprintf(a.IOS.Out, "\n✓ Checking %s\n", args.PathToSpec)
-	fmt.Fprintf(a.IOS.Out, "  Format: %s\n\n", strings.TrimPrefix(ext, "."))
+	stdout := a.IOS.Out()
+	fmt.Fprintf(stdout, "\n✓ Checking %s\n", args.PathToSpec)
+	fmt.Fprintf(stdout, "  Format: %s\n\n", strings.TrimPrefix(ext, "."))
 
 	if validationErr != nil {
-		fmt.Fprintf(a.IOS.Out, "✗ Validation failed:\n")
+		fmt.Fprintf(stdout, "✗ Validation failed:\n")
 		for _, line := range strings.Split(validationErr.Error(), "\n") {
-			fmt.Fprintf(a.IOS.Out, "  %s\n", line)
+			fmt.Fprintf(stdout, "  %s\n", line)
 		}
-		fmt.Fprintln(a.IOS.Out)
+		fmt.Fprintln(stdout)
 
 		if flags.FailOnErr {
 			return gencli.NewValidationError("document validation failed")
 		}
 	} else {
-		fmt.Fprintf(a.IOS.Out, "✓ Document is valid\n\n")
+		fmt.Fprintf(stdout, "✓ Document is valid\n\n")
 	}
 
 	return nil
 }
 
 func (a Actions) HelpFunc(cmd *spec.CommandItem) {
-	desc := cmd.Summary
-
-	if cmd.Description != "" {
-		desc = heredoc.Doc(cmd.Description)
-	}
-	fmt.Fprintf(a.IOS.Out, "%s\n\n", desc)
-	fmt.Fprint(a.IOS.Out, bold("USAGE:"))
-	modifiers := make([]string, 0)
-	if len(cmd.CommandModifiers) > 0 {
-		modifiers = append(modifiers, strings.Join(cmd.CommandModifiers, " "))
-	}
-	if len(cmd.ArgsModifiers) > 0 {
-		modifiers = append(modifiers, strings.Join(cmd.ArgsModifiers, " "))
-	}
-	if len(cmd.FlagsModifiers) > 0 {
-		modifiers = append(modifiers, strings.Join(cmd.FlagsModifiers, " "))
-	}
-	fmt.Fprintf(a.IOS.Out, "\n  %s %s", cmd.CommandLine, strings.Join(modifiers, " "))
-
-	// var subcommands []*cobra.Command
-	// for _, c := range cmd.Commands() {
-	// 	if !c.IsAvailableCommand() {
-	// 		continue
-	// 	}
-	// 	subcommands = append(subcommands, c)
-	// }
-
-	// if len(subcommands) > 0 {
-	// 	fmt.Fprint(w, bold("\n\nAVAILABLE COMMANDS:"))
-	// 	col1 := []string{}
-	// 	col2 := []string{}
-	// 	for _, c := range subcommands {
-	// 		col1 = append(col1, c.Name())
-	// 		col2 = append(col2, c.Short)
-	// 	}
-	// 	fmt.Fprint(w, columns(col1, col2, ": "))
-	// }
-
-	// if len(args) > 0 {
-	// 	fmt.Fprint(w, bold("\n\nARGUMENTS:"))
-	// 	col1 := []string{}
-	// 	col2 := []string{}
-	// 	for name, desc := range args {
-	// 		col1 = append(col1, fmt.Sprintf("<%s>", name))
-	// 		col2 = append(col2, desc)
-	// 	}
-	// 	fmt.Fprint(w, columns(col1, col2, " "))
-	// }
-
-	// flagUsages := cmd.LocalFlags().FlagUsages()
-	// if flagUsages != "" {
-	// 	fmt.Fprintln(w, bold("\n\nFLAGS:"))
-	// 	fmt.Fprint(w, flagUsages)
-	// } else {
-	// 	fmt.Fprint(w, "\n")
-	// }
-
-	// return nil
+	gencli.DefaultHelpFunc(a, cmd)
 }
 
-func (a Actions) UsageFunc(
-	cmdUsage string,
-	argsUsage string,
-	flagsUsage string,
-	subcommandsUsage string,
-) {
-	fmt.Fprint(a.IOS.Out, "usage function")
+func (a Actions) UsageFunc(cmd *spec.CommandItem) error {
+	return gencli.DefaultUsageFunc(a, cmd)
 }
 
-func (a Actions) IOStreams() *gencli.IOStreams {
-	return &gencli.IOStreams{
-		In:     os.Stdin,
-		Out:    os.Stdout,
-		ErrOut: os.Stderr,
-	}
-}
-
-func bold(str string) string {
-	return fmt.Sprintf("\033[1m%s\033[0m", str)
-}
-
-func columns(col1, col2 []string, delimiter string) string {
-	width := columnWidth(col1)
-
-	var sb strings.Builder
-	for i := range col1 {
-		sb.WriteString(fmt.Sprintf("\n  %s%s%s%s", col1[i], delimiter, pad(col1[i], " ", width), col2[i]))
-	}
-
-	return sb.String()
-}
-
-func columnWidth(rows []string) int {
-	max := 0
-
-	for _, row := range rows {
-		if len(row) > max {
-			max = len(row)
-		}
-	}
-
-	return max
-}
-
-func pad(str string, c string, l int) string {
-	padLen := l - len(str)
-
-	var sb strings.Builder
-	for range padLen {
-		sb.WriteString(c)
-	}
-
-	return sb.String()
+func (a Actions) IOStreams() gencli.IOStreams {
+	return a.IOS
 }

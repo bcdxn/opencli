@@ -22,14 +22,14 @@ function toInlineScriptText(script: string): string {
 function buildComponentPreviewDoc(componentScript: string): string {
   const safeScript = toInlineScriptText(componentScript);
   return `<!doctype html>
-<html lang="en">
+<html lang="en" style="height:100%; padding: 0; margin: 0;">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OpenCLI Docs Preview</title>
   </head>
-  <body>
-    <div id="docs"></div>
+  <body style="height:100%; padding: 0; margin: 0;">
+    <div id="docs" style="height:100%;"></div>
     <script>${safeScript}</script>
     <script>
       window.OcliDocs({ containerId: "docs" });
