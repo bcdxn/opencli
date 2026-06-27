@@ -11,7 +11,7 @@ interface PreviewProps {
   wasmReady: boolean;
 }
 
-type OutputFormat = "markdown" | "html";
+type OutputFormat = "markdown" | "html-page" | "html-embed";
 type ViewMode = "rendered" | "raw";
 
 function toInlineScriptText(script: string): string {
@@ -22,14 +22,14 @@ function toInlineScriptText(script: string): string {
 function buildComponentPreviewDoc(componentScript: string): string {
   const safeScript = toInlineScriptText(componentScript);
   return `<!doctype html>
-<html lang="en">
+<html lang="en" style="height:100%; padding: 0; margin: 0;">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OpenCLI Docs Preview</title>
   </head>
-  <body>
-    <div id="docs"></div>
+  <body style="height:100%; padding: 0; margin: 0;">
+    <div id="docs" style="height:100%;"></div>
     <script>${safeScript}</script>
     <script>
       window.OcliDocs({ containerId: "docs" });
@@ -49,20 +49,12 @@ export default function Preview({
   const [genError, setGenError] = useState("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // HTML output now uses embed flavor which emits an embeddable JS initializer.
-  const htmlFlavor = outputFormat === "html" ? "embed" : "page";
-
   useEffect(() => {
     if (!wasmReady || !content) return;
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      const result = generateOCSDocs(
-        content,
-        inputFormat,
-        outputFormat,
-        htmlFlavor,
-      );
+      const result = generateOCSDocs(content, inputFormat, outputFormat);
       if (result.error) {
         setGenError(result.error);
         setGeneratedOutput("");
@@ -75,7 +67,7 @@ export default function Preview({
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [content, inputFormat, outputFormat, viewMode, wasmReady, htmlFlavor]);
+  }, [content, inputFormat, outputFormat, viewMode, wasmReady]);
 
   const renderBody = () => {
     if (genError) {
@@ -86,9 +78,12 @@ export default function Preview({
       return null;
     }
 
-    if (outputFormat === "html") {
+    if (outputFormat === "html-page" || outputFormat === "html-embed") {
       if (viewMode === "rendered") {
-        const srcDoc = buildComponentPreviewDoc(generatedOutput);
+        const srcDoc =
+          outputFormat === "html-embed"
+            ? buildComponentPreviewDoc(generatedOutput)
+            : generatedOutput;
         return (
           <iframe
             className="preview-iframe"
@@ -144,10 +139,16 @@ export default function Preview({
             Markdown
           </button>
           <button
-            className={`toggle-btn${outputFormat === "html" ? " active" : ""}`}
-            onClick={() => setOutputFormat("html")}
+            className={`toggle-btn${outputFormat === "html-page" ? " active" : ""}`}
+            onClick={() => setOutputFormat("html-page")}
           >
-            HTML
+            HTML Page
+          </button>
+          <button
+            className={`toggle-btn${outputFormat === "html-embed" ? " active" : ""}`}
+            onClick={() => setOutputFormat("html-embed")}
+          >
+            HTML Embed
           </button>
         </div>
         <div className="preview-header-group">

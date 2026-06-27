@@ -71,15 +71,14 @@ func TestOcliCheckValidJSON(t *testing.T) {
 	tmpfile.Close()
 
 	// Setup
-	output := &MockFileWriter{Buffer: &bytes.Buffer{}}
-	ios := &gencli.IOStreams{Out: output}
+	ios, _, output, _ := gencli.TestIOS()
 	actions := Actions{IOS: ios}
 
 	args := gencli.OcliCheckArgs{PathToSpec: tmpfile.Name()}
 	flags := gencli.OcliCheckFlags{FailOnErr: true}
 
 	// Execute
-	err = actions.OcliCheck(args, flags)
+	err = actions.OcliCheck(t.Context(), args, flags)
 
 	// Verify
 	if err != nil {
@@ -112,15 +111,14 @@ func TestOcliCheckValidYAML(t *testing.T) {
 	tmpfile.Close()
 
 	// Setup
-	output := &MockFileWriter{Buffer: &bytes.Buffer{}}
-	ios := &gencli.IOStreams{Out: output}
+	ios, _, output, _ := gencli.TestIOS()
 	actions := Actions{IOS: ios}
 
 	args := gencli.OcliCheckArgs{PathToSpec: tmpfile.Name()}
 	flags := gencli.OcliCheckFlags{FailOnErr: true}
 
 	// Execute
-	err = actions.OcliCheck(args, flags)
+	err = actions.OcliCheck(t.Context(), args, flags)
 
 	// Verify
 	if err != nil {
@@ -153,15 +151,14 @@ func TestOcliCheckValidYML(t *testing.T) {
 	tmpfile.Close()
 
 	// Setup
-	output := &MockFileWriter{Buffer: &bytes.Buffer{}}
-	ios := &gencli.IOStreams{Out: output}
+	ios, _, output, _ := gencli.TestIOS()
 	actions := Actions{IOS: ios}
 
 	args := gencli.OcliCheckArgs{PathToSpec: tmpfile.Name()}
 	flags := gencli.OcliCheckFlags{FailOnErr: true}
 
 	// Execute
-	err = actions.OcliCheck(args, flags)
+	err = actions.OcliCheck(t.Context(), args, flags)
 
 	// Verify
 	if err != nil {
@@ -188,15 +185,14 @@ func TestOcliCheckInvalidSpecFailOnErr(t *testing.T) {
 	tmpfile.Close()
 
 	// Setup
-	output := &MockFileWriter{Buffer: &bytes.Buffer{}}
-	ios := &gencli.IOStreams{Out: output}
+	ios, _, output, _ := gencli.TestIOS()
 	actions := Actions{IOS: ios}
 
 	args := gencli.OcliCheckArgs{PathToSpec: tmpfile.Name()}
 	flags := gencli.OcliCheckFlags{FailOnErr: true}
 
 	// Execute
-	err = actions.OcliCheck(args, flags)
+	err = actions.OcliCheck(t.Context(), args, flags)
 
 	// Verify - should return error
 	if err == nil {
@@ -228,15 +224,14 @@ func TestOcliCheckInvalidSpecNoFailOnErr(t *testing.T) {
 	tmpfile.Close()
 
 	// Setup
-	output := &MockFileWriter{Buffer: &bytes.Buffer{}}
-	ios := &gencli.IOStreams{Out: output}
+	ios, _, output, _ := gencli.TestIOS()
 	actions := Actions{IOS: ios}
 
 	args := gencli.OcliCheckArgs{PathToSpec: tmpfile.Name()}
 	flags := gencli.OcliCheckFlags{FailOnErr: false}
 
 	// Execute
-	err = actions.OcliCheck(args, flags)
+	err = actions.OcliCheck(t.Context(), args, flags)
 
 	// Verify - should NOT return error
 	if err != nil {
@@ -251,15 +246,14 @@ func TestOcliCheckInvalidSpecNoFailOnErr(t *testing.T) {
 
 func TestOcliCheckFileNotFound(t *testing.T) {
 	// Setup
-	output := &MockFileWriter{Buffer: &bytes.Buffer{}}
-	ios := &gencli.IOStreams{Out: output}
+	ios, _, _, _ := gencli.TestIOS()
 	actions := Actions{IOS: ios}
 
 	args := gencli.OcliCheckArgs{PathToSpec: "/nonexistent/path/to/file.json"}
 	flags := gencli.OcliCheckFlags{FailOnErr: true}
 
 	// Execute
-	err := actions.OcliCheck(args, flags)
+	err := actions.OcliCheck(t.Context(), args, flags)
 
 	// Verify
 	if err == nil {
@@ -285,15 +279,14 @@ func TestOcliCheckDirectoryPath(t *testing.T) {
 	defer os.RemoveAll(tmpdir)
 
 	// Setup
-	output := &MockFileWriter{Buffer: &bytes.Buffer{}}
-	ios := &gencli.IOStreams{Out: output}
+	ios, _, _, _ := gencli.TestIOS()
 	actions := Actions{IOS: ios}
 
 	args := gencli.OcliCheckArgs{PathToSpec: tmpdir}
 	flags := gencli.OcliCheckFlags{FailOnErr: true}
 
 	// Execute
-	err = actions.OcliCheck(args, flags)
+	err = actions.OcliCheck(t.Context(), args, flags)
 
 	// Verify
 	if err == nil {
@@ -324,15 +317,14 @@ func TestOcliCheckUnsupportedFormat(t *testing.T) {
 	tmpfile.Close()
 
 	// Setup
-	output := &MockFileWriter{Buffer: &bytes.Buffer{}}
-	ios := &gencli.IOStreams{Out: output}
+	ios, _, _, _ := gencli.TestIOS()
 	actions := Actions{IOS: ios}
 
 	args := gencli.OcliCheckArgs{PathToSpec: tmpfile.Name()}
 	flags := gencli.OcliCheckFlags{FailOnErr: true}
 
 	// Execute
-	err = actions.OcliCheck(args, flags)
+	err = actions.OcliCheck(t.Context(), args, flags)
 
 	// Verify
 	if err == nil {
@@ -372,15 +364,14 @@ func TestOcliCheckPermissionDenied(t *testing.T) {
 	}()
 
 	// Setup
-	output := &MockFileWriter{Buffer: &bytes.Buffer{}}
-	ios := &gencli.IOStreams{Out: output}
+	ios, _, _, _ := gencli.TestIOS()
 	actions := Actions{IOS: ios}
 
 	args := gencli.OcliCheckArgs{PathToSpec: filePath}
 	flags := gencli.OcliCheckFlags{FailOnErr: true}
 
 	// Execute
-	err = actions.OcliCheck(args, flags)
+	err = actions.OcliCheck(t.Context(), args, flags)
 
 	// Verify
 	if err == nil {
@@ -407,15 +398,14 @@ func TestOcliCheckOutputFormatting(t *testing.T) {
 	tmpfile.Close()
 
 	// Setup
-	output := &MockFileWriter{Buffer: &bytes.Buffer{}}
-	ios := &gencli.IOStreams{Out: output}
+	ios, _, output, _ := gencli.TestIOS()
 	actions := Actions{IOS: ios}
 
 	args := gencli.OcliCheckArgs{PathToSpec: tmpfile.Name()}
 	flags := gencli.OcliCheckFlags{FailOnErr: true}
 
 	// Execute
-	err = actions.OcliCheck(args, flags)
+	err = actions.OcliCheck(t.Context(), args, flags)
 
 	// Verify output format
 	if err != nil {
@@ -450,18 +440,16 @@ func TestOcliGenDocsHTMLComponentWritesJSAsset(t *testing.T) {
 	}
 
 	outDir := filepath.Join(specDir, "docs")
-	output := &MockFileWriter{Buffer: &bytes.Buffer{}}
-	ios := &gencli.IOStreams{Out: output}
+	ios, _, _, _ := gencli.TestIOS()
 	actions := Actions{IOS: ios}
 
 	args := gencli.OcliGenDocsArgs{PathToSpec: specPath}
 	flags := gencli.OcliGenDocsFlags{
-		Format:     "html",
-		HTMLFlavor: "embed",
-		OutputDir:  outDir,
+		Format: "html-embed",
+		Out:    outDir,
 	}
 
-	err := actions.OcliGenDocs(args, flags)
+	err := actions.OcliGenDocs(t.Context(), args, flags)
 	if err != nil {
 		t.Fatalf("unexpected error generating html embed docs: %v", err)
 	}

@@ -36,6 +36,41 @@
     <!-- wasm_exec.js must load before the app bundle to provide the Go class -->
     <script src="./wasm_exec.js"></script>
     <script src="./ocli-docs.js"></script>
+    <!-- schema.org structured data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "TechArticle",
+            "@id": "https://opencli.dev",
+            "headline": "The OpenCLI Specification (OCS) Standard",
+            "description": "A standard, language-agnostic interface for describing for command line interfaces.",
+            "inLanguage": "en",
+            "proficiencyLevel": "Expert",
+            "about": [
+              {
+                "@type": "SoftwareApplication",
+                "@id": "https://opencli.dev",
+                "name": "OpenCLI CLI",
+                "applicationCategory": "DeveloperApplication",
+                "operatingSystem": "Linux, macOS, Windows",
+                "description": "Terminal-based console applications and command-line tools."
+              }
+            ],
+            "mainEntity": {
+              "@type": "SoftwareSourceCode",
+              "@id": "https://opencli.dev",
+              "name": "CLI Specification Schema & Tools",
+              "codeRepository": "https://github.com/bcdxn/opencli",
+              "programmingLanguage": ["JSON", "YAML", "GO"],
+              "license": "https://spdx.org/licenses/MIT",
+              "runtimePlatform": "Cross-platform shell environments"
+            }
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
@@ -54,53 +89,6 @@
           );
         }
       }(window.location));
-    </script>
-
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@graph": [
-          {
-            "@type": "TechArticle",
-            "@id": "https://opencli.dev",
-            "headline": "The OpenCLI Specification Standard (OCS)",
-            "description": "A standard, language-agnostic interface description for command line interfaces.",
-            "inLanguage": "en",
-            "proficiencyLevel": "Expert",
-            "about": [
-              {
-                "@type": "SoftwareApplication",
-                "@id": "https://opencli.dev",
-                "name": "OpenCLI CLI",
-                "applicationCategory": "DeveloperApplication",
-                "operatingSystem": "Linux, macOS, Windows",
-                "description": "Terminal-based console applications and command-line tools."
-              },
-              {
-                "@type": "ComputerLanguage",
-                "name": "JSON"
-              },
-              {
-                "@type": "ComputerLanguage",
-                "name": "YAML"
-              },
-              {
-                "@type": "ComputerLanguage",
-                "name": "GO"
-              }
-            ],
-            "mainEntity": {
-              "@type": "SoftwareSourceCode",
-              "@id": "https://opencli.dev",
-              "name": "CLI Specification Schema & Tools",
-              "codeRepository": "https://github.com/bcdxn/opencli",
-              "programmingLanguage": ["JSON", "YAML", "GO"],
-              "license": "https://spdx.org/licenses/MIT",
-              "runtimePlatform": "Cross-platform shell environments"
-            }
-          }
-        ]
-      }
     </script>
 
     <div id="seo-content">

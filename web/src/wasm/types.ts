@@ -20,7 +20,6 @@ declare global {
       input: string,
       inputFormat: string,
       outputFormat: string,
-      htmlFlavor: string,
     ) => GenerationResult;
   }
 }

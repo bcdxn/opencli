@@ -1,12 +1,12 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/MakeNowJust/heredoc"
 	"github.com/bcdxn/opencli/codec"
 	"github.com/bcdxn/opencli/gen"
 	"github.com/bcdxn/opencli/internal/cli/gencli"
@@ -19,20 +19,18 @@ var _ gencli.ActionsInterface = (*Actions)(nil)
 
 func NewActions(version string) *Actions {
 	return &Actions{
-		IOS: &gencli.IOStreams{
-			In:     os.Stdin,
-			Out:    os.Stdout,
-			ErrOut: os.Stderr,
-		},
+		IOS:     gencli.DefaultIOS(),
+		version: version,
 	}
 }
 
 // Actions implements the gencli Actions interface and can be passed via the gencli.Factory
 type Actions struct {
-	IOS *gencli.IOStreams
+	IOS     gencli.IOStreams
+	version string
 }
 
-func (a Actions) OcliGenDocs(args gencli.OcliGenDocsArgs, flags gencli.OcliGenDocsFlags) error {
+func (a Actions) OcliGenDocs(_ context.Context, args gencli.OcliGenDocsArgs, flags gencli.OcliGenDocsFlags) error {
 	// Validate file exists and is not a directory
 	info, err := os.Stat(args.PathToSpec)
 	if err != nil {
@@ -63,11 +61,12 @@ func (a Actions) OcliGenDocs(args gencli.OcliGenDocsArgs, flags gencli.OcliGenDo
 		fileExt string
 	}
 	supportedFormats := map[string]docFormatMeta{
-		"markdown": {gen.Markdown, ".md"},
-		"html":     {gen.HTML, ".html"},
-		"man":      {gen.ManPage, ".1"},
+		"markdown":   {gen.Markdown, ".md"},
+		"html-page":  {gen.HTML_PAGE, ".html"},
+		"html-embed": {gen.HTML_EMBED, ".js"},
+		"man":        {gen.ManPage, ".1"},
 	}
-	meta, ok := supportedFormats[strings.ToLower(flags.Format)]
+	meta, ok := supportedFormats[strings.ToLower(string(flags.Format))]
 	if !ok {
 		keys := make([]string, 0, len(supportedFormats))
 		for k := range supportedFormats {
@@ -76,7 +75,8 @@ func (a Actions) OcliGenDocs(args gencli.OcliGenDocsArgs, flags gencli.OcliGenDo
 		return gencli.NewValidationError(fmt.Sprintf("unsupported docs format: %q (supported: %s)", flags.Format, strings.Join(keys, ", ")))
 	}
 
-	fmt.Fprintf(a.IOS.Out, "\n→ Reading spec:       %s\n", args.PathToSpec)
+	stdout := a.IOS.Out()
+	fmt.Fprintf(stdout, "\n→ Reading spec:       %s\n", args.PathToSpec)
 
 	// Read and parse the spec document
 	data, err := os.ReadFile(args.PathToSpec)
@@ -88,25 +88,16 @@ func (a Actions) OcliGenDocs(args gencli.OcliGenDocsArgs, flags gencli.OcliGenDo
 		return gencli.NewValidationError(fmt.Sprintf("failed to parse spec: %v", err))
 	}
 
-	fmt.Fprintf(a.IOS.Out, "→ Generating docs:    format=%s, output=%s\n", flags.Format, flags.OutputDir)
+	fmt.Fprintf(stdout, "→ Generating docs:    format=%s, output=%s\n", flags.Format, flags.Out)
 
 	// Ensure output directory exists
-	if err := os.MkdirAll(flags.OutputDir, 0755); err != nil {
-		return fmt.Errorf("cannot create output directory %s: %w", flags.OutputDir, err)
+	if err := os.MkdirAll(flags.Out, 0755); err != nil {
+		return fmt.Errorf("cannot create output directory %s: %w", flags.Out, err)
 	}
 
 	opts := make([]gen.GenDocsOption, 0)
 
 	opts = append(opts, gen.DocsWithFormat(meta.format))
-
-	if meta.format == gen.HTML {
-		switch strings.ToLower(flags.HTMLFlavor) {
-		case "embed":
-			opts = append(opts, gen.DocsWithHTMLFlavor(gen.EmbeddableComponent))
-		default:
-			opts = append(opts, gen.DocsWithHTMLFlavor(gen.StandalonePage))
-		}
-	}
 
 	if flags.NoBadge {
 		opts = append(opts, gen.DocsWithoutBadge())
@@ -122,14 +113,11 @@ func (a Actions) OcliGenDocs(args gencli.OcliGenDocsArgs, flags gencli.OcliGenDo
 		return fmt.Errorf("failed to generate %s docs: %w", flags.Format, err)
 	}
 
-	// Resolve output file path. HTML embed flavor is emitted as an embeddable JS asset.
+	// Resolve output file path. HTML embed emits a shared embeddable JS asset.
 	baseName := strings.TrimSuffix(filepath.Base(args.PathToSpec), filepath.Ext(args.PathToSpec))
-	outFile := filepath.Join(flags.OutputDir, baseName+meta.fileExt)
-	if meta.format == gen.HTML {
-		switch strings.ToLower(flags.HTMLFlavor) {
-		case "embed":
-			outFile = filepath.Join(flags.OutputDir, "ocli-docs.js")
-		}
+	outFile := filepath.Join(flags.Out, baseName+meta.fileExt)
+	if meta.format == gen.HTML_EMBED {
+		outFile = filepath.Join(flags.Out, "ocli-docs.js")
 	}
 
 	if err := os.MkdirAll(filepath.Dir(outFile), 0755); err != nil {
@@ -140,13 +128,13 @@ func (a Actions) OcliGenDocs(args gencli.OcliGenDocsArgs, flags gencli.OcliGenDo
 		return fmt.Errorf("failed to write output file %s: %w", outFile, err)
 	}
 
-	fmt.Fprintf(a.IOS.Out, "✓ Documentation written to: %s\n\n", outFile)
+	fmt.Fprintf(stdout, "✓ Documentation written to: %s\n\n", outFile)
 
 	return nil
 }
 
 // OcliCheck implements the `ocli check` command and uses the `validate` package to validate/check the specified document.
-func (a Actions) OcliCheck(args gencli.OcliCheckArgs, flags gencli.OcliCheckFlags) error {
+func (a Actions) OcliCheck(_ context.Context, args gencli.OcliCheckArgs, flags gencli.OcliCheckFlags) error {
 	// Verify file exists and is readable
 	info, err := os.Stat(args.PathToSpec)
 	if err != nil {
@@ -180,138 +168,109 @@ func (a Actions) OcliCheck(args gencli.OcliCheckArgs, flags gencli.OcliCheckFlag
 	}
 
 	// Output results
-	fmt.Fprintf(a.IOS.Out, "\n✓ Checking %s\n", args.PathToSpec)
-	fmt.Fprintf(a.IOS.Out, "  Format: %s\n\n", strings.TrimPrefix(ext, "."))
+	stdout := a.IOS.Out()
+	fmt.Fprintf(stdout, "\n✓ Checking %s\n", args.PathToSpec)
+	fmt.Fprintf(stdout, "  Format: %s\n\n", strings.TrimPrefix(ext, "."))
 
 	if validationErr != nil {
-		fmt.Fprintf(a.IOS.Out, "✗ Validation failed:\n")
+		fmt.Fprintf(stdout, "✗ Validation failed:\n")
 		for _, line := range strings.Split(validationErr.Error(), "\n") {
-			fmt.Fprintf(a.IOS.Out, "  %s\n", line)
+			fmt.Fprintf(stdout, "  %s\n", line)
 		}
-		fmt.Fprintln(a.IOS.Out)
+		fmt.Fprintln(stdout)
 
 		if flags.FailOnErr {
 			return gencli.NewValidationError("document validation failed")
 		}
 	} else {
-		fmt.Fprintf(a.IOS.Out, "✓ Document is valid\n\n")
+		fmt.Fprintf(stdout, "✓ Document is valid\n\n")
 	}
 
 	return nil
 }
 
-func (a Actions) HelpFunc(cmd *spec.CommandItem) {
-	desc := cmd.Summary
-
-	if cmd.Description != "" {
-		desc = heredoc.Doc(cmd.Description)
+func (a Actions) OcliGenCli(_ context.Context, args gencli.OcliGenCliArgs, flags gencli.OcliGenCliFlags) error {
+	// Validate file exists and is not a directory
+	info, err := os.Stat(args.PathToSpec)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return gencli.NewValidationError(fmt.Sprintf("file not found: %s", args.PathToSpec))
+		}
+		return gencli.NewValidationError(fmt.Sprintf("cannot access file: %s (%v)", args.PathToSpec, err))
 	}
-	fmt.Fprintf(a.IOS.Out, "%s\n\n", desc)
-	fmt.Fprint(a.IOS.Out, bold("USAGE:"))
-	modifiers := make([]string, 0)
-	if len(cmd.CommandModifiers) > 0 {
-		modifiers = append(modifiers, strings.Join(cmd.CommandModifiers, " "))
-	}
-	if len(cmd.ArgsModifiers) > 0 {
-		modifiers = append(modifiers, strings.Join(cmd.ArgsModifiers, " "))
-	}
-	if len(cmd.FlagsModifiers) > 0 {
-		modifiers = append(modifiers, strings.Join(cmd.FlagsModifiers, " "))
-	}
-	fmt.Fprintf(a.IOS.Out, "\n  %s %s", cmd.CommandLine, strings.Join(modifiers, " "))
-
-	// var subcommands []*cobra.Command
-	// for _, c := range cmd.Commands() {
-	// 	if !c.IsAvailableCommand() {
-	// 		continue
-	// 	}
-	// 	subcommands = append(subcommands, c)
-	// }
-
-	// if len(subcommands) > 0 {
-	// 	fmt.Fprint(w, bold("\n\nAVAILABLE COMMANDS:"))
-	// 	col1 := []string{}
-	// 	col2 := []string{}
-	// 	for _, c := range subcommands {
-	// 		col1 = append(col1, c.Name())
-	// 		col2 = append(col2, c.Short)
-	// 	}
-	// 	fmt.Fprint(w, columns(col1, col2, ": "))
-	// }
-
-	// if len(args) > 0 {
-	// 	fmt.Fprint(w, bold("\n\nARGUMENTS:"))
-	// 	col1 := []string{}
-	// 	col2 := []string{}
-	// 	for name, desc := range args {
-	// 		col1 = append(col1, fmt.Sprintf("<%s>", name))
-	// 		col2 = append(col2, desc)
-	// 	}
-	// 	fmt.Fprint(w, columns(col1, col2, " "))
-	// }
-
-	// flagUsages := cmd.LocalFlags().FlagUsages()
-	// if flagUsages != "" {
-	// 	fmt.Fprintln(w, bold("\n\nFLAGS:"))
-	// 	fmt.Fprint(w, flagUsages)
-	// } else {
-	// 	fmt.Fprint(w, "\n")
-	// }
-
-	// return nil
-}
-
-func (a Actions) UsageFunc(
-	cmdUsage string,
-	argsUsage string,
-	flagsUsage string,
-	subcommandsUsage string,
-) {
-	fmt.Fprint(a.IOS.Out, "usage function")
-}
-
-func (a Actions) IOStreams() *gencli.IOStreams {
-	return &gencli.IOStreams{
-		In:     os.Stdin,
-		Out:    os.Stdout,
-		ErrOut: os.Stderr,
-	}
-}
-
-func bold(str string) string {
-	return fmt.Sprintf("\033[1m%s\033[0m", str)
-}
-
-func columns(col1, col2 []string, delimiter string) string {
-	width := columnWidth(col1)
-
-	var sb strings.Builder
-	for i := range col1 {
-		sb.WriteString(fmt.Sprintf("\n  %s%s%s%s", col1[i], delimiter, pad(col1[i], " ", width), col2[i]))
+	if info.IsDir() {
+		return gencli.NewValidationError(fmt.Sprintf("path is a directory, not a file: %s", args.PathToSpec))
 	}
 
-	return sb.String()
-}
+	// Select decoder by file extension
+	ext := strings.ToLower(filepath.Ext(args.PathToSpec))
+	decode := codec.UnmarshalYAML
+	switch ext {
+	case ".json":
+		decode = codec.UnmarshalJSON
+	case ".yaml", ".yml":
+		// default
+	default:
+		return gencli.NewValidationError(fmt.Sprintf("unsupported spec format: %s (only .json, .yaml, .yml are supported)", ext))
+	}
 
-func columnWidth(rows []string) int {
-	max := 0
+	stdout := a.IOS.Out()
+	fmt.Fprintf(stdout, "\n→ Reading spec:       %s\n", args.PathToSpec)
 
-	for _, row := range rows {
-		if len(row) > max {
-			max = len(row)
+	// Read and parse the spec document
+	data, err := os.ReadFile(args.PathToSpec)
+	if err != nil {
+		return gencli.NewValidationError(fmt.Sprintf("cannot read file: %s (%v)", args.PathToSpec, err))
+	}
+	doc, err := decode(data)
+	if err != nil {
+		return gencli.NewValidationError(fmt.Sprintf("failed to parse spec: %v", err))
+	}
+
+	fmt.Fprintf(stdout, "→ Generating CLI code:    framework=%s, output=%s\n", flags.Framework, flags.Out)
+
+	// Ensure output directory exists
+	if err := os.MkdirAll(flags.Out, 0755); err != nil {
+		return fmt.Errorf("cannot create output directory %s: %w", flags.Out, err)
+	}
+
+	opts := make([]gen.GenCLIOption, 0)
+	opts = append(opts, gen.GenCLIWithFramework(gen.CLIFramework(strings.ToUpper(string(flags.Framework)))))
+
+	// Generate CLI code
+	output, err := gen.CLI(doc, opts...)
+	if err != nil {
+		return fmt.Errorf("failed to generate %s CLI code: %w", flags.Framework, err)
+	}
+
+	// Resolve output file path
+	for fileName, fileContents := range output {
+		outFile := filepath.Join(flags.Out, fileName)
+		if err := os.MkdirAll(filepath.Dir(outFile), 0755); err != nil {
+			return fmt.Errorf("cannot create output directory %s: %w", filepath.Dir(outFile), err)
+		}
+		if err := os.WriteFile(outFile, fileContents, 0644); err != nil {
+			return fmt.Errorf("failed to write output file %s: %w", outFile, err)
 		}
 	}
 
-	return max
+	fmt.Fprintf(stdout, "✓ CLI Code written to: %s\n\n", flags.Out)
+
+	return nil
 }
 
-func pad(str string, c string, l int) string {
-	padLen := l - len(str)
+func (a Actions) HelpFunc(cmd *spec.CommandItem) {
+	gencli.DefaultHelpFunc(a, cmd)
+}
 
-	var sb strings.Builder
-	for range padLen {
-		sb.WriteString(c)
-	}
+func (a Actions) UsageFunc(cmd *spec.CommandItem) error {
+	return gencli.DefaultUsageFunc(a, cmd)
+}
 
-	return sb.String()
+func (a Actions) IOStreams() gencli.IOStreams {
+	return a.IOS
+}
+
+func (a Actions) Version() string {
+	return a.version
 }

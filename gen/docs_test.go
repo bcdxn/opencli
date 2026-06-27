@@ -1,20 +1,18 @@
-package gen_test
+package gen
 
 import (
 	"bytes"
 	_ "embed"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/bcdxn/opencli/codec"
-	"github.com/bcdxn/opencli/gen"
 )
 
-//go:generate mkdir -p out
-//go:generate cp -r ../examples/petstore-cli.ocs.yaml ./out/petstore-cli.ocs.yaml
-
-//go:embed out/petstore-cli.ocs.yaml
-var exampleYAML []byte
+var (
+	goldenMarkdown = "testdata/petstore-cli.md"
+)
 
 func TestDocs_Markdown(t *testing.T) {
 	doc, err := codec.UnmarshalYAML(exampleYAML)
@@ -22,12 +20,21 @@ func TestDocs_Markdown(t *testing.T) {
 		t.Fatalf("unexpected error unmarshaling example OpenCLI doc: %v", err)
 	}
 
-	actual, err := gen.Docs(doc, gen.DocsWithFormat(gen.Markdown))
+	actual, err := Docs(doc, DocsWithFormat(Markdown))
 	if err != nil {
 		t.Fatalf("unexpected error generated documentation: %v", err)
 	}
 
-	expected, err := os.ReadFile("testdata/petstore-cli.md")
+	if *update {
+		if err := os.MkdirAll(filepath.Dir(goldenMarkdown), 0755); err != nil {
+			t.Fatalf("failed to create golden dir for %s: %v", goldenMarkdown, err)
+		}
+		if err := os.WriteFile(goldenMarkdown, actual, 0644); err != nil {
+			t.Fatalf("failed to write golden file %s: %v", goldenMarkdown, err)
+		}
+	}
+
+	expected, err := os.ReadFile(goldenMarkdown)
 
 	if !bytes.Equal(actual, expected) {
 		t.Fatalf("output docs does not match expected docs")
@@ -40,10 +47,9 @@ func TestDocs_HTMLComponentBundle(t *testing.T) {
 		t.Fatalf("unexpected error unmarshaling example OpenCLI doc: %v", err)
 	}
 
-	actual, err := gen.Docs(
+	actual, err := Docs(
 		doc,
-		gen.DocsWithFormat(gen.HTML),
-		gen.DocsWithHTMLFlavor(gen.EmbeddableComponent),
+		DocsWithFormat(HTML_EMBED),
 	)
 	if err != nil {
 		t.Fatalf("unexpected error generated html embed docs: %v", err)

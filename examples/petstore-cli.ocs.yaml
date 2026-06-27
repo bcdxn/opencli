@@ -54,6 +54,8 @@ global:
     yaml: ~/.petstore/config.yaml
   flags:
     - name: "help"
+      aliases:
+        - "h"
       summary: "contextual help"
       type: boolean
       default: false
@@ -67,8 +69,6 @@ commands:
     group: true
 
   petstore list [flags]:
-    aliases:
-    - ls
     summary: List all endpoints available
 
   petstore pet {command} <arguments> [flags]:

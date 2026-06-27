@@ -31,7 +31,6 @@ export function generateOCSDocs(
   input: string,
   inputFormat: string,
   outputFormat: string,
-  htmlFlavor: string,
 ): GenerationResult {
-  return window.generateOCSDocs(input, inputFormat, outputFormat, htmlFlavor);
+  return window.generateOCSDocs(input, inputFormat, outputFormat);
 }

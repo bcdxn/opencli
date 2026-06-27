@@ -23,7 +23,6 @@ import (
 func Docs(doc *spec.Document, options ...GenDocsOption) ([]byte, error) {
 	opts := &genDocsOptions{
 		Format:        Markdown,
-		HTMLFlavor:    StandalonePage,
 		IncludeBadge:  true,
 		IncludeFooter: true,
 	}
@@ -34,10 +33,6 @@ func Docs(doc *spec.Document, options ...GenDocsOption) ([]byte, error) {
 
 	if !opts.Format.IsValid() {
 		return []byte{}, errors.New("invalid documentation format")
-	}
-
-	if opts.Format == HTML && !opts.HTMLFlavor.IsValid() {
-		return []byte{}, errors.New("invalid HTML flavor")
 	}
 
 	if opts.Format == ManPage {
@@ -74,48 +69,19 @@ func DocsWithFormat(format DocFormat) GenDocsOption {
 	}
 }
 
-// DocsWithHTMLFlavor sets the HTML output flavor when using the HTML format.
-// Use EmbeddableComponent for a JavaScript bundle that exposes window.OcliDocs(opts)
-// and can be initialized in any existing page with a target container.
-// Use StandalonePage (the default) for a complete HTML document that can be opened
-// directly in a browser.
-func DocsWithHTMLFlavor(flavor HTMLFlavor) GenDocsOption {
-	return func(opts *genDocsOptions) {
-		opts.HTMLFlavor = flavor
-	}
-}
-
 // DocFormat is the output format for generated documentation.
 type DocFormat string
 
 const (
-	Markdown DocFormat = "MARKDOWN"
-	HTML     DocFormat = "HTML"
-	ManPage  DocFormat = "MAN"
+	Markdown   DocFormat = "MARKDOWN"
+	HTML_PAGE  DocFormat = "HTML_PAGE"
+	HTML_EMBED DocFormat = "HTML_EMBED"
+	ManPage    DocFormat = "MAN"
 )
 
 func (f DocFormat) IsValid() bool {
 	switch f {
-	case Markdown, HTML, ManPage:
-		return true
-	}
-	return false
-}
-
-// HTMLFlavor controls which HTML output variant is generated.
-type HTMLFlavor string
-
-const (
-	// StandalonePage produces a complete <!doctype html> document ready to open in a browser.
-	StandalonePage HTMLFlavor = "PAGE"
-	// EmbeddableComponent produces a JavaScript file that registers window.OcliDocs,
-	// which mounts the docs UI into a caller-provided container.
-	EmbeddableComponent HTMLFlavor = "EMBED"
-)
-
-func (f HTMLFlavor) IsValid() bool {
-	switch f {
-	case StandalonePage, EmbeddableComponent:
+	case Markdown, HTML_PAGE, HTML_EMBED, ManPage:
 		return true
 	}
 	return false
@@ -128,7 +94,6 @@ func (f HTMLFlavor) IsValid() bool {
 // The options are meant to be configured using the functional options pattern.
 type genDocsOptions struct {
 	Format        DocFormat
-	HTMLFlavor    HTMLFlavor
 	IncludeBadge  bool
 	IncludeFooter bool
 }
@@ -144,7 +109,7 @@ func genDocs(data docsTmplData) ([]byte, error) {
 	switch data.Opts.Format {
 	case Markdown:
 		return genDocsMarkdown(data)
-	case HTML:
+	case HTML_PAGE, HTML_EMBED:
 		return genDocsHTML(data)
 	}
 
@@ -192,7 +157,7 @@ func genDocsHTML(data docsTmplData) ([]byte, error) {
 		return []byte{}, fmt.Errorf("unable to parse HTML docs templates: %w", err)
 	}
 
-	if data.Opts.HTMLFlavor == EmbeddableComponent {
+	if data.Opts.Format == HTML_EMBED {
 		markupBuf := bytes.NewBuffer([]byte{})
 		err = t.ExecuteTemplate(markupBuf, "embed-markup", data)
 		if err != nil {

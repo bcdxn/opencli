@@ -65,21 +65,20 @@ func jsValidateOCS(this js.Value, args []js.Value) any {
 	})
 }
 
-// jsGenerateOCSDocs is exposed as window.generateOCSDocs(input, inputFormat, outputFormat, htmlFlavor).
+// jsGenerateOCSDocs is exposed as window.generateOCSDocs(input, inputFormat, outputFormat).
 // Returns { output: string, error: string }. Never panics.
 func jsGenerateOCSDocs(this js.Value, args []js.Value) any {
 	failWith := func(msg string) any {
 		return jsonToJS(map[string]any{"output": "", "error": msg})
 	}
 
-	if len(args) < 4 {
-		return failWith("missing arguments: input, inputFormat, outputFormat, htmlFlavor required")
+	if len(args) < 3 {
+		return failWith("missing arguments: input, inputFormat, outputFormat required")
 	}
 
 	input := []byte(args[0].String())
 	inputFormat := args[1].String()
 	outputFormat := args[2].String()
-	htmlFlavor := args[3].String()
 
 	// Parse input document
 	unmarshal := codec.UnmarshalYAML
@@ -102,18 +101,12 @@ func jsGenerateOCSDocs(this js.Value, args []js.Value) any {
 	switch outputFormat {
 	case "markdown":
 		opts = append(opts, gen.DocsWithFormat(gen.Markdown))
-	case "html":
-		opts = append(opts, gen.DocsWithFormat(gen.HTML))
-		switch htmlFlavor {
-		case "page":
-			opts = append(opts, gen.DocsWithHTMLFlavor(gen.StandalonePage))
-		case "embed":
-			opts = append(opts, gen.DocsWithHTMLFlavor(gen.EmbeddableComponent))
-		default:
-			return failWith("unsupported htmlFlavor: must be 'page' or 'embed'")
-		}
+	case "html-page":
+		opts = append(opts, gen.DocsWithFormat(gen.HTML_PAGE))
+	case "html-embed":
+		opts = append(opts, gen.DocsWithFormat(gen.HTML_EMBED))
 	default:
-		return failWith("unsupported outputFormat: must be 'markdown' or 'html'")
+		return failWith("unsupported outputFormat: must be 'markdown', 'html-page', or 'html-embed'")
 	}
 
 	result, err := gen.Docs(doc, opts...)

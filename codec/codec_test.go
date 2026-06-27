@@ -3,7 +3,9 @@ package codec_test
 import (
 	"bytes"
 	_ "embed"
+	"flag"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/bcdxn/opencli/codec"
@@ -14,11 +16,18 @@ import (
 //go:generate cp -r ../examples/petstore-cli.ocs.json ./out/petstore-cli.ocs.json
 //go:generate cp -r ../examples/petstore-cli.ocs.yaml ./out/petstore-cli.ocs.yaml
 
+var (
+	goldenJSON = "testdata/expected.json"
+	goldenYAML = "testdata/expected.yaml"
+)
+
 //go:embed out/petstore-cli.ocs.yaml
 var exampleYAML []byte
 
 //go:embed out/petstore-cli.ocs.json
 var exampleJSON []byte
+
+var update = flag.Bool("update", false, "update golden files for CLI generation tests")
 
 func TestUnmarshalYAML(t *testing.T) {
 	d, err := codec.UnmarshalYAML(exampleYAML)
@@ -47,6 +56,15 @@ func TestMarshalJSON(t *testing.T) {
 		t.Fatalf("marshal json failed: %v", err)
 	}
 
+	if *update {
+		if err := os.MkdirAll(filepath.Dir(goldenJSON), 0755); err != nil {
+			t.Fatalf("failed to create golden dir for %s: %v", goldenJSON, err)
+		}
+		if err := os.WriteFile(goldenJSON, actual, 0644); err != nil {
+			t.Fatalf("failed to write golden file %s: %v", goldenJSON, err)
+		}
+	}
+
 	expected, err := os.ReadFile("testdata/expected.json")
 	if err != nil {
 		t.Fatalf("error writing output file: %v", err)
@@ -66,6 +84,15 @@ func TestMarshalYAML(t *testing.T) {
 	actual, err := codec.MarshalYAML(doc)
 	if err != nil {
 		t.Fatalf("marshal yaml failed: %v", err)
+	}
+
+	if *update {
+		if err := os.MkdirAll(filepath.Dir(goldenYAML), 0755); err != nil {
+			t.Fatalf("failed to create golden dir for %s: %v", goldenYAML, err)
+		}
+		if err := os.WriteFile(goldenYAML, actual, 0644); err != nil {
+			t.Fatalf("failed to write golden file %s: %v", goldenYAML, err)
+		}
 	}
 
 	expected, err := os.ReadFile("testdata/expected.yaml")
