@@ -40,11 +40,10 @@ clean:
 all: test release
 
 .PHONY: html-docs
-html-docs:
+markdown-docs:
 	go run cmd/cobra/main.go gen docs \
 		--out ./docs \
-		--format html \
-		--html-flavor embed \
+		--format markdown \
 		opencli.ocs.yaml
 
 
@@ -53,7 +52,7 @@ copy-wasm-exec:
 	cp -f "$$(go env GOROOT)/lib/wasm/wasm_exec.js" web/public/wasm_exec.js
 
 .PHONY: build-wasm
-build-wasm: copy-wasm-exec
+build-wasm: copy-wasm-exec generate
 	GOOS=js GOARCH=wasm go build -o web/public/opencli.wasm ./cmd/wasm/main.go
 
 .PHONY: build-ui

@@ -1,0 +1,73 @@
+name: Deploy Pages Site
+
+on:
+  push:
+    branches: ["main"] # Change to your default branch
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: ./web/package-lock.json
+      - name: Build
+        run: make build-ui
+      - name: Upload Pages Distribution Files
+        uses: actions/upload-artifact@v7
+        with:
+          name: github-pages
+          path: ./web/dist
+
+  package:
+    name: Package
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout Destination Repo
+        uses: actions/checkout@v7
+        with:
+          repository: openclidev/openclidev.github.io
+          token: ${{ secrets.PAGES_DEPLOY_TOKEN }}
+          path: dest
+          ref: main
+      - name: Download Pages Artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: github-pages
+          path: 'dest'
+      - name: Commit and Push to Destination Repo
+        run: |
+          cd dest
+          ls -l
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          # Only commit and push if changes exist to avoid workflow errors
+          if ! git diff-index --quiet HEAD; then
+            git commit -m "Automated sync from source repo"
+            git push origin main
+          else
+            echo "No changes detected. Skipping push."
+          fi

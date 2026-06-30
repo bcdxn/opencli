@@ -75,7 +75,7 @@ commands:
           by parsing it and checking it against the OpenCLI Specification.
 
           > [!TIP]
-          > The  format of the input file will be determined by the file extension.
+          > The format of the input file will be determined by the file extension.
         required: true
         type: "string"
     flags:
