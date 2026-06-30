@@ -1,0 +1,399 @@
+opencliVersion: 1.0.0-alpha.8
+
+info:
+  title: PetStore CLI
+  summary: 一个示例 CLI 文档，用于描述 petstore CLI 可能提供的操作。
+  description: |
+    `petstore` 是一个示例命令行接口，旨在让你更轻松地使用
+    [PetStore API](https://petstore3.swagger.io)。它提供了多项能力，包括：
+
+    - 校验请求参数
+    - 执行 API 请求
+    - 解析 API 响应
+    - 处理 API 错误
+
+    下文提供了这些命令的说明。你也可以通过上下文 `--help` 参数了解每个
+    命令的更多信息，例如：
+
+    ```sh
+    petstore --help
+    ```
+  version: 1.0.0
+  binary: petstore
+  license:
+    name: MIT
+    spdxId: MIT
+    url: https://spdx.org/licenses/MIT.html
+  contact:
+    name: OpenCLI Team
+    url: https://github.com/bcdxn/opencli
+
+install:
+  - name: Binary Download
+    url: https://github.com/bcdxn/petstorecli/releases
+    description: 一个示例发布地址；该 CLI 并无真实发布版本。
+  - name: Go Install
+    command: go install github.com/bcdxn/petstore/cmd/cli@latest
+    description: 一个示例 go install 命令；该 CLI 并无真实发布版本。
+
+global:
+  exitCodes:
+    - code: 0
+      status: OK
+      summary: 命令执行成功
+    - code: 1
+      status: INTERNAL_CLI_ERROR
+      summary: 命令执行失败
+    - code: 2
+      status: BAD_USER_INPUT_ERROR
+      summary: 输入缺失或无效
+  config:
+    json: ~/.petstore/config.json
+    toml: ~/.petstore/config.toml
+    yaml: ~/.petstore/config.yaml
+
+commands:
+  petstore {command} <arguments> [flags]:
+    group: true
+
+  petstore list [flags]:
+    aliases:
+    - ls
+    summary: 列出所有可用端点
+
+  petstore pet {command} <arguments> [flags]:
+    summary: 管理宠物的命令集合
+    group: true
+
+  petstore pet add [flags]:
+    summary: 向商店新增宠物
+    description: |
+      使用 JSON 请求体或显式参数在商店中创建新宠物。
+    args:
+    - name: path-to-req-body
+      type: string
+      summary: 包含新宠物请求体的 JSON 文件路径
+      description: |
+        一个 JSON 格式文件，包含用于新增宠物请求的完整 POST 请求体。
+        使用 PetStore API 在商店中新增宠物时可直接使用。完整 schema 可见
+        [这里](https://petstore3.swagger.io/api/v3/openapi.json#/components/schemas/PetPet)。
+        你可以使用该参数替代逐个传递 flag。
+      required: false
+    flags:
+    - name: name
+      aliases:
+      - n
+      type: string
+      summary: 宠物名称
+    - name: photoUrls
+      aliases:
+      - p
+      type: string
+      summary: 用于展示宠物的图片 URL 列表
+      description: |
+        多次提供该参数可设置多个图片 URL。
+      variadic: true
+    - name: status
+      type: string
+      summary: 宠物在商店中的状态
+      choices:
+      - value: available
+      - value: pending
+      - value: sold
+    - name: tag
+      type: string
+      summary: 用于分组/排序的宠物标签
+      description: |
+        多次提供该参数可添加多个标签。
+      variadic: true
+
+  petstore pet update [flags]:
+    summary: 更新已有宠物
+    description: |
+      使用 JSON 请求体或显式参数更新宠物。
+    args:
+    - name: path-to-req-body
+      type: string
+      summary: 包含更新后宠物请求体的 JSON 文件路径
+    flags:
+    - name: name
+      aliases:
+      - n
+      type: string
+      summary: 更新后的宠物名称
+    - name: status
+      type: string
+      summary: 更新后的宠物状态
+      choices:
+      - value: available
+      - value: pending
+      - value: sold
+    - name: photoUrls
+      aliases:
+      - p
+      type: string
+      summary: 用于展示宠物的图片 URL 列表
+      description: |
+        多次提供该参数可设置多个图片 URL。
+      variadic: true
+    - name: tags
+      type: string
+      summary: 分配给宠物的标签
+      description: |
+        多次提供该参数可添加多个标签。
+      variadic: true
+
+  petstore pet find-by-status [flags]:
+    summary: 按状态查找宠物
+    flags:
+    - name: status
+      type: string
+      summary: 用于筛选宠物的状态
+      choices:
+      - value: available
+      - value: pending
+      - value: sold
+      required: true
+
+  petstore pet find-by-tags [flags]:
+    summary: 按标签查找宠物
+    flags:
+    - name: tags
+      type: string
+      summary: 用于筛选宠物的标签
+      description: |
+        多次提供该参数可按多个标签筛选。
+      variadic: true
+
+  petstore pet get [flags]:
+    summary: 按 ID 查找宠物
+    flags:
+    - name: id
+      type: integer
+      summary: 要获取的宠物 ID
+      required: true
+
+  petstore pet update-form [flags]:
+    summary: 使用表单数据更新宠物
+    flags:
+    - name: id
+      type: integer
+      summary: 要更新的宠物 ID
+      required: true
+    - name: name
+      type: string
+      summary: 宠物的新名称
+    - name: status
+      type: string
+      summary: 宠物的新状态
+      choices:
+      - value: available
+      - value: pending
+      - value: sold
+
+  petstore pet delete [flags]:
+    summary: 删除宠物
+    flags:
+    - name: id
+      type: integer
+      summary: 要删除的宠物 ID
+      required: true
+    - name: api-key
+      type: string
+      summary: 用于授权删除请求的 API Key 请求头
+
+  petstore pet upload-image <path-to-file> [flags]:
+    summary: 为宠物上传图片
+    description: |
+      为指定宠物上传二进制图片文件。
+    args:
+    - name: path-to-file
+      type: string
+      summary: 要上传文件的路径
+      required: true
+    flags:
+    - name: id
+      type: integer
+      summary: 宠物 ID
+      required: true
+    - name: additionalMetadata
+      type: string
+      summary: 与上传图片一起存储的附加元数据
+
+  petstore store {command} <arguments> [flags]:
+    summary: 商店操作的命令集合
+    group: true
+
+  petstore store inventory:
+    summary: 按状态返回宠物库存
+
+  petstore store order {command} <arguments> [flags]:
+    summary: 采购订单的命令集合
+    group: true
+
+  petstore store order place [flags]:
+    summary: 为宠物下单
+    description: |
+      使用 JSON 请求体或显式参数创建采购订单。
+    args:
+    - name: path-to-order-body
+      type: string
+      summary: 包含订单请求体的 JSON 文件路径
+    flags:
+    - name: pet-id
+      type: integer
+      summary: 宠物 ID to order
+    - name: quantity
+      type: integer
+      summary: 订购宠物数量
+    - name: status
+      type: string
+      summary: 订单状态
+      choices:
+      - value: placed
+      - value: approved
+      - value: delivered
+    - name: complete
+      type: boolean
+      summary: 订单是否已完成
+
+  petstore store order get [flags]:
+    summary: 按 ID 查找采购订单
+    flags:
+    - name: id
+      type: integer
+      summary: 要获取的订单 ID
+      required: true
+
+  petstore store order delete [flags]:
+    summary: 按 ID 删除采购订单
+    args:
+    - name: id
+      type: integer
+      summary: 要删除的订单 ID
+      required: true
+
+  petstore user create <arguments> [flags]:
+    summary: 创建用户
+    description: |
+      使用 JSON 请求体或显式参数创建新用户。
+    args:
+    - name: path-to-user-body
+      type: string
+      summary: 包含用户请求体的 JSON 文件路径
+      required: false
+    flags:
+    - name: username
+      type: string
+      summary: 用户名
+      required: false
+    - name: firstName
+      type: string
+      summary: 用户名（名）
+      required: false
+    - name: lastName
+      type: string
+      summary: 用户姓氏
+      required: false
+    - name: email
+      type: string
+      summary: 用户邮箱地址
+      required: false
+    - name: password
+      type: string
+      summary: 用户密码
+      required: false
+    - name: phone
+      type: string
+      summary: 用户电话号码
+      required: false
+    - name: status
+      type: integer
+      summary: 用户状态
+      required: false
+
+  petstore user create-with-list <arguments>:
+    summary: 通过列表批量创建用户
+    description: |
+      使用 JSON 数组请求体批量创建用户。
+    args:
+    - name: path-to-users-body
+      type: string
+      summary: 包含用户列表请求体的 JSON 文件路径
+      required: true
+
+  petstore user login [flags]:
+    summary: 用户登录
+    flags:
+    - name: username
+      type: string
+      summary: 用户名
+      required: false
+      alternativeSources:
+      - type: $ENV
+        property: PETSTORE_USER
+      - type: $FILE
+        property: $.auth.user
+    - name: password
+      type: string
+      summary: 用户密码
+      required: false
+      alternativeSources:
+      - type: $ENV
+        property: PETSTORE_PASS
+      - type: $FILE
+        property: $.auth.pass
+
+  petstore user logout:
+    summary: 退出当前用户登录
+
+  petstore user get [flags]:
+    summary: 按用户名获取用户
+    flags:
+    - name: username
+      type: string
+      summary: 要查询的用户名
+      required: true
+
+  petstore user update [flags]:
+    summary: 更新用户
+    description: |
+      使用 JSON 请求体或显式参数更新用户信息。
+    flags:
+    - name: username
+      type: string
+      summary: 要更新用户的用户名
+      required: true
+    - name: firstName
+      type: string
+      summary: 用户名（名）
+      required: false
+    - name: lastName
+      type: string
+      summary: 用户姓氏
+      required: false
+    - name: email
+      type: string
+      summary: 用户邮箱地址
+      required: false
+    - name: password
+      type: string
+      summary: 用户密码
+      required: false
+    - name: phone
+      type: string
+      summary: 用户电话号码
+      required: false
+    - name: userStatus
+      type: integer
+      summary: 用户状态
+      required: false
+
+  petstore user delete [flags]:
+    summary: 删除用户
+    hidden: true
+    flags:
+    - name: username
+      type: string
+      summary: 要删除用户的用户名
+      required: true

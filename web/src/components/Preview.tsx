@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 import { generateOCSDocs } from "../wasm/client";
+import { useI18n } from "../i18n";
 import "./Preview.css";
 
 interface PreviewProps {
@@ -43,6 +44,7 @@ export default function Preview({
   inputFormat,
   wasmReady,
 }: PreviewProps) {
+  const { t } = useI18n();
   const [outputFormat, setOutputFormat] = useState<OutputFormat>("markdown");
   const [viewMode, setViewMode] = useState<ViewMode>("rendered");
   const [generatedOutput, setGeneratedOutput] = useState("");
@@ -89,7 +91,7 @@ export default function Preview({
             className="preview-iframe"
             srcDoc={srcDoc}
             sandbox="allow-scripts"
-            title="HTML Preview"
+            title={t("preview.iframeTitle")}
           />
         );
       }
@@ -131,39 +133,39 @@ export default function Preview({
     <div className="preview-panel">
       <div className="preview-header">
         <div className="preview-header-group">
-          <span>Output:</span>
+          <span>{t("preview.output")}</span>
           <button
             className={`toggle-btn${outputFormat === "markdown" ? " active" : ""}`}
             onClick={() => setOutputFormat("markdown")}
           >
-            Markdown
+            {t("preview.markdown")}
           </button>
           <button
             className={`toggle-btn${outputFormat === "html-page" ? " active" : ""}`}
             onClick={() => setOutputFormat("html-page")}
           >
-            HTML Page
+            {t("preview.htmlPage")}
           </button>
           <button
             className={`toggle-btn${outputFormat === "html-embed" ? " active" : ""}`}
             onClick={() => setOutputFormat("html-embed")}
           >
-            HTML Embed
+            {t("preview.htmlEmbed")}
           </button>
         </div>
         <div className="preview-header-group">
-          <span>View:</span>
+          <span>{t("preview.view")}</span>
           <button
             className={`toggle-btn${viewMode === "rendered" ? " active" : ""}`}
             onClick={() => setViewMode("rendered")}
           >
-            Rendered
+            {t("preview.rendered")}
           </button>
           <button
             className={`toggle-btn${viewMode === "raw" ? " active" : ""}`}
             onClick={() => setViewMode("raw")}
           >
-            Raw
+            {t("preview.raw")}
           </button>
         </div>
       </div>

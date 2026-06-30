@@ -3,12 +3,20 @@ import SiteHeader from "../components/SiteHeader";
 import { loadWasm } from "../wasm/client";
 import Editor from "../components/Editor";
 import Preview from "../components/Preview";
+import { useI18n, type Locale } from "../i18n";
 import "./EditorPage.css";
 
+const sampleFiles: Record<Locale, string> = {
+  en: "petstore-cli.ocs.yaml",
+  "zh-CN": "petstore-cli.zh-cn.ocs.yaml",
+};
+
 export default function EditorPage() {
+  const { locale, t } = useI18n();
   const [wasmReady, setWasmReady] = useState(false);
   const [content, setContent] = useState("");
   const [format, setFormat] = useState<"yaml" | "json">("yaml");
+  const [sampleLocale, setSampleLocale] = useState<Locale>(locale);
   const [editorWidth, setEditorWidth] = useState(50);
   const panelsRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
@@ -20,11 +28,18 @@ export default function EditorPage() {
   }, []);
 
   useEffect(() => {
-    fetch(`${import.meta.env.BASE_URL}petstore-cli.ocs.yaml`)
+    setSampleLocale(locale);
+  }, [locale]);
+
+  useEffect(() => {
+    fetch(`${import.meta.env.BASE_URL}${sampleFiles[sampleLocale]}`)
       .then((r) => r.text())
-      .then((text) => setContent(text))
+      .then((text) => {
+        setContent(text);
+        setFormat("yaml");
+      })
       .catch(console.error);
-  }, []);
+  }, [sampleLocale]);
 
   const handleDividerMouseDown = () => {
     isDraggingRef.current = true;
@@ -59,9 +74,20 @@ export default function EditorPage() {
       <SiteHeader />
 
       <div className="app">
+        <div className="editor-sample-bar">
+          <label htmlFor="sample-language">{t("editor.sample.label")}</label>
+          <select
+            id="sample-language"
+            value={sampleLocale}
+            onChange={(event) => setSampleLocale(event.target.value as Locale)}
+          >
+            <option value="en">{t("editor.sample.en")}</option>
+            <option value="zh-CN">{t("editor.sample.zh")}</option>
+          </select>
+        </div>
         {!wasmReady && (
           <div className="loading-overlay">
-            <span>Loading WASM engine...</span>
+            <span>{t("editor.loadingWasm")}</span>
           </div>
         )}
         <div className="panels" ref={panelsRef}>

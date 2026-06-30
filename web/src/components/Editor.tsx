@@ -5,6 +5,7 @@ import { yaml } from "@codemirror/lang-yaml";
 import { json } from "@codemirror/lang-json";
 import { validateOCS } from "../wasm/client";
 import type { ValidationError } from "../wasm/types";
+import { useI18n } from "../i18n";
 import "./Editor.css";
 
 interface EditorProps {
@@ -22,6 +23,7 @@ export default function Editor({
   onContentChange,
   onFormatChange,
 }: EditorProps) {
+  const { t } = useI18n();
   const editorRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const langCompartmentRef = useRef<Compartment | null>(null);
@@ -103,7 +105,7 @@ export default function Editor({
   return (
     <div className="editor-panel">
       <div className="editor-header">
-        <span>Format:</span>
+        <span>{t("editor.format")}</span>
         <button
           className={`toggle-btn${format === "yaml" ? " active" : ""}`}
           onClick={() => onFormatChange("yaml")}
@@ -122,9 +124,11 @@ export default function Editor({
 
       <div className="editor-footer">
         {valid === null && (
-          <div className="validation-valid">Waiting for WASM...</div>
+          <div className="validation-valid">{t("editor.waiting")}</div>
         )}
-        {valid === true && <div className="validation-valid">✓ Valid</div>}
+        {valid === true && (
+          <div className="validation-valid">✓ {t("editor.valid")}</div>
+        )}
         {valid === false && errors.length > 0 && (
           <div className="validation-errors">
             {errors.map((e, i) => (

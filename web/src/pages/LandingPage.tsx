@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import SiteHeader from "../components/SiteHeader";
 import "./LandingPage.css";
+import SiteFooter from "../components/SiteFooter";
 import React from "react";
+import { useI18n } from "../i18n";
 
-const yamlSample = `opencliVersion: 1.0.0-alpha.8
+const yamlSampleEn = `opencliVersion: 1.0.0-alpha.8
 
 info:
   title: Pleasantries CLI
@@ -25,6 +27,29 @@ commands:
       - name: "language"
         type: "string"
         default: "english"`;
+
+const yamlSampleCh = `opencliVersion: 1.0.0-alpha.8
+
+info:
+  title: 寒暄
+  summary: 亲切的问候
+  version: 1.0.0
+  binary: pleasantries
+
+commands:
+  pleasantries {command} <args> [flags]:
+    group: true
+
+  pleasantries greet <args> [flags]:
+    summary: "问好"
+    args:
+      - name: "name"
+        required: true
+        type: "string"
+    flags:
+      - name: "language"
+        type: "string"
+        default: "chinese"`;
 
 function renderYamlValue(value: string): React.JSX.Element {
   if (value.startsWith('"') || value.startsWith("'")) {
@@ -86,6 +111,9 @@ function tokenizeYamlLine(line: string, i: number): React.JSX.Element {
 }
 
 export default function LandingPage() {
+  const { t, locale } = useI18n();
+  const activeYamlSample = locale === "zh-CN" ? yamlSampleCh : yamlSampleEn;
+
   return (
     <div className="landing-route">
       <SiteHeader />
@@ -93,34 +121,30 @@ export default function LandingPage() {
       <main className="landing-main">
         <section className="hero-shell">
           <div className="hero-copy">
-            <div className="hero-kicker">OPENCLI</div>
-            <h1>Contract-First CLI Design</h1>
-            <h2>Define your interface. Automate the rest.</h2>
-            <p>
-              OpenCLI is an open document specification for command-line tools.
-              Author verifiable, human-readable CLI definitions. Generate
-              documentation and framework-specific code from a single spec.
-            </p>
+            <div className="hero-kicker">{t("landing.kicker")}</div>
+            <h1>{t("landing.title")}</h1>
+            <h2>{t("landing.subtitle")}</h2>
+            <p>{t("landing.description")}</p>
 
             <div className="hero-actions">
               <Link className="button primary" to="/editor">
-                Open Live Editor
+                {t("landing.cta.editor")}
               </Link>
               <Link className="button secondary" to="/docs">
-                View CLI Docs
+                {t("landing.cta.docs")}
               </Link>
             </div>
 
             <div className="hero-tags">
-              <span>contract-first</span>
-              <span>framework-agnostic</span>
-              <span>agent-ready</span>
+              <span>{t("landing.tag.contract")}</span>
+              <span>{t("landing.tag.framework")}</span>
+              <span>{t("landing.tag.agent")}</span>
             </div>
           </div>
 
           <section
             className="terminal-shot"
-            aria-label="CLI screenshot placeholder"
+            aria-label={t("landing.terminalAria")}
           >
             <div className="terminal-titlebar">
               <span />
@@ -130,7 +154,7 @@ export default function LandingPage() {
             <div className="terminal-body">
               <pre>
                 <code>
-                  {yamlSample
+                  {activeYamlSample
                     .split("\n")
                     .map((line, i) => tokenizeYamlLine(line, i))}
                 </code>
@@ -141,28 +165,20 @@ export default function LandingPage() {
 
         <section className="benefits">
           <article>
-            <h2>Contract-First Development</h2>
-            <p>
-              Promote stable command contracts and keep implementation details
-              decoupled from CLI frameworks.
-            </p>
+            <h2>{t("landing.benefit.contract.title")}</h2>
+            <p>{t("landing.benefit.contract.copy")}</p>
           </article>
           <article>
-            <h2>Tooling That Scales</h2>
-            <p>
-              Validate specs, generate docs, and standardize outputs across
-              teams and languages.
-            </p>
+            <h2>{t("landing.benefit.scaling.title")}</h2>
+            <p>{t("landing.benefit.scaling.copy")}</p>
           </article>
           <article>
-            <h2>Better Agent Understanding</h2>
-            <p>
-              Give LLMs and automation tools a structured, explicit model of
-              your CLI surface area.
-            </p>
+            <h2>{t("landing.benefit.agent.title")}</h2>
+            <p>{t("landing.benefit.agent.copy")}</p>
           </article>
         </section>
       </main>
+      <SiteFooter />
     </div>
   );
 }

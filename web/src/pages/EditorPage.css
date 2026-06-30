@@ -5,6 +5,36 @@
   background: #ffffff;
 }
 
+.app {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.editor-sample-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #fafcff;
+}
+
+.editor-sample-bar label {
+  font-size: 13px;
+  color: #465469;
+  font-weight: 600;
+}
+
+.editor-sample-bar select {
+  border: 1px solid #b5c4d8;
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: #233043;
+  background: #ffffff;
+}
+
 .panels {
   display: flex;
   flex-direction: row;
