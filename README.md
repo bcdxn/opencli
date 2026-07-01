@@ -11,6 +11,7 @@ _Like OpenAPI Spec, but for your CLIs_
 [![Go Reference](https://pkg.go.dev/badge/github.com/bcdxn/opencli.svg)](https://pkg.go.dev/github.com/bcdxn/opencli)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/13457/badge)](https://www.bestpractices.dev/projects/13457)
 [![OpenCLI Compliant](https://img.shields.io/badge/OpenCLI_Spec-Compliant-brightgreen?link=https%3A%2F%2Fgithub.com%2Fbcdxn%2Fopencli)](https://opencli.dev)
+[![CI](https://github.com/bcdxn/opencli/actions/workflows/ci.yaml/badge.svg)](https://github.com/bcdxn/opencli/actions/workflows/ci.yaml)
 
 ## Table of Contents
 
