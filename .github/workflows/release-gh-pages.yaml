@@ -1,8 +1,7 @@
-name: Deploy Pages Site
+name: Release GH Pages
 
 on:
-  push:
-    branches: ["main"] # Change to your default branch
+  workflow_call: {}
 
 permissions:
   contents: read
@@ -10,7 +9,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: pages
   cancel-in-progress: false
 
 jobs:
@@ -38,11 +37,10 @@ jobs:
           name: github-pages
           path: ./web/dist
 
-  package:
-    name: Package
+  publish:
+    name: Push to GH Pages Repo
     needs: build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
 
     steps:
       - name: Checkout Destination Repo

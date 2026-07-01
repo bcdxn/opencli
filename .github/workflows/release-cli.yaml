@@ -1,0 +1,33 @@
+name: Release CLI
+
+on:
+  workflow_call:
+    inputs:
+      target_ref:
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Release CLI
+    # FIXED: Added explicit expression syntax wrapper for checking inputs in a job conditional
+    if: ${{ startsWith(inputs.target_ref, 'refs/tags/') }} 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.target_ref }}
+          fetch-depth: 0 
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v7
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

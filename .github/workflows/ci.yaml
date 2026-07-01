@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ '*' ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - name: Go Generate
+        run: go generate ./...
+      - name: Test
+        run: go test ./...
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: ./web/package-lock.json
+      - name: Build
+        run: make build-ui
+      - name: Upload Pages Distribution Files
+        uses: actions/upload-artifact@v7
+        with:
+          name: github-pages
+          path: ./web/dist
+      - name: UI Build
+        run: make build-ui
+  
+  trigger-release-gh-pages:
+    name: Trigger Release GH Pages
+    needs: ci
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/release-gh-pages.yaml
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    secrets: inherit
+  
+  trigger-release-cli:
+    name: Trigger Release CLI
+    needs: ci
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/release-cli.yaml
+    with:
+      target_ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
