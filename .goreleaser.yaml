@@ -41,16 +41,21 @@ changelog:
       - "^docs:"
       - "^test:"
 
+git:
+  prerelease_suffix: "-alpha."
+
 release:
   draft: true
   replace_existing_draft: true
   replace_existing_artifacts: true
   prerelease: auto
   make_latest: true
-  header: |
-    ## ({{ .Date }})
+  header: ""
   footer: >-
 
-    ---
+    ## Additional Links
+    - [Interactive OpenCLI Spec document editor](https://opencli.dev)
+    - [CLI Reference Docs](https://opencli.dev/reference)
 
+    ---
     Released by [GoReleaser](https://github.com/goreleaser/goreleaser).
