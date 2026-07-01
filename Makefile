@@ -4,33 +4,35 @@ generate:
 
 .PHONY: test
 test: generate
-	go test ./...
+	@echo Running tests...
+	@go test ./...
+
 
 version = $(shell git describe --tags HEAD)
 
 .PHONY: build
 build: generate
-	go run cmd/cobra/main.go gen docs \
+	@go run cmd/cobra/main.go gen docs \
 		--out ./docs \
 		--format markdown \
 		opencli.ocs.yaml
 
 .PHONY: examples
 examples: build
-	go run cmd/cobra/main.go gen docs \
+	@go run cmd/cobra/main.go gen docs \
 		--out ./examples/docs \
 		--format markdown \
 		./examples/petstore-cli.ocs.yaml
 	
-	go run cmd/cobra/main.go gen docs \
+	@go run cmd/cobra/main.go gen docs \
 		--out ./examples/docs \
 		--format markdown \
 		./examples/pleasantries-cli.ocs.yaml
 
 .PHONY: release
 release: examples
-	echo "building OpenCLI version $(version)::::"
-	goreleaser release --clean --skip=publish
+	@echo "building OpenCLI version $(version)::::"
+	@goreleaser release --clean --skip=publish
 
 .PHONY: clean
 clean:
@@ -41,7 +43,7 @@ all: test release
 
 .PHONY: html-docs
 html-docs:
-	go run cmd/cobra/main.go gen docs \
+	@go run cmd/cobra/main.go gen docs \
 		--out ./web/public \
 		--format html-embed \
 		opencli.ocs.yaml
