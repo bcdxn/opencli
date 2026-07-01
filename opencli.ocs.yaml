@@ -1,4 +1,4 @@
-opencliVersion: "1.0.0-alpha.8"
+opencliVersion: "1.0.0-alpha.9"
 
 info:
   title: "OpenCLI"
@@ -16,7 +16,7 @@ info:
     ```sh
     ocli gen --help
     ```
-  version: "1.0.0-alpha.8"
+  version: "1.0.0-alpha.9"
   binary: "ocli"
   license:
     name: "MIT"

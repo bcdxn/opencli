@@ -13,8 +13,6 @@ permissions:
 jobs:
   release:
     name: Release CLI
-    # FIXED: Added explicit expression syntax wrapper for checking inputs in a job conditional
-    if: ${{ startsWith(inputs.target_ref, 'refs/tags/') }} 
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

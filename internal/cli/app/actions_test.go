@@ -20,7 +20,7 @@ func (m *MockFileWriter) Fd() uintptr {
 
 // validSpecJSON is a minimal valid OpenCLI specification in JSON format
 const validSpecJSON = `{
-  "opencliVersion": "1.0.0-alpha.8",
+  "opencliVersion": "1.0.0-alpha.9",
   "info": {
     "title": "Test CLI",
     "binary": "test",
@@ -39,7 +39,7 @@ const validSpecJSON = `{
 }`
 
 // validSpecYAML is a minimal valid OpenCLI specification in YAML format
-const validSpecYAML = `opencliVersion: 1.0.0-alpha.8
+const validSpecYAML = `opencliVersion: 1.0.0-alpha.9
 info:
   title: Test CLI
   binary: test
@@ -54,7 +54,7 @@ commands:
 
 // invalidSpec is an invalid OpenCLI specification (missing required fields)
 const invalidSpec = `{
-  "opencliVersion": "1.0.0-alpha.8"
+  "opencliVersion": "1.0.0-alpha.9"
 }`
 
 func TestOcliCheckValidJSON(t *testing.T) {

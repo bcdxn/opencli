@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "github.com/bcdxn/opencli/blob/1.0.0-alpha.8/spec.schema.json",
+  "$id": "github.com/bcdxn/opencli/blob/1.0.0-alpha.9/spec.schema.json",
   "title": "OpenCLI Specification",
   "description": "Describe a command line interface application",
   "type": "object",
@@ -8,7 +8,7 @@
     "opencliVersion": {
       "type": "string",
       "description": "This property MUST be the exact version number of the OpenCLI Specification that this OpenCLI Document uses. The opencli field SHOULD be used by tooling to interpret the OpenCLI Document. This field is not related to the CLI `info.version` string.",
-      "enum": ["1.0.0-alpha.8"]
+      "enum": ["1.0.0-alpha.9"]
     },
     "info": {
       "$ref": "#/$defs/InfoObject"

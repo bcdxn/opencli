@@ -44,11 +44,13 @@ jobs:
           path: ./web/dist
       - name: UI Build
         run: make build-ui
+      - name: Metadata
+        run: echo "${{ github.ref }}"
   
   trigger-release-gh-pages:
     name: Trigger Release GH Pages
     needs: ci
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
     uses: ./.github/workflows/release-gh-pages.yaml
     permissions:
       contents: write
@@ -59,7 +61,7 @@ jobs:
   trigger-release-cli:
     name: Trigger Release CLI
     needs: ci
-    if: github.ref == 'refs/heads/main'
+    if: startsWith(github.ref, 'refs/tags/')
     uses: ./.github/workflows/release-cli.yaml
     with:
-      target_ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
+      target_ref: ${{ github.ref_name }}

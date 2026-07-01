@@ -40,10 +40,10 @@ clean:
 all: test release
 
 .PHONY: html-docs
-markdown-docs:
+html-docs:
 	go run cmd/cobra/main.go gen docs \
-		--out ./docs \
-		--format markdown \
+		--out ./web/public \
+		--format html-embed \
 		opencli.ocs.yaml
 
 
@@ -56,7 +56,7 @@ build-wasm: copy-wasm-exec generate
 	GOOS=js GOARCH=wasm go build -o web/public/opencli.wasm ./cmd/wasm/main.go
 
 .PHONY: build-ui
-build-ui: build-wasm
+build-ui: build-wasm html-docs
 	cd web && npm ci && npm run build
 
 .PHONY: dev-wasm
