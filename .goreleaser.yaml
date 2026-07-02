@@ -51,11 +51,14 @@ release:
   prerelease: auto
   make_latest: true
   header: ""
-  footer: >-
-
+  footer: |
+    
     ## Additional Links
     - [Interactive OpenCLI Spec document editor](https://opencli.dev)
     - [CLI Reference Docs](https://opencli.dev/reference)
-
+    
+    > [!WARNING]  
+    > Mac users downloading the binary will need to remove the quarantine attribute because OpenCLI does not currently pay $99/yr for an Apple Developer license to sign the binary.
+    
     ---
     Released by [GoReleaser](https://github.com/goreleaser/goreleaser).
