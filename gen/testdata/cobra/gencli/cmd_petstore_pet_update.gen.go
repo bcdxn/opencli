@@ -38,7 +38,7 @@ func NewCmdPetstorePetUpdate(a ActionsInterface) *cobra.Command {
 	command.SilenceUsage = true
 	command.Flags().StringVarP(&flagName, "name", "n", "", "The updated name of the pet")
 	command.Flags().StringVarP(&flagStatus, "status", "", "", "The updated pet status")
-	command.Flags().StringArrayVarP(&flagPhotoUrls, "photoUrls", "p", []string{}, "A list of photo URLs to display for the pet")
+	command.Flags().StringArrayVarP(&flagPhotoUrls, "photo-urls", "p", []string{}, "A list of photo URLs to display for the pet")
 	command.Flags().StringArrayVarP(&flagTags, "tags", "", []string{}, "Tags to assign to the pet")
 	command.SetHelpFunc(func(_ *cobra.Command, _ []string) {
 		a.HelpFunc(getSpecPetstorePetUpdateCmd())
@@ -59,13 +59,19 @@ func getSpecPetstorePetUpdateCmd() *spec.CommandItem {
 		VisibleChildren: false,
 		VisibleArgs:     true,
 		VisibleFlags:    true,
+		ArgsModifiers: []string{
+			"<path-to-req-body>",
+		},
+		FlagsModifiers: []string{
+			"[flags]",
+		},
 		Args: []spec.ArgumentItem{
 			{Name: "path-to-req-body", Summary: "The path to a JSON file containing the updated pet payload"},
 		},
 		Flags: []spec.FlagItem{
 			{Name: "name", Summary: "The updated name of the pet"},
 			{Name: "status", Summary: "The updated pet status"},
-			{Name: "photoUrls", Summary: "A list of photo URLs to display for the pet"},
+			{Name: "photo-urls", Summary: "A list of photo URLs to display for the pet"},
 			{Name: "tags", Summary: "Tags to assign to the pet"},
 		},
 	}

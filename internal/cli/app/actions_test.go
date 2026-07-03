@@ -474,3 +474,120 @@ func TestOcliGenDocsHTMLComponentWritesJSAsset(t *testing.T) {
 func contains(str, substr string) bool {
 	return bytes.Contains([]byte(str), []byte(substr))
 }
+
+func TestOcliGenCliCobra(t *testing.T) {
+	specDir := t.TempDir()
+	specPath := filepath.Join(specDir, "test-cli.ocs.yaml")
+	if err := os.WriteFile(specPath, []byte(validSpecYAML), 0644); err != nil {
+		t.Fatalf("failed to write temp spec file: %v", err)
+	}
+
+	outDir := filepath.Join(specDir, "out")
+	ios, _, output, _ := gencli.TestIOS()
+	actions := Actions{IOS: ios}
+
+	args := gencli.OcliGenCliArgs{PathToSpec: specPath}
+	flags := gencli.OcliGenCliFlags{Framework: "cobra", Out: outDir}
+
+	err := actions.OcliGenCli(t.Context(), args, flags)
+	if err != nil {
+		t.Fatalf("unexpected error generating cobra CLI: %v", err)
+	}
+
+	if !contains(output.String(), "✓ CLI Code written to") {
+		t.Errorf("expected success message in output, got: %s", output.String())
+	}
+
+	// Cobra generator writes Go files under gencli/.
+	entries, err := os.ReadDir(filepath.Join(outDir, "gencli"))
+	if err != nil {
+		t.Fatalf("expected gencli output directory to be created: %v", err)
+	}
+	if len(entries) == 0 {
+		t.Fatal("expected generated cobra files but got none")
+	}
+}
+
+func TestOcliGenCliYargs(t *testing.T) {
+	specDir := t.TempDir()
+	specPath := filepath.Join(specDir, "test-cli.ocs.yaml")
+	if err := os.WriteFile(specPath, []byte(validSpecYAML), 0644); err != nil {
+		t.Fatalf("failed to write temp spec file: %v", err)
+	}
+
+	outDir := filepath.Join(specDir, "out")
+	ios, _, output, _ := gencli.TestIOS()
+	actions := Actions{IOS: ios}
+
+	args := gencli.OcliGenCliArgs{PathToSpec: specPath}
+	flags := gencli.OcliGenCliFlags{Framework: "yargs", Out: outDir}
+
+	err := actions.OcliGenCli(t.Context(), args, flags)
+	if err != nil {
+		t.Fatalf("unexpected error generating yargs CLI: %v", err)
+	}
+
+	if !contains(output.String(), "✓ CLI Code written to") {
+		t.Errorf("expected success message in output, got: %s", output.String())
+	}
+
+	// Yargs generator writes TypeScript files under gencli/.
+	entries, err := os.ReadDir(filepath.Join(outDir, "gencli"))
+	if err != nil {
+		t.Fatalf("expected gencli output directory to be created: %v", err)
+	}
+	if len(entries) == 0 {
+		t.Fatal("expected generated yargs files but got none")
+	}
+	// Spot-check that at least run.ts and actions.ts were emitted.
+	fileNames := make(map[string]bool)
+	for _, e := range entries {
+		fileNames[e.Name()] = true
+	}
+	for _, expected := range []string{"run.ts", "actions.ts", "params.ts", "errors.ts", "help.ts", "types.ts"} {
+		if !fileNames[expected] {
+			t.Errorf("expected generated file %s to exist in output directory", expected)
+		}
+	}
+}
+
+func TestOcliGenCliUnsupportedFramework(t *testing.T) {
+	specDir := t.TempDir()
+	specPath := filepath.Join(specDir, "test-cli.ocs.yaml")
+	if err := os.WriteFile(specPath, []byte(validSpecYAML), 0644); err != nil {
+		t.Fatalf("failed to write temp spec file: %v", err)
+	}
+
+	ios, _, _, _ := gencli.TestIOS()
+	actions := Actions{IOS: ios}
+
+	args := gencli.OcliGenCliArgs{PathToSpec: specPath}
+	flags := gencli.OcliGenCliFlags{Framework: "urfavecli", Out: t.TempDir()}
+
+	err := actions.OcliGenCli(t.Context(), args, flags)
+	if err == nil {
+		t.Fatal("expected error for unsupported framework, got nil")
+	}
+	if _, ok := err.(*gencli.ValidationError); !ok {
+		t.Errorf("expected ValidationError for unsupported framework, got %T", err)
+	}
+	if !contains(err.Error(), "unsupported CLI framework") {
+		t.Errorf("expected 'unsupported CLI framework' in error message, got: %s", err.Error())
+	}
+}
+
+func TestOcliGenCliFileNotFound(t *testing.T) {
+	ios, _, _, _ := gencli.TestIOS()
+	actions := Actions{IOS: ios}
+
+	args := gencli.OcliGenCliArgs{PathToSpec: "/nonexistent/path/to/spec.yaml"}
+	flags := gencli.OcliGenCliFlags{Framework: "cobra", Out: t.TempDir()}
+
+	err := actions.OcliGenCli(t.Context(), args, flags)
+	if err == nil {
+		t.Fatal("expected error for nonexistent spec file, got nil")
+	}
+	if _, ok := err.(*gencli.ValidationError); !ok {
+		t.Errorf("expected ValidationError for missing file, got %T", err)
+	}
+}

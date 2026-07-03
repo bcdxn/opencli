@@ -41,6 +41,9 @@ func getSpecPetstoreStoreOrderGetCmd() *spec.CommandItem {
 		VisibleChildren: false,
 		VisibleArgs:     false,
 		VisibleFlags:    true,
+		FlagsModifiers: []string{
+			"[flags]",
+		},
 		Flags: []spec.FlagItem{
 			{Name: "id", Summary: "The ID of the order to retrieve"},
 		},

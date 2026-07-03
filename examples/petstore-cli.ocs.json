@@ -92,7 +92,7 @@
         {
           "aliases": ["p"],
           "description": "Provide this flag multiple times to set multiple photo URLs.\n",
-          "name": "photoUrls",
+          "name": "photo-urls",
           "summary": "A list of photo URLs to display for the pet",
           "type": "string",
           "variadic": true
@@ -219,7 +219,7 @@
         {
           "aliases": ["p"],
           "description": "Provide this flag multiple times to set multiple photo URLs.\n",
-          "name": "photoUrls",
+          "name": "photo-urls",
           "summary": "A list of photo URLs to display for the pet",
           "type": "string",
           "variadic": true

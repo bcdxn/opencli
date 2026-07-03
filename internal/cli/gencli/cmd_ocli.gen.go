@@ -41,6 +41,15 @@ func getSpecOcliCmd() *spec.CommandItem {
 		VisibleChildren: true,
 		VisibleArgs:     false,
 		VisibleFlags:    false,
+		CommandModifiers: []string{
+			"{command}",
+		},
+		ArgsModifiers: []string{
+			"<arguments>",
+		},
+		FlagsModifiers: []string{
+			"[flags]",
+		},
 		Commands: []*spec.CommandItem{
 			{Segment: "check", Summary: "Check an OpenCLI Spec document for errors"},
 			{Segment: "gen", Summary: "Commands used to generate code/docs from an OpenCLI Spec document"},

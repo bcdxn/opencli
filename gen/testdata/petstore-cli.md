@@ -121,7 +121,7 @@ The name of the pet
 
 `string`
 
-##### `--photoUrls`
+##### `--photo-urls`
 
 A list of photo URLs to display for the pet
 
@@ -185,7 +185,7 @@ The updated pet status
 - `pending`
 - `sold`
 
-##### `--photoUrls`
+##### `--photo-urls`
 
 A list of photo URLs to display for the pet
 

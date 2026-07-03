@@ -40,6 +40,9 @@ func getSpecPetstoreUserCreateWithListCmd() *spec.CommandItem {
 		VisibleChildren: false,
 		VisibleArgs:     true,
 		VisibleFlags:    false,
+		ArgsModifiers: []string{
+			"<path-to-users-body>",
+		},
 		Args: []spec.ArgumentItem{
 			{Name: "path-to-users-body", Summary: "The path to a JSON file containing the user list payload"},
 		},

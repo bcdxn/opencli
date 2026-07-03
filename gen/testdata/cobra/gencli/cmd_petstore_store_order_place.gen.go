@@ -59,6 +59,12 @@ func getSpecPetstoreStoreOrderPlaceCmd() *spec.CommandItem {
 		VisibleChildren: false,
 		VisibleArgs:     true,
 		VisibleFlags:    true,
+		ArgsModifiers: []string{
+			"<path-to-order-body>",
+		},
+		FlagsModifiers: []string{
+			"[flags]",
+		},
 		Args: []spec.ArgumentItem{
 			{Name: "path-to-order-body", Summary: "The path to a JSON file containing the order payload"},
 		},

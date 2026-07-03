@@ -47,6 +47,15 @@ func getSpecPetstorePetCmd() *spec.CommandItem {
 		VisibleChildren: true,
 		VisibleArgs:     false,
 		VisibleFlags:    false,
+		CommandModifiers: []string{
+			"{command}",
+		},
+		ArgsModifiers: []string{
+			"<arguments>",
+		},
+		FlagsModifiers: []string{
+			"[flags]",
+		},
 		Commands: []*spec.CommandItem{
 			{Segment: "add", Summary: "Add a new pet to the store"},
 			{Segment: "update", Summary: "Update an existing pet"},

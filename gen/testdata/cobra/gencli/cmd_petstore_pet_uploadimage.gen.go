@@ -48,6 +48,12 @@ func getSpecPetstorePetUploadImageCmd() *spec.CommandItem {
 		VisibleChildren: false,
 		VisibleArgs:     true,
 		VisibleFlags:    true,
+		ArgsModifiers: []string{
+			"<path-to-file>",
+		},
+		FlagsModifiers: []string{
+			"[flags]",
+		},
 		Args: []spec.ArgumentItem{
 			{Name: "path-to-file", Summary: "The path to the file to upload"},
 		},

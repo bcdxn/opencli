@@ -178,8 +178,8 @@ commands:
           # coming soon...
           # - value: "urfavecli"
           #   description: "[urfave/cli](https://github.com/urfave/cli) is a declarative CLI framework for Go"
-          # - value: "yargs"
-          #   description: "[yargs](https://yargs.js.org) is a popular CLI framework for Node.js"
+          - value: "yargs"
+            description: "[yargs](https://yargs.js.org) is a popular CLI framework for Node.js"
           # - value: "oclif"
           #   description: "[oclif](https://oclif.io) is a popular CLI framework written in Typescript"
         alternativeSources:

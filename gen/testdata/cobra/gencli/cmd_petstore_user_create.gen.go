@@ -63,6 +63,12 @@ func getSpecPetstoreUserCreateCmd() *spec.CommandItem {
 		VisibleChildren: false,
 		VisibleArgs:     true,
 		VisibleFlags:    true,
+		ArgsModifiers: []string{
+			"<path-to-user-body>",
+		},
+		FlagsModifiers: []string{
+			"[flags]",
+		},
 		Args: []spec.ArgumentItem{
 			{Name: "path-to-user-body", Summary: "The path to a JSON file containing the user payload"},
 		},
