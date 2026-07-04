@@ -1,0 +1,55 @@
+name: "Bug Report"
+description: "Report a problem with OpenCLI Specification and/or its tooling ecosystem"
+title: "[Bug]: "
+labels: ["Bug"]
+body:
+- type: checkboxes
+  attributes:
+    label: What kind of issue is this?
+    description: |
+      Please indicate if this issue is with the schema, package, and/or CLI
+    options:
+      - label: Schema (the opencli spec.schema.json is broken)
+      - label: Public Packages (there is an issue with one or more of the core Go packages)
+      - label: OpenCLI CLI (The CLI is producing incorrect output)
+  validations:
+    required: true
+- type: input
+  attributes:
+    label: Link to repro
+    description: |
+      If you have a link to a public repository/branch that shows the issue, provide it here.
+    placeholder: e.g. public GitHub repo link
+  validations:
+    required: false
+- type: textarea
+  attributes:
+    label: Reproduction steps
+    description: |
+      Provide step-by-step instructions to reproduce the issue
+    placeholder: |
+      Example bug report:
+      1. Create new schema - https://link.to.new.schema
+      2. Run ocli check
+      3. CLI reports no errors when there is a missing `info` block
+  validations:
+    required: true
+- type: dropdown
+  attributes:
+    label: How often does this bug happen?
+    description: |
+      Following the repro steps above, how easily are you able to reproduce this bug?
+    options:
+      - Every time
+      - Often
+      - Sometimes
+      - Only once
+  validations:
+    required: true
+- type: input
+  attributes:
+    label: What version of OpenCLI are you using?
+    description: |
+      Please provide your OpenCLI version used
+  validations:
+    required: true
