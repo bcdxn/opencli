@@ -46,7 +46,7 @@ Use the CLI to validate specs, generate docs and generate boilerplate code.
 
 ## Live Editor
 
-Try the live editor at https://opencli.dev
+Try the live [OpenCLI Specification Editor](https://opencli.dev)
 
 [![Editor](./web/public/img/opencli-editor-screenshot.png)](https://opencli.dev/editor)
 
