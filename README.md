@@ -1,4 +1,4 @@
-[![banner](./web/public/social-card.png)](https://opencli.dev)
+[![banner](./web/public/img/social-card.png)](https://opencli.dev)
 
 # OpenCLI Specification
 
@@ -42,6 +42,12 @@ Use the CLI to validate specs, generate docs and generate boilerplate code.
 
 - [Markdown Docs](https://github.com/bcdxn/opencli/blob/main/docs/opencli.ocs.md)
 - [OpenCLI Spec-compliant Document](https://github.com/bcdxn/opencli/blob/main/opencli.ocs.yaml)
+
+## Live Editor
+
+Try the live editor at https://opencli.dev
+
+[![Editor](./web/public/img/opencli-editor-screenshot.png)](https://opencli.dev/editor)
 
 ## Examples
 

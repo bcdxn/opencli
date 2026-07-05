@@ -16,22 +16,28 @@
     <meta property="og:type" content="website" />
     <meta property="og:title" content="OpenCLI Specification" />
     <meta
-    property="og:description"
-    content="OpenCLI is an open specification for command line interfaces - OpenAPI for CLIs. Define commands, arguments, and options in a machine-readable format, validate specifications, and generate consistent documentation and boilerplate code."
+      property="og:description"
+      content="OpenCLI is an open specification for command line interfaces - OpenAPI for CLIs. Define commands, arguments, and options in a machine-readable format, validate specifications, and generate consistent documentation and boilerplate code."
     />
     <meta property="og:url" content="https://opencli.dev/" />
-    <meta property="og:image" content="https://opencli.dev/social-card.png" />
+    <meta
+      property="og:image"
+      content="https://opencli.dev/img/social-card.png"
+    />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:type" content="image/png" />
 
     <meta name="twitter:title" content="OpenCLI Specification" />
     <meta
-    name="twitter:description"
-    content="OpenAPI for command line interfaces."
+      name="twitter:description"
+      content="OpenAPI for command line interfaces."
     />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="https://opencli.dev/social-card.png" />
+    <meta
+      name="twitter:image"
+      content="https://opencli.dev/img/social-card.png"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- wasm_exec.js must load before the app bundle to provide the Go class -->
     <script src="./wasm_exec.js"></script>
@@ -79,16 +85,22 @@
       // Single Page Apps for GitHub Pages
       // MIT License
       // https://github.com/rafgraph/spa-github-pages
-      (function(l) {
-        if (l.search[1] === '/' ) {
-          var decoded = l.search.slice(1).split('&').map(function(s) {
-            return s.replace(/~and~/g, '&')
-          }).join('?');
-          window.history.replaceState(null, null,
-            l.pathname.slice(0, -1) + decoded + l.hash
+      (function (l) {
+        if (l.search[1] === "/") {
+          var decoded = l.search
+            .slice(1)
+            .split("&")
+            .map(function (s) {
+              return s.replace(/~and~/g, "&");
+            })
+            .join("?");
+          window.history.replaceState(
+            null,
+            null,
+            l.pathname.slice(0, -1) + decoded + l.hash,
           );
         }
-      }(window.location));
+      })(window.location);
     </script>
 
     <div id="seo-content">
@@ -99,8 +111,8 @@
         and automatically verifiable.
       </p>
       <p>
-        Generate documentation, boilerplate CLI code, validate specifications, and build tooling
-        around standardized command definitions.
+        Generate documentation, boilerplate CLI code, validate specifications,
+        and build tooling around standardized command definitions.
       </p>
     </div>
   </body>
