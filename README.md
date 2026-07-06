@@ -1,4 +1,4 @@
-[![banner](./web/public/img/social-card.png)](https://opencli.dev)
+[![banner](./web/public/img/opengraph-image.png)](https://opencli.dev)
 
 # OpenCLI Specification
 
