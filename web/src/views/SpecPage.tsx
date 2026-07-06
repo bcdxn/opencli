@@ -384,7 +384,15 @@ export default function SpecPage() {
             aria-label={t("schema.disclaimerAria")}
           >
             <p className="spec-disclaimer-title">{t("schema.note.title")}</p>
-            <p className="spec-disclaimer-copy">{t("schema.note.copy1")}</p>
+            <p className="spec-disclaimer-copy">
+              {t("schema.note.copy1.prefix")}
+              <a
+                href={`https://github.com/bcdxn/opencli/blob/main/spec.schema.json`}
+              >
+                {t("schema.note.copy1.link")}
+              </a>{" "}
+              {t("schema.note.copy1.suffix")}
+            </p>
             <p className="spec-disclaimer-copy">
               {t("schema.note.copy2.prefix")}{" "}
               <a href={`/docs#ocli-check`}>{t("schema.note.copy2.link")}</a>{" "}

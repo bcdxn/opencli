@@ -65,8 +65,10 @@ const messages: Record<Locale, Record<string, string>> = {
     "schema.failed": "Failed to load spec.schema.json",
     "schema.disclaimerAria": "Validation disclaimer",
     "schema.note.title": "Validation note",
-    "schema.note.copy1":
-      "This JSON Schema helps enforce structural validity, but not every validation rule can be represented in JSON Schema alone.",
+    "schema.note.copy1.prefix": "This ",
+    "schema.note.copy1.link": "JSON Schema",
+    "schema.note.copy1.suffix":
+      " helps enforce structural validity, but not every validation rule can be represented in JSON Schema alone.",
     "schema.note.copy2.prefix": "For full spec validation, run the",
     "schema.note.copy2.link": "OpenCLI CLI",
     "schema.note.copy2.suffix": "check command.",
@@ -122,8 +124,10 @@ const messages: Record<Locale, Record<string, string>> = {
     "schema.failed": "加载 spec.schema.json 失败",
     "schema.disclaimerAria": "校验说明",
     "schema.note.title": "校验说明",
-    "schema.note.copy1":
-      "这个 JSON Schema 可以帮助校验结构有效性，但并非所有校验规则都能仅用 JSON Schema 表达。",
+    "schema.note.copy1.prefix": "这个 ",
+    "schema.note.copy1.suffix":
+      " 可以帮助校验结构有效性，但并非所有校验规则都能仅用 JSON Schema 表达。",
+    "schema.note.copy1.link": "JSON Schema",
     "schema.note.copy2.prefix": "如需完整规范校验，请运行",
     "schema.note.copy2.link": "OpenCLI CLI",
     "schema.note.copy2.suffix": "的 check 命令。",
