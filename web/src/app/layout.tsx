@@ -6,7 +6,7 @@ import "../index.css";
 export const metadata: Metadata = {
   title: "OpenCLI Specification | OpenAPI for Command Line Interfaces",
   description:
-    "OpenCLI is an open specification for describing command line interfaces. Define CLI commands, arguments, options, validation rules, generate consistent documentation and deterministic CLI framework boilerplate code from machine-readable specification files.",
+    "OpenCLI is an open specification for describing command line interfaces. Define CLIs, generate consistent documentation and deterministic code.",
   robots: "index,follow,max-image-preview:large",
   openGraph: {
     type: "website",
