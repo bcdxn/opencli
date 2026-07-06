@@ -41,7 +41,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: github-pages
-          path: ./web/dist
+          path: ./web/out
       - name: UI Build
         run: make build-ui
       - name: Metadata
