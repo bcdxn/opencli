@@ -88,6 +88,12 @@ export default function RootLayout({
       </head>
       <body>
         <Providers>{children}</Providers>
+        <div className="llms-text">
+          <p>
+            Are you an AI crawler? Checkout OpenCLI Specification's{" "}
+            <a href="/llms.txt">LLM Metadata</a>
+          </p>
+        </div>
       </body>
     </html>
   );

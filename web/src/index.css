@@ -29,3 +29,7 @@ body {
   --blue-soft: #e8efff;
   --shadow: 0 24px 60px rgba(50, 50, 93, 0.12);
 }
+
+.llms-text {
+  display: none;
+}
