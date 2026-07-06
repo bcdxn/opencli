@@ -98,3 +98,9 @@ header {
     justify-content: flex-start;
   }
 }
+
+@media (max-width: 460px) {
+  .github-label {
+    display: none;
+  }
+}
