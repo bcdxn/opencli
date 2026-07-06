@@ -1,0 +1,475 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap");
+
+/* === Page shell =========================================================== */
+
+.spec-page {
+  min-height: 100vh;
+  color: #0a2540;
+  font-family: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* === Two-column layout ==================================================== */
+
+.spec-ref-layout {
+  display: flex;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 52px;
+  align-items: flex-start;
+}
+
+/* === Left nav ============================================================= */
+
+.spec-ref-nav {
+  flex-shrink: 0;
+  width: 200px;
+  position: sticky;
+  top: 80px;
+  padding: 32px 0 48px;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(50, 50, 93, 0.15) transparent;
+}
+
+.spec-ref-nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.spec-ref-nav::-webkit-scrollbar-thumb {
+  background: rgba(50, 50, 93, 0.2);
+  border-radius: 2px;
+}
+
+.spec-ref-nav__heading {
+  color: #0a2540;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 0 0 6px;
+  padding: 0 8px;
+}
+
+.spec-ref-nav__subheading {
+  color: #7a8aa0;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 18px 0 4px;
+  padding: 0 8px;
+}
+
+.spec-ref-nav__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.spec-ref-nav__link {
+  display: block;
+  color: #425466;
+  font-size: 13px;
+  font-weight: 400;
+  padding: 5px 8px 5px 10px;
+  border-radius: 6px;
+  border-left: 2px solid transparent;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.12s, background 0.12s, border-color 0.12s;
+}
+
+.spec-ref-nav__link:hover {
+  color: #0a2540;
+  background: rgba(99, 91, 255, 0.06);
+}
+
+.spec-ref-nav__link.is-active {
+  color: #635bff;
+  border-left-color: #635bff;
+  font-weight: 600;
+  background: rgba(99, 91, 255, 0.06);
+}
+
+/* === Main content ========================================================= */
+
+.spec-ref-main {
+  flex: 1;
+  min-width: 0;
+  padding: 32px 0 96px;
+}
+
+/* === Disclaimer =========================================================== */
+
+.spec-disclaimer {
+  margin: 0 0 8px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(99, 91, 255, 0.2);
+  background: rgba(99, 91, 255, 0.04);
+}
+
+.spec-disclaimer-title {
+  margin: 0 0 7px;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: #635bff;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.spec-disclaimer-copy {
+  margin: 0;
+  color: #425466;
+  font-size: 0.94rem;
+  line-height: 1.55;
+}
+
+.spec-disclaimer-copy + .spec-disclaimer-copy {
+  margin-top: 5px;
+}
+
+.spec-disclaimer-copy a {
+  color: #635bff;
+  text-decoration: none;
+}
+
+.spec-disclaimer-copy a:hover {
+  text-decoration: underline;
+}
+
+/* === Sections ============================================================= */
+
+.spec-ref-section {
+  padding: 40px 0;
+  border-bottom: 1px solid rgba(50, 50, 93, 0.1);
+  scroll-margin-top: 88px;
+}
+
+.spec-ref-section:last-child {
+  border-bottom: none;
+}
+
+.spec-ref-section__title {
+  color: #0a2540;
+  font-size: 21px;
+  font-weight: 700;
+  margin: 0 0 10px;
+  letter-spacing: -0.02em;
+}
+
+.spec-ref-section__desc {
+  color: #425466;
+  font-size: 15px;
+  line-height: 1.65;
+  margin: 0 0 4px;
+  max-width: 680px;
+}
+
+.spec-ref-subsection {
+  color: #7a8aa0;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 28px 0 12px;
+}
+
+/* Version inline badge */
+.spec-version-badge {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: #635bff;
+  background: rgba(99, 91, 255, 0.1);
+  border: 1px solid rgba(99, 91, 255, 0.22);
+  border-radius: 8px;
+  padding: 3px 10px;
+}
+
+/* === Table ================================================================ */
+
+.spec-table-wrap {
+  overflow-x: auto;
+  border: 1px solid rgba(50, 50, 93, 0.12);
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow:
+    0 1px 4px rgba(50, 50, 93, 0.06),
+    0 4px 16px rgba(50, 50, 93, 0.04);
+}
+
+.spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.spec-table th {
+  background: #f6f9fc;
+  color: #7a8aa0;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 10px 16px;
+  text-align: left;
+  border-bottom: 1px solid rgba(50, 50, 93, 0.1);
+}
+
+.spec-table th:first-child { border-radius: 11px 0 0 0; }
+.spec-table th:last-child  { border-radius: 0 11px 0 0; }
+
+.spec-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(50, 50, 93, 0.07);
+  vertical-align: top;
+  color: #425466;
+  line-height: 1.5;
+}
+
+.spec-table tr:last-child td {
+  border-bottom: none;
+}
+
+.spec-table tr:hover td {
+  background: rgba(99, 91, 255, 0.018);
+}
+
+.spec-table-name-cell { white-space: nowrap; }
+.spec-table-type-cell { white-space: nowrap; }
+
+/* Field name pill */
+.spec-field-name {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px;
+  color: #0a2540;
+  border-radius: 5px;
+  padding: 2px 6px;
+}
+
+/* Required / conditional badges */
+.spec-badge {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  border-radius: 4px;
+  padding: 2px 5px;
+  margin-left: 6px;
+  vertical-align: middle;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+.spec-badge--required {
+  background: rgba(192, 57, 43, 0.1);
+  color: #c0392b;
+}
+
+.spec-badge--conditional {
+  background: rgba(99, 91, 255, 0.1);
+  color: #635bff;
+}
+
+/* === Type display ========================================================= */
+
+.spec-type {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+}
+
+.spec-type-code {
+  color: #0a2540;
+  background: rgba(10, 37, 64, 0.06);
+  border-radius: 4px;
+  padding: 2px 5px;
+}
+
+.spec-type-link {
+  color: #635bff;
+  text-decoration: none;
+  background: rgba(99, 91, 255, 0.08);
+  border-radius: 4px;
+  padding: 2px 5px;
+  transition: background 0.12s;
+}
+
+.spec-type-link:hover {
+  background: rgba(99, 91, 255, 0.16);
+}
+
+.spec-type-bracket {
+  color: #7a8aa0;
+}
+
+/* === Enum values ========================================================== */
+
+/* Section-level enum list (e.g. the Type def) */
+.spec-enum-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.spec-enum-list li { margin: 0; }
+
+.spec-enum-list code {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  color: #0a2540;
+  background: rgba(10, 37, 64, 0.06);
+  border: 1px solid rgba(10, 37, 64, 0.1);
+  border-radius: 6px;
+  padding: 4px 10px;
+  display: inline-block;
+}
+
+/* Inline enum values inside a table description cell */
+.spec-enum-inline {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.spec-enum-inline li { margin: 0; }
+
+.spec-enum-inline code {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: #425466;
+  background: rgba(66, 84, 102, 0.08);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+/* === Markdown rendering =================================================== */
+
+.spec-md p {
+  margin: 0 0 8px;
+  color: inherit;
+  line-height: inherit;
+}
+
+.spec-md p:last-child {
+  margin-bottom: 0;
+}
+
+.spec-md a {
+  color: #635bff;
+  text-decoration: none;
+}
+
+.spec-md a:hover {
+  text-decoration: underline;
+}
+
+.spec-md code {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.875em;
+  color: #0a2540;
+  background: rgba(10, 37, 64, 0.06);
+  border-radius: 4px;
+  padding: 1px 4px;
+}
+
+.spec-md strong {
+  font-weight: 600;
+  color: #0a2540;
+}
+
+.spec-md em {
+  font-style: italic;
+}
+
+.spec-md ul,
+.spec-md ol {
+  margin: 4px 0 8px 18px;
+  padding: 0;
+}
+
+.spec-md li {
+  margin: 2px 0;
+}
+
+/* Keep table cell descriptions tight */
+.spec-table-desc-cell .spec-md p {
+  margin: 0 0 4px;
+}
+
+.spec-table-desc-cell .spec-md p:last-child {
+  margin-bottom: 0;
+}
+
+/* === Responsive =========================================================== */
+
+@media (max-width: 920px) {
+  .spec-ref-layout {
+    flex-direction: column;
+    gap: 0;
+    padding: 0 20px;
+  }
+
+  .spec-ref-nav {
+    position: static;
+    width: 100%;
+    padding: 20px 0 14px;
+    max-height: none;
+    overflow: visible;
+    border-bottom: 1px solid rgba(50, 50, 93, 0.1);
+    margin-bottom: 8px;
+  }
+
+  .spec-ref-nav__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+  }
+
+  .spec-ref-nav__link {
+    border-left: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    padding: 4px 8px;
+    margin: 0;
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  .spec-ref-nav__link.is-active {
+    border-left: none;
+    border-bottom-color: #635bff;
+    background: transparent;
+  }
+
+  .spec-ref-main {
+    padding: 20px 0 64px;
+  }
+}
+
+@media (max-width: 640px) {
+  .spec-ref-layout {
+    padding: 0 16px;
+  }
+
+  .spec-ref-section__title {
+    font-size: 18px;
+  }
+
+  .spec-table-type-cell,
+  .spec-table-name-cell {
+    white-space: normal;
+  }
+}

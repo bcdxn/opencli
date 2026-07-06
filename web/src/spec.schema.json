@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "github.com/bcdxn/opencli/blob/1.0.0-alpha.9/spec.schema.json",
   "title": "OpenCLI Specification",
-  "description": "Describe a command line interface application",
+  "description": "This is the root object of an OpenCLI Specification-compliant document.",
   "type": "object",
   "properties": {
     "opencliVersion": {
@@ -70,6 +70,9 @@
           "description": "The version of the OpenCLI Document which typically corresponds to the release version of your CLI."
         }
       },
+      "patternProperties": {
+        "^x-": {}
+      },
       "required": ["title", "binary", "version"],
       "additionalProperties": false
     },
@@ -90,6 +93,9 @@
           "format": "uri",
           "description": "A URL to the license used by the CLI."
         }
+      },
+      "patternProperties": {
+        "^x-": {}
       },
       "required": ["name"],
       "additionalProperties": false
@@ -124,6 +130,9 @@
           "required": ["url"]
         }
       ],
+      "patternProperties": {
+        "^x-": {}
+      },
       "additionalProperties": false
     },
     "InstallMethodItemObject": {
@@ -157,6 +166,9 @@
           "required": ["name", "url"]
         }
       ],
+      "patternProperties": {
+        "^x-": {}
+      },
       "additionalProperties": false
     },
     "GlobalObject": {
@@ -165,6 +177,7 @@
       "properties": {
         "exitCodes": {
           "type": "array",
+          "description": "The list of possible error codes that the CLI can return. Command-specific exit codes can be defined at the command-level.",
           "items": {
             "$ref": "#/$defs/ExitCodeObject"
           }
@@ -183,6 +196,9 @@
               "type": "string"
             }
           },
+          "patternProperties": {
+            "^x-": {}
+          },
           "additionalProperties": false,
           "minProperties": 1
         },
@@ -192,6 +208,9 @@
             "$ref": "#/$defs/FlagItemObject"
           }
         }
+      },
+      "patternProperties": {
+        "^x-": {}
       }
     },
     "CommandItemObject": {
@@ -229,7 +248,7 @@
         },
         "hidden": {
           "type": "boolean",
-          "description": "Determines if the command is hidden from generated help output and documentation.",
+          "description": "Determines if the command is hidden from generated help output and documentation. Note that the command is still documented in the OpenCLI document itself and so you should not include anything sensitive. Typically developer helper functions or alternative testing commands may be hidden.",
           "default": false
         },
         "group": {
@@ -242,7 +261,31 @@
           "items": {
             "$ref": "#/$defs/ExitCodeObject"
           }
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "description": "A short description of the example"
+              },
+              "content": {
+                "type": "string",
+                "description": "The content to be displayed in the example, typically a sample command line invocation with parameters."
+              }
+            },
+            "patternProperties": {
+              "^x-": {}
+            },
+            "required": ["content"],
+            "additionalProperties": false
+          }
         }
+      },
+      "patternProperties": {
+        "^x-": {}
       },
       "additionalProperties": false
     },
@@ -288,6 +331,9 @@
                 "description": "A description of the choice. This will appear in generated documentation"
               }
             },
+            "patternProperties": {
+              "^x-": {}
+            },
             "required": ["value"],
             "additionalProperties": false
           }
@@ -305,6 +351,9 @@
           "description": "Determines if the argument is mandatory. If required arguments are not supplied, the command will exit in error.",
           "default": false
         }
+      },
+      "patternProperties": {
+        "^x-": {}
       },
       "required": ["name"],
       "additionalProperties": false
@@ -358,6 +407,9 @@
                 "description": "A description of the choice. This will appear in generated documentation"
               }
             },
+            "patternProperties": {
+              "^x-": {}
+            },
             "required": ["value"],
             "additionalProperties": false
           }
@@ -400,20 +452,7 @@
           "description": "The possible sources of the default value; order is important as it determines the order of resolution.",
           "type": "array",
           "items": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "description": "The name of the source; it can be `$ENV` indicating the property is sourced from an environment variable OR $FILE, indicating the property is sourced from a config file defined in the global.configFiles section of the document.",
-                "type": "string",
-                "enum": ["$ENV", "$FILE"]
-              },
-              "property": {
-                "description": "The variable name within the environment or JSON path to the property in the config file.",
-                "type": "string"
-              }
-            },
-            "required": ["type", "property"],
-            "additionalProperties": false
+            "$ref": "#/$defs/AlternativeSource"
           },
           "minItems": 1
         },
@@ -423,19 +462,42 @@
           "default": false
         }
       },
+      "patternProperties": {
+        "^x-": {}
+      },
       "required": ["name", "type"],
+      "additionalProperties": false
+    },
+    "AlternativeSource": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "The name of the source; it can be `$ENV` indicating the property is sourced from an environment variable OR $FILE, indicating the property is sourced from a config file defined in the global.configFiles section of the document.",
+          "type": "string",
+          "enum": ["$ENV", "$FILE"]
+        },
+        "property": {
+          "description": "The variable name within the environment or JSON path to the property in the config file.",
+          "type": "string"
+        }
+      },
+      "patternProperties": {
+        "^x-": {}
+      },
+      "required": ["type", "property"],
       "additionalProperties": false
     },
     "ExitCodeObject": {
       "type": "object",
+      "description": "The exit code returned by the CLI upon termination to report its execution status.",
       "properties": {
         "code": {
           "type": "integer",
-          "description": "The literal code that is returned by the CLI"
+          "description": "The literal code that is returned by the CLI to the operating system and/or parent process indicating status. Non-zero codes indicate an error."
         },
         "status": {
           "type": "string",
-          "description": "The enumerated exit code categories.",
+          "description": "The enumerated exit code categories. These help the users quickly understand the scope of the error.",
           "enum": [
             "BAD_USER_INPUT_ERROR",
             "UNAUTHENTICATED_ERROR",
@@ -447,17 +509,23 @@
           ]
         },
         "summary": {
-          "type": "string"
+          "type": "string",
+          "description": "A brief, one-line summary of the exit code."
         },
         "description": {
-          "type": "string"
+          "type": "string",
+          "description": "A detailed description of the exit code; can include expected side effects or triage steps."
         }
+      },
+      "patternProperties": {
+        "^x-": {}
       },
       "required": ["code", "status", "summary"],
       "additionalProperties": false
     },
     "Type": {
       "type": "string",
+      "description": "The types available to specify for arguments and flags.",
       "enum": ["string", "number", "integer", "boolean"],
       "default": "string"
     }

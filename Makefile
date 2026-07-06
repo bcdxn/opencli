@@ -59,6 +59,7 @@ build-wasm: copy-wasm-exec generate
 
 .PHONY: build-ui
 build-ui: build-wasm html-docs
+	cp ./spec.schema.json ./web/src/spec.schema.json
 	cd web && npm ci && npm run build
 
 .PHONY: dev-wasm

@@ -18,7 +18,7 @@ const messages: Record<Locale, Record<string, string>> = {
     "language.mandarin": "Mandarin (Simplified)",
     "nav.editor": "Editor",
     "nav.docs": "CLI Docs",
-    "nav.schema": "Schema",
+    "nav.spec": "Specification",
     "nav.githubAria": "Open the OpenCLI repository on GitHub",
 
     "landing.kicker": "OPENCLI",
@@ -40,7 +40,7 @@ const messages: Record<Locale, Record<string, string>> = {
       "Validate specs, generate docs, and standardize outputs across teams and languages.",
     "landing.benefit.agent.title": "Better Agent Understanding",
     "landing.benefit.agent.copy":
-      "Give LLMs and automation tools a structured, explicit model of your CLI surface area.",
+      "Give LLMs and automation tools a structured, explicit model of your CLI surface area and save tokens in the process.",
 
     "editor.loadingWasm": "Loading WASM engine...",
     "editor.sample.label": "Sample",
@@ -75,7 +75,7 @@ const messages: Record<Locale, Record<string, string>> = {
     "language.mandarin": "简体中文",
     "nav.editor": "编辑器",
     "nav.docs": "CLI 文档",
-    "nav.schema": "模式",
+    "nav.spec": "规格",
     "nav.githubAria": "在 GitHub 上打开 OpenCLI 仓库",
 
     "landing.kicker": "OPENCLI",

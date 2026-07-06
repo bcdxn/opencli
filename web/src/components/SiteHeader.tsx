@@ -13,7 +13,7 @@ export default function SiteHeader() {
       <nav className="header-nav">
         <Link to="/editor">{t("nav.editor")}</Link>
         <Link to="/docs">{t("nav.docs")}</Link>
-        <Link to="/schema">{t("nav.schema")}</Link>
+        <Link to="/specification">{t("nav.spec")}</Link>
         <a
           className="github-link"
           href="https://github.com/bcdxn/opencli"

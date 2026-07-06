@@ -2,7 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import EditorPage from "./pages/EditorPage";
 import DocsPage from "./pages/DocsPage";
-import SchemaPage from "./pages/SchemaPage";
+import SpecPage from "./pages/SpecPage";
 import { useEffect } from "react";
 import { I18nProvider } from "./i18n";
 import "./App.css";
@@ -25,7 +25,12 @@ export default function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/editor" element={<EditorPage />} />
           <Route path="/docs" element={<DocsPage />} />
-          <Route path="/schema" element={<SchemaPage />} />
+          <Route path="/specification" element={<SpecPage />} />
+
+          <Route
+            path="/spec"
+            element={<Navigate to="/specification" replace />}
+          />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
