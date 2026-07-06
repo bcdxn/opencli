@@ -1,4 +1,6 @@
-import { Link } from "react-router-dom";
+"use client";
+
+import Link from "next/link";
 import { useI18n } from "../i18n";
 import "./SiteHeader.css";
 
@@ -8,12 +10,12 @@ export default function SiteHeader() {
   return (
     <header>
       <div className="header-logo">
-        <Link to="/">OPENCLI</Link>
+        <Link href="/">OPENCLI</Link>
       </div>
       <nav className="header-nav">
-        <Link to="/editor">{t("nav.editor")}</Link>
-        <Link to="/docs">{t("nav.docs")}</Link>
-        <Link to="/specification">{t("nav.spec")}</Link>
+        <Link href="/editor">{t("nav.editor")}</Link>
+        <Link href="/docs">{t("nav.docs")}</Link>
+        <Link href="/specification">{t("nav.spec")}</Link>
         <a
           className="github-link"
           href="https://github.com/bcdxn/opencli"

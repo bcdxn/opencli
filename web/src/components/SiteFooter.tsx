@@ -1,4 +1,6 @@
-import { Link } from "react-router-dom";
+"use client";
+
+import Link from "next/link";
 import { useI18n } from "../i18n";
 import "./SiteFooter.css";
 
@@ -8,7 +10,7 @@ export default function SiteFooter() {
   return (
     <footer className="site-footer" aria-label="Language selector">
       <div className="site-footer-inner">
-        <Link className="footer-brand" to="/">
+        <Link className="footer-brand" href="/">
           OpenCLI
         </Link>
         <span className="footer-sep" aria-hidden="true">

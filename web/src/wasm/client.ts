@@ -10,7 +10,7 @@ export async function loadWasm(): Promise<void> {
   // Go class is provided by wasm_exec.js loaded in index.html
   const go = new Go();
   const result = await WebAssembly.instantiateStreaming(
-    fetch(`${import.meta.env.BASE_URL}opencli.wasm`),
+    fetch(`/opencli.wasm`),
     go.importObject,
   );
   // go.run() starts the Go scheduler; main() registers JS globals synchronously

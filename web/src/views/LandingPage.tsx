@@ -1,4 +1,6 @@
-import { Link } from "react-router-dom";
+"use client";
+
+import Link from "next/link";
 import SiteHeader from "../components/SiteHeader";
 import "./LandingPage.css";
 import SiteFooter from "../components/SiteFooter";
@@ -127,10 +129,10 @@ export default function LandingPage() {
             <p>{t("landing.description")}</p>
 
             <div className="hero-actions">
-              <Link className="button primary" to="/editor">
+              <Link className="button primary" href="/editor">
                 {t("landing.cta.editor")}
               </Link>
-              <Link className="button secondary" to="/docs">
+              <Link className="button secondary" href="/docs">
                 {t("landing.cta.docs")}
               </Link>
             </div>
