@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef, useState } from "react";
 import SiteHeader from "../components/SiteHeader";
 import { loadWasm } from "../wasm/client";
@@ -32,7 +34,7 @@ export default function EditorPage() {
   }, [locale]);
 
   useEffect(() => {
-    fetch(`${import.meta.env.BASE_URL}${sampleFiles[sampleLocale]}`)
+    fetch(`/${sampleFiles[sampleLocale]}`)
       .then((r) => r.text())
       .then((text) => {
         setContent(text);

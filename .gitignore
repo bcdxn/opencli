@@ -15,3 +15,7 @@ node_modules
 # Generated WASM artifacts (produced by make build-wasm / make dev-wasm)
 web/public/wasm_exec.js
 web/public/opencli.wasm
+
+# Next.JS
+.next
+next-env.d.ts

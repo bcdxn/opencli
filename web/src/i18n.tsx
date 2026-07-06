@@ -1,3 +1,5 @@
+"use client";
+
 import {
   createContext,
   useContext,
@@ -137,6 +139,8 @@ interface I18nContextValue {
 const I18nContext = createContext<I18nContextValue | null>(null);
 
 function detectInitialLocale(): Locale {
+  if (typeof window === "undefined") return "en";
+
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored === "en" || stored === "zh-CN") {
     return stored;

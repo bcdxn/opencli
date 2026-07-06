@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -385,9 +387,7 @@ export default function SpecPage() {
             <p className="spec-disclaimer-copy">{t("schema.note.copy1")}</p>
             <p className="spec-disclaimer-copy">
               {t("schema.note.copy2.prefix")}{" "}
-              <a href={`${import.meta.env.BASE_URL}docs#ocli-check`}>
-                {t("schema.note.copy2.link")}
-              </a>{" "}
+              <a href={`/docs#ocli-check`}>{t("schema.note.copy2.link")}</a>{" "}
               {t("schema.note.copy2.suffix")}
             </p>
           </section>
