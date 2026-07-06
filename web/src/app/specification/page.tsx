@@ -1,6 +1,7 @@
 import SpecPage from "../../views/SpecPage";
 
 export const metadata = {
+  title: "OpenCLI Specification | Specification Schema",
   alternates: {
     canonical: "https://opencli.dev/specification",
   },
