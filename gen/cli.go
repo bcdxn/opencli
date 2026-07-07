@@ -1079,12 +1079,25 @@ func toPascalCase(s string) string {
 // toCamelCase converts kebab-case or snake_case to camelCase (yargs argv field convention).
 // "path-to-req-body" → "pathToReqBody"
 func toCamelCase(s string) string {
+	if s == "" {
+		return s
+	}
+
+	// If the name is already a single token (e.g. "firstName"), preserve internal
+	// casing and only lowercase the first rune.
+	if !strings.ContainsAny(s, "-_") {
+		r := []rune(s)
+		r[0] = unicode.ToLower(r[0])
+		return string(r)
+	}
+
 	parts := strings.FieldsFunc(s, func(r rune) bool {
 		return r == '-' || r == '_'
 	})
 	if len(parts) == 0 {
 		return s
 	}
+
 	var result strings.Builder
 	result.WriteString(strings.ToLower(parts[0]))
 	for _, p := range parts[1:] {
@@ -1092,10 +1105,8 @@ func toCamelCase(s string) string {
 			continue
 		}
 		runes := []rune(p)
-		result.WriteRune(unicode.ToUpper(runes[0]))
-		for _, r := range runes[1:] {
-			result.WriteRune(r)
-		}
+		runes[0] = unicode.ToUpper(runes[0])
+		result.WriteString(string(runes))
 	}
 	return result.String()
 }
