@@ -48,35 +48,11 @@ type cliChoiceEntry struct {
 // cobraCommandFileTmplData is the template data passed to command.tmpl.
 // All generated cobra files belong to package gencli, so no cross-package imports are needed.
 type cobraCommandFileTmplData struct {
-	ModuleVersion    string
-	Binary           string
-	BinaryPascal     string
-	PackageName      string // always "gencli"
-	FuncName         string // full-path: NewCmdRoot, NewCmdPetAdd, NewCmdStoreOrderGet, ...
-	SpecFuncName     string // full-path: getSpecRootCmd, getSpecPetAddCmd, ...
-	Segment          string
-	OutPath          string
-	IsRoot           bool
-	IsGroup          bool
-	IsHidden         bool
-	MethodName       string
-	ArgsTypeName     string
-	FlagsTypeName    string
-	Summary          string
-	Description      string
-	Aliases          []string
-	CommandLine      string
-	VisibleChildren  bool
-	VisibleArgs      bool
-	VisibleFlags     bool
-	ChildImports     []subCmdImport
-	SpecArgs         []specArgEntry
-	SpecFlags        []specFlagEntry
-	CobraArgs        []cobraArgEntry
-	CobraFlags       []cobraFlagEntry
-	CommandModifiers []string
-	ArgsModifiers    []string
-	FlagsModifiers   []string
+	commandFileCoreTmplData
+	PackageName  string // always "gencli"
+	ChildImports []subCmdImport
+	CobraArgs    []cobraArgEntry
+	CobraFlags   []cobraFlagEntry
 }
 
 // subCmdImport holds data needed to call a child command constructor (same package, no import).
@@ -84,19 +60,6 @@ type subCmdImport struct {
 	FuncName string // NewCmdPet, NewCmdPetAdd, ...
 	Segment  string // original segment name, for getSpec*Cmd
 	Summary  string // for getSpec*Cmd
-}
-
-// specArgEntry holds the minimal spec data for an argument (used in getSpec*Cmd()).
-type specArgEntry struct {
-	Name    string
-	Summary string
-}
-
-// specFlagEntry holds the minimal spec data for a flag (used in getSpec*Cmd()).
-type specFlagEntry struct {
-	Name    string
-	Summary string
-	Aliases []string
 }
 
 // cobraArgEntry describes how to bind a positional argument in a cobra command.
@@ -236,12 +199,29 @@ func walkCmdTree(
 	leafCommands *[]cliCmdEntry,
 	cmdFiles *[]cobraCommandFileTmplData,
 ) {
-	segments := make([]string, len(parentSegments)+1)
-	copy(segments, parentSegments)
-	segments[len(parentSegments)] = cmd.Segment
+	segments := appendSegment(parentSegments, cmd.Segment)
 
 	isGroup := cmd.Group || len(cmd.Commands) > 0
-	methodName := buildMethodName(segments)
+	cmdCore := buildCommandFileCore(
+		cmd.Segment,
+		cmd.Summary,
+		cmd.Description,
+		cmd.Aliases,
+		cmd.Hidden,
+		cmd.VisibleChildren,
+		cmd.VisibleArgs,
+		cmd.VisibleFlags,
+		cmd.CommandModifiers,
+		cmd.ArgsModifiers,
+		cmd.FlagsModifiers,
+		segments,
+		binary,
+		binaryPascal,
+		moduleVersion,
+		len(parentSegments) == 0,
+		isGroup,
+	)
+	methodName := cmdCore.MethodName
 
 	if !isGroup {
 		entry := cliCmdEntry{
@@ -331,37 +311,19 @@ func walkCmdTree(
 	}
 
 	childImports := buildChildImports(cmd.Commands, segments)
+	cmdCore.FuncName = commandFuncName(segments)
+	cmdCore.SpecFuncName = getSpecFuncName(segments)
+	cmdCore.OutPath = commandOutPath(segments)
+	cmdCore.CommandLine = strings.Join(append([]string{binary}, segments...), " ")
+	cmdCore.SpecArgs = specArgs
+	cmdCore.SpecFlags = specFlags
 
 	cmdFile := cobraCommandFileTmplData{
-		ModuleVersion:    moduleVersion,
-		Binary:           binary,
-		BinaryPascal:     binaryPascal,
-		PackageName:      "gencli",
-		FuncName:         commandFuncName(segments),
-		SpecFuncName:     getSpecFuncName(segments),
-		Segment:          cmd.Segment,
-		OutPath:          commandOutPath(segments),
-		IsRoot:           false,
-		IsGroup:          isGroup,
-		IsHidden:         cmd.Hidden,
-		MethodName:       methodName,
-		ArgsTypeName:     methodName + "Args",
-		FlagsTypeName:    methodName + "Flags",
-		Summary:          cmd.Summary,
-		Description:      strings.TrimRight(cmd.Description, "\n"),
-		Aliases:          cmd.Aliases,
-		CommandLine:      strings.Join(append([]string{binary}, segments...), " "),
-		VisibleChildren:  cmd.VisibleChildren,
-		VisibleArgs:      cmd.VisibleArgs,
-		VisibleFlags:     cmd.VisibleFlags,
-		ChildImports:     childImports,
-		SpecArgs:         specArgs,
-		SpecFlags:        specFlags,
-		CobraArgs:        cobraArgs,
-		CobraFlags:       cobraFlags,
-		CommandModifiers: cmd.CommandModifiers,
-		ArgsModifiers:    cmd.ArgsModifiers,
-		FlagsModifiers:   cmd.FlagsModifiers,
+		commandFileCoreTmplData: cmdCore,
+		PackageName:             "gencli",
+		ChildImports:            childImports,
+		CobraArgs:               cobraArgs,
+		CobraFlags:              cobraFlags,
 	}
 	*cmdFiles = append(*cmdFiles, cmdFile)
 

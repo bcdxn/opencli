@@ -50,36 +50,12 @@ type yargsChoiceEntry struct {
 
 // yargsCommandFileTmplData is the template data for a single generated command module file.
 type yargsCommandFileTmplData struct {
-	ModuleVersion    string
-	Binary           string
-	BinaryPascal     string
-	FuncName         string // e.g. newPetstorePetAddCmd
-	SpecFuncName     string // e.g. getPetstorePetAddCmdHelpData
-	OutPath          string // relative output path e.g. gencli/cmd-petstore-pet-add.ts
-	Segment          string
-	SegmentDSL       string
-	IsRoot           bool
-	IsGroup          bool
-	IsHidden         bool
-	MethodName       string
-	ArgsTypeName     string
-	FlagsTypeName    string
-	CommandArgName   string // camelCase local variable for yargs argv type annotation
-	Summary          string
-	Description      string
-	Aliases          []string
-	CommandLine      string
-	VisibleChildren  bool
-	VisibleArgs      bool
-	VisibleFlags     bool
-	ChildImports     []yargsChildImport
-	YargsArgs        []yargsArgEntry
-	YargsFlags       []yargsFlagEntry
-	SpecArgs         []specArgEntry
-	SpecFlags        []specFlagEntry
-	CommandModifiers []string
-	ArgsModifiers    []string
-	FlagsModifiers   []string
+	commandFileCoreTmplData
+	SegmentDSL     string
+	CommandArgName string // camelCase local variable for yargs argv type annotation
+	ChildImports   []yargsChildImport
+	YargsArgs      []yargsArgEntry
+	YargsFlags     []yargsFlagEntry
 }
 
 // yargsChildImport holds data for importing and registering a child command module.
@@ -199,12 +175,29 @@ func walkYargsCmdTree(
 	leafCommands *[]yargsCmdEntry,
 	cmdFiles *[]yargsCommandFileTmplData,
 ) {
-	segments := make([]string, len(parentSegments)+1)
-	copy(segments, parentSegments)
-	segments[len(parentSegments)] = cmd.Segment
+	segments := appendSegment(parentSegments, cmd.Segment)
 
 	isGroup := cmd.Group || len(cmd.Commands) > 0
-	methodName := buildMethodName(segments)
+	cmdCore := buildCommandFileCore(
+		cmd.Segment,
+		cmd.Summary,
+		cmd.Description,
+		cmd.Aliases,
+		cmd.Hidden,
+		cmd.VisibleChildren,
+		cmd.VisibleArgs,
+		cmd.VisibleFlags,
+		cmd.CommandModifiers,
+		cmd.ArgsModifiers,
+		cmd.FlagsModifiers,
+		segments,
+		binary,
+		binaryPascal,
+		moduleVersion,
+		len(parentSegments) == 0,
+		isGroup,
+	)
+	methodName := cmdCore.MethodName
 
 	if !isGroup {
 		entry := yargsCmdEntry{
@@ -320,38 +313,20 @@ func walkYargsCmdTree(
 	}
 
 	childImports := yargsBuildChildImports(cmd.Commands, segments)
+	cmdCore.FuncName = yargsCommandFuncName(segments)
+	cmdCore.SpecFuncName = yargsSpecFuncName(segments)
+	cmdCore.OutPath = yargsCommandOutPath(segments)
+	cmdCore.CommandLine = strings.Join(segments, " ")
+	cmdCore.SpecArgs = specArgs
+	cmdCore.SpecFlags = specFlags
 
 	cmdFile := yargsCommandFileTmplData{
-		ModuleVersion:    moduleVersion,
-		Binary:           binary,
-		BinaryPascal:     binaryPascal,
-		FuncName:         yargsCommandFuncName(segments),
-		SpecFuncName:     yargsSpecFuncName(segments),
-		OutPath:          yargsCommandOutPath(segments),
-		Segment:          cmd.Segment,
-		SegmentDSL:       yargsCommandDSL(cmd),
-		IsRoot:           len(parentSegments) == 0,
-		IsGroup:          isGroup,
-		IsHidden:         cmd.Hidden,
-		MethodName:       methodName,
-		ArgsTypeName:     methodName + "Args",
-		FlagsTypeName:    methodName + "Flags",
-		CommandArgName:   toCamelCase(strings.Join(segments, "-")) + "Args",
-		Summary:          cmd.Summary,
-		Description:      strings.TrimRight(cmd.Description, "\n"),
-		Aliases:          cmd.Aliases,
-		CommandLine:      strings.Join(segments, " "),
-		VisibleChildren:  cmd.VisibleChildren,
-		VisibleArgs:      cmd.VisibleArgs,
-		VisibleFlags:     cmd.VisibleFlags,
-		ChildImports:     childImports,
-		YargsArgs:        yargsArgs,
-		YargsFlags:       yargsFlags,
-		SpecArgs:         specArgs,
-		SpecFlags:        specFlags,
-		CommandModifiers: cmd.CommandModifiers,
-		ArgsModifiers:    cmd.ArgsModifiers,
-		FlagsModifiers:   cmd.FlagsModifiers,
+		commandFileCoreTmplData: cmdCore,
+		SegmentDSL:              yargsCommandDSL(cmd),
+		CommandArgName:          toCamelCase(strings.Join(segments, "-")) + "Args",
+		ChildImports:            childImports,
+		YargsArgs:               yargsArgs,
+		YargsFlags:              yargsFlags,
 	}
 	*cmdFiles = append(*cmdFiles, cmdFile)
 
