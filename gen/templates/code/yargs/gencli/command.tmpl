@@ -142,7 +142,14 @@ export function {{.FuncName}}(
 {{- end}}
       };
 {{- end}}
-      return actions.{{.MethodName}}({{if .YargsArgs}}cmdArgs, {{end}}{{if .YargsFlags}}cmdFlags{{end}});
+{{- if and .YargsArgs .YargsFlags}}
+      return actions.{{.MethodName}}(cmdArgs, cmdFlags);
+{{- else if .YargsArgs}}
+      return actions.{{.MethodName}}(cmdArgs);
+{{- else if .YargsFlags}}
+      return actions.{{.MethodName}}(cmdFlags);
+{{- else}}
+      return actions.{{.MethodName}}();
 {{- end}}
     },
   };
