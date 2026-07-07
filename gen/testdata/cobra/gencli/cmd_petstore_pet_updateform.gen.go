@@ -52,6 +52,9 @@ func getSpecPetstorePetUpdateFormCmd() *spec.CommandItem {
 		VisibleChildren: false,
 		VisibleArgs:     false,
 		VisibleFlags:    true,
+		FlagsModifiers: []string{
+			"[flags]",
+		},
 		Flags: []spec.FlagItem{
 			{Name: "id", Summary: "The ID of the pet to update"},
 			{Name: "name", Summary: "The new name for the pet"},

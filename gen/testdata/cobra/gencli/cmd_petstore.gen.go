@@ -43,6 +43,15 @@ func getSpecPetstoreCmd() *spec.CommandItem {
 		VisibleChildren: true,
 		VisibleArgs:     false,
 		VisibleFlags:    false,
+		CommandModifiers: []string{
+			"{command}",
+		},
+		ArgsModifiers: []string{
+			"<arguments>",
+		},
+		FlagsModifiers: []string{
+			"[flags]",
+		},
 		Commands: []*spec.CommandItem{
 			{Segment: "list", Summary: "List all endpoints available"},
 			{Segment: "pet", Summary: "A collection of commands for managing pets"},

@@ -46,6 +46,9 @@ func getSpecPetstorePetFindByStatusCmd() *spec.CommandItem {
 		VisibleChildren: false,
 		VisibleArgs:     false,
 		VisibleFlags:    true,
+		FlagsModifiers: []string{
+			"[flags]",
+		},
 		Flags: []spec.FlagItem{
 			{Name: "status", Summary: "The status to filter pets by"},
 		},

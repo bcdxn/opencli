@@ -44,6 +44,9 @@ func getSpecPetstoreUserLoginCmd() *spec.CommandItem {
 		VisibleChildren: false,
 		VisibleArgs:     false,
 		VisibleFlags:    true,
+		FlagsModifiers: []string{
+			"[flags]",
+		},
 		Flags: []spec.FlagItem{
 			{Name: "username", Summary: "The user's username"},
 			{Name: "password", Summary: "The user's password"},

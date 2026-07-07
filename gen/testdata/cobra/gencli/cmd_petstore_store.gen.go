@@ -41,6 +41,15 @@ func getSpecPetstoreStoreCmd() *spec.CommandItem {
 		VisibleChildren: true,
 		VisibleArgs:     false,
 		VisibleFlags:    false,
+		CommandModifiers: []string{
+			"{command}",
+		},
+		ArgsModifiers: []string{
+			"<arguments>",
+		},
+		FlagsModifiers: []string{
+			"[flags]",
+		},
 		Commands: []*spec.CommandItem{
 			{Segment: "inventory", Summary: "Returns pet inventories by status"},
 			{Segment: "order", Summary: "A collection of commands for purchase orders"},

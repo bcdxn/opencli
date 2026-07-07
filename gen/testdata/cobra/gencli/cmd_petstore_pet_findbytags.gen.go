@@ -41,6 +41,9 @@ func getSpecPetstorePetFindByTagsCmd() *spec.CommandItem {
 		VisibleChildren: false,
 		VisibleArgs:     false,
 		VisibleFlags:    true,
+		FlagsModifiers: []string{
+			"[flags]",
+		},
 		Flags: []spec.FlagItem{
 			{Name: "tags", Summary: "The tags to filter pets by"},
 		},

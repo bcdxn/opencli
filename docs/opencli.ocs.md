@@ -223,6 +223,7 @@ The framework of the CLI boilerplate to generate
 ###### Supported Values of `--framework`
 
 - `cobra` - [Cobra](https://github.com/spf13/cobra?tab=readme-ov-file) is a popular CLI framework for Go
+- `yargs` - [yargs](https://yargs.js.org) is a popular CLI framework for Node.js
 
 ###### Alternative Sources
 

@@ -234,8 +234,20 @@ func (a Actions) OcliGenCli(_ context.Context, args gencli.OcliGenCliArgs, flags
 		return fmt.Errorf("cannot create output directory %s: %w", flags.Out, err)
 	}
 
+	// Map the --framework flag to a gen.CLIFramework value.
+	// This explicit mapping is the extension point for new frameworks.
+	frameworkMap := map[string]gen.CLIFramework{
+		"cobra": gen.CobraFramework,
+		"yargs": gen.YargsFramework,
+	}
+	cliFramework, ok := frameworkMap[strings.ToLower(string(flags.Framework))]
+	if !ok {
+		supported := []string{"cobra", "yargs"}
+		return gencli.NewValidationError(fmt.Sprintf("unsupported CLI framework: %q (supported: %s)", flags.Framework, strings.Join(supported, ", ")))
+	}
+
 	opts := make([]gen.GenCLIOption, 0)
-	opts = append(opts, gen.GenCLIWithFramework(gen.CLIFramework(strings.ToUpper(string(flags.Framework)))))
+	opts = append(opts, gen.GenCLIWithFramework(cliFramework))
 
 	// Generate CLI code
 	output, err := gen.CLI(doc, opts...)

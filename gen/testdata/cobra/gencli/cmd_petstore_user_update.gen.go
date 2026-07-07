@@ -59,6 +59,9 @@ func getSpecPetstoreUserUpdateCmd() *spec.CommandItem {
 		VisibleChildren: false,
 		VisibleArgs:     false,
 		VisibleFlags:    true,
+		FlagsModifiers: []string{
+			"[flags]",
+		},
 		Flags: []spec.FlagItem{
 			{Name: "username", Summary: "The username of the user to update"},
 			{Name: "firstName", Summary: "The user's first name"},

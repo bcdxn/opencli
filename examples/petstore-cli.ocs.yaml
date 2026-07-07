@@ -95,7 +95,7 @@ commands:
       - n
       type: string
       summary: The name of the pet
-    - name: photoUrls
+    - name: photo-urls
       aliases:
       - p
       type: string
@@ -138,7 +138,7 @@ commands:
       - value: available
       - value: pending
       - value: sold
-    - name: photoUrls
+    - name: photo-urls
       aliases:
       - p
       type: string

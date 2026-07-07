@@ -44,6 +44,9 @@ func getSpecPetstorePetDeleteCmd() *spec.CommandItem {
 		VisibleChildren: false,
 		VisibleArgs:     false,
 		VisibleFlags:    true,
+		FlagsModifiers: []string{
+			"[flags]",
+		},
 		Flags: []spec.FlagItem{
 			{Name: "id", Summary: "The ID of the pet to delete"},
 			{Name: "api-key", Summary: "API key header used to authorize the delete request"},

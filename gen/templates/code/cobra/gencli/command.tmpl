@@ -110,6 +110,27 @@ func {{.SpecFuncName}}() *spec.CommandItem {
 		VisibleChildren: {{.VisibleChildren}},
 		VisibleArgs:     {{.VisibleArgs}},
 		VisibleFlags:    {{.VisibleFlags}},
+{{- if .CommandModifiers}}
+    CommandModifiers: []string{
+{{- range .CommandModifiers}}
+      {{goString .}},
+{{- end}}
+    },
+{{- end}}
+{{- if .ArgsModifiers}}
+    ArgsModifiers: []string{
+{{- range .ArgsModifiers}}
+      {{goString .}},
+{{- end}}
+    },
+{{- end}}
+{{- if .FlagsModifiers}}
+    FlagsModifiers: []string{
+{{- range .FlagsModifiers}}
+      {{goString .}},
+{{- end}}
+    },
+{{- end}}
 {{- if .SpecArgs}}
 		Args: []spec.ArgumentItem{
 {{- range .SpecArgs}}

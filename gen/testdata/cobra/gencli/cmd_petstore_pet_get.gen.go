@@ -41,6 +41,9 @@ func getSpecPetstorePetGetCmd() *spec.CommandItem {
 		VisibleChildren: false,
 		VisibleArgs:     false,
 		VisibleFlags:    true,
+		FlagsModifiers: []string{
+			"[flags]",
+		},
 		Flags: []spec.FlagItem{
 			{Name: "id", Summary: "The ID of the pet to retrieve"},
 		},

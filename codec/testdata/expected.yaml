@@ -85,7 +85,7 @@ commands:
       summary: The name of the pet
       required: false
       hidden: false
-    - name: photoUrls
+    - name: photo-urls
       aliases:
       - p
       type: string
@@ -146,7 +146,7 @@ commands:
       - value: available
       - value: pending
       - value: sold
-    - name: photoUrls
+    - name: photo-urls
       aliases:
       - p
       type: string

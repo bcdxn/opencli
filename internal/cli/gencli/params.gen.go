@@ -46,11 +46,12 @@ type OcliGenCliFramework string
 
 const (
 	OcliGenCliFrameworkCobra OcliGenCliFramework = "cobra"
+	OcliGenCliFrameworkYargs OcliGenCliFramework = "yargs"
 )
 
 func (v OcliGenCliFramework) IsValid() bool {
 	switch v {
-	case OcliGenCliFrameworkCobra:
+	case OcliGenCliFrameworkCobra, OcliGenCliFrameworkYargs:
 		return true
 	}
 	return false

@@ -77,7 +77,7 @@ info:
   binary: pleasantries
 
 commands:
-  pleasantries {command} <name> [flags]:
+  pleasantries {command} <arguments> [flags]:
     group: true
 
   pleasantries greet <name> [flags]:

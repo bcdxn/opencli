@@ -40,6 +40,9 @@ func getSpecPetstoreStoreOrderDeleteCmd() *spec.CommandItem {
 		VisibleChildren: false,
 		VisibleArgs:     true,
 		VisibleFlags:    false,
+		ArgsModifiers: []string{
+			"<id>",
+		},
 		Args: []spec.ArgumentItem{
 			{Name: "id", Summary: "The ID of the order to delete"},
 		},
