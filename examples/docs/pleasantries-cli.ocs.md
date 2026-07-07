@@ -17,7 +17,7 @@ Say hello
 
 ##### `<name>`
 
-A name to include the greeting
+A name to include in the greeting
 
 `string`
 

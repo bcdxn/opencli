@@ -7,14 +7,14 @@ info:
   binary: pleasantries
 
 commands:
-  pleasantries {command} <name> [flags]:
+  pleasantries {command} <arguments> [flags]:
     group: true
 
   pleasantries greet <name> [flags]:
     summary: "Say hello"
     args:
       - name: "name"
-        summary: "A name to include the greeting"
+        summary: "A name to include in the greeting"
         required: true
         type: "string"
     flags:
