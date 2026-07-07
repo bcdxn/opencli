@@ -8,7 +8,14 @@ import {
 
 export interface ActionsInterface {
 {{- range .LeafCommands}}
-  {{.MethodName}}({{if .Args}}args: {{.ArgsTypeName}}, {{end}}{{if .Flags}}flags: {{.FlagsTypeName}}{{end}}): Promise<void>;
+{{- if and .Args .Flags}}
+  {{.MethodName}}(args: {{.ArgsTypeName}}, flags: {{.FlagsTypeName}}): Promise<void>;
+{{- else if .Args}}
+  {{.MethodName}}(args: {{.ArgsTypeName}}): Promise<void>;
+{{- else if .Flags}}
+  {{.MethodName}}(flags: {{.FlagsTypeName}}): Promise<void>;
+{{- else}}
+  {{.MethodName}}(): Promise<void>;
 {{- end}}
   help(cmd: CommandPrintData): void;
   usage(cmd: CommandPrintData): void;
