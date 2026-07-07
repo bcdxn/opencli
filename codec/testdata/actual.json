@@ -1,5 +1,5 @@
 {
-  "opencliVersion": "1.0.0-alpha.9",
+  "opencliVersion": "1.0.0-alpha.10",
   "info": {
     "title": "PetStore CLI",
     "summary": "An example CLI Document describing operations a petstore CLI may provide.",

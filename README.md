@@ -68,7 +68,7 @@ The CLI above can be described using an OpenCLI Specification Document in YAML (
 ```yaml
 # cli.yaml
 
-opencliVersion: 1.0.0-alpha.9
+opencliVersion: 1.0.0-alpha.10
 
 info:
   title: Pleasantries
