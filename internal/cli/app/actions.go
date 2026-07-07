@@ -242,12 +242,8 @@ func (a Actions) OcliGenCli(_ context.Context, args gencli.OcliGenCliArgs, flags
 	}
 	cliFramework, ok := frameworkMap[strings.ToLower(string(flags.Framework))]
 	if !ok {
-		keys := make([]string, 0, len(frameworkMap))
-		for k := range frameworkMap {
-			keys = append(keys, k)
-		}
-		return gencli.NewValidationError(fmt.Sprintf("unsupported CLI framework: %q (supported: %s)", flags.Framework, strings.Join(keys, ", ")))
-	}
+		supported := []string{"cobra", "yargs"}
+		return gencli.NewValidationError(fmt.Sprintf("unsupported CLI framework: %q (supported: %s)", flags.Framework, strings.Join(supported, ", ")))
 
 	opts := make([]gen.GenCLIOption, 0)
 	opts = append(opts, gen.GenCLIWithFramework(cliFramework))
