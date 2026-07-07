@@ -89,7 +89,7 @@ export interface PetstorePetUploadImageArgs {
 // PetstorePetUploadImageFlags holds the flag values for the PetstorePetUploadImage action.
 export interface PetstorePetUploadImageFlags {
   id: number;
-  additionalmetadata?: string | undefined;
+  additionalMetadata?: string | undefined;
 }
 
 // PetstoreStoreOrderPlaceStatus represents the allowed values for the status flag.
@@ -130,8 +130,8 @@ export interface PetstoreUserCreateArgs {
 // PetstoreUserCreateFlags holds the flag values for the PetstoreUserCreate action.
 export interface PetstoreUserCreateFlags {
   username?: string | undefined;
-  firstname?: string | undefined;
-  lastname?: string | undefined;
+  firstName?: string | undefined;
+  lastName?: string | undefined;
   email?: string | undefined;
   password?: string | undefined;
   phone?: string | undefined;
@@ -157,12 +157,12 @@ export interface PetstoreUserGetFlags {
 // PetstoreUserUpdateFlags holds the flag values for the PetstoreUserUpdate action.
 export interface PetstoreUserUpdateFlags {
   username: string;
-  firstname?: string | undefined;
-  lastname?: string | undefined;
+  firstName?: string | undefined;
+  lastName?: string | undefined;
   email?: string | undefined;
   password?: string | undefined;
   phone?: string | undefined;
-  userstatus?: number | undefined;
+  userStatus?: number | undefined;
 }
 
 // PetstoreUserDeleteFlags holds the flag values for the PetstoreUserDelete action.

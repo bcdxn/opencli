@@ -38,14 +38,13 @@ export interface ActionsInterface {
   PetstoreStoreInventory(): Promise<void>;
   PetstoreStoreOrderPlace(args: PetstoreStoreOrderPlaceArgs, flags: PetstoreStoreOrderPlaceFlags): Promise<void>;
   PetstoreStoreOrderGet(flags: PetstoreStoreOrderGetFlags): Promise<void>;
-  PetstoreStoreOrderDelete(args: PetstoreStoreOrderDeleteArgs, ): Promise<void>;
+  PetstoreStoreOrderDelete(args: PetstoreStoreOrderDeleteArgs): Promise<void>;
   PetstoreUserCreate(args: PetstoreUserCreateArgs, flags: PetstoreUserCreateFlags): Promise<void>;
-  PetstoreUserCreateWithList(args: PetstoreUserCreateWithListArgs, ): Promise<void>;
+  PetstoreUserCreateWithList(args: PetstoreUserCreateWithListArgs): Promise<void>;
   PetstoreUserLogin(flags: PetstoreUserLoginFlags): Promise<void>;
   PetstoreUserLogout(): Promise<void>;
   PetstoreUserGet(flags: PetstoreUserGetFlags): Promise<void>;
   PetstoreUserUpdate(flags: PetstoreUserUpdateFlags): Promise<void>;
-  PetstoreUserDelete(flags: PetstoreUserDeleteFlags): Promise<void>;
-  help(cmd: CommandPrintData): void;
+  PetstoreUserDelete(flags: PetstoreUserDeleteFlags): Promise<void>;  help(cmd: CommandPrintData): void;
   usage(cmd: CommandPrintData): void;
 }

@@ -244,6 +244,7 @@ func (a Actions) OcliGenCli(_ context.Context, args gencli.OcliGenCliArgs, flags
 	if !ok {
 		supported := []string{"cobra", "yargs"}
 		return gencli.NewValidationError(fmt.Sprintf("unsupported CLI framework: %q (supported: %s)", flags.Framework, strings.Join(supported, ", ")))
+	}
 
 	opts := make([]gen.GenCLIOption, 0)
 	opts = append(opts, gen.GenCLIWithFramework(cliFramework))

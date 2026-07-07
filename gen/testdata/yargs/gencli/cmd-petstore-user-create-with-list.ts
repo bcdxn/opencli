@@ -62,7 +62,7 @@ export function newPetstoreUserCreateWithListCmd(
       const cmdArgs: PetstoreUserCreateWithListArgs = {
         pathToUsersBody: argv.pathToUsersBody,
       };
-      return actions.PetstoreUserCreateWithList(cmdArgs, );
+      return actions.PetstoreUserCreateWithList(cmdArgs);
     },
   };
 }

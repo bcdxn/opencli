@@ -11,8 +11,8 @@ import { CliError, ExitCode, createBadUserInputError } from "./errors";
 interface petstoreUserCreateArgs {
   "path-to-user-body"?: string;
   "username"?: string;
-  "firstname"?: string;
-  "lastname"?: string;
+  "firstName"?: string;
+  "lastName"?: string;
   "email"?: string;
   "password"?: string;
   "phone"?: string;
@@ -93,8 +93,8 @@ export function newPetstoreUserCreateCmd(
       };
       const cmdFlags: PetstoreUserCreateFlags = {
         username: argv.username as string,
-        firstname: argv.firstname as string,
-        lastname: argv.lastname as string,
+        firstName: argv.firstName as string,
+        lastName: argv.lastName as string,
         email: argv.email as string,
         password: argv.password as string,
         phone: argv.phone as string,

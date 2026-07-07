@@ -62,7 +62,7 @@ export function newPetstoreStoreOrderDeleteCmd(
       const cmdArgs: PetstoreStoreOrderDeleteArgs = {
         id: argv.id,
       };
-      return actions.PetstoreStoreOrderDelete(cmdArgs, );
+      return actions.PetstoreStoreOrderDelete(cmdArgs);
     },
   };
 }

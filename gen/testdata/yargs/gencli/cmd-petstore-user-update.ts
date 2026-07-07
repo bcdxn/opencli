@@ -9,12 +9,12 @@ import { CliError, ExitCode, createBadUserInputError } from "./errors";
 // Local argv shape for this command's builder.
 interface petstoreUserUpdateArgs {
   "username": string;
-  "firstname"?: string;
-  "lastname"?: string;
+  "firstName"?: string;
+  "lastName"?: string;
   "email"?: string;
   "password"?: string;
   "phone"?: string;
-  "userstatus"?: number;
+  "userStatus"?: number;
   help: boolean;
 }
 
@@ -85,12 +85,12 @@ export function newPetstoreUserUpdateCmd(
       }
       const cmdFlags: PetstoreUserUpdateFlags = {
         username: argv.username as string,
-        firstname: argv.firstname as string,
-        lastname: argv.lastname as string,
+        firstName: argv.firstName as string,
+        lastName: argv.lastName as string,
         email: argv.email as string,
         password: argv.password as string,
         phone: argv.phone as string,
-        userstatus: argv.userstatus as number,
+        userStatus: argv.userStatus as number,
       };
       return actions.PetstoreUserUpdate(cmdFlags);
     },

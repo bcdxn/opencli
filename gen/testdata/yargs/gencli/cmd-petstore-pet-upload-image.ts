@@ -11,7 +11,7 @@ import { CliError, ExitCode, createBadUserInputError } from "./errors";
 interface petstorePetUploadImageArgs {
   "path-to-file": string;
   "id": number;
-  "additionalmetadata"?: string;
+  "additionalMetadata"?: string;
   help: boolean;
 }
 
@@ -75,7 +75,7 @@ export function newPetstorePetUploadImageCmd(
       };
       const cmdFlags: PetstorePetUploadImageFlags = {
         id: argv.id as number,
-        additionalmetadata: argv.additionalmetadata as string,
+        additionalMetadata: argv.additionalMetadata as string,
       };
       return actions.PetstorePetUploadImage(cmdArgs, cmdFlags);
     },
