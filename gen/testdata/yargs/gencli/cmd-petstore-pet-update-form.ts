@@ -91,9 +91,9 @@ function getPetstorePetUpdateFormCmdHelpData(): CommandPrintData {
       "[flags]",
     ],
     flags: [
-      { name: "id", summary: "The ID of the pet to update" },
-      { name: "name", summary: "The new name for the pet" },
-      { name: "status", summary: "The new status for the pet" },
+      { name: "id", summary: "The ID of the pet to update", aliases: [] },
+      { name: "name", summary: "The new name for the pet", aliases: [] },
+      { name: "status", summary: "The new status for the pet", aliases: [] },
     ],
   };
 }

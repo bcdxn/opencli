@@ -78,7 +78,7 @@ function getPetstorePetFindByTagsCmdHelpData(): CommandPrintData {
       "[flags]",
     ],
     flags: [
-      { name: "tags", summary: "The tags to filter pets by" },
+      { name: "tags", summary: "The tags to filter pets by", aliases: [] },
     ],
   };
 }

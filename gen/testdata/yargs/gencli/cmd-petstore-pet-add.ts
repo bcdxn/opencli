@@ -114,10 +114,10 @@ function getPetstorePetAddCmdHelpData(): CommandPrintData {
       { name: "path-to-req-body", summary: "The path to a JSON file containing the new pet payload", isRequired: false },
     ],
     flags: [
-      { name: "name", summary: "The name of the pet" },
-      { name: "photo-urls", summary: "A list of photo URLs to display for the pet" },
-      { name: "status", summary: "The pet status in the store" },
-      { name: "tag", summary: "Tag to assign to the pet for grouping/sorting" },
+      { name: "name", summary: "The name of the pet", aliases: ["n"] },
+      { name: "photo-urls", summary: "A list of photo URLs to display for the pet", aliases: ["p"] },
+      { name: "status", summary: "The pet status in the store", aliases: [] },
+      { name: "tag", summary: "Tag to assign to the pet for grouping/sorting", aliases: [] },
     ],
   };
 }

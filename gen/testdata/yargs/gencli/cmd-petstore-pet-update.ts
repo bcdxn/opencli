@@ -114,10 +114,10 @@ function getPetstorePetUpdateCmdHelpData(): CommandPrintData {
       { name: "path-to-req-body", summary: "The path to a JSON file containing the updated pet payload", isRequired: false },
     ],
     flags: [
-      { name: "name", summary: "The updated name of the pet" },
-      { name: "status", summary: "The updated pet status" },
-      { name: "photo-urls", summary: "A list of photo URLs to display for the pet" },
-      { name: "tags", summary: "Tags to assign to the pet" },
+      { name: "name", summary: "The updated name of the pet", aliases: ["n"] },
+      { name: "status", summary: "The updated pet status", aliases: [] },
+      { name: "photo-urls", summary: "A list of photo URLs to display for the pet", aliases: ["p"] },
+      { name: "tags", summary: "Tags to assign to the pet", aliases: [] },
     ],
   };
 }

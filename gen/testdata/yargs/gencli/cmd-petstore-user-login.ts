@@ -82,8 +82,8 @@ function getPetstoreUserLoginCmdHelpData(): CommandPrintData {
       "[flags]",
     ],
     flags: [
-      { name: "username", summary: "The user's username" },
-      { name: "password", summary: "The user's password" },
+      { name: "username", summary: "The user's username", aliases: [] },
+      { name: "password", summary: "The user's password", aliases: [] },
     ],
   };
 }

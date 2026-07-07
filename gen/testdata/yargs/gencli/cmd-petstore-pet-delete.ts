@@ -84,8 +84,8 @@ function getPetstorePetDeleteCmdHelpData(): CommandPrintData {
       "[flags]",
     ],
     flags: [
-      { name: "id", summary: "The ID of the pet to delete" },
-      { name: "api-key", summary: "API key header used to authorize the delete request" },
+      { name: "id", summary: "The ID of the pet to delete", aliases: [] },
+      { name: "api-key", summary: "API key header used to authorize the delete request", aliases: [] },
     ],
   };
 }

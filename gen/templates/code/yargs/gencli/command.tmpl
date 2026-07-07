@@ -198,7 +198,7 @@ function {{.SpecFuncName}}(): CommandPrintData {
 {{- if .SpecFlags}}
     flags: [
 {{- range .SpecFlags}}
-      { name: {{tsString .Name}}, summary: {{tsString .Summary}} },
+      { name: {{tsString .Name}}, summary: {{tsString .Summary}}, aliases: [{{range $i, $a := .Aliases}}{{if $i}}, {{end}}{{tsString $a}}{{end}}] },
 {{- end}}
     ],
 {{- end}}

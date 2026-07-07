@@ -79,7 +79,7 @@ function getPetstorePetGetCmdHelpData(): CommandPrintData {
       "[flags]",
     ],
     flags: [
-      { name: "id", summary: "The ID of the pet to retrieve" },
+      { name: "id", summary: "The ID of the pet to retrieve", aliases: [] },
     ],
   };
 }

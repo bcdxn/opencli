@@ -78,7 +78,7 @@ function getPetstoreUserDeleteCmdHelpData(): CommandPrintData {
       "[flags]",
     ],
     flags: [
-      { name: "username", summary: "The username of the user to delete" },
+      { name: "username", summary: "The username of the user to delete", aliases: [] },
     ],
   };
 }

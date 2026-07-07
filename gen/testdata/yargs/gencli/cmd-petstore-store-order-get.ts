@@ -79,7 +79,7 @@ function getPetstoreStoreOrderGetCmdHelpData(): CommandPrintData {
       "[flags]",
     ],
     flags: [
-      { name: "id", summary: "The ID of the order to retrieve" },
+      { name: "id", summary: "The ID of the order to retrieve", aliases: [] },
     ],
   };
 }

@@ -78,7 +78,7 @@ function getPetstoreUserGetCmdHelpData(): CommandPrintData {
       "[flags]",
     ],
     flags: [
-      { name: "username", summary: "The username to look up" },
+      { name: "username", summary: "The username to look up", aliases: [] },
     ],
   };
 }

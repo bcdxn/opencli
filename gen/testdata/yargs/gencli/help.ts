@@ -94,12 +94,19 @@ function appendFlagSections(
   if (cmd.flags?.length) {
     sections.push({
       header: "FLAGS",
-      optionList: cmd.flags.map((f) => ({
-        name: f.name,
-        description: escapeChalk(f.summary),
-        multiple: f.isVariadic,
-        type: f.type,
-      })),
+      optionList: cmd.flags.map((f) => {
+        let alias = "";
+        if (f.aliases?.length) {
+          alias = f.aliases[0];
+        }
+        return {
+          name: f.name,
+          alias: alias,
+          description: escapeChalk(f.summary),
+          multiple: f.isVariadic,
+          type: f.type,
+        };
+      }),
     } as commandLineUsage.OptionList);
   }
 }

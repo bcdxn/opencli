@@ -171,6 +171,7 @@ type specArgEntry struct {
 type specFlagEntry struct {
 	Name    string
 	Summary string
+	Aliases []string
 }
 
 // cobraArgEntry describes how to bind a positional argument in a cobra command.
@@ -631,7 +632,7 @@ func walkYargsCmdTree(
 
 			extraAliases = append(extraAliases, a)
 		}
-		specFlags = append(specFlags, specFlagEntry{Name: flag.Name, Summary: flag.Summary})
+		specFlags = append(specFlags, specFlagEntry{Name: flag.Name, Summary: flag.Summary, Aliases: extraAliases})
 		yargsFlags = append(yargsFlags, yargsFlagEntry{
 			FieldName:    toCamelCase(flag.Name),
 			RawName:      flag.Name,

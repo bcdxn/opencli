@@ -101,8 +101,8 @@ function getPetstorePetUploadImageCmdHelpData(): CommandPrintData {
       { name: "path-to-file", summary: "The path to the file to upload", isRequired: false },
     ],
     flags: [
-      { name: "id", summary: "The ID of the pet" },
-      { name: "additionalMetadata", summary: "Additional metadata to store with the uploaded image" },
+      { name: "id", summary: "The ID of the pet", aliases: [] },
+      { name: "additionalMetadata", summary: "Additional metadata to store with the uploaded image", aliases: [] },
     ],
   };
 }

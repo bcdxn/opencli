@@ -80,7 +80,7 @@ function getPetstorePetFindByStatusCmdHelpData(): CommandPrintData {
       "[flags]",
     ],
     flags: [
-      { name: "status", summary: "The status to filter pets by" },
+      { name: "status", summary: "The status to filter pets by", aliases: [] },
     ],
   };
 }

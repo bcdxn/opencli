@@ -110,13 +110,13 @@ function getPetstoreUserUpdateCmdHelpData(): CommandPrintData {
       "[flags]",
     ],
     flags: [
-      { name: "username", summary: "The username of the user to update" },
-      { name: "firstName", summary: "The user's first name" },
-      { name: "lastName", summary: "The user's last name" },
-      { name: "email", summary: "The user's email address" },
-      { name: "password", summary: "The user's password" },
-      { name: "phone", summary: "The user's phone number" },
-      { name: "userStatus", summary: "The user's status" },
+      { name: "username", summary: "The username of the user to update", aliases: [] },
+      { name: "firstName", summary: "The user's first name", aliases: [] },
+      { name: "lastName", summary: "The user's last name", aliases: [] },
+      { name: "email", summary: "The user's email address", aliases: [] },
+      { name: "password", summary: "The user's password", aliases: [] },
+      { name: "phone", summary: "The user's phone number", aliases: [] },
+      { name: "userStatus", summary: "The user's status", aliases: [] },
     ],
   };
 }

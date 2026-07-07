@@ -113,10 +113,10 @@ function getPetstoreStoreOrderPlaceCmdHelpData(): CommandPrintData {
       { name: "path-to-order-body", summary: "The path to a JSON file containing the order payload", isRequired: false },
     ],
     flags: [
-      { name: "pet-id", summary: "The ID of the pet to order" },
-      { name: "quantity", summary: "How many pets to order" },
-      { name: "status", summary: "The order status" },
-      { name: "complete", summary: "Whether the order has been completed" },
+      { name: "pet-id", summary: "The ID of the pet to order", aliases: [] },
+      { name: "quantity", summary: "How many pets to order", aliases: [] },
+      { name: "status", summary: "The order status", aliases: [] },
+      { name: "complete", summary: "Whether the order has been completed", aliases: [] },
     ],
   };
 }
