@@ -470,6 +470,7 @@
     },
     "AlternativeSource": {
       "type": "object",
+      "description": "A source for a parameter value that is not stdin, e.g. environment variables or a property within a specified config file.",
       "properties": {
         "type": {
           "description": "The name of the source; it can be `$ENV` indicating the property is sourced from an environment variable OR $FILE, indicating the property is sourced from a config file defined in the global.configFiles section of the document.",
