@@ -40,7 +40,7 @@ commands:
         type: "string"
     flags:
       - name: "language"
-        summary: "The language of the greeting"
+        summary: "The language of the farewell"
         type: "string"
         choices:
           - value: "english"

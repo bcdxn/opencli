@@ -23,7 +23,6 @@ examples: build
 		--out ./examples/docs \
 		--format markdown \
 		./examples/petstore-cli.ocs.yaml
-	
 	@go run cmd/cobra/main.go gen docs \
 		--out ./examples/docs \
 		--format markdown \

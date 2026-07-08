@@ -60,7 +60,7 @@ A name to include in the farewell
 
 ##### `--language`
 
-The language of the greeting
+The language of the farewell
 
 `string` `enum` `default:english`
 
