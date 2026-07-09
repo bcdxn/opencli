@@ -32,11 +32,9 @@ export function newPetstoreStoreOrderPlaceCmd(
         })
         .option("pet-id", {
           type: "number",
-          default: 0,
         })
         .option("quantity", {
           type: "number",
-          default: 0,
         })
         .option("status", {
           type: "string",
@@ -44,7 +42,6 @@ export function newPetstoreStoreOrderPlaceCmd(
         })
         .option("complete", {
           type: "boolean",
-          default: false,
         })
         .help(false)
         .option("help", {

@@ -121,7 +121,7 @@ func genCLICobra(doc *spec.Document, opts *genCLIOptions) (map[string][]byte, er
 				FlagName:     flag.Name,
 				GoType:       toGoType(flag.Type, flag.Variadic),
 				CobraBindFn:  cobraBindFn(flag.Type, flag.Variadic),
-				Default:      cobraDefaultVal(flag.Type, flag.Variadic),
+				Default:      cobraDefaultVal(flag.Default, flag.Type, flag.Variadic),
 				Summary:      flag.Summary,
 				Shorthand:    shorthand,
 				ExtraAliases: extraAliases,
@@ -201,7 +201,7 @@ func walkCmdTree(
 ) {
 	segments := appendSegment(parentSegments, cmd.Segment)
 
-	isGroup := cmd.Group || len(cmd.Commands) > 0
+	isGroup := cmd.Kind == spec.CommandKindGroup || len(cmd.Commands) > 0
 	cmdCore := buildCommandFileCore(
 		cmd.Segment,
 		cmd.Summary,
@@ -302,7 +302,7 @@ func walkCmdTree(
 			FlagName:     flag.Name,
 			GoType:       toGoType(flag.Type, flag.Variadic),
 			CobraBindFn:  cobraBindFn(flag.Type, flag.Variadic),
-			Default:      cobraDefaultVal(flag.Type, flag.Variadic),
+			Default:      cobraDefaultVal(flag.Default, flag.Type, flag.Variadic),
 			Summary:      flag.Summary,
 			TypeName:     flagTypeName,
 			Shorthand:    shorthand,
@@ -410,8 +410,21 @@ func cobraBindFn(t string, variadic bool) string {
 	}
 }
 
-// cobraDefaultVal returns the Go literal for the zero/empty default value of a cobra flag.
-func cobraDefaultVal(t string, variadic bool) string {
+// cobraDefaultVal returns the Go literal for the default value of a cobra flag.
+func cobraDefaultVal(val any, t string, variadic bool) string {
+	switch val.(type) {
+	case string:
+		return fmt.Sprintf("\"%s\"", strings.ReplaceAll(fmt.Sprintf("%s", val), "\"", "\\\""))
+	case int, int32, int64:
+		return fmt.Sprintf("%d", val)
+	case float32, float64:
+		return fmt.Sprintf("%f", val)
+	case bool:
+		return fmt.Sprintf("%t", val)
+	}
+
+	// no default was provided in the spec, use a zero value for cobra
+
 	if variadic {
 		switch t {
 		case "integer":
@@ -424,6 +437,7 @@ func cobraDefaultVal(t string, variadic bool) string {
 			return "[]string{}"
 		}
 	}
+
 	switch t {
 	case "integer":
 		return "0"

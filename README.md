@@ -157,6 +157,8 @@ ocli gen cli \
   ./cli.ocs.yaml
 ```
 
+Check out the /examples directory examples documentation and code generated from OpenCLI documents.
+
 ## Packages
 
 Don't want to use the CLI, and instead prefer library integration? You can use the the following packages:

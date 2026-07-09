@@ -251,10 +251,11 @@
           "description": "Determines if the command is hidden from generated help output and documentation. Note that the command is still documented in the OpenCLI document itself and so you should not include anything sensitive. Typically developer helper functions or alternative testing commands may be hidden.",
           "default": false
         },
-        "group": {
-          "type": "boolean",
-          "description": "If true, then the command it is a logical grouping of subcommands and is not an executable as a stand-alone command.",
-          "default": false
+        "kind": {
+          "type": "string",
+          "description": "The kind of command determines if the command is runnable (action) or not (group). `group` commands act as logical groupings of related commands, e.g. the `pet` in `petstore pet add` and `petstore pet update`.",
+          "enum": ["action", "group"],
+          "default": "action"
         },
         "exitCodes": {
           "type": "array",

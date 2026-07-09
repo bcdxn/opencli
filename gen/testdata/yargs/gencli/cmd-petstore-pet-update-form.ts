@@ -26,7 +26,6 @@ export function newPetstorePetUpdateFormCmd(
         .option("id", {
           type: "number",
           demandOption: true,
-          default: 0,
         })
         .option("name", {
           type: "string",

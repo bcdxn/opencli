@@ -235,7 +235,7 @@ func validateCommand(cmd *spec.CommandItem, definedConfigFiles map[string]bool) 
 	}
 
 	// Validate group commands don't have args or flags
-	if cmd.Group {
+	if cmd.Kind == spec.CommandKindGroup {
 		if len(cmd.Args) > 0 {
 			return &ValidationError{
 				Message: "group command cannot have arguments",

@@ -1,0 +1,24 @@
+{
+  "name": "yargs-example",
+  "version": "1.0.0",
+  "description": "A simple CLI built with yargs and TypeScript",
+  "main": "dist/index.js",
+  "bin": {
+    "petstore": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "npm run build && node dist/index.js"
+  },
+  "devDependencies": {
+    "@types/command-line-usage": "^5.0.4",
+    "@types/node": "^26.1.0",
+    "@types/yargs": "^17.0.35",
+    "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "command-line-usage": "^7.0.4",
+    "yargs": "^18.0.0"
+  }
+}

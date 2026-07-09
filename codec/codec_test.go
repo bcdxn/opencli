@@ -123,6 +123,10 @@ func validateSpec(t *testing.T, d *spec.Document) {
 	if root.CommandLine != "petstore" {
 		t.Fatalf("expected root command line petstore, got %s", root.CommandLine)
 	}
+	// the root is explicitly defined to be of kind 'group'
+	if root.Kind != spec.CommandKindGroup {
+		t.Fatalf("expected root command to be a grouping, got %s", root.Kind)
+	}
 
 	if got := len(root.Commands); got != 4 {
 		t.Fatalf("expected 4 root subcommands, got %d", got)
@@ -160,7 +164,7 @@ func validateSpec(t *testing.T, d *spec.Document) {
 	if user.CommandLine != "petstore user" {
 		t.Fatalf("expected user command line petstore user, got %s", user.CommandLine)
 	}
-	if !user.Group {
+	if user.Kind != spec.CommandKindGroup {
 		t.Fatal("expected petstore user command to be a 'group'")
 	}
 

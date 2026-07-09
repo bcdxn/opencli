@@ -23,7 +23,6 @@ export function newPetstoreStoreOrderGetCmd(
         .option("id", {
           type: "number",
           demandOption: true,
-          default: 0,
         })
         .help(false)
         .option("help", {

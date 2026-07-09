@@ -60,8 +60,8 @@ func TestValidateYAML_LogicalValidationErrors(t *testing.T) {
 		{
 			name: "group command with flags",
 			input: replaceOnce(t, petstoreYAML,
-				"  petstore {command} <arguments> [flags]:\n    group: true",
-				"  petstore {command} <arguments> [flags]:\n    group: true\n    flags:\n    - name: verbose\n      type: boolean"),
+				"  petstore {command} <arguments> [flags]:\n    kind: group",
+				"  petstore {command} <arguments> [flags]:\n    kind: group\n    flags:\n    - name: verbose\n      type: boolean"),
 			wantErr: "group command cannot have flags",
 		},
 		{

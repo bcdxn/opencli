@@ -17,6 +17,7 @@ export interface ActionsInterface {
 {{- else}}
   {{.MethodName}}(): Promise<void>;
 {{- end}}
-{{- end}}  help(cmd: CommandPrintData): void;
+{{- end}}
+  help(cmd: CommandPrintData): void;
   usage(cmd: CommandPrintData): void;
 }

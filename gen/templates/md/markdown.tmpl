@@ -135,10 +135,10 @@ _{{.Doc.Info.Summary}}_
 {{end}}
 
 {{define "commandSection"}}
-{{- if not .Hidden}}{{if or (not .Group) (.Summary) (.Description)}}
-### `$ {{.CommandLine}}{{range .CommandModifiers}} {{.}}{{end}}{{range .ArgsModifiers}} {{.}}{{end}}{{range .FlagsModifiers}} {{.}}{{end}}`{{if .Group}}
+{{- if not .Hidden}}{{if or (ne .Kind "group") (.Summary) (.Description)}}
+### `$ {{.CommandLine}}{{range .CommandModifiers}} {{.}}{{end}}{{range .ArgsModifiers}} {{.}}{{end}}{{range .FlagsModifiers}} {{.}}{{end}}`{{if eq .Kind "group"}}
 
-`group` `nonexecutable`
+`grouping`
 {{- end}}{{- if .Summary}}
 
 {{.Summary}}{{end}}
@@ -210,7 +210,7 @@ _{{.Doc.Info.Summary}}_
 {{- end}}{{/* END CMD FLAGS */}}
 
 
-{{- if and (not .Group) (.ExitCodes)}}{{/* BEGIN CMD EXIT CODES */}}
+{{- if and (ne .Kind "group") (.ExitCodes)}}{{/* BEGIN CMD EXIT CODES */}}
 
 #### Exit Codes
 {{range .ExitCodes}}

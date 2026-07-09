@@ -22,7 +22,7 @@ type rawCommandItem struct {
 	Args        []spec.ArgumentItem `json:"args,omitempty" yaml:"args,omitempty"`
 	Flags       []spec.FlagItem     `json:"flags,omitempty" yaml:"flags,omitempty"`
 	Hidden      bool                `json:"hidden" yaml:"hidden"`
-	Group       bool                `json:"group" yaml:"group"`
+	Kind        spec.CommandKind    `json:"kind" yaml:"kind"`
 	ExitCodes   []spec.ExitCode     `json:"exitCodes,omitempty" yaml:"exitCodes,omitempty"`
 	Examples    []spec.Example      `json:"examples,omitempty" yaml:"examples,omitempty"`
 }

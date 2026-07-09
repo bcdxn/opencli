@@ -24,7 +24,6 @@ export function newPetstorePetDeleteCmd(
         .option("id", {
           type: "number",
           demandOption: true,
-          default: 0,
         })
         .option("api-key", {
           type: "string",

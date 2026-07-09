@@ -54,15 +54,15 @@ global:
 commands:
   petstore {command} <arguments> [flags]:
     hidden: false
-    group: true
+    kind: group
   petstore list:
     summary: List all endpoints available
     hidden: false
-    group: false
+    kind: action
   petstore pet {command} <arguments> [flags]:
     summary: A collection of commands for managing pets
     hidden: false
-    group: true
+    kind: group
   petstore pet add <path-to-req-body> [flags]:
     summary: Add a new pet to the store
     description: |
@@ -114,7 +114,7 @@ commands:
       required: false
       hidden: false
     hidden: false
-    group: false
+    kind: action
   petstore pet update <path-to-req-body> [flags]:
     summary: Update an existing pet
     description: |
@@ -165,7 +165,7 @@ commands:
       required: false
       hidden: false
     hidden: false
-    group: false
+    kind: action
   petstore pet find-by-status [flags]:
     summary: Find pets by status
     flags:
@@ -180,7 +180,7 @@ commands:
       - value: pending
       - value: sold
     hidden: false
-    group: false
+    kind: action
   petstore pet find-by-tags [flags]:
     summary: Find pets by tags
     flags:
@@ -193,7 +193,7 @@ commands:
       required: false
       hidden: false
     hidden: false
-    group: false
+    kind: action
   petstore pet get [flags]:
     summary: Find pet by ID
     flags:
@@ -204,7 +204,7 @@ commands:
       required: true
       hidden: false
     hidden: false
-    group: false
+    kind: action
   petstore pet update-form [flags]:
     summary: Update a pet using form data
     flags:
@@ -231,7 +231,7 @@ commands:
       - value: pending
       - value: sold
     hidden: false
-    group: false
+    kind: action
   petstore pet delete [flags]:
     summary: Delete a pet
     flags:
@@ -248,7 +248,7 @@ commands:
       required: false
       hidden: false
     hidden: false
-    group: false
+    kind: action
   petstore pet upload-image <path-to-file> [flags]:
     summary: Upload an image for a pet
     description: |
@@ -275,19 +275,19 @@ commands:
       required: false
       hidden: false
     hidden: false
-    group: false
+    kind: action
   petstore store {command} <arguments> [flags]:
     summary: A collection of commands for store operations
     hidden: false
-    group: true
+    kind: group
   petstore store inventory:
     summary: Returns pet inventories by status
     hidden: false
-    group: false
+    kind: action
   petstore store order {command} <arguments> [flags]:
     summary: A collection of commands for purchase orders
     hidden: false
-    group: true
+    kind: group
   petstore store order place <path-to-order-body> [flags]:
     summary: Place an order for a pet
     description: |
@@ -330,7 +330,7 @@ commands:
       required: false
       hidden: false
     hidden: false
-    group: false
+    kind: action
   petstore store order get [flags]:
     summary: Find purchase order by ID
     flags:
@@ -341,7 +341,7 @@ commands:
       required: true
       hidden: false
     hidden: false
-    group: false
+    kind: action
   petstore store order delete <id>:
     summary: Delete purchase order by ID
     args:
@@ -353,10 +353,10 @@ commands:
       default: null
       hidden: false
     hidden: false
-    group: false
+    kind: action
   petstore user {command} <arguments> [flags]:
     hidden: false
-    group: true
+    kind: group
   petstore user create <path-to-user-body> [flags]:
     summary: Create a user
     description: |
@@ -413,7 +413,7 @@ commands:
       required: false
       hidden: false
     hidden: false
-    group: false
+    kind: action
   petstore user create-with-list <path-to-users-body>:
     summary: Create multiple users with a list
     description: |
@@ -427,7 +427,7 @@ commands:
       default: null
       hidden: false
     hidden: false
-    group: false
+    kind: action
   petstore user login [flags]:
     summary: Log in a user
     flags:
@@ -454,11 +454,11 @@ commands:
       - type: $FILE
         property: $.auth.pass
     hidden: false
-    group: false
+    kind: action
   petstore user logout:
     summary: Log out the current user
     hidden: false
-    group: false
+    kind: action
   petstore user get [flags]:
     summary: Get user by username
     flags:
@@ -469,7 +469,7 @@ commands:
       required: true
       hidden: false
     hidden: false
-    group: false
+    kind: action
   petstore user update [flags]:
     summary: Update a user
     description: |
@@ -518,7 +518,7 @@ commands:
       required: false
       hidden: false
     hidden: false
-    group: false
+    kind: action
   petstore user delete [flags]:
     summary: Delete a user
     flags:
@@ -529,4 +529,4 @@ commands:
       required: true
       hidden: false
     hidden: true
-    group: false
+    kind: action

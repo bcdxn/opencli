@@ -119,9 +119,9 @@ $ ocli check ./examples/petstore-cli.ocs.yaml
 
 ### `$ ocli gen {command} <arguments> [flags]`
 
-`group` `nonexecutable`
+`grouping`
 
-Commands used to generate code/docs from an OpenCLI Spec document
+Collection of commands used to generate code/docs from an OpenCLI Spec document
 
 ---
 

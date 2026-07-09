@@ -68,7 +68,7 @@ type CommandItem struct {
 	Args           []ArgumentItem
 	Flags          []FlagItem
 	Hidden         bool
-	Group          bool
+	Kind           CommandKind
 	ExitCodes      []ExitCode
 	Examples       []Example
 	Commands       []*CommandItem
@@ -128,3 +128,10 @@ type Example struct {
 	Title   string `json:"title" yaml:"title"`
 	Content string `json:"content" yaml:"content"`
 }
+
+type CommandKind string
+
+var (
+	CommandKindGroup  CommandKind = "group"
+	CommandKindAction CommandKind = "action"
+)

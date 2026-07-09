@@ -31,7 +31,6 @@ export function newPetstorePetUploadImageCmd(
         .option("id", {
           type: "number",
           demandOption: true,
-          default: 0,
         })
         .option("additionalMetadata", {
           type: "string",

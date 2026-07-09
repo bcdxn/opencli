@@ -1,13 +1,12 @@
 {{define "commandSection"}}
 {{- if not .Hidden}}
-{{- if or (not .Group) .Summary .Description .VisibleArgs .VisibleFlags .ExitCodes}}
+{{- if or (ne .Kind "group") .Summary .Description .VisibleArgs .VisibleFlags .ExitCodes}}
 <section class="ocli-section" id="{{slugify .CommandLine}}">
   <div class="ocli-section__sticky">
     <div class="ocli-section__cmd-anchor"><button class="ocli-deeplink-btn" type="button" data-href="#{{slugify .CommandLine}}" aria-label="Copy link"><svg class="ocli-deeplink-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button><code class="ocli-section__cmd">$ {{.CommandLine}}{{range .CommandModifiers}} {{.}}{{end}}{{range .ArgsModifiers}} {{.}}{{end}}{{range .FlagsModifiers}} {{.}}{{end}}</code></div>
-    {{- if .Group}}
+    {{- if eq .Kind "group"}}
     <div class="ocli-badges">
-      <span class="ocli-badge ocli-badge--group">group</span>
-      <span class="ocli-badge ocli-badge--group">non-executable</span>
+      <span class="ocli-badge ocli-badge--group">grouping</span>
     </div>
     {{- end}}
   </div>

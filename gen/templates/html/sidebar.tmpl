@@ -65,14 +65,14 @@
 
 {{define "sidebarItem"}}
 {{- if not .Hidden}}
-<li class="ocli__nav-item{{if and .Group .VisibleChildren}} ocli__nav-item--group{{end}}">
+<li class="ocli__nav-item{{if .VisibleChildren}} ocli__nav-item--group{{end}}">
   <a class="ocli__nav-link" href="#{{slugify .CommandLine}}" data-section="{{slugify .CommandLine}}">
     <span>{{.Segment}}</span>
-    {{- if and .Group .VisibleChildren}}
+    {{- if .VisibleChildren}}
     <span class="ocli__nav-toggle">▸</span>
     {{- end}}
   </a>
-  {{- if and .Group .VisibleChildren}}
+  {{- if .VisibleChildren}}
   <ul class="ocli__nav-sublist">
     {{- range .Commands}}{{template "sidebarItem" .}}{{end}}
   </ul>

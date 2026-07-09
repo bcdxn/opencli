@@ -45,6 +45,7 @@ export interface ActionsInterface {
   PetstoreUserLogout(): Promise<void>;
   PetstoreUserGet(flags: PetstoreUserGetFlags): Promise<void>;
   PetstoreUserUpdate(flags: PetstoreUserUpdateFlags): Promise<void>;
-  PetstoreUserDelete(flags: PetstoreUserDeleteFlags): Promise<void>;  help(cmd: CommandPrintData): void;
+  PetstoreUserDelete(flags: PetstoreUserDeleteFlags): Promise<void>;
+  help(cmd: CommandPrintData): void;
   usage(cmd: CommandPrintData): void;
 }

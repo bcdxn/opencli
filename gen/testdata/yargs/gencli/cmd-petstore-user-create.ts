@@ -52,7 +52,6 @@ export function newPetstoreUserCreateCmd(
         })
         .option("status", {
           type: "number",
-          default: 0,
         })
         .help(false)
         .option("help", {

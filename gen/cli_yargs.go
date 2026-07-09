@@ -40,6 +40,7 @@ type yargsFieldEntry struct {
 	Choices    []yargsChoiceEntry
 	IsVariadic bool
 	IsRequired bool
+	Default    any
 }
 
 // yargsChoiceEntry holds one allowed value for an enum field.
@@ -74,6 +75,7 @@ type yargsArgEntry struct {
 	IsRequired bool
 	TypeName   string // non-empty when the field uses a generated enum type
 	Choices    []yargsChoiceEntry
+	Default    string //Typescript literal or empty
 }
 
 // yargsFlagEntry describes how to bind an option/flag in a yargs command.
@@ -177,7 +179,7 @@ func walkYargsCmdTree(
 ) {
 	segments := appendSegment(parentSegments, cmd.Segment)
 
-	isGroup := cmd.Group || len(cmd.Commands) > 0
+	isGroup := cmd.Kind == spec.CommandKindGroup || len(cmd.Commands) > 0
 	cmdCore := buildCommandFileCore(
 		cmd.Segment,
 		cmd.Summary,
@@ -210,6 +212,7 @@ func walkYargsCmdTree(
 				FieldName:  toCamelCase(arg.Name),
 				TSType:     toTSType(arg.Type, false),
 				IsRequired: arg.Required,
+				Default:    arg.Default,
 			}
 			if len(arg.Choices) > 0 {
 				fe.TypeName = methodName + toPascalCase(arg.Name)
@@ -230,6 +233,7 @@ func walkYargsCmdTree(
 				TSType:     toTSType(flag.Type, flag.Variadic),
 				IsRequired: flag.Required,
 				IsVariadic: flag.Variadic,
+				Default:    flag.Default,
 			}
 			if len(flag.Choices) > 0 && (flag.Type == "string" || flag.Type == "") && !flag.Variadic {
 				fe.TypeName = methodName + toPascalCase(flag.Name)
@@ -308,7 +312,7 @@ func walkYargsCmdTree(
 			Choices:      choices,
 			Shorthand:    shorthand,
 			ExtraAliases: extraAliases,
-			Default:      yargsDefaultVal(flag.Type, flag.Variadic),
+			Default:      yargsDefaultVal(flag.Default),
 		})
 	}
 
@@ -449,15 +453,16 @@ func yargsCommandDSL(cmd *spec.CommandItem) string {
 }
 
 // yargsDefaultVal returns a TypeScript literal default value for a flag.
-func yargsDefaultVal(t string, variadic bool) string {
-	if variadic {
-		return ""
-	}
-	switch t {
-	case "integer", "number":
-		return "0"
-	case "boolean":
-		return "false"
+func yargsDefaultVal(val any) string {
+	switch val.(type) {
+	case string:
+		return fmt.Sprintf("\"%s\"", strings.ReplaceAll(fmt.Sprintf("%s", val), "\"", "\\\""))
+	case int, int32, int64:
+		return fmt.Sprintf("%d", val)
+	case float32, float64:
+		return fmt.Sprintf("%f", val)
+	case bool:
+		return fmt.Sprintf("%t", val)
 	default:
 		return ""
 	}

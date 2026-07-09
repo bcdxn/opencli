@@ -60,7 +60,7 @@ global:
 
 commands:
   ocli {command} <arguments> [flags]:
-    group: true
+    kind: group
 
   ocli check <path-to-spec>:
     summary: "Check an OpenCLI Spec document for errors"
@@ -92,10 +92,10 @@ commands:
           # ✓ Document is valid
 
   ocli gen {command} [flags]:
-    summary: "Commands used to generate code/docs from an OpenCLI Spec document"
+    summary: "Collection of commands used to generate code/docs from an OpenCLI Spec document"
     aliases:
       - "gen"
-    group: true
+    kind: group
 
   ocli gen docs [flags]:
     summary: "Generate documentation"

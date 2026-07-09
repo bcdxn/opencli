@@ -87,7 +87,7 @@ List all endpoints available
 
 ### `$ petstore pet {command} <arguments> [flags]`
 
-`group` `nonexecutable`
+`grouping`
 
 A collection of commands for managing pets
 
@@ -337,7 +337,7 @@ Additional metadata to store with the uploaded image
 
 ### `$ petstore store {command} <arguments> [flags]`
 
-`group` `nonexecutable`
+`grouping`
 
 A collection of commands for store operations
 
@@ -351,7 +351,7 @@ Returns pet inventories by status
 
 ### `$ petstore store order {command} <arguments> [flags]`
 
-`group` `nonexecutable`
+`grouping`
 
 A collection of commands for purchase orders
 

@@ -136,7 +136,7 @@ func insertCommand(doc *spec.Document, rawCmdLine string, rawCmd rawCommandItem)
 		cmdLineBuilder = append(cmdLineBuilder, cmdSegments[i])
 
 		if cmdIndex < 0 {
-			// the command node does not exist in the Trie, add it
+			// the command node does not exist in the Trie, add it as a derived command
 			newNode := &spec.CommandItem{
 				Segment:     cmdSegments[i],
 				CommandLine: strings.Join(cmdLineBuilder, " "),
@@ -165,7 +165,7 @@ func setCommandFields(cmd *spec.CommandItem, rawCmdLine string, rawCmd rawComman
 	cmd.Args = rawCmd.Args
 	cmd.Flags = rawCmd.Flags
 	cmd.Hidden = rawCmd.Hidden
-	cmd.Group = rawCmd.Group
+	cmd.Kind = rawCmd.Kind
 	cmd.ExitCodes = rawCmd.ExitCodes
 	cmd.Examples = rawCmd.Examples
 }
@@ -200,7 +200,9 @@ func postProcessingDFS(node *spec.CommandItem, rawDoc *rawDocument) {
 	// process node
 
 	// 1. If the command is not defined explicitly in the doc, then it must be a grouping
-	node.Group = node.Group || node.Derived
+	if node.Derived {
+		node.Kind = spec.CommandKindGroup
+	}
 	// 2. If a command has subcommands it should be indicated
 	for _, child := range node.Commands {
 		if !child.Hidden {
@@ -229,7 +231,7 @@ func postProcessingDFS(node *spec.CommandItem, rawDoc *rawDocument) {
 	// 5. Add the arguments modifiers
 	addModifiers(node)
 
-	// iterate through the nodes subcommands and process each child recursively
+	// iterate through the node's subcommands and process each child recursively
 	for _, child := range node.Commands {
 		postProcessingDFS(child, rawDoc)
 	}
@@ -335,8 +337,14 @@ func convertToRawCommands(cmd *spec.CommandItem, rawDoc *rawDocument) {
 		Args:        cmd.Args,
 		Flags:       cmd.Flags,
 		Hidden:      cmd.Hidden,
-		Group:       cmd.Group,
+		Kind:        cmd.Kind,
 		ExitCodes:   cmd.ExitCodes,
+	}
+
+	if len(rawCmd.Kind) == 0 {
+		// default kind to action if not specified. This may be overridden later if the command is a
+		// derived command (i.e. it wasn't declared in the OCS document)
+		rawCmd.Kind = spec.CommandKindAction
 	}
 
 	cmdLine := cmd.CommandLine

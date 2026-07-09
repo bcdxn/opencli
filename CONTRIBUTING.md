@@ -44,10 +44,6 @@ make test
 #### Build
 
 ```sh
-make build
-```
-
-```sh
 make build-ui
 ```
 
@@ -74,7 +70,7 @@ New code will only be accepted with accompanying unit tests, which will be asses
 
 To keep the project reliable, we require all code changes to be accompanied by appropriate tests.
 
-#### 1. Requirements for Pull Requests
+#### Requirements for Pull Requests
 
 - No Regression: Fixes for bugs must include a test case that reproduces the issue and verifies the fix.
 - Feature Coverage: New features or specification changes must include comprehensive unit and integration tests.

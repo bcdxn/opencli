@@ -292,7 +292,7 @@
       "summary": "Upload an image for a pet"
     },
     "petstore pet {command} <arguments> [flags]": {
-      "group": true,
+      "kind": "group",
       "summary": "A collection of commands for managing pets"
     },
     "petstore store inventory": {
@@ -365,11 +365,11 @@
       "summary": "Place an order for a pet"
     },
     "petstore store order {command} <arguments> [flags]": {
-      "group": true,
+      "kind": "group",
       "summary": "A collection of commands for purchase orders"
     },
     "petstore store {command} <arguments> [flags]": {
-      "group": true,
+      "kind": "group",
       "summary": "A collection of commands for store operations"
     },
     "petstore user create <arguments> [flags]": {
@@ -552,7 +552,7 @@
       "summary": "Update a user"
     },
     "petstore {command} <arguments> [flags]": {
-      "group": true
+      "kind": "group"
     }
   }
 }
