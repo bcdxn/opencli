@@ -18,8 +18,8 @@ Once a 1.0.0 release candidate for the spec and initial tooling has been release
   - [x] HTML documentation
 - [ ] Generate CLI boilerplate from a spec-compliant file
   - [ ] [urfave/cli](https://cli.urfave.org)
-  - [ ] [cobra](https://cobra.dev)
-  - [ ] [yargs](https://yargs.js.org)
+  - [x] [cobra](https://cobra.dev)
+  - [x] [yargs](https://yargs.js.org)
 - [x] Generate a static docs site
 
 ## Testing and Building
@@ -69,6 +69,16 @@ To obtain OpenCLI Spec locally, fork this repository and work from branches usin
 - `bugfix/...` - branches that provide fixes to bugs
 
 New code will only be accepted with accompanying unit tests, which will be assessed for quality during the pull request.
+
+### Test Policy
+
+To keep the project reliable, we require all code changes to be accompanied by appropriate tests.
+
+#### 1. Requirements for Pull Requests
+
+- No Regression: Fixes for bugs must include a test case that reproduces the issue and verifies the fix.
+- Feature Coverage: New features or specification changes must include comprehensive unit and integration tests.
+- Green Builds: All tests must pass locally and in CI before a Pull Request can be merged.
 
 ## Repo Layout
 
