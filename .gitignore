@@ -1,4 +1,9 @@
-dist
+# Go builds
+dist/
+out/
+build/
+# Go code coverage
+coverage.txt
 
 .vscode
 
@@ -6,9 +11,6 @@ dist
 Thumbs.db
 tmp*
 scratch*
-dist/
-out/
-build/
 
 node_modules
 
