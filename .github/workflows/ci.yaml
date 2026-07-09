@@ -11,6 +11,7 @@ permissions:
   contents: write
   pages: write
   id-token: write
+  code-quality: write
 
 jobs:
   ci:
@@ -19,15 +20,31 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
           go-version-file: 'go.mod'
           cache: true
+
       - name: Go Generate
         run: go generate ./...
+
       - name: Test
-        run: go test ./...
+        run: go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
+      - name: Check Coverage Total (Terminal Summary)
+        run: |
+          go tool cover -func=coverage.out
+      # - name: Convert to Cobertura Format
+      #   run: |
+      #     go install github.com/boumenot/gocover-cobertura@latest
+      #     gocover-cobertura < coverage.out > coverage.xml
+      # - uses: actions/upload-code-coverage@v1
+      #   with:
+      #     file: coverage.xml
+      #     language: Go
+      #     label: code-coverage/go
+
 
       - name: Setup Node
         uses: actions/setup-node@v6
@@ -35,17 +52,15 @@ jobs:
           node-version: 24
           cache: npm
           cache-dependency-path: ./web/package-lock.json
+
       - name: Build
         run: make build-ui
+
       - name: Upload Pages Distribution Files
         uses: actions/upload-artifact@v7
         with:
           name: github-pages
           path: ./web/out
-      - name: UI Build
-        run: make build-ui
-      - name: Metadata
-        run: echo "${{ github.ref }}"
   
   trigger-release-gh-pages:
     name: Trigger Release GH Pages
