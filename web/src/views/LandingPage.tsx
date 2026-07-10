@@ -13,13 +13,10 @@ info:
   title: Pleasantries CLI
   summary: A fun CLI to greet the caller
   version: 1.0.0
-  binary: pleasantries
+  binary: greet
 
 commands:
-  pleasantries {command} <args> [flags]:
-    kind: group
-
-  pleasantries greet <args> [flags]:
+  greet <args> [flags]:
     summary: "Say hello"
     args:
       - name: "name"
@@ -36,13 +33,10 @@ info:
   title: 寒暄
   summary: 亲切的问候
   version: 1.0.0
-  binary: pleasantries
+  binary: greet
 
 commands:
-  pleasantries {command} <args> [flags]:
-    kind: group
-
-  pleasantries greet <args> [flags]:
+  greet <args> [flags]:
     summary: "问好"
     args:
       - name: "name"
