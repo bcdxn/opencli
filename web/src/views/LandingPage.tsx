@@ -17,7 +17,7 @@ info:
 
 commands:
   pleasantries {command} <args> [flags]:
-    group: true
+    kind: group
 
   pleasantries greet <args> [flags]:
     summary: "Say hello"
@@ -40,7 +40,7 @@ info:
 
 commands:
   pleasantries {command} <args> [flags]:
-    group: true
+    kind: group
 
   pleasantries greet <args> [flags]:
     summary: "问好"

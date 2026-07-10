@@ -54,7 +54,7 @@ global:
 
 commands:
   petstore {command} <arguments> [flags]:
-    group: true
+    kind: group
 
   petstore list [flags]:
     aliases:
@@ -63,7 +63,7 @@ commands:
 
   petstore pet {command} <arguments> [flags]:
     summary: 管理宠物的命令集合
-    group: true
+    kind: group
 
   petstore pet add [flags]:
     summary: 向商店新增宠物
@@ -222,14 +222,14 @@ commands:
 
   petstore store {command} <arguments> [flags]:
     summary: 商店操作的命令集合
-    group: true
+    kind: group
 
   petstore store inventory:
     summary: 按状态返回宠物库存
 
   petstore store order {command} <arguments> [flags]:
     summary: 采购订单的命令集合
-    group: true
+    kind: group
 
   petstore store order place [flags]:
     summary: 为宠物下单

@@ -79,7 +79,7 @@ info:
 
 commands:
   pleasantries {command} <arguments> [flags]:
-    group: true
+    kind: group
 
   pleasantries greet <name> [flags]:
     summary: "Say hello"

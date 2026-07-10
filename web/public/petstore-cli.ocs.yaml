@@ -55,7 +55,7 @@ global:
 
 commands:
   petstore {command} <arguments> [flags]:
-    group: true
+    kind: group
 
   petstore list [flags]:
     aliases:
@@ -64,7 +64,7 @@ commands:
 
   petstore pet {command} <arguments> [flags]:
     summary: A collection of commands for managing pets
-    group: true
+    kind: group
 
   petstore pet add [flags]:
     summary: Add a new pet to the store
@@ -223,14 +223,14 @@ commands:
 
   petstore store {command} <arguments> [flags]:
     summary: A collection of commands for store operations
-    group: true
+    kind: group
 
   petstore store inventory:
     summary: Returns pet inventories by status
 
   petstore store order {command} <arguments> [flags]:
     summary: A collection of commands for purchase orders
-    group: true
+    kind: group
 
   petstore store order place [flags]:
     summary: Place an order for a pet
