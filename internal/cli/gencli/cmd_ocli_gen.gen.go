@@ -9,7 +9,7 @@ import (
 func NewCmdOcliGen(a ActionsInterface) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "gen",
-		Short:   "Commands used to generate code/docs from an OpenCLI Spec document",
+		Short:   "Collection of commands used to generate code/docs from an OpenCLI Spec document",
 		Long:    "",
 		Aliases: []string{"gen"},
 		Args:    cobra.NoArgs,
@@ -37,7 +37,7 @@ func getSpecOcliGenCmd() *spec.CommandItem {
 	return &spec.CommandItem{
 		Segment:         "gen",
 		CommandLine:     "ocli ocli gen",
-		Summary:         "Commands used to generate code/docs from an OpenCLI Spec document",
+		Summary:         "Collection of commands used to generate code/docs from an OpenCLI Spec document",
 		Description:     "",
 		VisibleChildren: true,
 		VisibleArgs:     false,

@@ -52,7 +52,7 @@ func getSpecOcliCmd() *spec.CommandItem {
 		},
 		Commands: []*spec.CommandItem{
 			{Segment: "check", Summary: "Check an OpenCLI Spec document for errors"},
-			{Segment: "gen", Summary: "Commands used to generate code/docs from an OpenCLI Spec document"},
+			{Segment: "gen", Summary: "Collection of commands used to generate code/docs from an OpenCLI Spec document"},
 		},
 	}
 }

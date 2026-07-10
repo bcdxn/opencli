@@ -45,13 +45,14 @@ type OcliGenDocsFlags struct {
 type OcliGenCliFramework string
 
 const (
-	OcliGenCliFrameworkCobra OcliGenCliFramework = "cobra"
-	OcliGenCliFrameworkYargs OcliGenCliFramework = "yargs"
+	OcliGenCliFrameworkCobra     OcliGenCliFramework = "cobra"
+	OcliGenCliFrameworkUrfavecli OcliGenCliFramework = "urfavecli"
+	OcliGenCliFrameworkYargs     OcliGenCliFramework = "yargs"
 )
 
 func (v OcliGenCliFramework) IsValid() bool {
 	switch v {
-	case OcliGenCliFrameworkCobra, OcliGenCliFrameworkYargs:
+	case OcliGenCliFrameworkCobra, OcliGenCliFrameworkUrfavecli, OcliGenCliFrameworkYargs:
 		return true
 	}
 	return false

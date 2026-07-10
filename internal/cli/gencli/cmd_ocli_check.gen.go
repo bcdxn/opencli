@@ -25,7 +25,7 @@ func NewCmdOcliCheck(a ActionsInterface) *cobra.Command {
 	}
 	command.SilenceErrors = true
 	command.SilenceUsage = true
-	command.Flags().BoolVarP(&flagFailOnErr, "fail-on-err", "", false, "Return a non-zero exit code if validation fails")
+	command.Flags().BoolVarP(&flagFailOnErr, "fail-on-err", "", true, "Return a non-zero exit code if validation fails")
 	command.SetHelpFunc(func(_ *cobra.Command, _ []string) {
 		a.HelpFunc(getSpecOcliCheckCmd())
 	})

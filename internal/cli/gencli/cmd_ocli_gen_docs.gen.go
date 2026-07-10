@@ -37,7 +37,7 @@ func NewCmdOcliGenDocs(a ActionsInterface) *cobra.Command {
 	command.SilenceErrors = true
 	command.SilenceUsage = true
 	command.Flags().StringVarP(&flagFormat, "format", "f", "", "The format of the documentation to generate")
-	command.Flags().StringVarP(&flagOut, "out", "o", "", "The path to the directory where the generated docs will be written")
+	command.Flags().StringVarP(&flagOut, "out", "o", "./docs", "The path to the directory where the generated docs will be written")
 	command.Flags().BoolVarP(&flagNoFooter, "no-footer", "", false, "Do not include the footer in the docs")
 	command.Flags().BoolVarP(&flagNoBadge, "no-badge", "", false, "Do not include the OpenCLI badge")
 	command.SetHelpFunc(func(_ *cobra.Command, _ []string) {
