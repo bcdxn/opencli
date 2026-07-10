@@ -222,8 +222,9 @@ The framework of the CLI boilerplate to generate
 
 ###### Supported Values of `--framework`
 
-- `cobra` - [Cobra](https://github.com/spf13/cobra?tab=readme-ov-file) is a popular CLI framework for Go
-- `yargs` - [yargs](https://yargs.js.org) is a popular CLI framework for Node.js
+- `cobra` - [Cobra](https://github.com/spf13/cobra?tab=readme-ov-file) a powerful, battle-tested CLI framework for Go
+- `urfavecli` - [urfave/cli](https://github.com/urfave/cli) is a declarative, simple, fast, and fun package for building command line tools in Go
+- `yargs` - [yargs](https://yargs.js.org) be a node.js library fer hearties tryin' ter parse optstrings
 
 ###### Alternative Sources
 

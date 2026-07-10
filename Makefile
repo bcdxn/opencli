@@ -13,12 +13,12 @@ version = $(shell git describe --tags HEAD)
 .PHONY: gen-docs
 gen-docs: generate
 	@go run cmd/cobra/main.go gen docs \
-		--out ./docs \
 		--format markdown \
+		--out ./docs \
 		opencli.ocs.yaml
 	@go run cmd/cobra/main.go gen docs \
-		--out ./web/public \
 		--format html-embed \
+		--out ./web/public \
 		opencli.ocs.yaml
 
 .PHONY: gen-examples
@@ -72,3 +72,15 @@ dev-wasm: copy-wasm-exec
 .PHONY: dev
 dev: dev-wasm
 	cd web && npm run dev
+
+# Warning: local/manual regression testing ahead
+.PHONY: gen-scratch-clis
+gen-scratch-clis:
+	@go run cmd/cobra/main.go gen cli \
+		--framework yargs \
+		--out ../scratch/generated-cli-tests/yargs/src \
+		./examples/petstore-cli.ocs.yaml
+	@go run cmd/cobra/main.go gen cli \
+		--framework cobra \
+		--out ../scratch/generated-cli-tests/cobra/internal \
+		./examples/petstore-cli.ocs.yaml
