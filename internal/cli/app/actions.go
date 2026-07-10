@@ -237,12 +237,13 @@ func (a Actions) OcliGenCli(_ context.Context, args gencli.OcliGenCliArgs, flags
 	// Map the --framework flag to a gen.CLIFramework value.
 	// This explicit mapping is the extension point for new frameworks.
 	frameworkMap := map[string]gen.CLIFramework{
-		"cobra": gen.CobraFramework,
-		"yargs": gen.YargsFramework,
+		"cobra":     gen.CobraFramework,
+		"yargs":     gen.YargsFramework,
+		"urfavecli": gen.UrfaveCliFramework,
 	}
 	cliFramework, ok := frameworkMap[strings.ToLower(string(flags.Framework))]
 	if !ok {
-		supported := []string{"cobra", "yargs"}
+		supported := []string{"cobra", "yargs", "urfavecli"}
 		return gencli.NewValidationError(fmt.Sprintf("unsupported CLI framework: %q (supported: %s)", flags.Framework, strings.Join(supported, ", ")))
 	}
 

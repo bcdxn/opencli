@@ -15,11 +15,13 @@ const (
 	CobraFramework CLIFramework = "COBRA"
 	// YargsFramework generates code for the yargs Node.js framework.
 	YargsFramework CLIFramework = "YARGS"
+	// UrfaveCliFramework generates code for the github.com/urfave/cli/v3 framework.
+	UrfaveCliFramework CLIFramework = "URFAVECLI"
 )
 
 // IsValid reports whether f is a supported CLIFramework.
 func (f CLIFramework) IsValid() bool {
-	return f == CobraFramework || f == YargsFramework
+	return f == CobraFramework || f == YargsFramework || f == UrfaveCliFramework
 }
 
 // CLI generates CLI boilerplate Go files from the given OpenCLI document.
@@ -52,6 +54,8 @@ func CLI(doc *spec.Document, options ...GenCLIOption) (map[string][]byte, error)
 		return genCLICobra(doc, opts)
 	case YargsFramework:
 		return genCLIYargs(doc, opts)
+	case UrfaveCliFramework:
+		return genCLIUrfaveCli(doc, opts)
 	}
 
 	return nil, fmt.Errorf("unsupported CLI framework: %s", opts.Framework)
