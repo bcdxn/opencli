@@ -84,3 +84,7 @@ gen-scratch-clis:
 		--framework cobra \
 		--out ../scratch/generated-cli-tests/cobra/internal \
 		./examples/petstore-cli.ocs.yaml
+	@go run cmd/cobra/main.go gen cli \
+		--framework urfavecli \
+		--out ../scratch/generated-cli-tests/urfavecli/internal \
+		./examples/petstore-cli.ocs.yaml

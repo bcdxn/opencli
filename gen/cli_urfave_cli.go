@@ -51,7 +51,6 @@ type urfaveCliFlagEntry struct {
 	TypeName   string   // non-empty when the struct field uses a generated type (needs cast)
 	Aliases    []string // all aliases (urfave uses Aliases []string, not separate shorthand)
 	Accessor   string   // e.g. "String", "Int64", "Bool", "Float64", "StringSlice", etc.
-	ZeroValue  string   // Go zero value expression for this flag type
 }
 
 //go:embed templates/code/urfavecli
@@ -93,7 +92,6 @@ func genCLIUrfaveCli(doc *spec.Document, opts *genCLIOptions) (map[string][]byte
 				Summary:    flag.Summary,
 				Aliases:    flag.Aliases,
 				Accessor:   urfaveCliAccessor(flag.Type, flag.Variadic),
-				ZeroValue:  urfaveCliZeroValue(flag.Type, flag.Variadic),
 			})
 		}
 	}
@@ -278,7 +276,6 @@ func walkUrfaveCliCmdTree(
 			TypeName:   flagTypeName,
 			Aliases:    flag.Aliases,
 			Accessor:   urfaveCliAccessor(flag.Type, flag.Variadic),
-			ZeroValue:  urfaveCliZeroValue(flag.Type, flag.Variadic),
 		})
 	}
 
@@ -352,24 +349,24 @@ func urfaveCliFlagStruct(t string, variadic bool) string {
 	if variadic {
 		switch t {
 		case "integer":
-			return "*cli.Int64SliceFlag"
+			return "cli.Int64SliceFlag"
 		case "boolean":
-			return "*cli.BoolSliceFlag"
+			return "cli.BoolSliceFlag"
 		case "number":
-			return "*cli.Float64SliceFlag"
+			return "cli.Float64SliceFlag"
 		default:
-			return "*cli.StringSliceFlag"
+			return "cli.StringSliceFlag"
 		}
 	}
 	switch t {
 	case "integer":
-		return "*cli.Int64Flag"
+		return "cli.Int64Flag"
 	case "boolean":
-		return "*cli.BoolFlag"
+		return "cli.BoolFlag"
 	case "number":
-		return "*cli.Float64Flag"
+		return "cli.Float64Flag"
 	default:
-		return "*cli.StringFlag"
+		return "cli.StringFlag"
 	}
 }
 
@@ -404,13 +401,13 @@ func urfaveCliZeroValue(t string, variadic bool) string {
 	if variadic {
 		switch t {
 		case "integer":
-			return "cli.NewInt64Slice()"
+			return "[]int{}"
 		case "boolean":
-			return "cli.NewBoolSlice()"
+			return "[]bool{}"
 		case "number":
-			return "cli.NewFloat64Slice()"
+			return "[]float64{}"
 		default:
-			return "cli.NewStringSlice()"
+			return "[]string{}"
 		}
 	}
 	switch t {
@@ -427,17 +424,50 @@ func urfaveCliZeroValue(t string, variadic bool) string {
 
 // urfaveCliDefaultVal returns the Go literal for the default value of an urfave flag.
 func urfaveCliDefaultVal(val any, t string, variadic bool) string {
-	switch val.(type) {
+	switch slice := val.(type) {
+	// handl slice types first
+	case []string:
+		var elems []string
+		for _, v := range slice {
+			elems = append(elems, fmt.Sprintf("%#v", v))
+		}
+		return fmt.Sprintf("[]string{%s}", strings.Join(elems, ", "))
+
+	case []int:
+		var elems []string
+		for _, v := range slice {
+			elems = append(elems, fmt.Sprintf("%d", v))
+		}
+		return fmt.Sprintf("[]int{%s}", strings.Join(elems, ", "))
+
+	case []float64:
+		var elems []string
+		for _, v := range slice {
+			// %g prints the most compact representation of a float
+			elems = append(elems, fmt.Sprintf("%g", v))
+		}
+		return fmt.Sprintf("[]float64{%s}", strings.Join(elems, ", "))
+
+	case []bool:
+		var elems []string
+		for _, v := range slice {
+			elems = append(elems, fmt.Sprintf("%t", v))
+		}
+		return fmt.Sprintf("[]bool{%s}", strings.Join(elems, ", "))
+	// handle non-slice scalars
 	case string:
 		return fmt.Sprintf("%q", strings.ReplaceAll(fmt.Sprintf("%s", val), "\"", "\\\""))
-	case int, int32, int64:
+	case int:
 		return fmt.Sprintf("%d", val)
-	case float32, float64:
+	case float64:
 		return fmt.Sprintf("%f", val)
 	case bool:
 		return fmt.Sprintf("%t", val)
-	}
+	case nil:
+		return urfaveCliZeroValue(t, variadic)
 
-	// no default was provided in the spec, use a zero value for urfave
-	return urfaveCliZeroValue(t, variadic)
+	default:
+		// should never panic because the spec will have been validated before generation is run
+		panic(fmt.Sprintf("unsupported type: must be a slice of string, int, float64, or bool - %T", val))
+	}
 }

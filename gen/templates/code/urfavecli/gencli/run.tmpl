@@ -6,8 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-
-	"github.com/urfave/cli/v3"
 )
 
 // Run executes the root urfave command and returns an exit code.
@@ -30,7 +28,7 @@ func Run(ctx context.Context, actions ActionsInterface) int {
 {{- end}}
 
 	// Run the CLI
-	if err := rootCmd.RunContext(ctx, os.Args); err != nil {
+	if err := rootCmd.Run(ctx, os.Args); err != nil {
 		fmt.Fprintf(actions.IOStreams().Out(), "error: %v\n\n", err.Error())
 
 		if cliErr, ok := errors.AsType[*CLIError](err); ok {
