@@ -358,6 +358,61 @@
   }
 }
 
+/* ----- Two-column section body (with examples) -------- */
+.ocli-section__body--two-col {
+  display: grid;
+  gap: 32px;
+  grid-template-columns: 1fr 1fr;
+  padding: 20px 24px 28px;
+}
+
+@media (max-width: 720px) {
+  .ocli-section__body--two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ocli-section__col-left {
+  min-width: 0;
+}
+
+.ocli-section__col-right {
+  align-self: start;
+  position: sticky;
+  top: 80px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+
+/* ----- Examples column -------------------------------- */
+.ocli-examples {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ocli-examples__heading {
+  color: var(--ocli-text-active);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin: 0 0 4px;
+  text-transform: uppercase;
+}
+
+.ocli-example {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ocli-example__title {
+  color: var(--ocli-text);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
 /* ----- Badges ----------------------------------------- */
 .ocli-badges {
   align-items: center;
@@ -573,6 +628,15 @@
 }
 
 /* ----- Config table ----------------------------------- */
+
+.ocli-table-container {
+  border: 1px solid var(--ocli-border);
+  border-radius: 8px;
+  overflow: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
 .ocli-table {
   border-collapse: collapse;
   font-size: 14px;
@@ -596,6 +660,11 @@
   padding: 8px 12px;
   color: var(--ocli-text);
 }
+
+.ocli-table tr:first-child th { border-top: none; }
+.ocli-table tr:last-child td { border-bottom: none; }
+.ocli-table tr td:first-child, tr th:first-child { border-left: none; }
+.ocli-table tr td:last-child, tr th:last-child { border-right: none; }
 
 .ocli-table code {
   background: var(--ocli-bg-code);
@@ -809,6 +878,16 @@
   border-radius: 3px;
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   padding: 1px 5px;
+}
+
+/* ----- Markddown to HTML styles ----------------------- */
+.ocli-section__body a {
+  color: var(--ocli-accent);
+  text-decoration: none;
+}
+
+.ocli-section__body a:hover {
+  text-decoration: underline;
 }
 
 /* ----- Footer ----------------------------------------- */
