@@ -46,7 +46,7 @@ func NewCmdPetstorePetUpdateForm(a ActionsInterface) *cobra.Command {
 func getSpecPetstorePetUpdateFormCmd() *spec.CommandItem {
 	return &spec.CommandItem{
 		Segment:         "update-form",
-		CommandLine:     "petstore petstore pet update-form",
+		CommandLine:     "petstore pet update-form",
 		Summary:         "Update a pet using form data",
 		Description:     "",
 		VisibleChildren: false,

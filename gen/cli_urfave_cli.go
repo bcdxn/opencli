@@ -117,6 +117,7 @@ func genCLIUrfaveCli(doc *spec.Document, opts *genCLIOptions) (map[string][]byte
 		{"gencli/help.gen.go", "templates/code/urfavecli/gencli/help.tmpl"},
 		{"gencli/iostreams.gen.go", "templates/code/urfavecli/gencli/iostreams.tmpl"},
 		{"gencli/params.gen.go", "templates/code/urfavecli/gencli/params.tmpl"},
+		{"gencli/run.gen.go", "templates/code/urfavecli/gencli/run.tmpl"},
 	}
 
 	for _, f := range gencliFiles {
@@ -130,16 +131,6 @@ func genCLIUrfaveCli(doc *spec.Document, opts *genCLIOptions) (map[string][]byte
 		}
 		out[f.outPath] = formatted
 	}
-
-	runContent, err := renderUrfaveCliTemplate("templates/code/urfavecli/gencli/run.tmpl", funcMap, allCmdsData)
-	if err != nil {
-		return nil, fmt.Errorf("rendering gencli/run.go: %w", err)
-	}
-	formattedRun, err := format.Source(runContent)
-	if err != nil {
-		return nil, fmt.Errorf("formatting gencli/run.go: %w\nsource:\n%s", err, runContent)
-	}
-	out["gencli/run.go"] = formattedRun
 
 	for _, cmdFile := range cmdFiles {
 		content, err := renderUrfaveCliTemplate("templates/code/urfavecli/gencli/command.tmpl", funcMap, cmdFile)
@@ -283,7 +274,7 @@ func walkUrfaveCliCmdTree(
 	cmdCore.FuncName = commandFuncName(segments)
 	cmdCore.SpecFuncName = getSpecFuncName(segments)
 	cmdCore.OutPath = commandOutPath(segments)
-	cmdCore.CommandLine = strings.Join(append([]string{binary}, segments...), " ")
+	cmdCore.CommandLine = strings.Join(segments, " ")
 	cmdCore.SpecArgs = specArgs
 	cmdCore.SpecFlags = specFlags
 
@@ -401,7 +392,7 @@ func urfaveCliZeroValue(t string, variadic bool) string {
 	if variadic {
 		switch t {
 		case "integer":
-			return "[]int{}"
+			return "[]int64{}"
 		case "boolean":
 			return "[]bool{}"
 		case "number":
@@ -425,7 +416,7 @@ func urfaveCliZeroValue(t string, variadic bool) string {
 // urfaveCliDefaultVal returns the Go literal for the default value of an urfave flag.
 func urfaveCliDefaultVal(val any, t string, variadic bool) string {
 	switch slice := val.(type) {
-	// handl slice types first
+	// handle slice types first
 	case []string:
 		var elems []string
 		for _, v := range slice {
@@ -438,7 +429,7 @@ func urfaveCliDefaultVal(val any, t string, variadic bool) string {
 		for _, v := range slice {
 			elems = append(elems, fmt.Sprintf("%d", v))
 		}
-		return fmt.Sprintf("[]int{%s}", strings.Join(elems, ", "))
+		return fmt.Sprintf("[]int64{%s}", strings.Join(elems, ", "))
 
 	case []float64:
 		var elems []string
@@ -456,7 +447,7 @@ func urfaveCliDefaultVal(val any, t string, variadic bool) string {
 		return fmt.Sprintf("[]bool{%s}", strings.Join(elems, ", "))
 	// handle non-slice scalars
 	case string:
-		return fmt.Sprintf("%q", strings.ReplaceAll(fmt.Sprintf("%s", val), "\"", "\\\""))
+		return fmt.Sprintf("%q", val)
 	case int:
 		return fmt.Sprintf("%d", val)
 	case float64:

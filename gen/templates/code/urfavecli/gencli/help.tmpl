@@ -3,11 +3,13 @@ package gencli
 
 import (
 	"fmt"
+	"io"
 	"strings"
 
 	"charm.land/glamour/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/bcdxn/opencli/spec"
+	"github.com/urfave/cli/v3"
 )
 
 var maxWidth = 100
@@ -372,4 +374,55 @@ func columnWidth(rows []string) int {
 		}
 	}
 	return max
+}
+
+// urfaveHelpTemplate is the custom help template for urfave/cli commands.
+// It mirrors the section structure of our DefaultHelpFunc output (DESCRIPTION, USAGE,
+// AVAILABLE COMMANDS, FLAGS). The actual rendering is handled by our custom HelpPrinter
+// override which uses glamour/lipgloss for styled terminal output.
+const urfaveHelpTemplate = `{{"{{"}}- if .Description{{"}"}}}
+
+DESCRIPTION:
+   {{"{{"}}wrap .Description 3{{"}"}}}
+{{"{{"}}end{{"}"}}}{{"{{"}}- if .UsageText{{"}"}}}{{"{{"}}else{{"}"}}}
+
+USAGE:
+   {{"{{"}}.FullName{{"}"}}}{{"{{"}}if .VisibleFlags{{"}"}}}} [flags]{{"{{"}}end{{"}"}}}}{{"{{"}}if .VisibleCommands{{"}"}}}} [command]{{"{{"}}end{{"}"}}}}{{"{{"}}if .ArgsUsage{{"}"}}}} {{"{{"}}.ArgsUsage{{"}"}}}{{"{{"}}else{{"}"}}}}{{"{{"}}if .Arguments{{"}"}}}} [arguments]{{"{{"}}end{{"}"}}}{{"{{"}}end{{"}"}}}{{"{{"}}end{{"}"}}}
+{{"{{"}}- if .VisibleCommands{{"}"}}}
+
+AVAILABLE COMMANDS:{{"{{"}}range .VisibleCommands{{"}"}}}
+   {{"{{"}}.Name{{"}"}}} - {{"{{"}}.Usage{{"}"}}}
+{{"{{"}}end{{"}"}}}
+{{"{{"}}end{{"}"}}}}{{"{{"}}- if .VisibleFlags{{"}"}}}
+
+FLAGS:{{"{{"}}range .VisibleFlags{{"}"}}}
+   {{"{{"}}.String{{"}"}}}
+{{"{{"}}end{{"}"}}}
+{{"{{"}}end{{"}"}}}`
+
+// SetupUrfaveHelpPrinter overrides the urfave/cli HelpPrinter to use our custom
+// glamour-based help rendering pipeline. The override captures the ActionsInterface
+// and delegates to DefaultHelpFunc for styled output when a spec.CommandItem is
+// available in the command's metadata.
+func SetupUrfaveHelpPrinter(a ActionsInterface) {
+	cli.RootCommandHelpTemplate = urfaveHelpTemplate
+	cli.CommandHelpTemplate = urfaveHelpTemplate
+	cli.SubcommandHelpTemplate = urfaveHelpTemplate
+
+	cli.HelpPrinter = func(w io.Writer, templ string, data any) {
+		cmd, ok := data.(*cli.Command)
+		if !ok {
+			cli.DefaultPrintHelp(w, templ, data)
+			return
+		}
+
+		// Extract the spec.CommandItem from metadata and render with our custom help function
+		if specCmd, ok := cmd.Metadata["spec_cmd"].(*spec.CommandItem); ok {
+			DefaultHelpFunc(a, specCmd)
+			return
+		}
+
+		// Fallback to default urfave/cli rendering when spec metadata is not available
+		cli.DefaultPrintHelp(w, templ, data)
+	}
 }

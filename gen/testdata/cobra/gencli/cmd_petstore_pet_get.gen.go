@@ -35,7 +35,7 @@ func NewCmdPetstorePetGet(a ActionsInterface) *cobra.Command {
 func getSpecPetstorePetGetCmd() *spec.CommandItem {
 	return &spec.CommandItem{
 		Segment:         "get",
-		CommandLine:     "petstore petstore pet get",
+		CommandLine:     "petstore pet get",
 		Summary:         "Find pet by ID",
 		Description:     "",
 		VisibleChildren: false,

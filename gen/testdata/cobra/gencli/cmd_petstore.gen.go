@@ -37,7 +37,7 @@ func NewCmdPetstore(a ActionsInterface) *cobra.Command {
 func getSpecPetstoreCmd() *spec.CommandItem {
 	return &spec.CommandItem{
 		Segment:         "petstore",
-		CommandLine:     "petstore petstore",
+		CommandLine:     "petstore",
 		Summary:         "An example CLI Document describing operations a petstore CLI may provide.",
 		Description:     "`petstore` is an example command line interface designed to make working with the\n[PetStore API](https://petstore3.swagger.io) easier. It provides a number of\ncapabilities, including:\n\n- validating request parameters\n- executing API requests\n- parsing the API response\n- handling API errors\n\nThe commands are documented below. You can also find out more about each\ncommand using the contextual `--help` flag. e.g.:\n\n```sh\npetstore --help\n```\n",
 		VisibleChildren: true,

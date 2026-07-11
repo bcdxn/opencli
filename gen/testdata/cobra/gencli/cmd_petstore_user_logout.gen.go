@@ -30,7 +30,7 @@ func NewCmdPetstoreUserLogout(a ActionsInterface) *cobra.Command {
 func getSpecPetstoreUserLogoutCmd() *spec.CommandItem {
 	return &spec.CommandItem{
 		Segment:         "logout",
-		CommandLine:     "petstore petstore user logout",
+		CommandLine:     "petstore user logout",
 		Summary:         "Log out the current user",
 		Description:     "",
 		VisibleChildren: false,

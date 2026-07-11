@@ -30,7 +30,7 @@ func NewCmdPetstoreStoreInventory(a ActionsInterface) *cobra.Command {
 func getSpecPetstoreStoreInventoryCmd() *spec.CommandItem {
 	return &spec.CommandItem{
 		Segment:         "inventory",
-		CommandLine:     "petstore petstore store inventory",
+		CommandLine:     "petstore store inventory",
 		Summary:         "Returns pet inventories by status",
 		Description:     "",
 		VisibleChildren: false,

@@ -10,6 +10,9 @@ import (
 
 // Run executes the root urfave command and returns an exit code.
 func Run(ctx context.Context, actions ActionsInterface) int {
+	// Setup custom help printer with glamour/lipgloss rendering
+	SetupUrfaveHelpPrinter(actions)
+
 	// Instantiate root command
 	rootCmd := NewCmd{{.BinaryPascal}}(actions)
 	// Add version for `--version` flag

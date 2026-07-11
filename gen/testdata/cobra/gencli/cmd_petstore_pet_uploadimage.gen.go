@@ -42,7 +42,7 @@ func NewCmdPetstorePetUploadImage(a ActionsInterface) *cobra.Command {
 func getSpecPetstorePetUploadImageCmd() *spec.CommandItem {
 	return &spec.CommandItem{
 		Segment:         "upload-image",
-		CommandLine:     "petstore petstore pet upload-image",
+		CommandLine:     "petstore pet upload-image",
 		Summary:         "Upload an image for a pet",
 		Description:     "Upload a binary image file for the specified pet.",
 		VisibleChildren: false,

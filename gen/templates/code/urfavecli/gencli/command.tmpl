@@ -12,6 +12,7 @@ func {{.FuncName}}(a ActionsInterface) *cli.Command {
 		Name:        {{goString .Segment}},
 		Usage:       {{goString .Summary}},
 		Description: {{goString .Description}},
+		Metadata:    map[string]any{"spec_cmd": {{.SpecFuncName}}()},
 {{- if .Aliases}}
 		Aliases: []string{ {{range $i, $a := .Aliases}}{{if $i}}, {{end}}{{goString $a}}{{end}} },
 {{- end}}

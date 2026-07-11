@@ -30,7 +30,7 @@ func NewCmdPetstoreList(a ActionsInterface) *cobra.Command {
 func getSpecPetstoreListCmd() *spec.CommandItem {
 	return &spec.CommandItem{
 		Segment:         "list",
-		CommandLine:     "petstore petstore list",
+		CommandLine:     "petstore list",
 		Summary:         "List all endpoints available",
 		Description:     "",
 		VisibleChildren: false,

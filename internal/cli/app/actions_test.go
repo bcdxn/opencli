@@ -562,7 +562,7 @@ func TestOcliGenCliUnsupportedFramework(t *testing.T) {
 	actions := Actions{IOS: ios}
 
 	args := gencli.OcliGenCliArgs{PathToSpec: specPath}
-	flags := gencli.OcliGenCliFlags{Framework: "urfavecli", Out: t.TempDir()}
+	flags := gencli.OcliGenCliFlags{Framework: "unsupported", Out: t.TempDir()}
 
 	err := actions.OcliGenCli(t.Context(), args, flags)
 	if err == nil {

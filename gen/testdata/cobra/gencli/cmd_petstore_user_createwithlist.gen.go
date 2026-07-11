@@ -34,7 +34,7 @@ func NewCmdPetstoreUserCreateWithList(a ActionsInterface) *cobra.Command {
 func getSpecPetstoreUserCreateWithListCmd() *spec.CommandItem {
 	return &spec.CommandItem{
 		Segment:         "create-with-list",
-		CommandLine:     "petstore petstore user create-with-list",
+		CommandLine:     "petstore user create-with-list",
 		Summary:         "Create multiple users with a list",
 		Description:     "Create multiple users using a JSON array payload.",
 		VisibleChildren: false,

@@ -314,7 +314,7 @@ func walkCmdTree(
 	cmdCore.FuncName = commandFuncName(segments)
 	cmdCore.SpecFuncName = getSpecFuncName(segments)
 	cmdCore.OutPath = commandOutPath(segments)
-	cmdCore.CommandLine = strings.Join(append([]string{binary}, segments...), " ")
+	cmdCore.CommandLine = strings.Join(segments, " ")
 	cmdCore.SpecArgs = specArgs
 	cmdCore.SpecFlags = specFlags
 
