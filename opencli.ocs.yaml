@@ -186,3 +186,31 @@ commands:
             property: "OCLI_CLI_FRAMEWORK"
           - type: "$FILE"
             property: "$.cli.framework"
+    examples:
+      - title: "generate Cobra (Go) CLI"
+        content: |
+          $ ocli gen cli \
+            --framework cobra \
+            --out ./internal \
+            ./my-cli.ocs.yaml
+          # → Reading spec:        ./my-cli.ocs.yaml
+          # → Generating CLI code: framework=cobra, output=./internal
+          # ✓ CLI Code written to: ./internal
+      - title: "generate urfave/cli (Go) CLI"
+        content: |
+          $ ocli gen cli \
+            --framework urfavecli \
+            --out ./internal \
+            ./my-cli.ocs.yaml
+          # → Reading spec:        ./my-cli.ocs.yaml
+          # → Generating CLI code: framework=urfavecli, output=./internal
+          # ✓ CLI Code written to: ./internal
+      - title: "generate Yargs (Node.JS) CLI"
+        content: |
+          $ ocli gen cli \
+            --framework yargs \
+            --out ./src \
+            ./my-cli.ocs.yaml
+          # → Reading spec:        ./my-cli.ocs.yaml
+          # → Generating CLI code: framework=yargs, output=./src
+          # ✓ CLI Code written to: ./src

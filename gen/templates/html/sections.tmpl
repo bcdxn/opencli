@@ -98,25 +98,27 @@
     <span class="ocli-section__sticky-title">Configuration</span>
   </div>
   <div class="ocli-section__body">
-    <table class="ocli-table">
-      <thead>
-        <tr>
-          <th>Format</th>
-          <th>Path</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{- if .Doc.Global.Config.JSON}}
-        <tr><td>JSON</td><td><code>{{.Doc.Global.Config.JSON}}</code></td></tr>
-        {{- end}}
-        {{- if .Doc.Global.Config.TOML}}
-        <tr><td>TOML</td><td><code>{{.Doc.Global.Config.TOML}}</code></td></tr>
-        {{- end}}
-        {{- if .Doc.Global.Config.YAML}}
-        <tr><td>YAML</td><td><code>{{.Doc.Global.Config.YAML}}</code></td></tr>
-        {{- end}}
-      </tbody>
-    </table>
+    <div class="ocli-table-container">
+      <table class="ocli-table">
+        <thead>
+          <tr>
+            <th>Format</th>
+            <th>Path</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{- if .Doc.Global.Config.JSON}}
+          <tr><td>JSON</td><td><code>{{.Doc.Global.Config.JSON}}</code></td></tr>
+          {{- end}}
+          {{- if .Doc.Global.Config.TOML}}
+          <tr><td>TOML</td><td><code>{{.Doc.Global.Config.TOML}}</code></td></tr>
+          {{- end}}
+          {{- if .Doc.Global.Config.YAML}}
+          <tr><td>YAML</td><td><code>{{.Doc.Global.Config.YAML}}</code></td></tr>
+          {{- end}}
+        </tbody>
+      </table>
+    </div>
   </div>
 </section>
 {{end}}

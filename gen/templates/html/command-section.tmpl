@@ -1,6 +1,6 @@
 {{define "commandSection"}}
 {{- if not .Hidden}}
-{{- if or (ne .Kind "group") .Summary .Description .VisibleArgs .VisibleFlags .ExitCodes}}
+{{- if or (ne .Kind "group") .Summary .Description .VisibleArgs .VisibleFlags .ExitCodes .Examples}}
 <section class="ocli-section" id="{{slugify .CommandLine}}">
   <div class="ocli-section__sticky">
     <div class="ocli-section__cmd-anchor"><button class="ocli-deeplink-btn" type="button" data-href="#{{slugify .CommandLine}}" aria-label="Copy link"><svg class="ocli-deeplink-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button><code class="ocli-section__cmd">$ {{.CommandLine}}{{range .CommandModifiers}} {{.}}{{end}}{{range .ArgsModifiers}} {{.}}{{end}}{{range .FlagsModifiers}} {{.}}{{end}}</code></div>
@@ -10,123 +10,157 @@
     </div>
     {{- end}}
   </div>
-  <div class="ocli-section__body">
-    {{- if .Summary}}
-    <p class="ocli-summary">{{.Summary}}</p>
-    {{- end}}
-    {{- if .Description}}
-    <div class="ocli-md">{{mdToHTML .Description}}</div>
-    {{- end}}
-
-    {{- if .VisibleArgs}}
-    <div class="ocli-params">
-      <div class="ocli-params__heading">Arguments</div>
-      {{- range .Args}}{{if not .Hidden}}
-      <div class="ocli-param" id="{{slugify $.CommandLine}}-arg-{{slugify .Name}}">
-        <div class="ocli-param__header">
-          <div class="ocli-param__anchor"><button class="ocli-deeplink-btn" type="button" data-href="#{{slugify $.CommandLine}}-arg-{{slugify .Name}}" aria-label="Copy link"><svg class="ocli-deeplink-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button><code class="ocli-param__name">&lt;{{.Name}}{{if .Variadic}}...{{end}}&gt;</code></div>
-        </div>
-        <div class="ocli-badges">
-          <span class="ocli-badge ocli-badge--default">{{.Type}}</span>
-          {{- if .Choices}}<span class="ocli-badge ocli-badge--default">enum</span>{{end}}
-          {{- if .Required}}<span class="ocli-badge ocli-badge--required">required</span>{{end}}
-          {{- if .Variadic}}<span class="ocli-badge ocli-badge--default">variadic</span>{{end}}
-          {{- if .Default}}<span class="ocli-badge ocli-badge--default">default: {{.Default}}</span>{{end}}
-        </div>
-        {{- if .Summary}}<p class="ocli-param__summary">{{.Summary}}</p>{{end}}
-        {{- if .Description}}<div class="ocli-param__desc ocli-md">{{mdToHTML .Description}}</div>{{end}}
-        {{- if .Choices}}
-        <div class="ocli-choices">
-          <div class="ocli-choices__label">Accepted values</div>
-          <ul class="ocli-choices__list">
-            {{- range .Choices}}
-            <li class="ocli-choices__item">
-              <code>{{.Value}}</code>
-              {{- if .Description}}<span class="ocli-choices__item-desc">{{.Description}}</span>{{end}}
-            </li>
-            {{- end}}
-          </ul>
-        </div>
-        {{- end}}
-      </div>
-      {{- end}}{{end}}
+  {{- if .Examples}}
+  <div class="ocli-section__body ocli-section__body--two-col">
+    <div class="ocli-section__col-left">
+      {{template "commandBody" .}}
     </div>
-    {{- end}}
-
-    {{- if .VisibleFlags}}
-    <div class="ocli-params">
-      <div class="ocli-params__heading">Flags</div>
-      {{- range .Flags}}{{if not .Hidden}}
-      <div class="ocli-param" id="{{slugify $.CommandLine}}-flag-{{slugify .Name}}">
-        <div class="ocli-param__header">
-          <div class="ocli-param__anchor"><button class="ocli-deeplink-btn" type="button" data-href="#{{slugify $.CommandLine}}-flag-{{slugify .Name}}" aria-label="Copy link"><svg class="ocli-deeplink-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button><code class="ocli-param__name">--{{.Name}}</code>
-          {{- if .Aliases}}
-          {{- range .Aliases}}<code class="ocli-param__name">-{{.}}</code>{{end}}
-          {{- end}}</div>
-        </div>
-        <div class="ocli-badges">
-          <span class="ocli-badge ocli-badge--default">{{.Type}}</span>
-          {{- if .Choices}}<span class="ocli-badge ocli-badge--default">enum</span>{{end}}
-          {{- if .Required}}<span class="ocli-badge ocli-badge--required">required</span>{{end}}
-          {{- if .Variadic}}<span class="ocli-badge ocli-badge--default">variadic</span>{{end}}
-          {{- if .Default}}<span class="ocli-badge ocli-badge--default">default: {{.Default}}</span>{{end}}
-        </div>
-        {{- if .Summary}}<p class="ocli-param__summary">{{.Summary}}</p>{{end}}
-        {{- if .Description}}<div class="ocli-param__desc ocli-md">{{mdToHTML .Description}}</div>{{end}}
-        {{- if .Choices}}
-        <div class="ocli-choices">
-          <div class="ocli-choices__label">Accepted values</div>
-          <ul class="ocli-choices__list">
-            {{- range .Choices}}
-            <li class="ocli-choices__item">
-              <code>{{.Value}}</code>
-              {{- if .Description}}<span class="ocli-choices__item-desc">{{.Description}}</span>{{end}}
-            </li>
-            {{- end}}
-          </ul>
-        </div>
-        {{- end}}
-        {{- if .AltSources}}
-        <div class="ocli-alt-sources">
-          <div class="ocli-alt-sources__label">Alternative sources</div>
-          <ul class="ocli-alt-sources__list">
-            {{- range .AltSources}}
-            <li class="ocli-alt-sources__item">
-              {{- if eq .Type "$ENV"}}
-              <code>env: ${{.Property}}</code>
-              {{- else}}
-              <code>file: {{.Property}}</code>
-              {{- end}}
-            </li>
-            {{- end}}
-          </ul>
-        </div>
-        {{- end}}
-      </div>
-      {{- end}}{{end}}
+    <div class="ocli-section__col-right">
+      {{template "commandExamples" .}}
     </div>
-    {{- end}}
-
-    {{- if .ExitCodes}}
-    <div class="ocli-params">
-      <div class="ocli-params__heading">Exit Codes</div>
-      {{- range .ExitCodes}}
-      <div class="ocli-exit-code">
-        <span class="ocli-exit-code__code">{{.Code}}</span>
-        <div class="ocli-exit-code__details">
-          <div class="ocli-exit-code__status">{{.Status}}</div>
-          <div class="ocli-exit-code__summary">{{.Summary}}</div>
-          {{- if .Description}}
-          <div class="ocli-exit-code__desc">{{.Description}}</div>
-          {{- end}}
-        </div>
-      </div>
-      {{- end}}
-    </div>
-    {{- end}}
   </div>
+  {{- else}}
+  <div class="ocli-section__body">
+    {{template "commandBody" .}}
+  </div>
+  {{- end}}
 </section>
 {{- end}}
 {{- range .Commands}}{{template "commandSection" .}}{{end}}
 {{- end}}
+{{end}}
+
+{{define "commandBody"}}
+{{- if .Summary}}
+<p class="ocli-summary">{{.Summary}}</p>
+{{- end}}
+{{- if .Description}}
+<div class="ocli-md">{{mdToHTML .Description}}</div>
+{{- end}}
+
+{{- if .VisibleArgs}}
+<div class="ocli-params">
+  <div class="ocli-params__heading">Arguments</div>
+  {{- range .Args}}{{if not .Hidden}}
+  <div class="ocli-param" id="{{slugify $.CommandLine}}-arg-{{slugify .Name}}">
+    <div class="ocli-param__header">
+      <div class="ocli-param__anchor"><button class="ocli-deeplink-btn" type="button" data-href="#{{slugify $.CommandLine}}-arg-{{slugify .Name}}" aria-label="Copy link"><svg class="ocli-deeplink-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button><code class="ocli-param__name">&lt;{{.Name}}{{if .Variadic}}...{{end}}&gt;</code></div>
+    </div>
+    <div class="ocli-badges">
+      <span class="ocli-badge ocli-badge--default">{{.Type}}</span>
+      {{- if .Choices}}<span class="ocli-badge ocli-badge--default">enum</span>{{end}}
+      {{- if .Required}}<span class="ocli-badge ocli-badge--required">required</span>{{end}}
+      {{- if .Variadic}}<span class="ocli-badge ocli-badge--default">variadic</span>{{end}}
+      {{- if .Default}}<span class="ocli-badge ocli-badge--default">default: {{.Default}}</span>{{end}}
+    </div>
+    {{- if .Summary}}<p class="ocli-param__summary">{{mdToHTML .Summary}}</p>{{end}}
+    {{- if .Description}}<div class="ocli-param__desc ocli-md">{{mdToHTML .Description}}</div>{{end}}
+    {{- if .Choices}}
+    <div class="ocli-choices">
+      <div class="ocli-choices__label">Accepted values</div>
+      <ul class="ocli-choices__list">
+        {{- range .Choices}}
+        <li class="ocli-choices__item">
+          <code>{{.Value}}</code>
+          {{- if .Description}}<span class="ocli-choices__item-desc">{{mdToHTML .Description}}</span>{{end}}
+        </li>
+        {{- end}}
+      </ul>
+    </div>
+    {{- end}}
+  </div>
+  {{- end}}{{end}}
+</div>
+{{- end}}
+
+{{- if .VisibleFlags}}
+<div class="ocli-params">
+  <div class="ocli-params__heading">Flags</div>
+  {{- range .Flags}}{{if not .Hidden}}
+  <div class="ocli-param" id="{{slugify $.CommandLine}}-flag-{{slugify .Name}}">
+    <div class="ocli-param__header">
+      <div class="ocli-param__anchor"><button class="ocli-deeplink-btn" type="button" data-href="#{{slugify $.CommandLine}}-flag-{{slugify .Name}}" aria-label="Copy link"><svg class="ocli-deeplink-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button><code class="ocli-param__name">--{{.Name}}</code>
+      {{- if .Aliases}}
+      {{- range .Aliases}}<code class="ocli-param__name">-{{.}}</code>{{end}}
+      {{- end}}</div>
+    </div>
+    <div class="ocli-badges">
+      <span class="ocli-badge ocli-badge--default">{{.Type}}</span>
+      {{- if .Choices}}<span class="ocli-badge ocli-badge--default">enum</span>{{end}}
+      {{- if .Required}}<span class="ocli-badge ocli-badge--required">required</span>{{end}}
+      {{- if .Variadic}}<span class="ocli-badge ocli-badge--default">variadic</span>{{end}}
+      {{- if .Default}}<span class="ocli-badge ocli-badge--default">default: {{.Default}}</span>{{end}}
+    </div>
+    {{- if .Summary}}<p class="ocli-param__summary">{{mdToHTML .Summary}}</p>{{end}}
+    {{- if .Description}}<div class="ocli-param__desc ocli-md">{{mdToHTML .Description}}</div>{{end}}
+    {{- if .Choices}}
+    <div class="ocli-choices">
+      <div class="ocli-choices__label">Accepted values</div>
+      <ul class="ocli-choices__list">
+        {{- range .Choices}}
+        <li class="ocli-choices__item">
+          <code>{{.Value}}</code>
+          {{- if .Description}}<span class="ocli-choices__item-desc">{{mdToHTML .Description}}</span>{{end}}
+        </li>
+        {{- end}}
+      </ul>
+    </div>
+    {{- end}}
+    {{- if .AltSources}}
+    <div class="ocli-alt-sources">
+      <div class="ocli-alt-sources__label">Alternative sources</div>
+      <ul class="ocli-alt-sources__list">
+        {{- range .AltSources}}
+        <li class="ocli-alt-sources__item">
+          {{- if eq .Type "$ENV"}}
+          <code>env: ${{.Property}}</code>
+          {{- else}}
+          <code>file: {{.Property}}</code>
+          {{- end}}
+        </li>
+        {{- end}}
+      </ul>
+    </div>
+    {{- end}}
+  </div>
+  {{- end}}{{end}}
+</div>
+{{- end}}
+
+{{- if .ExitCodes}}
+<div class="ocli-params">
+  <div class="ocli-params__heading">Exit Codes</div>
+  {{- range .ExitCodes}}
+  <div class="ocli-exit-code">
+    <span class="ocli-exit-code__code">{{.Code}}</span>
+    <div class="ocli-exit-code__details">
+      <div class="ocli-exit-code__status">{{.Status}}</div>
+      <div class="ocli-exit-code__summary">{{mdToHTML .Summary}}</div>
+      {{- if .Description}}
+      <div class="ocli-exit-code__desc">{{mdToHTML .Description}}</div>
+      {{- end}}
+    </div>
+  </div>
+  {{- end}}
+</div>
+{{- end}}
+{{end}}
+
+{{define "commandExamples"}}
+<div class="ocli-examples">
+  <div class="ocli-examples__heading">Examples</div>
+  {{- range .Examples}}
+  <div class="ocli-example">
+    {{- if .Title}}
+    <div class="ocli-example__title">{{.Title}}</div>
+    {{- end}}
+    <div class="ocli-code-block ocli-code-block--terminal">
+      <div class="ocli-code-block__header">
+        <span class="ocli-code-block__label">Terminal</span>
+      </div>
+      <pre class="ocli-code-block__body">{{.Content}}</pre>
+    </div>
+  </div>
+  {{- end}}
+</div>
 {{end}}
