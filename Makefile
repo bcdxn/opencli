@@ -78,13 +78,13 @@ dev: dev-wasm
 gen-scratch-clis:
 	@go run cmd/cobra/main.go gen cli \
 		--framework yargs \
-		--out ../scratch/generated-cli-tests/yargs/src \
+		--out ./scratch/yargs/src \
 		./examples/petstore-cli.ocs.yaml
 	@go run cmd/cobra/main.go gen cli \
 		--framework cobra \
-		--out ../scratch/generated-cli-tests/cobra/internal \
+		--out ./scratch/cobra/internal \
 		./examples/petstore-cli.ocs.yaml
 	@go run cmd/cobra/main.go gen cli \
 		--framework urfavecli \
-		--out ../scratch/generated-cli-tests/urfavecli/internal \
+		--out ./scratch/urfavecli/internal \
 		./examples/petstore-cli.ocs.yaml
