@@ -38,7 +38,7 @@ func NewCmdPetstorePetDelete(a ActionsInterface) *cobra.Command {
 func getSpecPetstorePetDeleteCmd() *spec.CommandItem {
 	return &spec.CommandItem{
 		Segment:         "delete",
-		CommandLine:     "petstore petstore pet delete",
+		CommandLine:     "petstore pet delete",
 		Summary:         "Delete a pet",
 		Description:     "",
 		VisibleChildren: false,

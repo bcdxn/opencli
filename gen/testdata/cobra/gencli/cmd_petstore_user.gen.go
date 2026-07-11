@@ -40,7 +40,7 @@ func NewCmdPetstoreUser(a ActionsInterface) *cobra.Command {
 func getSpecPetstoreUserCmd() *spec.CommandItem {
 	return &spec.CommandItem{
 		Segment:         "user",
-		CommandLine:     "petstore petstore user",
+		CommandLine:     "petstore user",
 		Summary:         "",
 		Description:     "",
 		VisibleChildren: true,

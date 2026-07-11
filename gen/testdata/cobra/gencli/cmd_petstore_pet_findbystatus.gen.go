@@ -40,7 +40,7 @@ func NewCmdPetstorePetFindByStatus(a ActionsInterface) *cobra.Command {
 func getSpecPetstorePetFindByStatusCmd() *spec.CommandItem {
 	return &spec.CommandItem{
 		Segment:         "find-by-status",
-		CommandLine:     "petstore petstore pet find-by-status",
+		CommandLine:     "petstore pet find-by-status",
 		Summary:         "Find pets by status",
 		Description:     "",
 		VisibleChildren: false,

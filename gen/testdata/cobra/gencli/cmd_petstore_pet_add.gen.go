@@ -53,7 +53,7 @@ func NewCmdPetstorePetAdd(a ActionsInterface) *cobra.Command {
 func getSpecPetstorePetAddCmd() *spec.CommandItem {
 	return &spec.CommandItem{
 		Segment:         "add",
-		CommandLine:     "petstore petstore pet add",
+		CommandLine:     "petstore pet add",
 		Summary:         "Add a new pet to the store",
 		Description:     "Create a new pet in the store using a JSON payload or explicit flags.",
 		VisibleChildren: false,

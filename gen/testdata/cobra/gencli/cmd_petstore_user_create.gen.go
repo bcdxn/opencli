@@ -57,7 +57,7 @@ func NewCmdPetstoreUserCreate(a ActionsInterface) *cobra.Command {
 func getSpecPetstoreUserCreateCmd() *spec.CommandItem {
 	return &spec.CommandItem{
 		Segment:         "create",
-		CommandLine:     "petstore petstore user create",
+		CommandLine:     "petstore user create",
 		Summary:         "Create a user",
 		Description:     "Create a new user using a JSON payload or explicit flags.",
 		VisibleChildren: false,

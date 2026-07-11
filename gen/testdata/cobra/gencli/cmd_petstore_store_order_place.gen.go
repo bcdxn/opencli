@@ -53,7 +53,7 @@ func NewCmdPetstoreStoreOrderPlace(a ActionsInterface) *cobra.Command {
 func getSpecPetstoreStoreOrderPlaceCmd() *spec.CommandItem {
 	return &spec.CommandItem{
 		Segment:         "place",
-		CommandLine:     "petstore petstore store order place",
+		CommandLine:     "petstore store order place",
 		Summary:         "Place an order for a pet",
 		Description:     "Create a purchase order using a JSON payload or explicit flags.",
 		VisibleChildren: false,

@@ -35,7 +35,7 @@ func NewCmdPetstorePetFindByTags(a ActionsInterface) *cobra.Command {
 func getSpecPetstorePetFindByTagsCmd() *spec.CommandItem {
 	return &spec.CommandItem{
 		Segment:         "find-by-tags",
-		CommandLine:     "petstore petstore pet find-by-tags",
+		CommandLine:     "petstore pet find-by-tags",
 		Summary:         "Find pets by tags",
 		Description:     "",
 		VisibleChildren: false,

@@ -53,7 +53,7 @@ func NewCmdPetstoreUserUpdate(a ActionsInterface) *cobra.Command {
 func getSpecPetstoreUserUpdateCmd() *spec.CommandItem {
 	return &spec.CommandItem{
 		Segment:         "update",
-		CommandLine:     "petstore petstore user update",
+		CommandLine:     "petstore user update",
 		Summary:         "Update a user",
 		Description:     "Update a user's information using a JSON payload or explicit flags.",
 		VisibleChildren: false,
