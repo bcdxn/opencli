@@ -90,9 +90,8 @@ func wrapSchemaError(err error) error {
 	return &schemaValidationError{causes: verr.Causes}
 }
 
-//go:generate mkdir -p out
-//go:generate cp ../spec.schema.json ./out/spec.schema.json
-//go:embed out/spec.schema.json
+//go:generate cp ../spec.schema.json ./spec.schema.json
+//go:embed spec.schema.json
 var schemaBytes []byte
 
 var (
