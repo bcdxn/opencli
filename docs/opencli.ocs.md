@@ -41,7 +41,7 @@ appropriate for your system.
 ### Go Install
 
 ```sh
-go install github.com/bcdxn/opencli/cmd/cobra@latest
+go install github.com/bcdxn/opencli/cmd/ocli@latest
 ```
 
 ## Configuration

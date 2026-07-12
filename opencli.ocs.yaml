@@ -33,7 +33,7 @@ install:
       You can visit the GitHub releases page of the project to download pre-compiled binaries
       appropriate for your system.
   - name: "Go Install"
-    command: "go install github.com/bcdxn/opencli/cmd/cobra@latest"
+    command: "go install github.com/bcdxn/opencli/cmd/ocli@latest"
 
 global:
   exitCodes:
