@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/bcdxn/opencli/internal/cli/gencli"
+	"github.com/bcdxn/opencli/spec"
 )
 
 // MockFileWriter implements gencli.FileWriter for testing
@@ -589,5 +590,304 @@ func TestOcliGenCliFileNotFound(t *testing.T) {
 	}
 	if _, ok := err.(*gencli.ValidationError); !ok {
 		t.Errorf("expected ValidationError for missing file, got %T", err)
+	}
+}
+
+func TestNewActions(t *testing.T) {
+	a := NewActions("1.2.3")
+	if a.Version() != "1.2.3" {
+		t.Fatalf("expected version 1.2.3, got %q", a.Version())
+	}
+	if a.IOStreams() == nil {
+		t.Fatal("expected non-nil IOStreams")
+	}
+}
+
+func TestActionsHelpFuncAndUsageFunc(t *testing.T) {
+	a := NewActions("1.0.0")
+	cmd := &spec.CommandItem{Summary: "test command"}
+	// HelpFunc and UsageFunc delegate to gencli defaults; verify they don't panic
+	a.HelpFunc(cmd)
+	_ = a.UsageFunc(cmd)
+}
+
+func TestOcliGenDocsDirectory(t *testing.T) {
+	specDir := t.TempDir()
+	specPath := filepath.Join(specDir, "specs")
+	if err := os.Mkdir(specPath, 0755); err != nil {
+		t.Fatalf("failed to create temp directory: %v", err)
+	}
+
+	ios, _, _, _ := gencli.TestIOS()
+	actions := Actions{IOS: ios}
+
+	args := gencli.OcliGenDocsArgs{PathToSpec: specPath}
+	flags := gencli.OcliGenDocsFlags{Format: "markdown", Out: t.TempDir()}
+
+	err := actions.OcliGenDocs(t.Context(), args, flags)
+	if err == nil {
+		t.Fatal("expected error for directory path, got nil")
+	}
+	if _, ok := err.(*gencli.ValidationError); !ok {
+		t.Errorf("expected ValidationError for directory, got %T", err)
+	}
+}
+
+func TestOcliGenDocsJSONSpec(t *testing.T) {
+	specDir := t.TempDir()
+	specPath := filepath.Join(specDir, "test-cli.ocs.json")
+	if err := os.WriteFile(specPath, []byte(validSpecJSON), 0644); err != nil {
+		t.Fatalf("failed to write temp spec file: %v", err)
+	}
+
+	outDir := t.TempDir()
+	ios, _, _, _ := gencli.TestIOS()
+	actions := Actions{IOS: ios}
+
+	args := gencli.OcliGenDocsArgs{PathToSpec: specPath}
+	flags := gencli.OcliGenDocsFlags{Format: "markdown", Out: outDir}
+
+	err := actions.OcliGenDocs(t.Context(), args, flags)
+	if err != nil {
+		t.Fatalf("unexpected error generating docs from JSON spec: %v", err)
+	}
+
+	expectedOut := filepath.Join(outDir, "test-cli.ocs.md")
+	if _, err := os.Stat(expectedOut); err != nil {
+		t.Fatalf("expected output file %q to be created: %v", expectedOut, err)
+	}
+}
+
+func TestOcliGenDocsUnsupportedExtension(t *testing.T) {
+	specDir := t.TempDir()
+	specPath := filepath.Join(specDir, "test-cli.ocs.txt")
+	if err := os.WriteFile(specPath, []byte(validSpecYAML), 0644); err != nil {
+		t.Fatalf("failed to write temp spec file: %v", err)
+	}
+
+	ios, _, _, _ := gencli.TestIOS()
+	actions := Actions{IOS: ios}
+
+	args := gencli.OcliGenDocsArgs{PathToSpec: specPath}
+	flags := gencli.OcliGenDocsFlags{Format: "markdown", Out: t.TempDir()}
+
+	err := actions.OcliGenDocs(t.Context(), args, flags)
+	if err == nil {
+		t.Fatal("expected error for unsupported extension, got nil")
+	}
+	if _, ok := err.(*gencli.ValidationError); !ok {
+		t.Errorf("expected ValidationError for unsupported extension, got %T", err)
+	}
+}
+
+func TestOcliGenDocsUnsupportedFormat(t *testing.T) {
+	specDir := t.TempDir()
+	specPath := filepath.Join(specDir, "test-cli.ocs.yaml")
+	if err := os.WriteFile(specPath, []byte(validSpecYAML), 0644); err != nil {
+		t.Fatalf("failed to write temp spec file: %v", err)
+	}
+
+	ios, _, _, _ := gencli.TestIOS()
+	actions := Actions{IOS: ios}
+
+	args := gencli.OcliGenDocsArgs{PathToSpec: specPath}
+	flags := gencli.OcliGenDocsFlags{Format: "pdf", Out: t.TempDir()}
+
+	err := actions.OcliGenDocs(t.Context(), args, flags)
+	if err == nil {
+		t.Fatal("expected error for unsupported format, got nil")
+	}
+	if _, ok := err.(*gencli.ValidationError); !ok {
+		t.Errorf("expected ValidationError for unsupported format, got %T", err)
+	}
+}
+
+func TestOcliGenDocsParseError(t *testing.T) {
+	specDir := t.TempDir()
+	specPath := filepath.Join(specDir, "test-cli.ocs.yaml")
+	if err := os.WriteFile(specPath, []byte("invalid: [yaml: content:"), 0644); err != nil {
+		t.Fatalf("failed to write temp spec file: %v", err)
+	}
+
+	ios, _, _, _ := gencli.TestIOS()
+	actions := Actions{IOS: ios}
+
+	args := gencli.OcliGenDocsArgs{PathToSpec: specPath}
+	flags := gencli.OcliGenDocsFlags{Format: "markdown", Out: t.TempDir()}
+
+	err := actions.OcliGenDocs(t.Context(), args, flags)
+	if err == nil {
+		t.Fatal("expected error for invalid YAML, got nil")
+	}
+	if _, ok := err.(*gencli.ValidationError); !ok {
+		t.Errorf("expected ValidationError for parse error, got %T", err)
+	}
+}
+
+func TestOcliGenDocsNoBadge(t *testing.T) {
+	specDir := t.TempDir()
+	specPath := filepath.Join(specDir, "test-cli.ocs.yaml")
+	if err := os.WriteFile(specPath, []byte(validSpecYAML), 0644); err != nil {
+		t.Fatalf("failed to write temp spec file: %v", err)
+	}
+
+	outDir := t.TempDir()
+	ios, _, _, _ := gencli.TestIOS()
+	actions := Actions{IOS: ios}
+
+	args := gencli.OcliGenDocsArgs{PathToSpec: specPath}
+	flags := gencli.OcliGenDocsFlags{Format: "markdown", Out: outDir, NoBadge: true}
+
+	err := actions.OcliGenDocs(t.Context(), args, flags)
+	if err != nil {
+		t.Fatalf("unexpected error generating docs with --no-badge: %v", err)
+	}
+
+	outPath := filepath.Join(outDir, "test-cli.ocs.md")
+	data, err := os.ReadFile(outPath)
+	if err != nil {
+		t.Fatalf("failed to read output file: %v", err)
+	}
+	if contains(string(data), "[![OpenCLI]") {
+		t.Error("expected badge to be absent with NoBadge=true")
+	}
+}
+
+func TestOcliGenDocsFileNotFound(t *testing.T) {
+	ios, _, _, _ := gencli.TestIOS()
+	actions := Actions{IOS: ios}
+
+	args := gencli.OcliGenDocsArgs{PathToSpec: "/nonexistent/path/to/spec.yaml"}
+	flags := gencli.OcliGenDocsFlags{Format: "markdown", Out: t.TempDir()}
+
+	err := actions.OcliGenDocs(t.Context(), args, flags)
+	if err == nil {
+		t.Fatal("expected error for nonexistent file, got nil")
+	}
+	if _, ok := err.(*gencli.ValidationError); !ok {
+		t.Errorf("expected ValidationError for missing file, got %T", err)
+	}
+}
+
+func TestOcliGenDocsNoFooter(t *testing.T) {
+	specDir := t.TempDir()
+	specPath := filepath.Join(specDir, "test-cli.ocs.yaml")
+	if err := os.WriteFile(specPath, []byte(validSpecYAML), 0644); err != nil {
+		t.Fatalf("failed to write temp spec file: %v", err)
+	}
+
+	outDir := t.TempDir()
+	ios, _, _, _ := gencli.TestIOS()
+	actions := Actions{IOS: ios}
+
+	args := gencli.OcliGenDocsArgs{PathToSpec: specPath}
+	flags := gencli.OcliGenDocsFlags{Format: "markdown", Out: outDir, NoFooter: true}
+
+	err := actions.OcliGenDocs(t.Context(), args, flags)
+	if err != nil {
+		t.Fatalf("unexpected error generating docs with --no-footer: %v", err)
+	}
+
+	outPath := filepath.Join(outDir, "test-cli.ocs.md")
+	data, err := os.ReadFile(outPath)
+	if err != nil {
+		t.Fatalf("failed to read output file: %v", err)
+	}
+	if contains(string(data), "Generated with [OpenCLI]") {
+		t.Error("expected footer to be absent with NoFooter=true")
+	}
+}
+
+func TestOcliGenCliDirectory(t *testing.T) {
+	specDir := t.TempDir()
+	specPath := filepath.Join(specDir, "specs")
+	if err := os.Mkdir(specPath, 0755); err != nil {
+		t.Fatalf("failed to create temp directory: %v", err)
+	}
+
+	ios, _, _, _ := gencli.TestIOS()
+	actions := Actions{IOS: ios}
+
+	args := gencli.OcliGenCliArgs{PathToSpec: specPath}
+	flags := gencli.OcliGenCliFlags{Framework: "cobra", Out: t.TempDir()}
+
+	err := actions.OcliGenCli(t.Context(), args, flags)
+	if err == nil {
+		t.Fatal("expected error for directory path, got nil")
+	}
+	if _, ok := err.(*gencli.ValidationError); !ok {
+		t.Errorf("expected ValidationError for directory, got %T", err)
+	}
+}
+
+func TestOcliGenCliJSONSpec(t *testing.T) {
+	specDir := t.TempDir()
+	specPath := filepath.Join(specDir, "test-cli.ocs.json")
+	if err := os.WriteFile(specPath, []byte(validSpecJSON), 0644); err != nil {
+		t.Fatalf("failed to write temp spec file: %v", err)
+	}
+
+	outDir := t.TempDir()
+	ios, _, _, _ := gencli.TestIOS()
+	actions := Actions{IOS: ios}
+
+	args := gencli.OcliGenCliArgs{PathToSpec: specPath}
+	flags := gencli.OcliGenCliFlags{Framework: "cobra", Out: outDir}
+
+	err := actions.OcliGenCli(t.Context(), args, flags)
+	if err != nil {
+		t.Fatalf("unexpected error generating CLI from JSON spec: %v", err)
+	}
+
+	entries, err := os.ReadDir(filepath.Join(outDir, "gencli"))
+	if err != nil {
+		t.Fatalf("expected gencli output directory to be created: %v", err)
+	}
+	if len(entries) == 0 {
+		t.Fatal("expected generated cobra files but got none")
+	}
+}
+
+func TestOcliGenCliUnsupportedExtension(t *testing.T) {
+	specDir := t.TempDir()
+	specPath := filepath.Join(specDir, "test-cli.ocs.txt")
+	if err := os.WriteFile(specPath, []byte(validSpecYAML), 0644); err != nil {
+		t.Fatalf("failed to write temp spec file: %v", err)
+	}
+
+	ios, _, _, _ := gencli.TestIOS()
+	actions := Actions{IOS: ios}
+
+	args := gencli.OcliGenCliArgs{PathToSpec: specPath}
+	flags := gencli.OcliGenCliFlags{Framework: "cobra", Out: t.TempDir()}
+
+	err := actions.OcliGenCli(t.Context(), args, flags)
+	if err == nil {
+		t.Fatal("expected error for unsupported extension, got nil")
+	}
+	if _, ok := err.(*gencli.ValidationError); !ok {
+		t.Errorf("expected ValidationError for unsupported extension, got %T", err)
+	}
+}
+
+func TestOcliGenCliParseError(t *testing.T) {
+	specDir := t.TempDir()
+	specPath := filepath.Join(specDir, "test-cli.ocs.yaml")
+	if err := os.WriteFile(specPath, []byte("invalid: [yaml: content:"), 0644); err != nil {
+		t.Fatalf("failed to write temp spec file: %v", err)
+	}
+
+	ios, _, _, _ := gencli.TestIOS()
+	actions := Actions{IOS: ios}
+
+	args := gencli.OcliGenCliArgs{PathToSpec: specPath}
+	flags := gencli.OcliGenCliFlags{Framework: "cobra", Out: t.TempDir()}
+
+	err := actions.OcliGenCli(t.Context(), args, flags)
+	if err == nil {
+		t.Fatal("expected error for invalid YAML, got nil")
+	}
+	if _, ok := err.(*gencli.ValidationError); !ok {
+		t.Errorf("expected ValidationError for parse error, got %T", err)
 	}
 }

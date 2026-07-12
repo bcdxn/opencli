@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/goccy/go-yaml"
 )
@@ -220,5 +221,52 @@ func TestMapUnmarshalYAMLRejectsNonMapping(t *testing.T) {
 	err := yaml.Unmarshal([]byte("- 1\n- 2\n"), &om)
 	if err == nil {
 		t.Fatal("expected non-mapping YAML error, got nil")
+	}
+}
+
+func TestMemFileInfoMethods(t *testing.T) {
+	m := MemFS{"test.txt": []byte("hello")}
+	f, err := m.Open("test.txt")
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	t.Cleanup(func() { _ = f.Close() })
+
+	info, err := f.Stat()
+	if err != nil {
+		t.Fatalf("stat: %v", err)
+	}
+	if time.Since(info.ModTime()) > time.Minute {
+		t.Fatal("expected ModTime to be within last minute")
+	}
+	if info.IsDir() {
+		t.Fatal("expected IsDir to be false for file")
+	}
+	if info.Sys() != nil {
+		t.Fatal("expected Sys to return nil")
+	}
+}
+
+func TestMapKeys(t *testing.T) {
+	om := NewMap[string, int]()
+	om.Set("a", 1)
+	om.Set("b", 2)
+	om.Set("c", 3)
+
+	keys := om.Keys()
+	if len(keys) != 3 {
+		t.Fatalf("expected 3 keys, got %d", len(keys))
+	}
+	keySet := make(map[int]bool)
+	for _, k := range keys {
+		switch k {
+		case "a", "b", "c":
+			keySet[0] = true
+		default:
+			t.Fatalf("unexpected key: %q", k)
+		}
+	}
+	if !keySet[0] {
+		t.Fatal("expected all keys a, b, c to be present")
 	}
 }

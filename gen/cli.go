@@ -63,6 +63,10 @@ func (f CLIFramework) IsValid() bool {
 func CLI(doc *spec.Document, options ...GenCLIOption) (map[string][]byte, error) {
 	moduleVersion := "unknown version"
 
+	if doc == nil {
+		return nil, fmt.Errorf("provided specification document was nil")
+	}
+
 	if bi, ok := debug.ReadBuildInfo(); ok {
 		if bi.Main.Version != "" {
 			moduleVersion = bi.Main.Version
