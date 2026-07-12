@@ -44,7 +44,7 @@ func NewCmdPleasantriesGreet(a ActionsInterface) *cobra.Command {
 func getSpecPleasantriesGreetCmd() *spec.CommandItem {
 	return &spec.CommandItem{
 		Segment:         "greet",
-		CommandLine:     "pleasantries pleasantries greet",
+		CommandLine:     "pleasantries greet",
 		Summary:         "Say hello",
 		Description:     "",
 		VisibleChildren: false,

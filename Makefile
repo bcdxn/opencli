@@ -12,37 +12,37 @@ version = $(shell git describe --tags HEAD)
 
 .PHONY: gen-docs
 gen-docs: generate
-	@go run cmd/cobra/main.go gen docs \
+	@go run cmd/ocli/main.go gen docs \
 		--format markdown \
 		--out ./docs \
 		opencli.ocs.yaml
-	@go run cmd/cobra/main.go gen docs \
+	@go run cmd/ocli/main.go gen docs \
 		--format html-embed \
 		--out ./web/public \
 		opencli.ocs.yaml
 
 .PHONY: gen-examples
 gen-examples: generate
-	@go run cmd/cobra/main.go gen docs \
+	@go run cmd/ocli/main.go gen docs \
 		--format markdown \
 		--out ./examples/docs \
 		./examples/petstore-cli.ocs.yaml
-	@go run cmd/cobra/main.go gen docs \
+	@go run cmd/ocli/main.go gen docs \
 		--format markdown \
 		--out ./examples/docs \
 		./examples/pleasantries-cli.ocs.yaml
-	@go run cmd/cobra/main.go gen cli \
+	@go run cmd/ocli/main.go gen cli \
 		--framework yargs \
 		--out ./examples/code/yargs/pleasantries/src \
 		./examples/pleasantries-cli.ocs.yaml
-	@go run cmd/cobra/main.go gen cli \
+	@go run cmd/ocli/main.go gen cli \
 		--framework cobra \
 		--out ./examples/code/cobra/pleasantries/internal \
 		./examples/pleasantries-cli.ocs.yaml
 
 .PHONY: release
 release: gen-docs gen-examples
-	@echo "building OpenCLI version $(version)::::"
+	@echo "building OpenCLI version $(version)"
 	@goreleaser release --clean --skip=publish
 
 .PHONY: clean
@@ -65,26 +65,18 @@ build-ui: build-wasm gen-docs
 	cp ./spec.schema.json ./web/src/spec.schema.json
 	cd web && npm ci && npm run build
 
-.PHONY: dev-wasm
-dev-wasm: copy-wasm-exec
-	GOOS=js GOARCH=wasm go build -o web/public/opencli.wasm ./cmd/wasm/main.go
-
-.PHONY: dev
-dev: dev-wasm
-	cd web && npm run dev
-
 # Warning: local/manual regression testing ahead
 .PHONY: gen-scratch-clis
 gen-scratch-clis:
-	@go run cmd/cobra/main.go gen cli \
+	@go run cmd/ocli/main.go gen cli \
 		--framework yargs \
 		--out ./scratch/yargs/src \
 		./examples/petstore-cli.ocs.yaml
-	@go run cmd/cobra/main.go gen cli \
+	@go run cmd/ocli/main.go gen cli \
 		--framework cobra \
 		--out ./scratch/cobra/internal \
 		./examples/petstore-cli.ocs.yaml
-	@go run cmd/cobra/main.go gen cli \
+	@go run cmd/ocli/main.go gen cli \
 		--framework urfavecli \
 		--out ./scratch/urfavecli/internal \
 		./examples/petstore-cli.ocs.yaml

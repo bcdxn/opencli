@@ -7,7 +7,7 @@ before:
 
 builds:
   - id: "ocli"
-    main: "./cmd/cobra/main.go"
+    main: "./cmd/ocli/main.go"
     binary: "ocli"
     env:
       - CGO_ENABLED=0
