@@ -1,3 +1,8 @@
+// Package codec provides capabilities for marshalling and unmarshalling
+// OpenCLI documents.
+//
+// It supports JSON and YAML formats and automatically validates specs against
+// the official OpenCLI schema definitions.
 package codec
 
 import (
@@ -13,15 +18,24 @@ import (
 	yaml "github.com/goccy/go-yaml"
 )
 
-// Format indicates input/output format
+// Format represents a supported serialization format for OpenCLI documents.
 type Format string
 
 const (
+	// FormatYAML is the YAML serialization format.
 	FormatYAML Format = "yaml"
+	// FormatJSON is the JSON serialization format.
 	FormatJSON Format = "json"
 )
 
-// UnmarshalJSON decodes serialized JSON bytes into a Spec.
+// UnmarshalJSON decodes a JSON-encoded OpenCLI document into a spec.Document.
+//
+// Example:
+//
+//	doc, err := codec.UnmarshalJSON([]byte(`{"opencliVersion": "0.1.0", ...}`))
+//	if err != nil {
+//		log.Fatal(err)
+//	}
 func UnmarshalJSON(data []byte) (*spec.Document, error) {
 	if data == nil {
 		return nil, errors.New("spec document is nil")
@@ -37,7 +51,14 @@ func UnmarshalJSON(data []byte) (*spec.Document, error) {
 	return doc, nil
 }
 
-// UnmarshalYAML decodes serialized YAML bytes into a Spec.
+// UnmarshalYAML decodes a YAML-encoded OpenCLI document into a spec.Document.
+//
+// Example:
+//
+//	doc, err := codec.UnmarshalYAML([]byte("opencliVersion: 0.1.0\n..."))
+//	if err != nil {
+//	    log.Fatal(err)
+//	}
 func UnmarshalYAML(data []byte) (*spec.Document, error) {
 	if data == nil {
 		return nil, errors.New("spec document is nil")
@@ -71,7 +92,15 @@ func buildSpecDoc(rawDoc rawDocument) *spec.Document {
 	return &doc
 }
 
-// MarshalJSON encodes OpenCLI Spec compliant document into bytes in the requested format.
+// MarshalJSON encodes a spec.Document into JSON bytes.
+//
+// Example:
+//
+//	data, err := codec.MarshalJSON(doc)
+//	if err != nil {
+//	    log.Fatal(err)
+//	}
+//	fmt.Println(string(data))
 func MarshalJSON(doc *spec.Document) ([]byte, error) {
 	if doc == nil {
 		return nil, errors.New("spec document is nil")
@@ -90,7 +119,15 @@ func MarshalJSON(doc *spec.Document) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// Marshal encodes OpenCLI Spec into bytes in the requested format.
+// MarshalYAML encodes a spec.Document into YAML bytes.
+//
+// Example:
+//
+//	data, err := codec.MarshalYAML(doc)
+//	if err != nil {
+//	    log.Fatal(err)
+//	}
+//	fmt.Println(string(data))
 func MarshalYAML(doc *spec.Document) ([]byte, error) {
 	if doc == nil {
 		return nil, errors.New("spec document is nil")

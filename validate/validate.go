@@ -1,3 +1,5 @@
+// Package validate provides validation capabilities for OpenCLI specification documents.
+// It performs both JSON Schema validation and logical constraint checking.
 package validate
 
 import (
@@ -17,7 +19,13 @@ import (
 	"golang.org/x/text/message"
 )
 
-// ValidationError represents a logical validation error in the spec
+// ValidationError describes a logical constraint violation detected during
+// spec validation, beyond what JSON Schema can express.
+//
+// Message holds the human-readable description of the problem.
+// Path indicates where in the spec the violation occurred, using dot-notation
+// keys (e.g. "commands.deploy.arguments"). An empty path means the error is
+// global and not tied to a specific node.
 type ValidationError struct {
 	Message string
 	Path    string
@@ -123,6 +131,15 @@ func ensureCompiler() error {
 	return compilerErr
 }
 
+// ValidateJSON validates a JSON-encoded OpenCLI spec document against the
+// JSON Schema and applies additional logical checks.
+//
+// For example:
+//
+//	data, _ := os.ReadFile("my-cli.ocs.json")
+//	if err := validate.ValidateJSON(data); err != nil {
+//	    log.Fatal(err)
+//	}
 func ValidateJSON(data []byte) error {
 	if err := ensureCompiler(); err != nil {
 		return err
@@ -145,6 +162,15 @@ func ValidateJSON(data []byte) error {
 	return runLogicalValidations(specDoc)
 }
 
+// ValidateYAML validates a YAML-encoded OpenCLI spec document against the
+// JSON Schema and applies additional logical checks.
+//
+// For example:
+//
+//	data, _ := os.ReadFile("my-cli.ocs.yaml")
+//	if err := validate.ValidateYAML(data); err != nil {
+//	    log.Fatal(err)
+//	}
 func ValidateYAML(data []byte) error {
 	if err := ensureCompiler(); err != nil {
 		return err

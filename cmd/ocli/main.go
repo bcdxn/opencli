@@ -1,3 +1,4 @@
+// Package main creates an entrypoint for the `ocli` CLI.
 package main
 
 import (
