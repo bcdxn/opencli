@@ -201,3 +201,15 @@ Start using OpenCLI Specification Documents to describe your CLIs. Head over to 
   - [Urfave CLI](https://cli.urfave.org)
   - [Yargs](https://yargs.js.org)
   - [Commander.JS](https://github.com/tj/commander.js/)
+
+## Badges
+
+If you use OpenCLI to document your CLI, show your support by adding the OpenCLI Compliant badge to your README:
+
+[![OpenCLI Compliant](https://img.shields.io/badge/OpenCLI_Spec-Compliant-brightgreen?link=https%3A%2F%2Fgithub.com%2Fbcdxn%2Fopencli)](https://opencli.dev)
+
+To add your badge, copy the code below and add it to your README.md:
+
+```md
+[![OpenCLI Compliant](https://img.shields.io/badge/OpenCLI_Spec-Compliant-brightgreen?link=https%3A%2F%2Fgithub.com%2Fbcdxn%2Fopencli)](https://opencli.dev)
+```
