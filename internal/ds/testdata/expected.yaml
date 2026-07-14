@@ -1,0 +1,9 @@
+opencliVersion: 1.0.0-alpha.12
+commands:
+  petstore {command} <arguments> [flags]:
+    description: ""
+  petstore pet add <path-to-req-body> [flags]:
+    description: |
+      a long example description that will require multiple license
+      and therefore, the indent context must be preserved
+      correctly

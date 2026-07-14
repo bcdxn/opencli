@@ -135,7 +135,7 @@ func MarshalYAML(doc *spec.Document) ([]byte, error) {
 
 	rawDoc := convertToRawDoc(doc)
 
-	data, err := yaml.Marshal(rawDoc)
+	data, err := yaml.MarshalWithOptions(rawDoc, yaml.UseLiteralStyleIfMultiline(true))
 	if err != nil {
 		return data, fmt.Errorf("error marshaling OpenCLI spec document: %w", err)
 	}
@@ -329,7 +329,7 @@ func addModifiers(node *spec.CommandItem) {
 					argModifiers = append(argModifiers, fmt.Sprintf("<%s>", arg.Name))
 				}
 			}
-		} else {
+		} else if node.VisibleChildrenArgs {
 			// if the command has a long list of arguments, just list a generic <arguments> modifier
 			argModifiers = []string{"<arguments>"}
 		}

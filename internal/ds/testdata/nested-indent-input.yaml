@@ -1,0 +1,23 @@
+opencliVersion: 1.0.0-alpha.12
+commands:
+  petstore {command} <arguments> [flags]:
+    hidden: false
+    kind: group
+  petstore pet add <path-to-req-body> [flags]:
+    summary: Add a new pet to the store
+    description: |
+      a long example description that will require multiple license
+      and therefore, the indent context must be preserved
+      correctly
+    flags:
+    - name: photo-urls
+      aliases:
+      - p
+      type: string
+      variadic: true
+      summary: A list of photo URLs to display for the pet
+      description: |
+        Another nested multiline string that is indented at a different level
+        and contains multiple lines
+      required: false
+      hidden: false

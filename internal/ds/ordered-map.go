@@ -140,38 +140,21 @@ func (om *Map[K, V]) MarshalJSON() ([]byte, error) {
 	return data, nil
 }
 
-// MarshalYAML implements the yaml node marshaler to preserve insertion order.
-func (om *Map[K, V]) MarshalYAML() ([]byte, error) {
-	// Use yaml.MapSlice to preserve order when marshaling
-	// Build a mapping node with ordered values
-	values := make([]*ast.MappingValueNode, 0, len(om.entries))
-
-	for _, entry := range om.Entries() {
-		// Convert key and value into AST nodes
-		keyNode, err := yaml.ValueToNode(entry.Key)
-		if err != nil {
-			return nil, err
-		}
-		valNode, err := yaml.ValueToNode(entry.Value)
-		if err != nil {
-			return nil, err
-		}
-
-		// MappingValue expects a MapKeyNode for the key
-		keyMapNode, ok := keyNode.(ast.MapKeyNode)
-		if !ok {
-			return nil, fmt.Errorf("map key does not implement ast.MapKeyNode: %T", keyNode)
-		}
-		mv := ast.MappingValue(nil, keyMapNode, valNode)
-		values = append(values, mv)
-	}
-
-	ms := yaml.MapSlice{}
+// MarshalYAML implements the yaml interface marshaler to preserve insertion order.
+//
+// It returns a yaml.MapSlice rather than pre-rendered bytes so that the encoder
+// walks the entries through its normal reflection-based encode path. That path
+// threads the current column/indent level through nested values as it recurses.
+// If instead we rendered this map to bytes independently (e.g. via yaml.Marshal)
+// and returned those bytes, the resulting fragment would be parsed back into an
+// AST at column 0 and then spliced into the parent document.
+func (om *Map[K, V]) MarshalYAML() (any, error) {
+	ms := make(yaml.MapSlice, 0, len(om.entries))
 	for _, entry := range om.Entries() {
 		ms = append(ms, yaml.MapItem{Key: entry.Key, Value: entry.Value})
 	}
 
-	return yaml.Marshal(ms)
+	return ms, nil
 }
 
 // UnmarshalYAML implements the yaml.Unmarshaller interface to enable yaml.Unarmshal.
