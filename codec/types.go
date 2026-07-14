@@ -21,7 +21,7 @@ type rawCommandItem struct {
 	Aliases     []string            `json:"aliases,omitempty" yaml:"aliases,omitempty"`
 	Args        []spec.ArgumentItem `json:"args,omitempty" yaml:"args,omitempty"`
 	Flags       []spec.FlagItem     `json:"flags,omitempty" yaml:"flags,omitempty"`
-	Hidden      bool                `json:"hidden" yaml:"hidden"`
+	Hidden      bool                `json:"hidden,omitempty" yaml:"hidden,omitempty"`
 	Kind        spec.CommandKind    `json:"kind" yaml:"kind"`
 	ExitCodes   []spec.ExitCode     `json:"exitCodes,omitempty" yaml:"exitCodes,omitempty"`
 	Examples    []spec.Example      `json:"examples,omitempty" yaml:"examples,omitempty"`

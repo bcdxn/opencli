@@ -54,29 +54,20 @@ global:
     aliases:
     - h
     type: boolean
-    variadic: false
     summary: contextual help
-    required: false
     default: false
-    hidden: false
   - name: version
     type: boolean
-    variadic: false
     summary: print the version of the CLI
-    required: false
     default: false
-    hidden: false
 commands:
   petstore {command} <arguments> [flags]:
-    hidden: false
     kind: group
   petstore list:
     summary: List all endpoints available
-    hidden: false
     kind: action
   petstore pet {command} <arguments> [flags]:
     summary: A collection of commands for managing pets
-    hidden: false
     kind: group
   petstore pet add <path-to-req-body> [flags]:
     summary: Add a new pet to the store
@@ -85,25 +76,18 @@ commands:
     args:
     - name: path-to-req-body
       type: string
-      variadic: false
       summary: The path to a JSON file containing the new pet payload
       description: |
         A JSON formatted file with the exact POST body to send as part of the request to add a
         new pet to the store using the PetStore API. The exact schema can be found
         [here](https://petstore3.swagger.io/api/v3/openapi.json#/components/schemas/PetPet). You
         can use this option instead of passing individual flags.
-      required: false
-      default: null
-      hidden: false
     flags:
     - name: name
       aliases:
       - "n"
       type: string
-      variadic: false
       summary: The name of the pet
-      required: false
-      hidden: false
     - name: photo-urls
       aliases:
       - p
@@ -112,14 +96,9 @@ commands:
       summary: A list of photo URLs to display for the pet
       description: |
         Provide this flag multiple times to set multiple photo URLs.
-      required: false
-      hidden: false
     - name: status
       type: string
-      variadic: false
       summary: The pet status in the store
-      required: false
-      hidden: false
       choices:
       - value: available
       - value: pending
@@ -130,9 +109,6 @@ commands:
       summary: Tag to assign to the pet for grouping/sorting
       description: |
         Provide this flag multiple times to add multiple tags.
-      required: false
-      hidden: false
-    hidden: false
     kind: action
   petstore pet update <path-to-req-body> [flags]:
     summary: Update an existing pet
@@ -141,26 +117,16 @@ commands:
     args:
     - name: path-to-req-body
       type: string
-      variadic: false
       summary: The path to a JSON file containing the updated pet payload
-      required: false
-      default: null
-      hidden: false
     flags:
     - name: name
       aliases:
       - "n"
       type: string
-      variadic: false
       summary: The updated name of the pet
-      required: false
-      hidden: false
     - name: status
       type: string
-      variadic: false
       summary: The updated pet status
-      required: false
-      hidden: false
       choices:
       - value: available
       - value: pending
@@ -173,32 +139,24 @@ commands:
       summary: A list of photo URLs to display for the pet
       description: |
         Provide this flag multiple times to set multiple photo URLs.
-      required: false
-      hidden: false
     - name: tags
       type: string
       variadic: true
       summary: Tags to assign to the pet
       description: |
         Provide this flag multiple times to add multiple tags.
-      required: false
-      hidden: false
-    hidden: false
     kind: action
   petstore pet find-by-status [flags]:
     summary: Find pets by status
     flags:
     - name: status
       type: string
-      variadic: false
       summary: The status to filter pets by
       required: true
-      hidden: false
       choices:
       - value: available
       - value: pending
       - value: sold
-    hidden: false
     kind: action
   petstore pet find-by-tags [flags]:
     summary: Find pets by tags
@@ -209,64 +167,43 @@ commands:
       summary: The tags to filter pets by
       description: |
         Provide this flag multiple times to filter by multiple tags.
-      required: false
-      hidden: false
-    hidden: false
     kind: action
   petstore pet get [flags]:
     summary: Find pet by ID
     flags:
     - name: id
       type: integer
-      variadic: false
       summary: The ID of the pet to retrieve
       required: true
-      hidden: false
-    hidden: false
     kind: action
   petstore pet update-form [flags]:
     summary: Update a pet using form data
     flags:
     - name: id
       type: integer
-      variadic: false
       summary: The ID of the pet to update
       required: true
-      hidden: false
     - name: name
       type: string
-      variadic: false
       summary: The new name for the pet
-      required: false
-      hidden: false
     - name: status
       type: string
-      variadic: false
       summary: The new status for the pet
-      required: false
-      hidden: false
       choices:
       - value: available
       - value: pending
       - value: sold
-    hidden: false
     kind: action
   petstore pet delete [flags]:
     summary: Delete a pet
     flags:
     - name: id
       type: integer
-      variadic: false
       summary: The ID of the pet to delete
       required: true
-      hidden: false
     - name: api-key
       type: string
-      variadic: false
       summary: API key header used to authorize the delete request
-      required: false
-      hidden: false
-    hidden: false
     kind: action
   petstore pet upload-image <path-to-file> [flags]:
     summary: Upload an image for a pet
@@ -275,37 +212,25 @@ commands:
     args:
     - name: path-to-file
       type: string
-      variadic: false
       summary: The path to the file to upload
       required: true
-      default: null
-      hidden: false
     flags:
     - name: id
       type: integer
-      variadic: false
       summary: The ID of the pet
       required: true
-      hidden: false
     - name: additionalMetadata
       type: string
-      variadic: false
       summary: Additional metadata to store with the uploaded image
-      required: false
-      hidden: false
-    hidden: false
     kind: action
   petstore store {command} <arguments> [flags]:
     summary: A collection of commands for store operations
-    hidden: false
     kind: group
   petstore store inventory:
     summary: Returns pet inventories by status
-    hidden: false
     kind: action
   petstore store order {command} <arguments> [flags]:
     summary: A collection of commands for purchase orders
-    hidden: false
     kind: group
   petstore store order place <path-to-order-body> [flags]:
     summary: Place an order for a pet
@@ -314,67 +239,42 @@ commands:
     args:
     - name: path-to-order-body
       type: string
-      variadic: false
       summary: The path to a JSON file containing the order payload
-      required: false
-      default: null
-      hidden: false
     flags:
     - name: pet-id
       type: integer
-      variadic: false
       summary: The ID of the pet to order
-      required: false
-      hidden: false
     - name: quantity
       type: integer
-      variadic: false
       summary: How many pets to order
-      required: false
-      hidden: false
     - name: status
       type: string
-      variadic: false
       summary: The order status
-      required: false
-      hidden: false
       choices:
       - value: placed
       - value: approved
       - value: delivered
     - name: complete
       type: boolean
-      variadic: false
       summary: Whether the order has been completed
-      required: false
-      hidden: false
-    hidden: false
     kind: action
   petstore store order get [flags]:
     summary: Find purchase order by ID
     flags:
     - name: id
       type: integer
-      variadic: false
       summary: The ID of the order to retrieve
       required: true
-      hidden: false
-    hidden: false
     kind: action
   petstore store order delete <id>:
     summary: Delete purchase order by ID
     args:
     - name: id
       type: integer
-      variadic: false
       summary: The ID of the order to delete
       required: true
-      default: null
-      hidden: false
-    hidden: false
     kind: action
   petstore user {command} <arguments> [flags]:
-    hidden: false
     kind: group
   petstore user create <path-to-user-body> [flags]:
     summary: Create a user
@@ -383,55 +283,29 @@ commands:
     args:
     - name: path-to-user-body
       type: string
-      variadic: false
       summary: The path to a JSON file containing the user payload
-      required: false
-      default: null
-      hidden: false
     flags:
     - name: username
       type: string
-      variadic: false
       summary: The user's username
-      required: false
-      hidden: false
     - name: firstName
       type: string
-      variadic: false
       summary: The user's first name
-      required: false
-      hidden: false
     - name: lastName
       type: string
-      variadic: false
       summary: The user's last name
-      required: false
-      hidden: false
     - name: email
       type: string
-      variadic: false
       summary: The user's email address
-      required: false
-      hidden: false
     - name: password
       type: string
-      variadic: false
       summary: The user's password
-      required: false
-      hidden: false
     - name: phone
       type: string
-      variadic: false
       summary: The user's phone number
-      required: false
-      hidden: false
     - name: status
       type: integer
-      variadic: false
       summary: The user's status
-      required: false
-      hidden: false
-    hidden: false
     kind: action
   petstore user create-with-list <path-to-users-body>:
     summary: Create multiple users with a list
@@ -440,22 +314,15 @@ commands:
     args:
     - name: path-to-users-body
       type: string
-      variadic: false
       summary: The path to a JSON file containing the user list payload
       required: true
-      default: null
-      hidden: false
-    hidden: false
     kind: action
   petstore user login [flags]:
     summary: Log in a user
     flags:
     - name: username
       type: string
-      variadic: false
       summary: The user's username
-      required: false
-      hidden: false
       alternativeSources:
       - type: $ENV
         property: PETSTORE_USER
@@ -463,31 +330,23 @@ commands:
         property: $.auth.user
     - name: password
       type: string
-      variadic: false
       summary: The user's password
-      required: false
-      hidden: false
       alternativeSources:
       - type: $ENV
         property: PETSTORE_PASS
       - type: $FILE
         property: $.auth.pass
-    hidden: false
     kind: action
   petstore user logout:
     summary: Log out the current user
-    hidden: false
     kind: action
   petstore user get [flags]:
     summary: Get user by username
     flags:
     - name: username
       type: string
-      variadic: false
       summary: The username to look up
       required: true
-      hidden: false
-    hidden: false
     kind: action
   petstore user update [flags]:
     summary: Update a user
@@ -496,56 +355,33 @@ commands:
     flags:
     - name: username
       type: string
-      variadic: false
       summary: The username of the user to update
       required: true
-      hidden: false
     - name: firstName
       type: string
-      variadic: false
       summary: The user's first name
-      required: false
-      hidden: false
     - name: lastName
       type: string
-      variadic: false
       summary: The user's last name
-      required: false
-      hidden: false
     - name: email
       type: string
-      variadic: false
       summary: The user's email address
-      required: false
-      hidden: false
     - name: password
       type: string
-      variadic: false
       summary: The user's password
-      required: false
-      hidden: false
     - name: phone
       type: string
-      variadic: false
       summary: The user's phone number
-      required: false
-      hidden: false
     - name: userStatus
       type: integer
-      variadic: false
       summary: The user's status
-      required: false
-      hidden: false
-    hidden: false
     kind: action
   petstore user delete [flags]:
     summary: Delete a user
     flags:
     - name: username
       type: string
-      variadic: false
       summary: The username of the user to delete
       required: true
-      hidden: false
     hidden: true
     kind: action

@@ -86,14 +86,14 @@ type CommandItem struct {
 type ArgumentItem struct {
 	Name        string   `json:"name" yaml:"name"`
 	Type        string   `json:"type,omitempty" yaml:"type,omitempty"`
-	Variadic    bool     `json:"variadic" yaml:"variadic"`
+	Variadic    bool     `json:"variadic,omitempty" yaml:"variadic,omitempty"`
 	MinItems    int      `json:"minItems,omitempty" yaml:"minItems,omitempty"`
 	MaxItems    int      `json:"maxItems,omitempty" yaml:"maxItems,omitempty"`
 	Summary     string   `json:"summary,omitempty" yaml:"summary,omitempty"`
 	Description string   `json:"description,omitempty" yaml:"description,omitempty"`
-	Required    bool     `json:"required" yaml:"required"`
-	Default     any      `json:"default" yaml:"default"`
-	Hidden      bool     `json:"hidden" yaml:"hidden"`
+	Required    bool     `json:"required,omitempty" yaml:"required,omitempty"`
+	Default     any      `json:"default,omitempty" yaml:"default,omitempty"`
+	Hidden      bool     `json:"hidden,omitempty" yaml:"hidden,omitempty"`
 	Choices     []Choice `json:"choices,omitempty" yaml:"choices,omitempty"`
 }
 
@@ -101,14 +101,14 @@ type FlagItem struct {
 	Name        string              `json:"name" yaml:"name"`
 	Aliases     []string            `json:"aliases,omitempty" yaml:"aliases,omitempty"`
 	Type        string              `json:"type" yaml:"type"`
-	Variadic    bool                `json:"variadic" yaml:"variadic"`
+	Variadic    bool                `json:"variadic" yaml:"variadic,omitempty"`
 	MinItems    int                 `json:"minItems,omitempty" yaml:"minItems,omitempty"`
 	MaxItems    int                 `json:"maxItems,omitempty" yaml:"maxItems,omitempty"`
 	Summary     string              `json:"summary,omitempty" yaml:"summary,omitempty"`
 	Description string              `json:"description,omitempty" yaml:"description,omitempty"`
-	Required    bool                `json:"required" yaml:"required"`
+	Required    bool                `json:"required,omitempty" yaml:"required,omitempty"`
 	Default     any                 `json:"default,omitempty" yaml:"default,omitempty"`
-	Hidden      bool                `json:"hidden" yaml:"hidden"`
+	Hidden      bool                `json:"hidden,omitempty" yaml:"hidden,omitempty"`
 	Choices     []Choice            `json:"choices,omitempty" yaml:"choices,omitempty"`
 	AltSources  []AlternativeSource `json:"alternativeSources,omitempty" yaml:"alternativeSources,omitempty"`
 }
