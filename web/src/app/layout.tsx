@@ -7,13 +7,14 @@ export const metadata: Metadata = {
   title: "OpenCLI Specification | OpenAPI for Command Line Interfaces",
   description:
     "OpenCLI is an open specification for describing command line interfaces. Define CLIs, generate consistent documentation and deterministic code.",
+  metadataBase: new URL(`https://opencli.dev`),
   robots: "index,follow,max-image-preview:large",
   openGraph: {
     type: "website",
     title: "OpenCLI Specification",
     description:
       "OpenCLI is an open specification for command line interfaces - OpenAPI for CLIs. Define commands, arguments, and options in a machine-readable format, validate specifications, and generate consistent documentation and boilerplate code.",
-    url: "https://opencli.dev/",
+    url: "https://opencli.dev",
     images: [
       {
         url: "https://opencli.dev/img/opengraph-image.png",

@@ -5,7 +5,7 @@ export const metadata = {
   description:
     "Create, edit, and validate OpenCLI specification documents in your browser. Preview generated documentation live.",
   alternates: {
-    canonical: "https://opencli.dev/editor",
+    canonical: "/editor",
   },
 };
 

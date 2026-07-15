@@ -4,7 +4,7 @@ export const metadata = {
   title: "OpenCLI Specification | CLI Docs",
   description: "Learn how to use the OpenCLI Specification tooling.",
   alternates: {
-    canonical: "https://opencli.dev/docs",
+    canonical: "/docs",
   },
 };
 

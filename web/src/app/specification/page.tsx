@@ -5,7 +5,7 @@ export const metadata = {
   description:
     "Details the OpenCLI specification schema, and supported fields.",
   alternates: {
-    canonical: "https://opencli.dev/specification",
+    canonical: "/specification",
   },
 };
 
