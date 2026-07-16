@@ -74,7 +74,7 @@ print the version of the CLI
 
 ## Commands
 
-### `$ ocli check <path-to-spec> [flags]`
+### `$ ocli check <arguments> [flags]`
 
 Check an OpenCLI Spec document for errors
 
@@ -125,7 +125,7 @@ Collection of commands used to generate code/docs from an OpenCLI Spec document
 
 ---
 
-### `$ ocli gen docs <path-to-spec> [flags]`
+### `$ ocli gen docs <arguments> [flags]`
 
 Generate documentation
 
@@ -191,7 +191,7 @@ $ ocli gen docs -f markdown ./my-cli.ocs.yaml
 
 ---
 
-### `$ ocli gen cli <path-to-spec> [flags]`
+### `$ ocli gen cli <arguments> [flags]`
 
 Generate CLI Boilerplate code
 

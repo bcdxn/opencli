@@ -131,6 +131,13 @@ func {{.SpecFuncName}}() *spec.CommandItem {
 {{- end}}
     },
 {{- end}}
+{{- if .PassthroughArgsModifiers}}
+    PassthroughArgsModifiers: []string{
+{{- range .PassthroughArgsModifiers}}
+      {{goString .}},
+{{- end}}
+    },
+{{- end}}
 {{- if .SpecArgs}}
 		Args: []spec.ArgumentItem{
 {{- range .SpecArgs}}

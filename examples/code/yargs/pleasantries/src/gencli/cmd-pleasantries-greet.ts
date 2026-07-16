@@ -87,7 +87,7 @@ function getPleasantriesGreetCmdHelpData(): CommandPrintData {
     visibleArgs: true,
     visibleFlags: true,
     argsModifiers: [
-      "<name>",
+      "<arguments>",
     ],
     flagsModifiers: [
       "[flags]",

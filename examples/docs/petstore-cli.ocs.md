@@ -79,7 +79,7 @@ print the version of the CLI
 
 ## Commands
 
-### `$ petstore list`
+### `$ petstore list -- <http-arguments>`
 
 List all endpoints available
 
@@ -93,7 +93,7 @@ A collection of commands for managing pets
 
 ---
 
-### `$ petstore pet add <path-to-req-body> [flags]`
+### `$ petstore pet add <arguments> [flags]`
 
 Add a new pet to the store
 
@@ -151,7 +151,7 @@ Provide this flag multiple times to add multiple tags.
 
 ---
 
-### `$ petstore pet update <path-to-req-body> [flags]`
+### `$ petstore pet update <arguments> [flags]`
 
 Update an existing pet
 
@@ -305,7 +305,7 @@ API key header used to authorize the delete request
 
 ---
 
-### `$ petstore pet upload-image <path-to-file> [flags]`
+### `$ petstore pet upload-image <arguments> [flags]`
 
 Upload an image for a pet
 
@@ -357,7 +357,7 @@ A collection of commands for purchase orders
 
 ---
 
-### `$ petstore store order place <path-to-order-body> [flags]`
+### `$ petstore store order place <arguments> [flags]`
 
 Place an order for a pet
 
@@ -419,7 +419,7 @@ The ID of the order to retrieve
 
 ---
 
-### `$ petstore store order delete <id>`
+### `$ petstore store order delete <arguments>`
 
 Delete purchase order by ID
 #### Arguments
@@ -433,7 +433,7 @@ The ID of the order to delete
 ---
 
 
-### `$ petstore user create <path-to-user-body> [flags]`
+### `$ petstore user create <arguments> [flags]`
 
 Create a user
 
@@ -493,7 +493,7 @@ The user's status
 
 ---
 
-### `$ petstore user create-with-list <path-to-users-body>`
+### `$ petstore user create-with-list <arguments>`
 
 Create multiple users with a list
 

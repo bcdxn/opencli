@@ -77,7 +77,7 @@ function getPetstoreUserCreateWithListCmdHelpData(): CommandPrintData {
     visibleArgs: true,
     visibleFlags: false,
     argsModifiers: [
-      "<path-to-users-body>",
+      "<arguments>",
     ],
     args: [
       { name: "path-to-users-body", summary: "The path to a JSON file containing the user list payload", isRequired: false },

@@ -1,4 +1,4 @@
-opencliVersion: 1.0.0-alpha.12
+opencliVersion: 1.0.0-alpha.13
 commands:
   petstore {command} <arguments> [flags]:
     description: ""

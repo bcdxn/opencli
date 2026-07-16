@@ -69,7 +69,7 @@ The CLI above can be described using an OpenCLI Specification Document in YAML (
 ```yaml
 # cli.yaml
 
-opencliVersion: 1.0.0-alpha.12
+opencliVersion: 1.0.0-alpha.13
 
 info:
   title: Pleasantries
@@ -114,7 +114,9 @@ commands:
         default: "english"
 ```
 
-From this example we can generate documentation using the follow command:
+#### Generating Documentation
+
+From this OpenCLI document we can generate clean markdown documentation using the follow command:
 
 ```sh
 ocli gen docs \
@@ -123,7 +125,7 @@ ocli gen docs \
   ./cli.osc.yaml
 ```
 
-To generate embeddable HTML docs as a script bundle:
+We can also generate embeddable HTML docs as a script bundle:
 
 ```sh
 ocli gen docs \
@@ -147,6 +149,8 @@ This writes ./docs/ocli-docs.js. You can then mount it in any page:
   </body>
 </html>
 ```
+
+#### Generating Code
 
 We can also use the specification to generate boilerplate code for common CLI libraries:
 
@@ -177,6 +181,16 @@ Use this package to validate OpenCLI Spec compliant documents
 
 ```sh
 go get github.com/bcdxn/opencli/validate
+```
+
+### `adapters/*`
+
+Use the packages here to generate OpenCLI documents from existing CLI codebases.
+
+**e.g., for Cobra:**
+
+```sh
+go get github.com/bcdxn/opencli/adapters/ocobra
 ```
 
 ## The Spec

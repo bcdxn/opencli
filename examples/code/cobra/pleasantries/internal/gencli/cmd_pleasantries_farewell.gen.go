@@ -51,7 +51,7 @@ func getSpecPleasantriesFarewellCmd() *spec.CommandItem {
 		VisibleArgs:     true,
 		VisibleFlags:    true,
 		ArgsModifiers: []string{
-			"<name>",
+			"<arguments>",
 		},
 		FlagsModifiers: []string{
 			"[flags]",

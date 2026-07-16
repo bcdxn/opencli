@@ -1,4 +1,4 @@
-opencliVersion: 1.0.0-alpha.12
+opencliVersion: 1.0.0-alpha.13
 info:
   title: PetStore CLI
   summary: An example CLI Document describing operations a petstore CLI may provide.
@@ -55,21 +55,24 @@ global:
     - h
     type: boolean
     summary: contextual help
-    default: false
   - name: version
     type: boolean
     summary: print the version of the CLI
-    default: false
 commands:
   petstore {command} <arguments> [flags]:
     kind: group
   petstore list:
     summary: List all endpoints available
+    args:
+    - name: http-arguments
+      type: string
+      summary: additional arguments to pass to underlying HTTP client
+      passthrough: true
     kind: action
   petstore pet {command} <arguments> [flags]:
     summary: A collection of commands for managing pets
     kind: group
-  petstore pet add <path-to-req-body> [flags]:
+  petstore pet add <arguments> [flags]:
     summary: Add a new pet to the store
     description: |
       Create a new pet in the store using a JSON payload or explicit flags.
@@ -110,7 +113,7 @@ commands:
       description: |
         Provide this flag multiple times to add multiple tags.
     kind: action
-  petstore pet update <path-to-req-body> [flags]:
+  petstore pet update <arguments> [flags]:
     summary: Update an existing pet
     description: |
       Update a pet using a JSON payload or explicit flags.
@@ -205,7 +208,7 @@ commands:
       type: string
       summary: API key header used to authorize the delete request
     kind: action
-  petstore pet upload-image <path-to-file> [flags]:
+  petstore pet upload-image <arguments> [flags]:
     summary: Upload an image for a pet
     description: |
       Upload a binary image file for the specified pet.
@@ -232,7 +235,7 @@ commands:
   petstore store order {command} <arguments> [flags]:
     summary: A collection of commands for purchase orders
     kind: group
-  petstore store order place <path-to-order-body> [flags]:
+  petstore store order place <arguments> [flags]:
     summary: Place an order for a pet
     description: |
       Create a purchase order using a JSON payload or explicit flags.
@@ -266,7 +269,7 @@ commands:
       summary: The ID of the order to retrieve
       required: true
     kind: action
-  petstore store order delete <id>:
+  petstore store order delete <arguments>:
     summary: Delete purchase order by ID
     args:
     - name: id
@@ -276,7 +279,7 @@ commands:
     kind: action
   petstore user {command} <arguments> [flags]:
     kind: group
-  petstore user create <path-to-user-body> [flags]:
+  petstore user create <arguments> [flags]:
     summary: Create a user
     description: |
       Create a new user using a JSON payload or explicit flags.
@@ -307,7 +310,7 @@ commands:
       type: integer
       summary: The user's status
     kind: action
-  petstore user create-with-list <path-to-users-body>:
+  petstore user create-with-list <arguments>:
     summary: Create multiple users with a list
     description: |
       Create multiple users using a JSON array payload.

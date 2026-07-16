@@ -101,7 +101,7 @@ function getPetstoreStoreOrderPlaceCmdHelpData(): CommandPrintData {
     visibleArgs: true,
     visibleFlags: true,
     argsModifiers: [
-      "<path-to-order-body>",
+      "<arguments>",
     ],
     flagsModifiers: [
       "[flags]",

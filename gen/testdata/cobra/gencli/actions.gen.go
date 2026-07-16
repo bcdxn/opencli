@@ -9,7 +9,7 @@ import (
 
 // ActionsInterface defines all actions the petstore CLI supports.
 type ActionsInterface interface {
-	PetstoreList(ctx context.Context) error
+	PetstoreList(ctx context.Context, args PetstoreListArgs) error
 	PetstorePetAdd(ctx context.Context, args PetstorePetAddArgs, flags PetstorePetAddFlags) error
 	PetstorePetUpdate(ctx context.Context, args PetstorePetUpdateArgs, flags PetstorePetUpdateFlags) error
 	PetstorePetFindByStatus(ctx context.Context, flags PetstorePetFindByStatusFlags) error

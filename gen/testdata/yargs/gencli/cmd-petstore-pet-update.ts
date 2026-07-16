@@ -105,7 +105,7 @@ function getPetstorePetUpdateCmdHelpData(): CommandPrintData {
     visibleArgs: true,
     visibleFlags: true,
     argsModifiers: [
-      "<path-to-req-body>",
+      "<arguments>",
     ],
     flagsModifiers: [
       "[flags]",

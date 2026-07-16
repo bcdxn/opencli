@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "github.com/bcdxn/opencli/blob/1.0.0-alpha.12/spec.schema.json",
+  "$id": "github.com/bcdxn/opencli/blob/1.0.0-alpha.13/spec.schema.json",
   "title": "OpenCLI Specification",
   "description": "This is the root object of an OpenCLI Specification-compliant document.",
   "type": "object",
@@ -8,7 +8,7 @@
     "opencliVersion": {
       "type": "string",
       "description": "This property MUST be the exact version number of the OpenCLI Specification that this OpenCLI Document uses. The opencli field SHOULD be used by tooling to interpret the OpenCLI Document. This field is not related to the CLI `info.version` string.",
-      "enum": ["1.0.0-alpha.12"]
+      "enum": ["1.0.0-alpha.13"]
     },
     "info": {
       "$ref": "#/$defs/InfoObject"
@@ -350,6 +350,11 @@
         "required": {
           "type": "boolean",
           "description": "Determines if the argument is mandatory. If required arguments are not supplied, the command will exit in error.",
+          "default": false
+        },
+        "passthrough": {
+          "description": "Arguments specified after the standard POSIX double dash (`--`) convention used to signal the end of options/flags. Passthrough arguments follow the `--` are treated strictly as a positional arguments, even if it starts with a hyphen (e.g., -f or --verbose). Typically these are literally passed-through to an underlying tool call.",
+          "type": "boolean",
           "default": false
         }
       },

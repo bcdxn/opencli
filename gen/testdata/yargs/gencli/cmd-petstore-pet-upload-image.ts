@@ -91,7 +91,7 @@ function getPetstorePetUploadImageCmdHelpData(): CommandPrintData {
     visibleArgs: true,
     visibleFlags: true,
     argsModifiers: [
-      "<path-to-file>",
+      "<arguments>",
     ],
     flagsModifiers: [
       "[flags]",
