@@ -76,7 +76,7 @@ function getPetstoreStoreOrderDeleteCmdHelpData(): CommandPrintData {
     visibleArgs: true,
     visibleFlags: false,
     argsModifiers: [
-      "<id>",
+      "<arguments>",
     ],
     args: [
       { name: "id", summary: "The ID of the order to delete", isRequired: false },

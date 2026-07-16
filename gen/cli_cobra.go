@@ -214,6 +214,7 @@ func walkCmdTree(
 		cmd.CommandModifiers,
 		cmd.ArgsModifiers,
 		cmd.FlagsModifiers,
+		cmd.PassthroughArgsModifiers,
 		segments,
 		binary,
 		binaryPascal,

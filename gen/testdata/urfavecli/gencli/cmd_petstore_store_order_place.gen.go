@@ -66,7 +66,7 @@ func getSpecPetstoreStoreOrderPlaceCmd() *spec.CommandItem {
 		VisibleArgs:     true,
 		VisibleFlags:    true,
 		ArgsModifiers: []string{
-			"<path-to-order-body>",
+			"<arguments>",
 		},
 		FlagsModifiers: []string{
 			"[flags]",

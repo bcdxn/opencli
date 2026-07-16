@@ -233,7 +233,6 @@ func postProcessingDFS(node *spec.CommandItem, rawDoc *rawDocument) {
 	if node == nil {
 		return
 	}
-
 	// process node
 
 	// 1. If the command is not defined explicitly in the doc, then it must be a grouping
@@ -249,8 +248,11 @@ func postProcessingDFS(node *spec.CommandItem, rawDoc *rawDocument) {
 	}
 	// 3. If a command has non-hidden arguments it should be indicated
 	for _, arg := range node.Args {
-		if !arg.Hidden {
+		if !arg.Hidden && !arg.Passthrough {
 			node.VisibleArgs = true
+			break
+		} else if !arg.Hidden {
+			node.VisiblePassthroughArgs = true
 			break
 		}
 	}
@@ -261,13 +263,12 @@ func postProcessingDFS(node *spec.CommandItem, rawDoc *rawDocument) {
 			break
 		}
 	}
-	// 3. If a command's subcommands have arguments, it should be indicated
+	// 5. If a command's subcommands have arguments, it should be indicated
 	node.VisibleChildrenArgs = node.VisibleChildren && visibleChildrenArgs(node)
-	// 4. If a command's subcommands have flags, it should be indicated
+	// 6. If a command's subcommands have flags, it should be indicated
 	node.VisibleChildrenFlags = node.VisibleChildren && visibleChildrenFlags(node)
-	// 5. Add the arguments modifiers
+	// 7. Add the arguments modifiers
 	addModifiers(node)
-
 	// iterate through the node's subcommands and process each child recursively
 	for _, child := range node.Commands {
 		postProcessingDFS(child, rawDoc)
@@ -320,22 +321,21 @@ func visibleChildrenFlags(node *spec.CommandItem) bool {
 // the spec command line
 func addModifiers(node *spec.CommandItem) {
 
-	if !node.VisibleChildren {
-		argModifiers := []string{}
-		if len(node.Args) < 4 {
-			// if a command has a 'manageable' amount of args, list them individually
-			for _, arg := range node.Args {
-				if !arg.Hidden {
-					argModifiers = append(argModifiers, fmt.Sprintf("<%s>", arg.Name))
-				}
-			}
-		} else if node.VisibleChildrenArgs {
-			// if the command has a long list of arguments, just list a generic <arguments> modifier
-			argModifiers = []string{"<arguments>"}
-		}
-		node.ArgsModifiers = argModifiers
-	} else if node.VisibleChildrenArgs {
+	if node.VisibleChildrenArgs || node.VisibleArgs {
 		node.ArgsModifiers = []string{"<arguments>"}
+	} else {
+		node.ArgsModifiers = []string{}
+	}
+
+	if node.VisiblePassthroughArgs {
+		node.PassthroughArgsModifiers = []string{"--"}
+		for _, arg := range node.Args {
+			if arg.Passthrough {
+				node.PassthroughArgsModifiers = append(node.PassthroughArgsModifiers, fmt.Sprintf("<%s>", arg.Name))
+			}
+		}
+	} else {
+		node.PassthroughArgsModifiers = []string{}
 	}
 
 	if node.VisibleChildrenFlags || node.VisibleFlags {

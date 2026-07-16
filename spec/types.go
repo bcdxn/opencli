@@ -73,14 +73,16 @@ type CommandItem struct {
 	Examples       []Example
 	Commands       []*CommandItem
 	// Properties set during post processing of unmarshalling
-	VisibleArgs          bool
-	VisibleFlags         bool
-	VisibleChildren      bool
-	VisibleChildrenArgs  bool
-	VisibleChildrenFlags bool
-	CommandModifiers     []string
-	ArgsModifiers        []string
-	FlagsModifiers       []string
+	VisibleArgs              bool
+	VisibleFlags             bool
+	VisibleChildren          bool
+	VisibleChildrenArgs      bool
+	VisibleChildrenFlags     bool
+	VisiblePassthroughArgs   bool
+	CommandModifiers         []string
+	ArgsModifiers            []string
+	PassthroughArgsModifiers []string
+	FlagsModifiers           []string
 }
 
 type ArgumentItem struct {
@@ -95,6 +97,7 @@ type ArgumentItem struct {
 	Default     any      `json:"default,omitempty" yaml:"default,omitempty"`
 	Hidden      bool     `json:"hidden,omitempty" yaml:"hidden,omitempty"`
 	Choices     []Choice `json:"choices,omitempty" yaml:"choices,omitempty"`
+	Passthrough bool     `json:"passthrough,omitempty" yaml:"passthrough,omitempty"`
 }
 
 type FlagItem struct {

@@ -7,7 +7,7 @@ import SiteFooter from "../components/SiteFooter";
 import React from "react";
 import { useI18n } from "../i18n";
 
-const yamlSampleEn = `opencliVersion: 1.0.0-alpha.12
+const yamlSampleEn = `opencliVersion: 1.0.0-alpha.13
 
 info:
   title: Pleasantries CLI
@@ -16,7 +16,7 @@ info:
   binary: greet
 
 commands:
-  greet <args> [flags]:
+  greet <arguments> [flags]:
     summary: "Say hello"
     args:
       - name: "name"
@@ -27,7 +27,7 @@ commands:
         type: "string"
         default: "english"`;
 
-const yamlSampleCh = `opencliVersion: 1.0.0-alpha.12
+const yamlSampleCh = `opencliVersion: 1.0.0-alpha.13
 
 info:
   title: 寒暄
@@ -36,7 +36,7 @@ info:
   binary: greet
 
 commands:
-  greet <args> [flags]:
+  greet <arguments> [flags]:
     summary: "问好"
     args:
       - name: "name"

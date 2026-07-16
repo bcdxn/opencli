@@ -1,4 +1,4 @@
-opencliVersion: 1.0.0-alpha.12
+opencliVersion: 1.0.0-alpha.13
 
 info:
   title: PetStore CLI
@@ -58,18 +58,21 @@ global:
         - "h"
       summary: "contextual help"
       type: boolean
-      default: false
     - name: "version"
       summary: "print the version of the CLI"
       type: boolean
-      default: false
 
 commands:
   petstore {command} <arguments> [flags]:
     kind: group
 
-  petstore list [flags]:
+  petstore list [flags] -- <arguments>:
     summary: List all endpoints available
+    args:
+    - name: http-arguments
+      type: string
+      summary: additional arguments to pass to underlying HTTP client
+      passthrough: true
 
   petstore pet {command} <arguments> [flags]:
     summary: A collection of commands for managing pets

@@ -49,7 +49,7 @@ func getSpecPetstorePetUploadImageCmd() *spec.CommandItem {
 		VisibleArgs:     true,
 		VisibleFlags:    true,
 		ArgsModifiers: []string{
-			"<path-to-file>",
+			"<arguments>",
 		},
 		FlagsModifiers: []string{
 			"[flags]",

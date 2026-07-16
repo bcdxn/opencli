@@ -14,7 +14,11 @@ func NewCmdPetstoreList(a ActionsInterface) *cli.Command {
 		Description: "",
 		Metadata:    map[string]any{"spec_cmd": getSpecPetstoreListCmd()},
 		Action: func(ctx context.Context, c *cli.Command) error {
-			return a.PetstoreList(ctx)
+			cmdArgs := PetstoreListArgs{}
+			if len(c.Args().Slice()) > 0 {
+				cmdArgs.HttpArguments = c.Args().Slice()[0]
+			}
+			return a.PetstoreList(ctx, cmdArgs)
 		},
 	}
 
@@ -30,5 +34,8 @@ func getSpecPetstoreListCmd() *spec.CommandItem {
 		VisibleChildren: false,
 		VisibleArgs:     false,
 		VisibleFlags:    false,
+		Args: []spec.ArgumentItem{
+			{Name: "http-arguments", Summary: "additional arguments to pass to underlying HTTP client"},
+		},
 	}
 }

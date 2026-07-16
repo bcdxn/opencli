@@ -68,7 +68,7 @@ func getSpecPetstorePetAddCmd() *spec.CommandItem {
 		VisibleArgs:     true,
 		VisibleFlags:    true,
 		ArgsModifiers: []string{
-			"<path-to-req-body>",
+			"<arguments>",
 		},
 		FlagsModifiers: []string{
 			"[flags]",

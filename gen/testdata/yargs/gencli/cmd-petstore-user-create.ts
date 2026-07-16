@@ -114,7 +114,7 @@ function getPetstoreUserCreateCmdHelpData(): CommandPrintData {
     visibleArgs: true,
     visibleFlags: true,
     argsModifiers: [
-      "<path-to-user-body>",
+      "<arguments>",
     ],
     flagsModifiers: [
       "[flags]",

@@ -10,7 +10,7 @@ _A fun CLI to greet or bid farewell_
 
 ## Commands
 
-### `$ pleasantries greet <name> [flags]`
+### `$ pleasantries greet <arguments> [flags]`
 
 Say hello
 #### Arguments
@@ -45,7 +45,7 @@ $ pleasantries greet --language english John
 
 ---
 
-### `$ pleasantries farewell <name> [flags]`
+### `$ pleasantries farewell <arguments> [flags]`
 
 Say goodbye
 #### Arguments

@@ -79,7 +79,7 @@ func getSpecPetstoreUserCreateCmd() *spec.CommandItem {
 		VisibleArgs:     true,
 		VisibleFlags:    true,
 		ArgsModifiers: []string{
-			"<path-to-user-body>",
+			"<arguments>",
 		},
 		FlagsModifiers: []string{
 			"[flags]",

@@ -12,7 +12,11 @@ func NewCmdPetstoreList(a ActionsInterface) *cobra.Command {
 		Short: "List all endpoints available",
 		Long:  "",
 		RunE: func(c *cobra.Command, args []string) error {
-			return a.PetstoreList(c.Context())
+			cmdArgs := PetstoreListArgs{}
+			if len(args) > 0 {
+				cmdArgs.HttpArguments = args[0]
+			}
+			return a.PetstoreList(c.Context(), cmdArgs)
 		},
 	}
 	command.SilenceErrors = true
@@ -36,5 +40,12 @@ func getSpecPetstoreListCmd() *spec.CommandItem {
 		VisibleChildren: false,
 		VisibleArgs:     false,
 		VisibleFlags:    false,
+		PassthroughArgsModifiers: []string{
+			"--",
+			"<http-arguments>",
+		},
+		Args: []spec.ArgumentItem{
+			{Name: "http-arguments", Summary: "additional arguments to pass to underlying HTTP client"},
+		},
 	}
 }

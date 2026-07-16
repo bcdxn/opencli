@@ -145,7 +145,7 @@ func TestValidationError_PathFormatting(t *testing.T) {
 }
 
 func TestValidateYAML_DuplicateFlagNames(t *testing.T) {
-	yaml := `opencliVersion: 1.0.0-alpha.12
+	yaml := `opencliVersion: 1.0.0-alpha.13
 info:
   title: Test CLI
   version: "1.0.0"
@@ -259,7 +259,7 @@ func TestValidateJSON_InvalidSchema(t *testing.T) {
 
 func TestValidateYAML_SchemaValidationErrorFormatting(t *testing.T) {
 	// Invalid schema produces a schemaValidationError which uses writeSchemaError
-	err := validate.ValidateYAML([]byte(`opencliVersion: 1.0.0-alpha.12`))
+	err := validate.ValidateYAML([]byte(`opencliVersion: 1.0.0-alpha.13`))
 	if err == nil {
 		t.Fatal("expected schema validation error")
 	}

@@ -2,11 +2,13 @@
 import yargs from "yargs";
 import { ActionsInterface } from "./actions";
 import {
+  PetstoreListArgs,
 } from "./params";
 import { CommandPrintData } from "./types";
 import { CliError, ExitCode, createBadUserInputError } from "./errors";
 // Local argv shape for this command's builder.
 interface petstoreListArgs {
+  "http-arguments"?: string;
   help: boolean;
 }
 
@@ -14,10 +16,14 @@ export function newPetstoreListCmd(
   actions: ActionsInterface,
 ): yargs.CommandModule<{}, petstoreListArgs> {
   return {
-    command: "list",
+    command: "list <http-arguments>",
     describe: "List all endpoints available",
     builder: (argv: yargs.Argv<{}>): yargs.Argv<petstoreListArgs> => {
       return argv
+        .positional("http-arguments", {
+          describe: "",
+          type: "string",
+        })
         .help(false)
         .option("help", {
           alias: "h",
@@ -52,7 +58,10 @@ export function newPetstoreListCmd(
         actions.help(getPetstoreListCmdHelpData());
         process.exit(0);
       }
-      return actions.PetstoreList();
+      const cmdArgs: PetstoreListArgs = {
+        httpArguments: argv.httpArguments,
+      };
+      return actions.PetstoreList(cmdArgs);
     },
   };
 }
@@ -65,5 +74,8 @@ function getPetstoreListCmdHelpData(): CommandPrintData {
     visibleChildren: false,
     visibleArgs: false,
     visibleFlags: false,
+    args: [
+      { name: "http-arguments", summary: "additional arguments to pass to underlying HTTP client", isRequired: false },
+    ],
   };
 }

@@ -18,31 +18,32 @@ type specFlagEntry struct {
 // commandFileCoreTmplData is the shared template data used across framework command files.
 // Framework-specific command data structs should embed this and only add unique fields.
 type commandFileCoreTmplData struct {
-	ModuleVersion    string
-	Binary           string
-	BinaryPascal     string
-	FuncName         string
-	SpecFuncName     string
-	OutPath          string
-	Segment          string
-	IsRoot           bool
-	IsGroup          bool
-	IsHidden         bool
-	MethodName       string
-	ArgsTypeName     string
-	FlagsTypeName    string
-	Summary          string
-	Description      string
-	Aliases          []string
-	CommandLine      string
-	VisibleChildren  bool
-	VisibleArgs      bool
-	VisibleFlags     bool
-	SpecArgs         []specArgEntry
-	SpecFlags        []specFlagEntry
-	CommandModifiers []string
-	ArgsModifiers    []string
-	FlagsModifiers   []string
+	ModuleVersion            string
+	Binary                   string
+	BinaryPascal             string
+	FuncName                 string
+	SpecFuncName             string
+	OutPath                  string
+	Segment                  string
+	IsRoot                   bool
+	IsGroup                  bool
+	IsHidden                 bool
+	MethodName               string
+	ArgsTypeName             string
+	FlagsTypeName            string
+	Summary                  string
+	Description              string
+	Aliases                  []string
+	CommandLine              string
+	VisibleChildren          bool
+	VisibleArgs              bool
+	VisibleFlags             bool
+	SpecArgs                 []specArgEntry
+	SpecFlags                []specFlagEntry
+	CommandModifiers         []string
+	ArgsModifiers            []string
+	FlagsModifiers           []string
+	PassthroughArgsModifiers []string
 }
 
 func appendSegment(parentSegments []string, segment string) []string {
@@ -64,6 +65,7 @@ func buildCommandFileCore(
 	commandModifiers []string,
 	argsModifiers []string,
 	flagsModifiers []string,
+	passthroughModifiers []string,
 	segments []string,
 	binary string,
 	binaryPascal string,
@@ -74,24 +76,25 @@ func buildCommandFileCore(
 	methodName := buildMethodName(segments)
 
 	return commandFileCoreTmplData{
-		ModuleVersion:    moduleVersion,
-		Binary:           binary,
-		BinaryPascal:     binaryPascal,
-		Segment:          cmdSegment,
-		IsRoot:           isRoot,
-		IsGroup:          isGroup,
-		IsHidden:         hidden,
-		MethodName:       methodName,
-		ArgsTypeName:     methodName + "Args",
-		FlagsTypeName:    methodName + "Flags",
-		Summary:          summary,
-		Description:      strings.TrimRight(description, "\n"),
-		Aliases:          aliases,
-		VisibleChildren:  visibleChildren,
-		VisibleArgs:      visibleArgs,
-		VisibleFlags:     visibleFlags,
-		CommandModifiers: commandModifiers,
-		ArgsModifiers:    argsModifiers,
-		FlagsModifiers:   flagsModifiers,
+		ModuleVersion:            moduleVersion,
+		Binary:                   binary,
+		BinaryPascal:             binaryPascal,
+		Segment:                  cmdSegment,
+		IsRoot:                   isRoot,
+		IsGroup:                  isGroup,
+		IsHidden:                 hidden,
+		MethodName:               methodName,
+		ArgsTypeName:             methodName + "Args",
+		FlagsTypeName:            methodName + "Flags",
+		Summary:                  summary,
+		Description:              strings.TrimRight(description, "\n"),
+		Aliases:                  aliases,
+		VisibleChildren:          visibleChildren,
+		VisibleArgs:              visibleArgs,
+		VisibleFlags:             visibleFlags,
+		CommandModifiers:         commandModifiers,
+		ArgsModifiers:            argsModifiers,
+		FlagsModifiers:           flagsModifiers,
+		PassthroughArgsModifiers: passthroughModifiers,
 	}
 }
