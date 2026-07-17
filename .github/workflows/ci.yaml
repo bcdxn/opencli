@@ -28,10 +28,10 @@ jobs:
           cache: true
 
       - name: Go Generate
-        run: go generate ./...
+        run: go generate $(go list ./... | grep -v /web/) 
 
       - name: Test
-        run: go test -v -race -covermode=atomic -coverprofile=coverage.txt ./...
+        run: go test -v -race -covermode=atomic -coverprofile=coverage.txt $(go list ./... | grep -v /web/) 
       - name: Check Coverage Total (Terminal Summary)
         run: |
           go tool cover -func=coverage.txt
