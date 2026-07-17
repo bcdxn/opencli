@@ -12,27 +12,24 @@
   min-height: 0;
 }
 
-.editor-sample-bar {
+.editor-title-bar {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
   border-bottom: 1px solid #e0e0e0;
   background: #fafcff;
+  justify-content: center;
 }
 
-.editor-sample-bar label {
-  font-size: 13px;
-  color: #465469;
-  font-weight: 600;
-}
-
-.editor-sample-bar select {
-  border: 1px solid #b5c4d8;
-  border-radius: 6px;
-  padding: 6px 10px;
-  color: #233043;
-  background: #ffffff;
+.editor-title-bar h1 {
+  color: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  font-size: 0.84rem;
+  text-decoration: none;
+  text-align: center;
 }
 
 .panels {

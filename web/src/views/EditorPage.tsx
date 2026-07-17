@@ -18,7 +18,6 @@ export default function EditorPage() {
   const [wasmReady, setWasmReady] = useState(false);
   const [content, setContent] = useState("");
   const [format, setFormat] = useState<"yaml" | "json">("yaml");
-  const [sampleLocale, setSampleLocale] = useState<Locale>(locale);
   const [editorWidth, setEditorWidth] = useState(50);
   const panelsRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
@@ -30,18 +29,14 @@ export default function EditorPage() {
   }, []);
 
   useEffect(() => {
-    setSampleLocale(locale);
-  }, [locale]);
-
-  useEffect(() => {
-    fetch(`/${sampleFiles[sampleLocale]}`)
+    fetch(`/${sampleFiles.en}`)
       .then((r) => r.text())
       .then((text) => {
         setContent(text);
         setFormat("yaml");
       })
       .catch(console.error);
-  }, [sampleLocale]);
+  }, ["en"]);
 
   const handleDividerMouseDown = () => {
     isDraggingRef.current = true;
@@ -76,16 +71,8 @@ export default function EditorPage() {
       <SiteHeader />
 
       <div className="app">
-        <div className="editor-sample-bar">
-          <label htmlFor="sample-language">{t("editor.sample.label")}</label>
-          <select
-            id="sample-language"
-            value={sampleLocale}
-            onChange={(event) => setSampleLocale(event.target.value as Locale)}
-          >
-            <option value="en">{t("editor.sample.en")}</option>
-            <option value="zh-CN">{t("editor.sample.zh")}</option>
-          </select>
+        <div className="editor-title-bar">
+          <h1>OpenCLI Document Live Editor</h1>
         </div>
         {!wasmReady && (
           <div className="loading-overlay">
