@@ -98,7 +98,7 @@ function GettingStartedPage() {
           <HighlightedCodeBlock
             language="yaml"
             lines={[
-              `opencliVersion: 1.0.0-alpha.13`,
+              `opencliVersion: "1.0.0-alpha.13"`,
               ``,
               `# Metadata about your CLI"`,
               `info:`,
