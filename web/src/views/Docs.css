@@ -242,78 +242,6 @@
   margin: 0 0 15px 0;
 }
 
-/* 
-.guide-code-block pre {
-  margin: 0;
-  padding: 16px;
-  overflow-x: auto;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
-}
-
-.guide-code-block pre::-webkit-scrollbar {
-  height: 4px;
-}
-
-.guide-code-block pre::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 2px;
-} */
-
-/* .guide-code-block code {
-  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 13px;
-  line-height: 1.6;
-  color: #e2e8f0;
-} */
-
-/* Syntax highlighting */
-/* .guide-code-block .hl-keyword {
-  color: #c792ea;
-}
-
-.guide-code-block .hl-string {
-  color: #c3e88d;
-}
-
-.guide-code-block .hl-comment {
-  color: #546e7a;
-  font-style: italic;
-}
-
-.guide-code-block .hl-number {
-  color: #f78c6c;
-}
-
-.guide-code-block .hl-key {
-  color: #82aaff;
-}
-
-.guide-code-block .hl-value {
-  color: #c3e88d;
-}
-
-.guide-code-block .hl-punct {
-  color: #89ddff;
-}
-
-.guide-code-block .hl-bullet {
-  color: #89ddff;
-}
-
-.guide-code-block .hl-flag {
-  color: #ffcb6b;
-}
-
-.guide-code-block .hl-cmd {
-  color: #82aaff;
-}
-
-.guide-code-block .hl-prompt {
-  color: #546e7a;
-  user-select: none;
-} */
-
 /* Inline code */
 .guide-inline-code {
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -415,10 +343,17 @@
     margin-bottom: 8px;
   }
 
+  .guide-nav__heading {
+    text-align: center;
+  }
+
   .guide-nav__list {
     display: flex;
     flex-wrap: wrap;
     gap: 2px;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
   }
 
   .guide-nav__link {

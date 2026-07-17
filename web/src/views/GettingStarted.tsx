@@ -270,17 +270,19 @@ function GettingStartedPage() {
       </div>
 
       {/* Next steps */}
-      <h3>What's next?</h3>
-      <ul className="guide-section__subtitle">
-        <li>
-          Generate <a href="/docs/markdown-docs">Markdown documentation</a> for
-          your CLI
-        </li>
-        <li>
-          Generate <a href="/docs/html-docs">HTML documentation</a> that looks
-          great in a browser
-        </li>
-      </ul>
+      <div className="whats-next">
+        <h3>What's next?</h3>
+        <ul>
+          <li>
+            Generate <a href="/docs/markdown-docs">Markdown documentation</a>{" "}
+            for your CLI
+          </li>
+          <li>
+            Generate <a href="/docs/html-docs">HTML documentation</a> that looks
+            great in a browser
+          </li>
+        </ul>
+      </div>
     </>
   );
 }

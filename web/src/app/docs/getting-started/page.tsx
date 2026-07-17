@@ -5,7 +5,7 @@ export const metadata = {
   description:
     "Guides for getting started with the OpenCLI Specification, including markdown and HTML documentation generation.",
   alternates: {
-    canonical: "/docs",
+    canonical: "/docs/getting-started",
   },
 };
 

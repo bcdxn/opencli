@@ -111,13 +111,17 @@ function HtmlDocsPage() {
             lines={[
               `$ ocli gen docs`,
               `  --format html-page`,
-              `  --out ./docs`,
+              `  --out ./web`,
               `  ./pleasantries-cli.ocs.yaml`,
             ]}
           />
 
           <p>
-            This produces a fully styled HTML page ready to open in any browser:
+            This produces a fully styled HTML page in
+            <span className="guide-inline-code">
+              ./web/pleasantries-cli.ocs.html
+            </span>{" "}
+            ready to open in any browser:
           </p>
 
           <div className="guide-image">
@@ -145,7 +149,7 @@ function HtmlDocsPage() {
             lines={[
               `$ ocli gen docs`,
               `  --format html-embed`,
-              `  --out ./docs`,
+              `  --out ./assets`,
               `  ./pleasantries-cli.ocs.yaml`,
             ]}
           />
@@ -153,14 +157,14 @@ function HtmlDocsPage() {
           <p>
             This writes a single{" "}
             <span className="guide-inline-code">ocli-docs.js</span> file.
-            Include it in any HTML page:
+            Include it in any HTML page to embed your docs:
           </p>
 
           <HighlightedCodeBlock
             language="html"
             lines={[
               `<html>`,
-              `  <head>")}`,
+              `  <head>`,
               `    <script src="./assets/ocli-docs.js"></script>`,
               `  <head>`,
               `  <body>`,
