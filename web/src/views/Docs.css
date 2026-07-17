@@ -108,15 +108,6 @@
 
 /* === Sections ============================================================= */
 
-.guide-section {
-  padding: 40px 0;
-  border-bottom: 1px solid rgba(50, 50, 93, 0.1);
-  scroll-margin-top: 88px;
-}
-
-.guide-section:last-child {
-  border-bottom: none;
-}
 
 .guide-section__title {
   color: #0a2540;
@@ -136,7 +127,7 @@
   max-width: 680px;
 }
 
-.guide-section h3 {
+.guide-main h3 {
   color: #0a2540;
   font-size: 21px;
   font-weight: 700;
@@ -144,14 +135,14 @@
   letter-spacing: -0.02em;
 }
 
-.guide-section h4 {
+.guide-main h4 {
   color: #0a2540;
   font-size: 17px;
   font-weight: 600;
   margin: 24px 0 8px;
 }
 
-.guide-section p {
+.guide-main p {
   color: #425466;
   font-size: 15px;
   line-height: 1.7;
@@ -159,25 +150,24 @@
   max-width: 680px;
 }
 
-.guide-section a {
+.guide-main a {
   color: #635bff;
   text-decoration: none;
 }
 
-.guide-section a:hover {
+.guide-main a:hover {
   text-decoration: underline;
 }
 
-.guide-section ul,
-.guide-section ol {
-  color: #425466;
+.guide-main ul,
+.guide-main ol {
   font-size: 15px;
   line-height: 1.7;
   margin: 0 0 16px 18px;
   padding: 0;
 }
 
-.guide-section li {
+.guide-main li {
   margin: 4px 0;
 }
 

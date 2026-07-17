@@ -99,7 +99,7 @@ function HtmlDocsPage() {
       <div className="guide-step">
         <div className="guide-step__number">2</div>
         <div className="guide-step__content">
-          <h3>Standalone HTML Page</h3>
+          <h4>Standalone HTML Page</h4>
           <p>
             Generate elegant documentation in a self-contained{" "}
             <span className="guide-inline-code">index.html</span> file that can
@@ -137,7 +137,7 @@ function HtmlDocsPage() {
       <div className="guide-step">
         <div className="guide-step__number">3</div>
         <div className="guide-step__content">
-          <h3>Embeddable HTML</h3>
+          <h4>Embeddable HTML</h4>
           <p>
             You can also generate a lightweight JavaScript bundle that renders
             docs inside an existing web page. This is useful when you want to
