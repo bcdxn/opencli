@@ -28,7 +28,7 @@ const messages: Record<Locale, Record<string, string>> = {
     "landing.title": "Contract-First CLI Design",
     "landing.subtitle": "Define your interface. Automate the rest.",
     "landing.description":
-      "OpenCLI is an open document specification for command-line tools. Author verifiable, human-readable CLI definitions. Generate documentation and framework-specific code from a single spec.",
+      "OpenCLI is an open document specification for command-line tools. Author verifiable, human-readable CLI definitions. Generate documentation and code deterministically from a single spec.",
     "landing.cta.editor": "Open Live Editor",
     "landing.cta.docs": "View CLI Docs",
     "landing.tag.contract": "contract-first",
