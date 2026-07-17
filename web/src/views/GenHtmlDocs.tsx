@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import SyntaxHighlighter from "react-syntax-highlighter";
-import { nord } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { nord } from "react-syntax-highlighter/dist/esm/styles/prism";
 import SiteHeader from "../components/SiteHeader";
 import "./Docs.css";
 
@@ -89,7 +89,7 @@ function HtmlDocsPage() {
           </p>
 
           <HighlightedCodeBlock
-            language="shell"
+            language="sh"
             lines={[`$ go install github.com/bcdxn/opencli/cmd/ocli@latest`]}
           />
         </div>
@@ -107,7 +107,7 @@ function HtmlDocsPage() {
           </p>
 
           <HighlightedCodeBlock
-            language="shell"
+            language="sh"
             lines={[
               `$ ocli gen docs`,
               `  --format html-page`,
@@ -145,7 +145,7 @@ function HtmlDocsPage() {
           </p>
 
           <HighlightedCodeBlock
-            language="shell"
+            language="sh"
             lines={[
               `$ ocli gen docs`,
               `  --format html-embed`,
@@ -215,6 +215,10 @@ function HtmlDocsPage() {
             See a real world example of generated HTML docs on the{" "}
             <a href="/reference">OCLI Reference Page</a>
           </li>
+          <li>
+            Learn how to <a href="/docs/code-generation-go">generate code</a>{" "}
+            from an Open CLI document
+          </li>
         </ul>
       </div>
     </>
@@ -241,6 +245,9 @@ export default function GuidePage() {
               </a>
               <a href="/docs/html-docs" className="guide-nav__link is-active">
                 HTML Docs
+              </a>
+              <a href="/docs/code-generation-go" className="guide-nav__link">
+                Code Generation (Go)
               </a>
             </li>
           </ul>

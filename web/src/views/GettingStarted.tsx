@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import SyntaxHighlighter from "react-syntax-highlighter";
-import { nord } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { nord } from "react-syntax-highlighter/dist/esm/styles/prism";
 import SiteHeader from "../components/SiteHeader";
 import "./Docs.css";
 
@@ -221,7 +221,7 @@ function GettingStartedPage() {
           </p>
 
           <HighlightedCodeBlock
-            language="shell"
+            language="sh"
             lines={[`$ go install github.com/bcdxn/opencli/cmd/ocli@latest`]}
           />
 
@@ -244,7 +244,7 @@ function GettingStartedPage() {
           </p>
 
           <HighlightedCodeBlock
-            language="shell"
+            language="sh"
             lines={[
               `$ ocli check ./pleasantries-cli.ocs.yaml`,
               `# ✓ pleasantries-cli.ocs.yaml is valid`,
@@ -281,6 +281,11 @@ function GettingStartedPage() {
             Generate <a href="/docs/html-docs">HTML documentation</a> that looks
             great in a browser
           </li>
+          <li>
+            Generate{" "}
+            <a href="/docs/code-generation-go">framework-specific CLI code</a>{" "}
+            from your spec
+          </li>
         </ul>
       </div>
     </>
@@ -310,6 +315,9 @@ export default function GuidePage() {
               </a>
               <a href="/docs/html-docs" className="guide-nav__link">
                 HTML Docs
+              </a>
+              <a href="/docs/code-generation-go" className="guide-nav__link">
+                Code Generation (Go)
               </a>
             </li>
           </ul>

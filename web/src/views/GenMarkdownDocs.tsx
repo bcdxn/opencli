@@ -89,7 +89,7 @@ function MarkdownDocsPage() {
           </p>
 
           <HighlightedCodeBlock
-            language="shell"
+            language="sh"
             lines={[`$ go install github.com/bcdxn/opencli/cmd/ocli@latest`]}
           />
         </div>
@@ -107,7 +107,7 @@ function MarkdownDocsPage() {
           </p>
 
           <HighlightedCodeBlock
-            language="shell"
+            language="sh"
             lines={[
               `$ ocli gen docs`,
               `  --format markdown`,
@@ -232,6 +232,9 @@ export default function GuidePage() {
               </a>
               <a href="/docs/html-docs" className="guide-nav__link">
                 HTML Docs
+              </a>
+              <a href="/docs/code-generation-go" className="guide-nav__link">
+                Code Generation (Go)
               </a>
             </li>
           </ul>
