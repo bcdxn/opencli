@@ -103,7 +103,7 @@
   flex: 1;
   min-width: 0;
   padding: 32px 0 96px;
-  max-width: 680px;;
+  max-width: 680px;
 }
 
 /* === Sections ============================================================= */
@@ -450,5 +450,9 @@
 
   .guide-section__title {
     font-size: 24px;
+  }
+
+  .guide-main {
+    max-width: 100%;
   }
 }
