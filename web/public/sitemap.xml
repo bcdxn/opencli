@@ -7,7 +7,16 @@
     <loc>https://opencli.dev/editor</loc>
   </url>
   <url>
-    <loc>https://opencli.dev/docs</loc>
+    <loc>https://opencli.dev/reference</loc>
+  </url>
+  <url>
+    <loc>https://opencli.dev/docs/getting-started</loc>
+  </url>
+  <url>
+    <loc>https://opencli.dev/docs/markdown-docs</loc>
+  </url>
+  <url>
+    <loc>https://opencli.dev/docs/html-docs</loc>
   </url>
   <url>
     <loc>https://opencli.dev/specification</loc>

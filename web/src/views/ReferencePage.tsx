@@ -2,9 +2,9 @@
 
 import { useEffect } from "react";
 import SiteHeader from "../components/SiteHeader";
-import "./DocsPage.css";
+import "./ReferencePage.css";
 
-export default function DocsPage() {
+export default function ReferencePage() {
   useEffect(() => {
     if (window.OcliDocs) {
       window.OcliDocs({ containerId: "docs" });

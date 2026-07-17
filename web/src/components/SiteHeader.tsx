@@ -14,7 +14,8 @@ export default function SiteHeader() {
       </div>
       <nav className="header-nav">
         <Link href="/editor">{t("nav.editor")}</Link>
-        <Link href="/docs">{t("nav.docs")}</Link>
+        <Link href="/docs/getting-started">{t("nav.docs")}</Link>
+        <Link href="/reference">{t("nav.reference")}</Link>
         <Link href="/specification">{t("nav.spec")}</Link>
         <a
           className="github-link"

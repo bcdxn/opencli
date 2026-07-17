@@ -19,7 +19,8 @@ const messages: Record<Locale, Record<string, string>> = {
     "language.english": "English",
     "language.mandarin": "Mandarin (Simplified)",
     "nav.editor": "Editor",
-    "nav.docs": "CLI Docs",
+    "nav.docs": "Docs",
+    "nav.reference": "CLI Reference",
     "nav.spec": "Specification",
     "nav.githubAria": "Open the OpenCLI repository on GitHub",
 
@@ -78,7 +79,8 @@ const messages: Record<Locale, Record<string, string>> = {
     "language.english": "English",
     "language.mandarin": "简体中文",
     "nav.editor": "编辑器",
-    "nav.docs": "CLI 文档",
+    "nav.docs": "文档",
+    "nav.reference": "CLI 参考",
     "nav.spec": "规格",
     "nav.githubAria": "在 GitHub 上打开 OpenCLI 仓库",
 
