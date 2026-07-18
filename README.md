@@ -13,6 +13,7 @@ _Like OpenAPI Spec, but for your CLIs_
 [![OpenCLI Compliant](https://img.shields.io/badge/OpenCLI_Spec-Compliant-brightgreen?link=https%3A%2F%2Fgithub.com%2Fbcdxn%2Fopencli)](https://opencli.dev)
 [![CI](https://github.com/bcdxn/opencli/actions/workflows/ci.yaml/badge.svg)](https://github.com/bcdxn/opencli/actions/workflows/ci.yaml)
 [![Codecov](https://img.shields.io/codecov/c/github/bcdxn/opencli?t=1783901154)](https://app.codecov.io/github/bcdxn/opencli)
+[![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go)
 [![GitHub Repo stars](https://img.shields.io/github/stars/bcdxn/opencli)](https://github.com/bcdxn/opencli/stargazers)
 
 ## Table of Contents
