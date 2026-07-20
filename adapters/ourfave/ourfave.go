@@ -149,7 +149,7 @@ func documentFromCommand(rootCmd *cli.Command, c *config) *spec.Document {
 	}
 
 	// Walk the command tree using urfave/cli's built-in Walk
-	doc.Commands = commandFromUrfave(rootCmd, nil, false)
+	doc.Commands = commandFromUrfave(rootCmd, nil, true)
 
 	return &doc
 }
@@ -253,7 +253,8 @@ func getModifiers(cmd *cli.Command, args []spec.ArgumentItem) ([]string, []strin
 }
 
 // parseFlags converts urfave/cli flags to spec.FlagItem slice.
-// When isRoot is true, only non-local (persistent) flags are returned for global use.
+// When isRoot is true, only local flags are returned; non-local (persistent)
+// flags are handled by parseGlobalFlags and go into the global section instead.
 func parseFlags(cmd *cli.Command, isRoot bool) []spec.FlagItem {
 	var items []spec.FlagItem
 
@@ -263,17 +264,12 @@ func parseFlags(cmd *cli.Command, isRoot bool) []spec.FlagItem {
 			continue
 		}
 
-		item := flagToItem(f)
-
-		// For the root command, skip local flags (they go in global section if non-local)
-		// For subcommands, include all flags
-		if isRoot {
-			// At root level, we only want to collect non-local flags for the global section
-			// Local flags on root should still appear on the root command itself
-			items = append(items, item)
-		} else {
-			items = append(items, item)
+		// At root level, skip non-local flags since they belong in the global section
+		if isRoot && !isLocalFlag(f) {
+			continue
 		}
+
+		items = append(items, flagToItem(f))
 	}
 
 	return items
@@ -588,6 +584,10 @@ func getArgumentDefault(a cli.Argument) any {
 
 // GetBinaryName extracts the binary name from a root command's Name field.
 func GetBinaryName(rootCmd *cli.Command) string {
+	if rootCmd == nil || len(rootCmd.Name) < 1 {
+		// we were given an empty CLI; return a sane default I guess?
+		return "root"
+	}
 	// In urfave/cli, the Name field may contain spaces for the full command line.
 	// We take the first word as the binary name.
 	return strings.Fields(rootCmd.Name)[0]

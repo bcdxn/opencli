@@ -333,3 +333,60 @@ func TestBuildCommandLine_Nested(t *testing.T) {
 		}
 	}
 }
+
+func TestGenerateDocument_NonLocalRootFlagNoDuplication(t *testing.T) {
+	// A persistent (inherited) flag on the root command should appear in exactly
+	// one place: doc.Global.Flags. It must NOT also appear in doc.Commands.Flags,
+	// which would be a duplication bug.
+	root := &cobra.Command{
+		Use:   "myapp",
+		Short: "An awesome CLI",
+	}
+	root.PersistentFlags().Bool("verbose", false, "Enable verbose output")
+	root.Flags().String("config", "", "Path to config file")
+
+	child := &cobra.Command{
+		Use: "greet",
+		Run: func(cmd *cobra.Command, args []string) {},
+	}
+	root.AddCommand(child)
+
+	doc := GenerateDocument(root)
+
+	// Collect all flag names from global section
+	globalFlagNames := make(map[string]bool)
+	if doc.Global != nil {
+		for _, f := range doc.Global.Flags {
+			globalFlagNames[f.Name] = true
+		}
+	}
+
+	// Collect all flag names from root command
+	rootFlagNames := make(map[string]bool)
+	for _, f := range doc.Commands.Flags {
+		rootFlagNames[f.Name] = true
+	}
+
+	// --verbose (persistent) should be in global, NOT in root command flags
+	if !globalFlagNames["verbose"] {
+		t.Error("'verbose' (persistent flag) should appear in doc.Global.Flags")
+	}
+	if rootFlagNames["verbose"] {
+		t.Error("'verbose' (persistent flag) must NOT appear in doc.Commands.Flags (duplication)")
+	}
+
+	// --config (local) should be in root command flags, NOT in global
+	if globalFlagNames["config"] {
+		t.Error("'config' (local flag) must NOT appear in doc.Global.Flags")
+	}
+	if !rootFlagNames["config"] {
+		t.Error("'config' (local flag) should appear in doc.Commands.Flags")
+	}
+
+	// Ensure no overlap between global and root command flags
+	for name := range globalFlagNames {
+		if rootFlagNames[name] {
+			t.Errorf("flag %q appears in both Global.Flags and Commands.Flags (duplication)", name)
+		}
+	}
+}

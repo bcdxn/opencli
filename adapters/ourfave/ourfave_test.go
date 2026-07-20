@@ -204,41 +204,41 @@ func TestGenerateDocument_Flags(t *testing.T) {
 			return nil
 		},
 		Flags: []cli.Flag{
-			&cli.StringFlag{Name: "str"},
-			&cli.BoolFlag{Name: "bool"},
-			&cli.IntFlag{Name: "int"},
-			&cli.Int8Flag{Name: "i8"},
-			&cli.Int16Flag{Name: "i16"},
-			&cli.Int32Flag{Name: "i32"},
-			&cli.Int64Flag{Name: "i64"},
-			&cli.UintFlag{Name: "uint"},
-			&cli.Uint8Flag{Name: "u8"},
-			&cli.Uint16Flag{Name: "u16"},
-			&cli.Uint32Flag{Name: "u32"},
-			&cli.Uint64Flag{Name: "u64"},
-			&cli.FloatFlag{Name: "float"},
-			&cli.Float32Flag{Name: "f32"},
-			&cli.Float64Flag{Name: "f64"},
-			&cli.DurationFlag{Name: "dur"},
-			&cli.StringSliceFlag{Name: "str-slice"},
-			&cli.IntSliceFlag{Name: "int-slice"},
-			&cli.Int8SliceFlag{Name: "i8-slice"},
-			&cli.Int16SliceFlag{Name: "i16-slice"},
-			&cli.Int32SliceFlag{Name: "i32-slice"},
-			&cli.Int64SliceFlag{Name: "i64-slice"},
-			&cli.UintSliceFlag{Name: "uint-slice"},
-			&cli.Uint8SliceFlag{Name: "u8-slice"},
-			&cli.Uint16SliceFlag{Name: "u16-slice"},
-			&cli.Uint32SliceFlag{Name: "u32-slice"},
-			&cli.Uint64SliceFlag{Name: "u64-slice"},
-			&cli.FloatSliceFlag{Name: "float-slice"},
-			&cli.Float32SliceFlag{Name: "f32-slice"},
-			&cli.Float64SliceFlag{Name: "f64-slice"},
+			&cli.StringFlag{Name: "str", Local: true},
+			&cli.BoolFlag{Name: "bool", Local: true},
+			&cli.IntFlag{Name: "int", Local: true},
+			&cli.Int8Flag{Name: "i8", Local: true},
+			&cli.Int16Flag{Name: "i16", Local: true},
+			&cli.Int32Flag{Name: "i32", Local: true},
+			&cli.Int64Flag{Name: "i64", Local: true},
+			&cli.UintFlag{Name: "uint", Local: true},
+			&cli.Uint8Flag{Name: "u8", Local: true},
+			&cli.Uint16Flag{Name: "u16", Local: true},
+			&cli.Uint32Flag{Name: "u32", Local: true},
+			&cli.Uint64Flag{Name: "u64", Local: true},
+			&cli.FloatFlag{Name: "float", Local: true},
+			&cli.Float32Flag{Name: "f32", Local: true},
+			&cli.Float64Flag{Name: "f64", Local: true},
+			&cli.DurationFlag{Name: "dur", Local: true},
+			&cli.StringSliceFlag{Name: "str-slice", Local: true},
+			&cli.IntSliceFlag{Name: "int-slice", Local: true},
+			&cli.Int8SliceFlag{Name: "i8-slice", Local: true},
+			&cli.Int16SliceFlag{Name: "i16-slice", Local: true},
+			&cli.Int32SliceFlag{Name: "i32-slice", Local: true},
+			&cli.Int64SliceFlag{Name: "i64-slice", Local: true},
+			&cli.UintSliceFlag{Name: "uint-slice", Local: true},
+			&cli.Uint8SliceFlag{Name: "u8-slice", Local: true},
+			&cli.Uint16SliceFlag{Name: "u16-slice", Local: true},
+			&cli.Uint32SliceFlag{Name: "u32-slice", Local: true},
+			&cli.Uint64SliceFlag{Name: "u64-slice", Local: true},
+			&cli.FloatSliceFlag{Name: "float-slice", Local: true},
+			&cli.Float32SliceFlag{Name: "f32-slice", Local: true},
+			&cli.Float64SliceFlag{Name: "f64-slice", Local: true},
 		},
 	}
 
 	doc := GenerateDocument(cmd)
-	if len(doc.Commands.Flags) != 30 { // add 2 for version and help defaults
+	if len(doc.Commands.Flags) != 30 {
 		t.Fatalf("expected 30 flags, got %d", len(doc.Commands.Flags))
 	}
 
@@ -365,6 +365,75 @@ func TestBuildCommandLine_Nested(t *testing.T) {
 					t.Error("command line should contain parent")
 				}
 			}
+		}
+	}
+}
+
+func TestGenerateDocument_NonLocalRootFlagNoDuplication(t *testing.T) {
+	// A non-local (persistent/inherited) flag on the root command should appear
+	// in exactly one place: doc.Global.Flags. It must NOT also appear in
+	// doc.Commands.Flags, which would be a duplication bug.
+	root := &cli.Command{
+		Name:  "myapp",
+		Usage: "An awesome CLI",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:  "verbose",
+				Usage: "Enable verbose output",
+				Local: false, // non-local => inherited by subcommands
+			},
+			&cli.StringFlag{
+				Name:  "config",
+				Usage: "Path to config file",
+				Local: true, // local => stays on root command only
+			},
+		},
+	}
+
+	child := &cli.Command{
+		Name: "greet",
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			return nil
+		},
+	}
+	root.Commands = append(root.Commands, child)
+
+	doc := GenerateDocument(root)
+
+	// Collect all flag names from global section
+	globalFlagNames := make(map[string]bool)
+	if doc.Global != nil {
+		for _, f := range doc.Global.Flags {
+			globalFlagNames[f.Name] = true
+		}
+	}
+
+	// Collect all flag names from root command
+	rootFlagNames := make(map[string]bool)
+	for _, f := range doc.Commands.Flags {
+		rootFlagNames[f.Name] = true
+	}
+
+	// --verbose (non-local) should be in global, NOT in root command flags
+	if !globalFlagNames["verbose"] {
+		t.Error("'verbose' (non-local flag) should appear in doc.Global.Flags")
+	}
+	if rootFlagNames["verbose"] {
+		t.Error("'verbose' (non-local flag) must NOT appear in doc.Commands.Flags (duplication)")
+	}
+
+	// --config (local) should be in root command flags, NOT in global
+	if globalFlagNames["config"] {
+		t.Error("'config' (local flag) must NOT appear in doc.Global.Flags")
+	}
+	if !rootFlagNames["config"] {
+		t.Error("'config' (local flag) should appear in doc.Commands.Flags")
+	}
+
+	// Ensure no overlap between global and root command flags
+	for name := range globalFlagNames {
+		if rootFlagNames[name] {
+			t.Errorf("flag %q appears in both Global.Flags and Commands.Flags (duplication)", name)
 		}
 	}
 }
