@@ -186,12 +186,45 @@ go get github.com/bcdxn/opencli/validate
 
 ### `adapters/*`
 
-Use the packages here to generate OpenCLI documents from existing CLI codebases.
+Already have a CLI? Use the packages here to generate OpenCLI documents from existing CLI codebases.
 
-**e.g., for Cobra:**
+**e.g., for urfavecli:**
 
 ```sh
-go get github.com/bcdxn/opencli/adapters/ocobra
+go get github.com/bcdxn/opencli/adapters/ourfave
+```
+
+Then add the provided `__opencli` command using the package.
+
+```go
+func main() {
+  // Your existing CLI app
+	command := &cli.Command{
+		Name:  "pleasantries",
+		Usage: "A fun CLI that greets the caller",
+		Commands: []*cli.Command{
+			// ...
+		},
+	}
+
+  // Add the hidden __opencli command
+	ourfave.FromCommand(command, ourfave.WithOutput(os.Stdout))
+
+	app := command.App()
+  app.Run(context.Background(), preprocessArgs(os.Args))
+}
+```
+
+Run the CLI to generate the OpenCLI document.
+
+```sh
+pleasantries __opencli
+# opencliVersion: 1.0.0-alpha.13
+# info:
+#   title: pleasantries
+#   summary: A fun CLI that greets the caller
+# commands:
+#   ...
 ```
 
 ## The Spec
