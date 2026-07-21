@@ -164,7 +164,6 @@ homebrew_casks:
     url:
       template: "https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
       verified: "github.com/opencli/opencli/"
-      using: ":homebrew_curl"
     commit_msg_template: "Brew cask update for {{ .ProjectName }} version {{ .Tag }}"
     directory: Casks
     homepage: "https://opencli.dev"
