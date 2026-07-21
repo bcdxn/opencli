@@ -56,6 +56,68 @@ release:
     ## Additional Links
     - [Interactive OpenCLI Spec document editor](https://opencli.dev)
     - [CLI Reference Docs](https://opencli.dev/reference)
+
+    ## Installation
+    
+    ### 🍺 macOS (Recommended via Homebrew)
+    The easiest way to install on macOS is through Homebrew. This compiles the tool from source on your machine:
+    
+    ```sh
+    brew install bcdxn/tap/ocli
+    ```
+
+    ## Manual Binary Download
+
+    <details><summary>Windows</summary>
+    
+    Windows binaries can be downloaded and extracted natively using PowerShell. 
+    
+    #### Option A: x86_64 Windows (Most Common)
+
+    ```powershell
+    # Download and extract in a single step
+    Invoke-RestMethod -Uri "https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/opencli_Windows_x86_64.zip" -OutFile "opencli.zip"
+    Expand-Archive -Path "opencli.zip" -DestinationPath ".\opencli" -Force; Remove-Item "opencli.zip"
+    ```
+    
+    #### Option B: ARM64 Windows
+
+    ```powershell
+    # Download and extract in a single step
+    Invoke-RestMethod -Uri "https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/opencli_Windows_arm64.zip" -OutFile "opencli.zip"
+    Expand-Archive -Path "opencli.zip" -DestinationPath ".\opencli" -Force; Remove-Item "opencli.zip"
+    ```
+    
+    > [!TIP]
+    > After extracting, add the absolute path of the `.\opencli` folder to your system environment `PATH` variable to execute `ocli` globally.
+    </details>
+
+    
+    <details><summary>MacOS</summary>
+    
+    #### Option A: Apple Silicon (M* Macs)
+
+    ```sh
+    # Download and extract using curl
+    curl -L -O https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/opencli_Darwin_arm64.tar.gz
+    tar -xzf opencli_Darwin_arm64.tar.gz
+    
+    # Strip the quarantine flag and move to your path
+    xattr -d com.apple.quarantine ocli
+    mv ocli /usr/local/bin/
+    ```
+    
+    #### Option B: Intel Macs
+
+    ```sh
+    # Download and extract using wget
+    curl -L -O https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/opencli_Darwin_x86_64.tar.gz
+    tar -xzf opencli_Darwin_x86_64.tar.gz
+    
+    # Strip the quarantine flag and move to your path
+    xattr -d com.apple.quarantine ocli
+    mv ocli /usr/local/bin/
+    ```
     
     > [!WARNING]  
     > Mac users downloading the binary will need to remove the quarantine attribute because OpenCLI does not currently pay $99/yr for an Apple Developer license to sign the binary.
@@ -63,8 +125,74 @@ release:
     > #### For Example
     >
     > ```sh
-    > xattr -d com.apple.quarantine ~/Downloads/opencli_Darwin_arm64/ocli
+    > xattr -d com.apple.quarantine ${PATH_TO_BIN_DOWNLOAD}/ocli
     > ```
+    </details>
+
+    <details><summary>Linux</summary>
+    Linux binaries are distributed as standalone compressed archives. Run these commands to pull, extract, and globally install the application.
+    
+    #### Option A: x86_64 Linux
+
+    ```sh
+    # Download, extract, and clean up the archive
+    curl -L https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/opencli_Linux_x86_64.tar.gz | tar -xzf - ocli
+    
+    # Move the binary into your system PATH
+    sudo mv ocli /usr/local/bin/
+    ```
+    
+    #### Option B: ARM64 Linux
+
+    ```sh
+    # Download, extract, and clean up the archive
+    curl -L https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/opencli_Linux_arm64.tar.gz | tar -xzf - ocli
+    
+    # Move the binary into your system PATH
+    sudo mv ocli /usr/local/bin/
+    ```
+    </details>
     
     ---
     Released by [GoReleaser](https://github.com/goreleaser/goreleaser).
+
+# Homebrew Tapupdate
+brews:
+  - name: ocli
+    # The GitHub repository where your Homebrew formula lives
+    repository:
+      owner: openclidev
+      name: homebrew-tap
+      branch: main # Target branch in your tap repo
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}" 
+
+    # Tell GoReleaser to point the Formula URL to the source code archive
+    # instead of pointing it to pre-compiled binaries
+    url_template: "https://github.com/bcdxn/opencli/archive/refs/tags/{{ .Tag }}.tar.gz"
+
+    commit_author:
+      name: opencli-bot
+      email: bot@opencli.dev
+
+    # A short description for the formula description field
+    description: "CLI to manage OpenCLI Specification documents"
+    homepage: "https://opencli.dev"
+    license: "MIT"
+
+    # Tell GoReleaser to use the exact source-build formula boilerplate you tested
+    directory: Formula
+    dependencies:
+      - name: go
+        type: build
+
+    # Inject your custom installation script block directly into the template
+    install: |
+      ENV["GOPATH"] = buildpath
+      cd "cmd/ocli" do
+        ldflags = "-X main.version=#{version}"
+        system "go", "build", *std_go_args(output: bin/"ocli", ldflags: ldflags)
+      end
+
+    # Inject your validation test block
+    test: |
+      assert_match "ocli version 1.0.0\n", shell_output("#{bin}/ocli --version")
