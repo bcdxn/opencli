@@ -146,7 +146,7 @@ release:
 
     ```sh
     # Download, extract, and clean up the archive
-    curl -L https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/opencli_Linux_arm64.tar.gz | tar -xz ocli
+    curl -L https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/opencli_Linux_arm64.tar.gz | tar -xzf - ocli
     
     # Move the binary into your system PATH
     sudo mv ocli /usr/local/bin/
