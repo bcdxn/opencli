@@ -156,43 +156,29 @@ release:
     ---
     Released by [GoReleaser](https://github.com/goreleaser/goreleaser).
 
-# Homebrew Tapupdate
-brews:
-  - name: ocli
-    # The GitHub repository where your Homebrew formula lives
+
+homebrew_casks:
+  -
+    name: ocli
+    binaries:
+      - ocli
+    url:
+      template: "https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+      verified: "github.com/opencli/opencli/"
+      using: ":homebrew_curl"
+    commit_msg_template: "Brew cask update for {{ .ProjectName }} version {{ .Tag }}"
+    directory: Casks
+    homepage: "https://opencli.dev"
+    description: "CLI to manage OpenCLI Specification documents"
     repository:
       owner: openclidev
       name: homebrew-tap
-      branch: main # Target branch in your tap repo
-      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}" 
-
-    # Tell GoReleaser to point the Formula URL to the source code archive
-    # instead of pointing it to pre-compiled binaries
-    url_template: "https://github.com/bcdxn/opencli/archive/refs/tags/{{ .Tag }}.tar.gz"
-
-    commit_author:
-      name: opencli-bot
-      email: bot@opencli.dev
-
-    # A short description for the formula description field
-    description: "CLI to manage OpenCLI Specification documents"
-    homepage: "https://opencli.dev"
-    license: "MIT"
-
-    # Tell GoReleaser to use the exact source-build formula boilerplate you tested
-    directory: Formula
-    dependencies:
-      - name: go
-        type: build
-
-    # Inject your custom installation script block directly into the template
-    install: |
-      ENV["GOPATH"] = buildpath
-      cd "cmd/ocli" do
-        ldflags = "-X main.version=#{version}"
-        system "go", "build", *std_go_args(output: bin/"ocli", ldflags: ldflags)
-      end
-
-    # Inject your validation test block
-    test: |
-      assert_match "ocli version 1.0.0\n", shell_output("#{bin}/ocli --version")
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    hooks:
+      post:
+        # replace foo with the actual binary name
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/ocli"]
+          end

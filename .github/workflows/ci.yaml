@@ -75,3 +75,6 @@ jobs:
     uses: ./.github/workflows/release-cli.yaml
     with:
       target_ref: ${{ github.ref_name }}
+    permissions:
+      contents: write
+    secrets: inherit
