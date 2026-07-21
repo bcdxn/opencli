@@ -42,7 +42,10 @@ _{{.Doc.Info.Summary}}_
 ## Install
 {{- range .Doc.Install}}
 
-### {{.Name}}
+### {{.Name}}{{- if .Description}}
+
+{{.Description -}}
+{{- end -}}
 {{- if .Command}}
 
 ```sh
@@ -52,10 +55,6 @@ _{{.Doc.Info.Summary}}_
 {{- if .URL}}
 
 {{.URL}}
-{{- end}}
-{{- if .Description}}
-
-{{.Description -}}
 {{- end -}}
 {{- end -}}
 {{end -}}

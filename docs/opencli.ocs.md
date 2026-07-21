@@ -32,16 +32,35 @@ https://github.com/bcdxn/opencli
 
 ### Binary Download
 
-https://github.com/bcdxn/opencli/releases
-
 You can visit the GitHub releases page of the project to download pre-compiled binaries
 appropriate for your system.
 
+
+https://github.com/bcdxn/opencli/releases
 
 ### Go Install
 
 ```sh
 go install github.com/bcdxn/opencli/cmd/ocli@latest
+```
+
+### Homebrew
+
+Install the openclidev tap
+```
+brew tap openclidev/tap
+```
+
+Trust the tap
+```
+brew trust openclidev/tap
+```
+
+Now you're ready to install `ocli` using homebrew
+
+
+```sh
+brew install ocli
 ```
 
 ## Configuration

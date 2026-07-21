@@ -35,17 +35,17 @@ https://github.com/bcdxn/opencli
 
 ### Binary Download
 
-https://github.com/bcdxn/petstorecli/releases
-
 A fake releases endpoint - no real release of this CLI exists
 
+https://github.com/bcdxn/petstorecli/releases
+
 ### Go Install
+
+A fake go install - no real release of this CLI exists
 
 ```sh
 go install github.com/bcdxn/petstore/cmd/cli@latest
 ```
-
-A fake go install - no real release of this CLI exists
 
 ## Configuration
 

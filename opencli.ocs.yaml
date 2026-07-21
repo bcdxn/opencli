@@ -34,6 +34,20 @@ install:
       appropriate for your system.
   - name: "Go Install"
     command: "go install github.com/bcdxn/opencli/cmd/ocli@latest"
+  - name: "Homebrew"
+    description: |
+      Install the openclidev tap
+      ```
+      brew tap openclidev/tap
+      ```
+      
+      Trust the tap
+      ```
+      brew trust openclidev/tap
+      ```
+
+      Now you're ready to install `ocli` using homebrew
+    command: "brew install ocli"
 
 global:
   exitCodes:
