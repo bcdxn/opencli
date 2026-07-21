@@ -161,9 +161,10 @@ brews:
   - name: ocli
     # The GitHub repository where your Homebrew formula lives
     repository:
-      owner: bcdxn
+      owner: openclidev
       name: homebrew-tap
       branch: main # Target branch in your tap repo
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}" 
 
     # Tell GoReleaser to point the Formula URL to the source code archive
     # instead of pointing it to pre-compiled binaries
@@ -194,4 +195,4 @@ brews:
 
     # Inject your validation test block
     test: |
-      assert_match "v#{version}", shell_output("#{bin}/ocli --version")
+      assert_match "ocli version 1.0.0\n", shell_output("#{bin}/ocli --version")
