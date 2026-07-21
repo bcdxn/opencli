@@ -23,7 +23,7 @@ archives:
   - formats: [tar.gz]
     # this name template makes the OS and Arch compatible with the results of `uname`.
     name_template: >-
-      {{ .ProjectName }}_
+      {{ .Binary }}_
       {{- title .Os }}_
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
@@ -75,31 +75,31 @@ release:
 
     ```powershell
     # Download and extract in a single step
-    Invoke-RestMethod -Uri "https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/opencli_Windows_x86_64.zip" -OutFile "opencli.zip"
-    Expand-Archive -Path "opencli.zip" -DestinationPath ".\opencli" -Force; Remove-Item "opencli.zip"
+    Invoke-RestMethod -Uri "https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/{{ .Binary }}_Windows_x86_64.zip" -OutFile "{{ .Binary }}.zip"
+    Expand-Archive -Path "{{ .Binary }}.zip" -DestinationPath ".\{{ .Binary }}" -Force; Remove-Item "{{ .Binary }}.zip"
     ```
     
     #### Option B: ARM64 Windows
 
     ```powershell
     # Download and extract in a single step
-    Invoke-RestMethod -Uri "https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/opencli_Windows_arm64.zip" -OutFile "opencli.zip"
-    Expand-Archive -Path "opencli.zip" -DestinationPath ".\opencli" -Force; Remove-Item "opencli.zip"
+    Invoke-RestMethod -Uri "https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/{{ .Binary }}_Windows_arm64.zip" -OutFile "{{ .Binary }}.zip"
+    Expand-Archive -Path "{{ .Binary }}.zip" -DestinationPath ".\{{ .Binary }}" -Force; Remove-Item "{{ .Binary }}.zip"
     ```
     
     > [!TIP]
-    > After extracting, add the absolute path of the `.\opencli` folder to your system environment `PATH` variable to execute `ocli` globally.
+    > After extracting, add the absolute path of the `.\{{ .ProjectName }}` folder to your system environment `PATH` variable to execute `ocli` globally.
     </details>
 
     
     <details><summary>MacOS</summary>
     
-    #### Option A: Apple Silicon (M* Macs)
+    #### Option A: Apple Silicon
 
     ```sh
     # Download and extract using curl
-    curl -L -O https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/opencli_Darwin_arm64.tar.gz
-    tar -xzf opencli_Darwin_arm64.tar.gz
+    curl -L -O https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/{{ .Binary }}_Darwin_arm64.tar.gz
+    tar -xzf {{ .Binary }}_Darwin_arm64.tar.gz
     
     # Strip the quarantine flag and move to your path
     xattr -d com.apple.quarantine ocli
@@ -110,23 +110,13 @@ release:
 
     ```sh
     # Download and extract using wget
-    curl -L -O https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/opencli_Darwin_x86_64.tar.gz
-    tar -xzf opencli_Darwin_x86_64.tar.gz
+    curl -L -O https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/{{ .Binary }}_Darwin_x86_64.tar.gz
+    tar -xzf {{ .Binary }}_Darwin_x86_64.tar.gz
     
     # Strip the quarantine flag and move to your path
     xattr -d com.apple.quarantine ocli
     mv ocli /usr/local/bin/
     ```
-    
-    > [!WARNING]  
-    > Mac users downloading the binary will need to remove the quarantine attribute because OpenCLI does not currently pay $99/yr for an Apple Developer license to sign the binary.
-    >
-    > #### For Example
-    >
-    > ```sh
-    > xattr -d com.apple.quarantine ${PATH_TO_BIN_DOWNLOAD}/ocli
-    > ```
-    </details>
 
     <details><summary>Linux</summary>
     Linux binaries are distributed as standalone compressed archives. Run these commands to pull, extract, and globally install the application.
@@ -135,7 +125,7 @@ release:
 
     ```sh
     # Download, extract, and clean up the archive
-    curl -L https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/opencli_Linux_x86_64.tar.gz | tar -xzf - ocli
+    curl -L https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/{{ .Binary }}_Linux_x86_64.tar.gz | tar -xzf - ocli
     
     # Move the binary into your system PATH
     sudo mv ocli /usr/local/bin/
@@ -145,7 +135,7 @@ release:
 
     ```sh
     # Download, extract, and clean up the archive
-    curl -L https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/opencli_Linux_arm64.tar.gz | tar -xzf - ocli
+    curl -L https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/{{ .Binary }}_Linux_arm64.tar.gz | tar -xzf - ocli
     
     # Move the binary into your system PATH
     sudo mv ocli /usr/local/bin/
