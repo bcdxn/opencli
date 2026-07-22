@@ -60,10 +60,15 @@ release:
     ## Installation
     
     ### 🍺 macOS (Recommended via Homebrew)
-    The easiest way to install on macOS is through Homebrew. This compiles the tool from source on your machine:
+    The easiest way to install on macOS is through Homebrew:
     
     ```sh
-    brew install bcdxn/tap/ocli
+    $ brew install openclidev/tap
+    $ brew trust openclidev/tap
+    $ brew install ocli
+    # ...
+    $ ocli --version
+    # ocli version {{.Version}}
     ```
 
     ## Manual Binary Download
