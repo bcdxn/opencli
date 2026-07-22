@@ -16,6 +16,23 @@ _Like OpenAPI Spec, but for your CLIs_
 [![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go)
 [![GitHub Repo stars](https://img.shields.io/github/stars/bcdxn/opencli)](https://github.com/bcdxn/opencli/stargazers)
 
+## Install the CLI
+
+### Homebrew
+
+```
+$ brew install openclidev/tap # https://github.com/openclidev/homebrew-tap
+$ brew trust openclidev/tap
+$ brew install ocli
+# ...
+$ ocli --version
+# ocli version 1.1.4
+```
+
+### Binary
+
+You can also go to our releases page to download platform specific binaries.
+
 ## Table of Contents
 
 - [Overview](#overview)
@@ -26,6 +43,7 @@ _Like OpenAPI Spec, but for your CLIs_
 - [The Spec](#the-spec)
 - [Releases](#releases)
 - [Inspiration](#inspiration)
+- [Badges](#badges)
 
 ## Overview
 
@@ -199,18 +217,18 @@ Then add the provided `__opencli` command using the package.
 ```go
 func main() {
   // Your existing CLI app
-	command := &cli.Command{
-		Name:  "pleasantries",
-		Usage: "A fun CLI that greets the caller",
-		Commands: []*cli.Command{
-			// ...
-		},
-	}
+  command := &cli.Command{
+    Name:  "pleasantries",
+    Usage: "A fun CLI that greets the caller",
+    Commands: []*cli.Command{
+      // ...
+    },
+  }
 
   // Add the hidden __opencli command
-	ourfave.FromCommand(command, ourfave.WithOutput(os.Stdout))
+  ourfave.FromCommand(command, ourfave.WithOutput(os.Stdout))
 
-	app := command.App()
+  app := command.App()
   app.Run(context.Background(), preprocessArgs(os.Args))
 }
 ```
