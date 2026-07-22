@@ -1,4 +1,5 @@
 version: 2
+project_name: "ocli"
 
 before:
   hooks:
@@ -23,7 +24,7 @@ archives:
   - formats: [tar.gz]
     # this name template makes the OS and Arch compatible with the results of `uname`.
     name_template: >-
-      {{ .Binary }}_
+      {{ .ProjectName }}_
       {{- title .Os }}_
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
@@ -75,16 +76,16 @@ release:
 
     ```powershell
     # Download and extract in a single step
-    Invoke-RestMethod -Uri "https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/{{ .Binary }}_Windows_x86_64.zip" -OutFile "{{ .Binary }}.zip"
-    Expand-Archive -Path "{{ .Binary }}.zip" -DestinationPath ".\{{ .Binary }}" -Force; Remove-Item "{{ .Binary }}.zip"
+    Invoke-RestMethod -Uri "https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/{{ .ProjectName }}_Windows_x86_64.zip" -OutFile "{{ .ProjectName }}.zip"
+    Expand-Archive -Path "{{ .ProjectName }}.zip" -DestinationPath ".\{{ .ProjectName }}" -Force; Remove-Item "{{ .ProjectName }}.zip"
     ```
     
     #### Option B: ARM64 Windows
 
     ```powershell
     # Download and extract in a single step
-    Invoke-RestMethod -Uri "https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/{{ .Binary }}_Windows_arm64.zip" -OutFile "{{ .Binary }}.zip"
-    Expand-Archive -Path "{{ .Binary }}.zip" -DestinationPath ".\{{ .Binary }}" -Force; Remove-Item "{{ .Binary }}.zip"
+    Invoke-RestMethod -Uri "https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/{{ .ProjectName }}_Windows_arm64.zip" -OutFile "{{ .ProjectName }}.zip"
+    Expand-Archive -Path "{{ .ProjectName }}.zip" -DestinationPath ".\{{ .ProjectName }}" -Force; Remove-Item "{{ .ProjectName }}.zip"
     ```
     
     > [!TIP]
@@ -98,8 +99,8 @@ release:
 
     ```sh
     # Download and extract using curl
-    curl -L -O https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/{{ .Binary }}_Darwin_arm64.tar.gz
-    tar -xzf {{ .Binary }}_Darwin_arm64.tar.gz
+    curl -L -O https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/{{ .ProjectName }}_Darwin_arm64.tar.gz
+    tar -xzf {{ .ProjectName }}_Darwin_arm64.tar.gz
     
     # Strip the quarantine flag and move to your path
     xattr -d com.apple.quarantine ocli
@@ -110,8 +111,8 @@ release:
 
     ```sh
     # Download and extract using wget
-    curl -L -O https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/{{ .Binary }}_Darwin_x86_64.tar.gz
-    tar -xzf {{ .Binary }}_Darwin_x86_64.tar.gz
+    curl -L -O https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/{{ .ProjectName }}_Darwin_x86_64.tar.gz
+    tar -xzf {{ .ProjectName }}_Darwin_x86_64.tar.gz
     
     # Strip the quarantine flag and move to your path
     xattr -d com.apple.quarantine ocli
@@ -125,7 +126,7 @@ release:
 
     ```sh
     # Download, extract, and clean up the archive
-    curl -L https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/{{ .Binary }}_Linux_x86_64.tar.gz | tar -xzf - ocli
+    curl -L https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/{{ .ProjectName }}_Linux_x86_64.tar.gz | tar -xzf - ocli
     
     # Move the binary into your system PATH
     sudo mv ocli /usr/local/bin/
@@ -135,7 +136,7 @@ release:
 
     ```sh
     # Download, extract, and clean up the archive
-    curl -L https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/{{ .Binary }}_Linux_arm64.tar.gz | tar -xzf - ocli
+    curl -L https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/{{ .ProjectName }}_Linux_arm64.tar.gz | tar -xzf - ocli
     
     # Move the binary into your system PATH
     sudo mv ocli /usr/local/bin/
