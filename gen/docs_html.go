@@ -1,0 +1,403 @@
+package gen
+
+import (
+	"bytes"
+	"embed"
+	"encoding/json"
+	"fmt"
+	htmltemplate "html/template"
+	"regexp"
+	"strings"
+
+	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/extension"
+	"github.com/yuin/goldmark/renderer/html"
+)
+
+//go:embed templates/html
+var htmlTemplateFiles embed.FS
+
+// htmlTemplateFuncs returns the template.FuncMap used by all HTML templates.
+func htmlTemplateFuncs() htmltemplate.FuncMap {
+	return htmltemplate.FuncMap{
+		"slugify":  slugify,
+		"mdToHTML": mdToHTML,
+	}
+}
+
+// genDocsHTML renders the HTML documentation using the appropriate flavor template.
+func genDocsHTML(data docsTmplData) ([]byte, error) {
+	t, err := htmltemplate.New("ocli-html").
+		Funcs(htmlTemplateFuncs()).
+		ParseFS(htmlTemplateFiles, "templates/html/*.tmpl")
+	if err != nil {
+		return []byte{}, fmt.Errorf("unable to parse HTML docs templates: %w", err)
+	}
+
+	if data.Opts.Format == HTML_EMBED {
+		markupBuf := bytes.NewBuffer([]byte{})
+		err = t.ExecuteTemplate(markupBuf, "embed-markup", data)
+		if err != nil {
+			return []byte{}, fmt.Errorf("unable to render HTML embed markup: %w", err)
+		}
+
+		js, err := renderHTMLEmbedBootstrapJS(markupBuf.String())
+		if err != nil {
+			return []byte{}, fmt.Errorf("unable to render HTML embed JS bundle: %w", err)
+		}
+
+		return js, nil
+	}
+
+	buf := bytes.NewBuffer([]byte{})
+	err = t.ExecuteTemplate(buf, "page.tmpl", data)
+	if err != nil {
+		return []byte{}, fmt.Errorf("unable to render HTML docs: %w", err)
+	}
+
+	return buf.Bytes(), nil
+}
+
+func renderHTMLEmbedBootstrapJS(markup string) ([]byte, error) {
+	b, err := json.Marshal(markup)
+	if err != nil {
+		return nil, fmt.Errorf("unable to encode HTML embed markup: %w", err)
+	}
+
+	var out bytes.Buffer
+	out.WriteString("(function (global) {\n")
+	out.WriteString("  \"use strict\";\n\n")
+	out.WriteString("  if (!global || !global.document) {\n")
+	out.WriteString("    return;\n")
+	out.WriteString("  }\n\n")
+	out.WriteString("  var EMBED_MARKUP = ")
+	out.Write(b)
+	out.WriteString(";\n")
+	out.WriteString(componentRuntimeJS)
+	out.WriteString("\n})(window);\n")
+
+	return out.Bytes(), nil
+}
+
+const componentRuntimeJS = `
+
+	var DEFAULT_CONTAINER_ID = "docs";
+	var THEME_STORAGE_KEY = "ocli-theme";
+
+	function asArray(nodeList) {
+		return Array.prototype.slice.call(nodeList || []);
+	}
+
+	function findById(root, id) {
+		if (!id) return null;
+		if (global.CSS && typeof global.CSS.escape === "function") {
+			return root.querySelector("#" + global.CSS.escape(id));
+		}
+		var escaped = id.replace(/\\/g, "\\\\").replace(/\"/g, '\\\"');
+		return root.querySelector('[id="' + escaped + '"]');
+	}
+
+	function getStoredTheme(storageKey) {
+		try {
+			var theme = global.localStorage.getItem(storageKey);
+			return theme === "light" || theme === "dark" ? theme : null;
+		} catch (_err) {
+			return null;
+		}
+	}
+
+	function setStoredTheme(storageKey, theme) {
+		try {
+			global.localStorage.setItem(storageKey, theme);
+		} catch (_err) {
+			// Ignore environments where localStorage is unavailable.
+		}
+	}
+
+	function getSystemTheme() {
+		if (global.matchMedia && global.matchMedia("(prefers-color-scheme: dark)").matches) {
+			return "dark";
+		}
+		return "light";
+	}
+
+	function applyTheme(root, theme) {
+		root.setAttribute("data-theme", theme);
+
+		var toggle = root.querySelector("[data-theme-toggle]");
+		if (!toggle) return;
+
+		var isDark = theme === "dark";
+		toggle.setAttribute("aria-pressed", String(isDark));
+		toggle.setAttribute("aria-label", isDark ? "Switch to light theme" : "Switch to dark theme");
+		toggle.setAttribute("title", isDark ? "Switch to light theme" : "Switch to dark theme");
+	}
+
+	function initTheme(root, opts) {
+		var toggle = root.querySelector("[data-theme-toggle]");
+		if (!toggle) return;
+
+		var storageKey = opts.themeStorageKey || THEME_STORAGE_KEY;
+		var mediaQuery = global.matchMedia ? global.matchMedia("(prefers-color-scheme: dark)") : null;
+		var storedTheme = getStoredTheme(storageKey);
+		var currentTheme = storedTheme || getSystemTheme();
+		applyTheme(root, currentTheme);
+
+		toggle.addEventListener("click", function () {
+			currentTheme = currentTheme === "dark" ? "light" : "dark";
+			applyTheme(root, currentTheme);
+			setStoredTheme(storageKey, currentTheme);
+		});
+
+		if (!storedTheme && mediaQuery) {
+			var onSystemThemeChange = function (event) {
+				currentTheme = event.matches ? "dark" : "light";
+				applyTheme(root, currentTheme);
+			};
+
+			if (typeof mediaQuery.addEventListener === "function") {
+				mediaQuery.addEventListener("change", onSystemThemeChange);
+			} else if (typeof mediaQuery.addListener === "function") {
+				mediaQuery.addListener("change", onSystemThemeChange);
+			}
+		}
+	}
+
+	function initScrollSpy(root) {
+		var main = root.querySelector(".ocli__main");
+		if (!main) return;
+
+		var sections = asArray(main.querySelectorAll(".ocli-section[id]"));
+		var navLinks = asArray(root.querySelectorAll(".ocli__nav-link[data-section]"));
+		if (!sections.length || !navLinks.length) return;
+
+		function getActiveId() {
+			var scrollTop = main.scrollTop;
+			var found = null;
+			for (var i = 0; i < sections.length; i++) {
+				var top = sections[i].offsetTop - 80;
+				if (scrollTop >= top) {
+					found = sections[i].id;
+				} else {
+					break;
+				}
+			}
+			return found || sections[0].id;
+		}
+
+		function updateNav() {
+			var activeId = getActiveId();
+			navLinks.forEach(function (link) {
+				if (link.dataset.section === activeId) {
+					link.classList.add("is-active");
+					var parentSublist = link.closest(".ocli__nav-sublist");
+					if (parentSublist) {
+						var parentItem = parentSublist.closest(".ocli__nav-item");
+						if (parentItem) parentItem.classList.add("is-open");
+					}
+
+					var sidebar = root.querySelector(".ocli__sidebar-body");
+					if (sidebar) {
+						var linkRect = link.getBoundingClientRect();
+						var sidebarRect = sidebar.getBoundingClientRect();
+						if (linkRect.bottom > sidebarRect.bottom || linkRect.top < sidebarRect.top) {
+							link.scrollIntoView({ block: "nearest", behavior: "smooth" });
+						}
+					}
+				} else {
+					link.classList.remove("is-active");
+				}
+			});
+		}
+
+		main.addEventListener("scroll", updateNav, { passive: true });
+		updateNav();
+	}
+
+	function initNavClick(root) {
+		var navLinks = asArray(root.querySelectorAll('.ocli__nav-link[href^="#"]'));
+		var main = root.querySelector(".ocli__main");
+		if (!main) return;
+
+		navLinks.forEach(function (link) {
+			link.addEventListener("click", function (e) {
+				var href = link.getAttribute("href");
+				var id = href ? href.slice(1) : "";
+				var target = findById(root, id);
+				if (target) {
+					e.preventDefault();
+					var offset = target.offsetTop - 8;
+					main.scrollTo({ top: offset, behavior: "smooth" });
+				}
+			});
+		});
+	}
+
+	function initCollapsible(root) {
+		var groupItems = asArray(root.querySelectorAll(".ocli__nav-item--group"));
+		groupItems.forEach(function (item) {
+			var link = item.querySelector(":scope > .ocli__nav-link");
+			if (!link) return;
+
+			link.addEventListener("click", function () {
+				var href = link.getAttribute("href");
+				if (href && href.charAt(0) === "#") {
+					item.classList.toggle("is-open");
+				}
+			});
+		});
+	}
+
+	function initStickyHeaders(root) {
+		var main = root.querySelector(".ocli__main");
+		var headers = asArray(root.querySelectorAll(".ocli-section__sticky"));
+		if (!("IntersectionObserver" in global) || !main) return;
+
+		headers.forEach(function (header) {
+			if (!header.parentNode) return;
+
+			var sentinel = global.document.createElement("div");
+			sentinel.style.cssText = "height:1px;pointer-events:none;visibility:hidden;";
+			header.parentNode.insertBefore(sentinel, header);
+
+			new IntersectionObserver(
+				function (entries) {
+					entries.forEach(function (entry) {
+						header.classList.toggle("is-stuck", !entry.isIntersecting);
+					});
+				},
+				{ root: main, threshold: 1 }
+			).observe(sentinel);
+		});
+	}
+
+	function initInstallTabs(root) {
+		var tabLists = asArray(root.querySelectorAll(".ocli-tabs__tablist"));
+		tabLists.forEach(function (tabList) {
+			tabList.addEventListener("click", function (e) {
+				var btn = e.target.closest(".ocli-tabs__tab");
+				if (!btn) return;
+
+				var container = tabList.closest(".ocli-tabs");
+				if (!container) return;
+
+				asArray(container.querySelectorAll(".ocli-tabs__tab")).forEach(function (tab) {
+					tab.classList.remove("is-active");
+					tab.setAttribute("aria-selected", "false");
+				});
+				asArray(container.querySelectorAll(".ocli-tabs__panel")).forEach(function (panel) {
+					panel.classList.remove("is-active");
+				});
+
+				btn.classList.add("is-active");
+				btn.setAttribute("aria-selected", "true");
+
+				var panelId = btn.dataset.tab;
+				var panel = panelId ? findById(root, panelId) : null;
+				if (panel) panel.classList.add("is-active");
+			});
+		});
+	}
+
+	function initDeepLinks(root) {
+		var main = root.querySelector(".ocli__main");
+		asArray(root.querySelectorAll(".ocli-deeplink-btn")).forEach(function (btn) {
+			btn.addEventListener("click", function (e) {
+				e.preventDefault();
+
+				var href = btn.getAttribute("data-href") || "";
+				if (!href) return;
+
+				var url = global.location.href.split("#")[0] + href;
+				if (global.navigator.clipboard && global.navigator.clipboard.writeText) {
+					global.navigator.clipboard.writeText(url);
+				} else {
+					var ta = global.document.createElement("textarea");
+					ta.value = url;
+					ta.style.cssText = "position:fixed;top:-9999px;left:-9999px;";
+					global.document.body.appendChild(ta);
+					ta.select();
+					global.document.execCommand("copy");
+					global.document.body.removeChild(ta);
+				}
+
+				var id = href.slice(1);
+				var target = findById(root, id);
+				if (target && main) {
+					var isCmd = !!btn.closest(".ocli-section__cmd-anchor");
+					main.scrollTo({ top: target.offsetTop - (isCmd ? 0 : 60), behavior: "smooth" });
+				}
+			});
+		});
+	}
+
+	function initDocs(root, opts) {
+		initTheme(root, opts);
+		initScrollSpy(root);
+		initNavClick(root);
+		initCollapsible(root);
+		initStickyHeaders(root);
+		initInstallTabs(root);
+		initDeepLinks(root);
+	}
+
+	function resolveContainer(options) {
+		if (options && options.container && options.container.nodeType === 1) {
+			return options.container;
+		}
+
+		var containerId = (options && options.containerId) || DEFAULT_CONTAINER_ID;
+		return global.document.getElementById(containerId);
+	}
+
+	function OcliDocs(options) {
+		var opts = options || {};
+		var container = resolveContainer(opts);
+		if (!container) {
+			throw new Error("OcliDocs: target container not found");
+		}
+
+		container.innerHTML = EMBED_MARKUP;
+		var root = container.querySelector(".ocli");
+		if (!root) {
+			throw new Error("OcliDocs: failed to mount docs markup");
+		}
+
+		initDocs(root, opts);
+		return { container: container, root: root };
+	}
+
+	global.OcliDocs = OcliDocs;
+`
+
+// slugify converts a command line string into an anchor-safe HTML id.
+// e.g. "petstore pets add" -> "petstore-pets-add"
+var slugifyRe = regexp.MustCompile(`[^a-z0-9]+`)
+
+func slugify(s string) string {
+	s = strings.ToLower(s)
+	s = slugifyRe.ReplaceAllString(s, "-")
+	s = strings.Trim(s, "-")
+	return s
+}
+
+// mdToHTML converts a Markdown string to safe HTML using goldmark.
+// The result is typed as htmltemplate.HTML so html/template will not double-escape it.
+var mdParser = goldmark.New(
+	goldmark.WithExtensions(extension.GFM),
+	goldmark.WithRendererOptions(
+		html.WithUnsafe(), // allow raw HTML in descriptions if present
+	),
+)
+
+func mdToHTML(s string) htmltemplate.HTML {
+	if s == "" {
+		return ""
+	}
+	var buf bytes.Buffer
+	if err := mdParser.Convert([]byte(s), &buf); err != nil {
+		// Fallback: return escaped plain text
+		return htmltemplate.HTML(htmltemplate.HTMLEscapeString(s))
+	}
+	return htmltemplate.HTML(buf.String())
+}
