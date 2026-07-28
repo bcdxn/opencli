@@ -48,10 +48,6 @@ func Docs(doc *spec.Document, options ...GenDocsOption) ([]byte, error) {
 		return []byte{}, errors.New("invalid documentation format")
 	}
 
-	if opts.Format == ManPage {
-		return []byte{}, fmt.Errorf("%s format support is not yet implemented", opts.Format)
-	}
-
 	return genDocs(docsTmplData{*opts, doc})
 }
 
@@ -129,6 +125,8 @@ func genDocs(data docsTmplData) ([]byte, error) {
 		return genDocsMarkdown(data)
 	case HTML_PAGE, HTML_EMBED:
 		return genDocsHTML(data)
+	case ManPage:
+		return genDocsMan(data)
 	}
 
 	return []byte{}, fmt.Errorf("unsupported documentation format: %s", data.Opts.Format)

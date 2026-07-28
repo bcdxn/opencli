@@ -12,6 +12,7 @@ import (
 
 var (
 	goldenMarkdown = "testdata/petstore-cli.md"
+	goldenManPage  = "testdata/petstore-cli.man"
 )
 
 func TestDocs_Markdown(t *testing.T) {
@@ -61,5 +62,35 @@ func TestDocs_HTMLComponentBundle(t *testing.T) {
 
 	if !bytes.Contains(actual, []byte("container.innerHTML = EMBED_MARKUP")) {
 		t.Fatalf("expected embed HTML flavor output to include embeddable component markup")
+	}
+}
+
+func TestDocs_ManPage(t *testing.T) {
+	doc, err := codec.UnmarshalYAML(exampleYAML)
+	if err != nil {
+		t.Fatalf("unexpected error unmarshaling example OpenCLI doc: %v", err)
+	}
+
+	actual, err := Docs(doc, DocsWithFormat(ManPage))
+	if err != nil {
+		t.Fatalf("unexpected error generated documentation: %v", err)
+	}
+
+	if *update {
+		if err := os.MkdirAll(filepath.Dir(goldenManPage), 0755); err != nil {
+			t.Fatalf("failed to create golden dir for %s: %v", goldenManPage, err)
+		}
+		if err := os.WriteFile(goldenManPage, actual, 0644); err != nil {
+			t.Fatalf("failed to write golden file %s: %v", goldenManPage, err)
+		}
+	}
+
+	expected, err := os.ReadFile(goldenManPage)
+	if err != nil {
+		t.Fatalf("unexpected error reading golden file: %v", err)
+	}
+
+	if !bytes.Equal(actual, expected) {
+		t.Fatalf("output docs does not match expected docs")
 	}
 }

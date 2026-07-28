@@ -38,7 +38,7 @@ func NewCmdPetstorePetAdd(a ActionsInterface) *cobra.Command {
 	command.SilenceUsage = true
 	command.Flags().StringVarP(&flagName, "name", "n", "", "The name of the pet")
 	command.Flags().StringArrayVarP(&flagPhotoUrls, "photo-urls", "p", []string{}, "A list of photo URLs to display for the pet")
-	command.Flags().StringVarP(&flagStatus, "status", "", "", "The pet status in the store")
+	command.Flags().StringVarP(&flagStatus, "status", "", "available", "The pet status in the store")
 	command.Flags().StringArrayVarP(&flagTag, "tag", "", []string{}, "Tag to assign to the pet for grouping/sorting")
 	command.SetHelpFunc(func(_ *cobra.Command, _ []string) {
 		a.HelpFunc(getSpecPetstorePetAddCmd())

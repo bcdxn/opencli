@@ -42,6 +42,7 @@ export function newPetstorePetAddCmd(
         .option("status", {
           type: "string",
           choices: ["available", "pending", "sold"],
+          default: "available",
         })
         .option("tag", {
           type: "array",

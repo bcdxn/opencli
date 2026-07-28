@@ -1,0 +1,256 @@
+.TH {{.Doc.Info.Binary | roffEscape}} 1 "{{.Doc.Info.Version}}" "{{.Doc.Info.Title | roffEscape}}"
+.SH NAME
+{{.Doc.Info.Title | roffEscape}}{{if .Doc.Info.Summary}} \- {{.Doc.Info.Summary | roffEscape}}{{end}}
+.
+.SH SYNOPSIS
+.nh
+.ad l
+{{.Doc.Info.Binary}} [GLOBAL OPTIONS] COMMAND [ARGUMENTS] [OPTIONS]
+.ad b
+.hy
+.
+.SH DESCRIPTION
+{{if .Doc.Info.Description}}{{.Doc.Info.Description | roffEscape}}{{else}}{{.Doc.Info.Summary | roffEscape}}{{end}}
+.
+{{- if and .Doc.Global .Doc.Global.Flags}}
+.SH GLOBAL OPTIONS
+{{- range .Doc.Global.Flags}}
+{{if not .Hidden}}
+.TP
+\fB\-\-{{.Name | roffEscape}}\fR{{range .Aliases}}, \fB\-{{. | roffEscape}}\fR{{end}}
+{{- if .Summary}}
+{{.Summary | roffEscape}}
+{{- end}}
+{{- if .Description}}
+.PP
+{{.Description | roffEscape}}
+{{- end}}
+.PP
+.Type: \fI{{.Type}}\fR{{if .Variadic}}, variadic{{end}}
+{{- if .Default}}
+.Default: {{.Default}}{{end}}
+{{- if .Required}}
+.Required: yes{{end}}
+{{- if .Choices}}
+.PP
+Allowed values:
+.RS
+{{range .Choices}}
+.TP
+\fB{{.Value}}\fP{{if .Description}} \- {{.Description | roffEscape}}{{end}}
+{{- end}}
+.RE
+{{- end}}
+{{- if .AltSources}}
+.PP
+Alternative sources:
+.RS
+{{range .AltSources}}
+.TP
+{{- if eq .Type "$ENV"}}\fIenv:{{.Property | roffEscape}}\fI{{else}}\fIfile:{{.Property | roffEscape}}\fI{{end}}
+{{- end}}
+.RE
+{{- end}}
+.
+{{- end}}
+{{- end}}
+{{- end}}
+.
+{{- if and .Doc.Global .Doc.Global.Config (or .Doc.Global.Config.JSON .Doc.Global.Config.TOML .Doc.Global.Config.YAML)}}
+.SH CONFIG FILES
+{{- if .Doc.Global.Config.JSON}}
+.TP
+\fI{{.Doc.Global.Config.JSON | roffEscape}}\fP
+JSON configuration file.
+{{- end}}
+{{- if .Doc.Global.Config.TOML}}
+.TP
+\fI{{.Doc.Global.Config.TOML | roffEscape}}\fP
+TOML configuration file.
+{{- end}}
+{{- if .Doc.Global.Config.YAML}}
+.TP
+\fI{{.Doc.Global.Config.YAML | roffEscape}}\fP
+YAML configuration file.
+{{- end}}
+{{- end}}
+.
+.SH COMMANDS
+{{- range $i, $node := .Doc.Commands.Commands}}
+{{template "commandSection" $node}}
+{{- end}}
+.
+{{- if and .Doc.Global .Doc.Global.ExitCodes}}
+.SH EXIT STATUS
+{{range .Doc.Global.ExitCodes}}
+.TP
+\fB{{.Code}}\fP ({{.Status | roffEscape}})
+{{.Summary | roffEscape}}{{if .Description}}
+.PP
+{{.Description | roffEscape}}{{end}}
+
+{{- end}}
+{{- end}}
+
+{{- $examples := collectExamples .Doc.Commands}}
+{{- if $examples}}
+.SH EXAMPLES
+{{range $examples}}
+.RS
+.nf
+{{if .Title}}# {{.Title | roffEscape}}
+.
+{{end -}}
+{{.Content | roffEscape}}
+.fi
+.RE
+.
+{{- end}}
+{{- end}}
+.
+{{- if .Doc.Info.Contact}}
+.SH AUTHORS
+{{- if and .Doc.Info.Contact.Name .Doc.Info.Contact.URL (not .Doc.Info.Contact.Email)}}
+.UR {{.Doc.Info.Contact.URL}}
+{{.Doc.Info.Contact.Name | roffEscape}}
+.UE
+{{- else if and .Doc.Info.Contact.Name .Doc.Info.Contact.Email (not .Doc.Info.Contact.URL)}}
+.UR {{.Doc.Info.Contact.Email}}
+{{.Doc.Info.Contact.Name | roffEscape}}
+.UE
+{{- else -}}
+{{- if .Doc.Info.Contact.Name}}
+.sp
+{{.Doc.Info.Contact.Name | roffEscape}}{{end}}
+{{- if .Doc.Info.Contact.URL}}
+.sp
+.UR {{.Doc.Info.Contact.URL}}
+.UE{{end}}
+{{- if .Doc.Info.Contact.Email}}
+.sp
+.UR {{.Doc.Info.Contact.Email}}
+.UE{{end}}
+{{- end}}
+{{- end}}
+.
+{{- if .Doc.Info.License}}
+.SH LICENSE
+{{- if .Doc.Info.License.URL}}
+.UR {{.Doc.Info.License.URL}}
+{{.Doc.Info.License.Name}}
+.UE
+{{- else if .Doc.Info.License.SpdxID}}
+.UR https://spdx.org/licenses/{{.Doc.Info.License.SpdxID}}.html
+{{.Doc.Info.License.Name}}
+.UE
+{{- else}}
+{{.Doc.Info.License.Name}}
+{{- end}}
+{{- end}}
+.
+.SH VERSION
+{{.Doc.Info.Version}}
+
+{{define "commandSection"}}
+{{- if and (not .Hidden)}}
+{{- if or (not .Kind) (ne .Kind "group")}}
+.SS {{.CommandLine}}{{range .CommandModifiers}} {{.}}{{end}}{{range .ArgsModifiers}} {{.}}{{end}}{{range .FlagsModifiers}} {{.}}{{end}}{{range .PassthroughArgsModifiers}} {{.}}{{end}}
+{{- if .Summary}}
+{{.Summary | roffEscape}}
+{{- end}}
+{{- if .Description}}
+.br
+{{.Description | roffEscape}}
+{{- end}}
+.
+{{- if .VisibleArgs }}
+.PP
+\fBArguments:\fR
+.
+.RS 4
+{{- range .Args}}
+{{- if not .Hidden}}
+.TP 4
+\fI<{{.Name}}{{if .Variadic}}...{{end}}>\fR
+{{- if .Summary}}
+{{.Summary | roffEscape}}
+{{- end}}
+{{- if .Description}}
+.br
+{{.Description | roffEscape}}
+{{- end}}
+.sp
+Type: \fI{{.Type}}\fP{{if .Variadic}}, variadic{{end}}{{if .Required}}, required{{end}}
+.
+{{- if .Choices}}
+.br
+Allowed values:
+.RS 8
+{{- range .Choices}}
+.br
+\fB{{.Value}}\fP{{if .Description}} \- {{.Description | roffEscape}}{{end}}
+{{- end}}
+.RE
+{{- end}}
+{{- end}}
+{{- end}}
+.RE
+{{- end}}{{/* end args */}}
+.
+.
+.
+.
+{{- if .VisibleFlags}}
+.PP
+\fBFlags:\fR
+.RS 4
+{{- range .Flags}}
+{{if not .Hidden}}
+.TP 4
+\fB\-\-{{.Name}}\fP{{range .Aliases}}, \fB\-{{.}}\fR{{end}}
+{{- if .Summary}}
+{{.Summary | roffEscape}}
+{{- end}}
+{{- if .Description}}
+.br
+{{.Description | roffEscape}}
+{{- end}} 
+.sp
+Type: \fI{{.Type}}\fP{{if .Variadic}}, variadic{{end}}{{if .Required}}, required{{end}}
+.
+{{- if .Default}}
+.br
+Default: \fB{{.Default}}\fR{{end}}
+{{- if .Choices}}
+.br
+Allowed values:
+.RS 8
+{{- range .Choices}}
+.br
+\fB{{.Value}}\fP{{if .Description}} \- {{.Description | roffEscape}}{{end}}
+{{- end}}
+.RE
+{{- end}}
+.
+{{- if .AltSources}}
+.br
+Alternative sources:
+.RS 8
+{{- range .AltSources}}
+.br
+{{if eq .Type "$ENV"}}env:\fI${{.Property}}\fR{{else}}file:\fI{{.Property}}{{end}}
+{{- end}}
+.RE
+{{- end}}
+.
+{{- end}}
+{{- end}}
+.RE
+{{- end}}{{/* end flags */}}
+{{- end}}{{/* end of NOT group check */}}
+.
+{{- range $i, $node := .Commands}}
+{{- template "commandSection" $node}}
+{{- end}}
+{{- end}}
+{{- end}}

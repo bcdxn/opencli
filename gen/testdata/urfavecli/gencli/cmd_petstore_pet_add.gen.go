@@ -46,7 +46,7 @@ func NewCmdPetstorePetAdd(a ActionsInterface) *cli.Command {
 	})
 	cmd.Flags = append(cmd.Flags, &cli.StringFlag{
 		Name:  "status",
-		Value: "",
+		Value: "available",
 		Usage: "The pet status in the store",
 	})
 	cmd.Flags = append(cmd.Flags, &cli.StringSliceFlag{

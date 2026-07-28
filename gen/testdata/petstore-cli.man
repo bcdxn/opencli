@@ -1,0 +1,853 @@
+.TH petstore 1 "1.0.0" "PetStore CLI"
+.SH NAME
+PetStore CLI \- An example CLI Document describing operations a petstore CLI may provide\.
+.
+.SH SYNOPSIS
+.nh
+.ad l
+petstore [GLOBAL OPTIONS] COMMAND [ARGUMENTS] [OPTIONS]
+.ad b
+.hy
+.
+.SH DESCRIPTION
+`petstore` is an example command line interface designed to make working with the
+\.UR https://petstore3\.swagger\.io
+PetStore API
+\.UE \bKc easier\. It provides a number of
+capabilities, including:
+
+- validating request parameters
+- executing API requests
+- parsing the API response
+- handling API errors
+
+The commands are documented below\. You can also find out more about each
+command using the contextual `--help` flag\. e\.g\.:
+
+.nf
+```sh
+petstore --help
+```
+.fi
+
+.
+.SH GLOBAL OPTIONS
+
+.TP
+\fB\-\-help\fR, \fB\-h\fR
+contextual help
+.PP
+.Type: \fIboolean\fR
+.
+
+.TP
+\fB\-\-version\fR
+print the version of the CLI
+.PP
+.Type: \fIboolean\fR
+.
+.
+.SH CONFIG FILES
+.TP
+\fI~/\.petstore/config\.json\fP
+JSON configuration file.
+.TP
+\fI~/\.petstore/config\.toml\fP
+TOML configuration file.
+.TP
+\fI~/\.petstore/config\.yaml\fP
+YAML configuration file.
+.
+.SH COMMANDS
+
+.SS petstore list -- <http-arguments>
+List all endpoints available
+.
+.
+.
+.
+.
+.
+
+.
+.SS petstore pet add <arguments> [flags]
+Add a new pet to the store
+.br
+Create a new pet in the store using a JSON payload or explicit flags\.
+
+.
+.PP
+\fBArguments:\fR
+.
+.RS 4
+.TP 4
+\fI<path-to-req-body>\fR
+The path to a JSON file containing the new pet payload
+.br
+A JSON formatted file with the exact POST body to send as part of the request to add a
+new pet to the store using the PetStore API\. The exact schema can be found
+\.UR https://petstore3\.swagger\.io/api/v3/openapi\.json#/components/schemas/PetPet
+here
+\.UE \bKc\. You
+can use this option instead of passing individual flags\.
+
+.sp
+Type: \fIstring\fP
+.
+.RE
+.
+.
+.
+.
+.PP
+\fBFlags:\fR
+.RS 4
+
+.TP 4
+\fB\-\-name\fP, \fB\-n\fR
+The name of the pet 
+.sp
+Type: \fIstring\fP
+.
+.
+.
+
+.TP 4
+\fB\-\-photo-urls\fP, \fB\-p\fR
+A list of photo URLs to display for the pet
+.br
+Provide this flag multiple times to set multiple photo URLs\.
+ 
+.sp
+Type: \fIstring\fP, variadic
+.
+.
+.
+
+.TP 4
+\fB\-\-status\fP
+The pet status in the store 
+.sp
+Type: \fIstring\fP
+.
+.br
+Default: \fBavailable\fR
+.br
+Allowed values:
+.RS 8
+.br
+\fBavailable\fP
+.br
+\fBpending\fP
+.br
+\fBsold\fP
+.RE
+.
+.
+
+.TP 4
+\fB\-\-tag\fP
+Tag to assign to the pet for grouping/sorting
+.br
+Provide this flag multiple times to add multiple tags\.
+ 
+.sp
+Type: \fIstring\fP, variadic
+.
+.
+.
+.RE
+.
+.SS petstore pet update <arguments> [flags]
+Update an existing pet
+.br
+Update a pet using a JSON payload or explicit flags\.
+
+.
+.PP
+\fBArguments:\fR
+.
+.RS 4
+.TP 4
+\fI<path-to-req-body>\fR
+The path to a JSON file containing the updated pet payload
+.sp
+Type: \fIstring\fP
+.
+.RE
+.
+.
+.
+.
+.PP
+\fBFlags:\fR
+.RS 4
+
+.TP 4
+\fB\-\-name\fP, \fB\-n\fR
+The updated name of the pet 
+.sp
+Type: \fIstring\fP
+.
+.
+.
+
+.TP 4
+\fB\-\-status\fP
+The updated pet status 
+.sp
+Type: \fIstring\fP
+.
+.br
+Allowed values:
+.RS 8
+.br
+\fBavailable\fP
+.br
+\fBpending\fP
+.br
+\fBsold\fP
+.RE
+.
+.
+
+.TP 4
+\fB\-\-photo-urls\fP, \fB\-p\fR
+A list of photo URLs to display for the pet
+.br
+Provide this flag multiple times to set multiple photo URLs\.
+ 
+.sp
+Type: \fIstring\fP, variadic
+.
+.
+.
+
+.TP 4
+\fB\-\-tags\fP
+Tags to assign to the pet
+.br
+Provide this flag multiple times to add multiple tags\.
+ 
+.sp
+Type: \fIstring\fP, variadic
+.
+.
+.
+.RE
+.
+.SS petstore pet find-by-status [flags]
+Find pets by status
+.
+.
+.
+.
+.
+.PP
+\fBFlags:\fR
+.RS 4
+
+.TP 4
+\fB\-\-status\fP
+The status to filter pets by 
+.sp
+Type: \fIstring\fP, required
+.
+.br
+Allowed values:
+.RS 8
+.br
+\fBavailable\fP
+.br
+\fBpending\fP
+.br
+\fBsold\fP
+.RE
+.
+.
+.RE
+.
+.SS petstore pet find-by-tags [flags]
+Find pets by tags
+.
+.
+.
+.
+.
+.PP
+\fBFlags:\fR
+.RS 4
+
+.TP 4
+\fB\-\-tags\fP
+The tags to filter pets by
+.br
+Provide this flag multiple times to filter by multiple tags\.
+ 
+.sp
+Type: \fIstring\fP, variadic
+.
+.
+.
+.RE
+.
+.SS petstore pet get [flags]
+Find pet by ID
+.
+.
+.
+.
+.
+.PP
+\fBFlags:\fR
+.RS 4
+
+.TP 4
+\fB\-\-id\fP
+The ID of the pet to retrieve 
+.sp
+Type: \fIinteger\fP, required
+.
+.
+.
+.RE
+.
+.SS petstore pet update-form [flags]
+Update a pet using form data
+.
+.
+.
+.
+.
+.PP
+\fBFlags:\fR
+.RS 4
+
+.TP 4
+\fB\-\-id\fP
+The ID of the pet to update 
+.sp
+Type: \fIinteger\fP, required
+.
+.
+.
+
+.TP 4
+\fB\-\-name\fP
+The new name for the pet 
+.sp
+Type: \fIstring\fP
+.
+.
+.
+
+.TP 4
+\fB\-\-status\fP
+The new status for the pet 
+.sp
+Type: \fIstring\fP
+.
+.br
+Allowed values:
+.RS 8
+.br
+\fBavailable\fP
+.br
+\fBpending\fP
+.br
+\fBsold\fP
+.RE
+.
+.
+.RE
+.
+.SS petstore pet delete [flags]
+Delete a pet
+.
+.
+.
+.
+.
+.PP
+\fBFlags:\fR
+.RS 4
+
+.TP 4
+\fB\-\-id\fP
+The ID of the pet to delete 
+.sp
+Type: \fIinteger\fP, required
+.
+.
+.
+
+.TP 4
+\fB\-\-api-key\fP
+API key header used to authorize the delete request 
+.sp
+Type: \fIstring\fP
+.
+.
+.
+.RE
+.
+.SS petstore pet upload-image <arguments> [flags]
+Upload an image for a pet
+.br
+Upload a binary image file for the specified pet\.
+
+.
+.PP
+\fBArguments:\fR
+.
+.RS 4
+.TP 4
+\fI<path-to-file>\fR
+The path to the file to upload
+.sp
+Type: \fIstring\fP, required
+.
+.RE
+.
+.
+.
+.
+.PP
+\fBFlags:\fR
+.RS 4
+
+.TP 4
+\fB\-\-id\fP
+The ID of the pet 
+.sp
+Type: \fIinteger\fP, required
+.
+.
+.
+
+.TP 4
+\fB\-\-additionalMetadata\fP
+Additional metadata to store with the uploaded image 
+.sp
+Type: \fIstring\fP
+.
+.
+.
+.RE
+.
+
+.
+.SS petstore store inventory
+Returns pet inventories by status
+.
+.
+.
+.
+.
+.
+.
+.SS petstore store order place <arguments> [flags]
+Place an order for a pet
+.br
+Create a purchase order using a JSON payload or explicit flags\.
+
+.
+.PP
+\fBArguments:\fR
+.
+.RS 4
+.TP 4
+\fI<path-to-order-body>\fR
+The path to a JSON file containing the order payload
+.sp
+Type: \fIstring\fP
+.
+.RE
+.
+.
+.
+.
+.PP
+\fBFlags:\fR
+.RS 4
+
+.TP 4
+\fB\-\-pet-id\fP
+The ID of the pet to order 
+.sp
+Type: \fIinteger\fP
+.
+.
+.
+
+.TP 4
+\fB\-\-quantity\fP
+How many pets to order 
+.sp
+Type: \fIinteger\fP
+.
+.
+.
+
+.TP 4
+\fB\-\-status\fP
+The order status 
+.sp
+Type: \fIstring\fP
+.
+.br
+Allowed values:
+.RS 8
+.br
+\fBplaced\fP
+.br
+\fBapproved\fP
+.br
+\fBdelivered\fP
+.RE
+.
+.
+
+.TP 4
+\fB\-\-complete\fP
+Whether the order has been completed 
+.sp
+Type: \fIboolean\fP
+.
+.
+.
+.RE
+.
+.SS petstore store order get [flags]
+Find purchase order by ID
+.
+.
+.
+.
+.
+.PP
+\fBFlags:\fR
+.RS 4
+
+.TP 4
+\fB\-\-id\fP
+The ID of the order to retrieve 
+.sp
+Type: \fIinteger\fP, required
+.
+.
+.
+.RE
+.
+.SS petstore store order delete <arguments>
+Delete purchase order by ID
+.
+.PP
+\fBArguments:\fR
+.
+.RS 4
+.TP 4
+\fI<id>\fR
+The ID of the order to delete
+.sp
+Type: \fIinteger\fP, required
+.
+.RE
+.
+.
+.
+.
+.
+
+.
+.SS petstore user create <arguments> [flags]
+Create a user
+.br
+Create a new user using a JSON payload or explicit flags\.
+
+.
+.PP
+\fBArguments:\fR
+.
+.RS 4
+.TP 4
+\fI<path-to-user-body>\fR
+The path to a JSON file containing the user payload
+.sp
+Type: \fIstring\fP
+.
+.RE
+.
+.
+.
+.
+.PP
+\fBFlags:\fR
+.RS 4
+
+.TP 4
+\fB\-\-username\fP
+The user's username 
+.sp
+Type: \fIstring\fP
+.
+.
+.
+
+.TP 4
+\fB\-\-firstName\fP
+The user's first name 
+.sp
+Type: \fIstring\fP
+.
+.
+.
+
+.TP 4
+\fB\-\-lastName\fP
+The user's last name 
+.sp
+Type: \fIstring\fP
+.
+.
+.
+
+.TP 4
+\fB\-\-email\fP
+The user's email address 
+.sp
+Type: \fIstring\fP
+.
+.
+.
+
+.TP 4
+\fB\-\-password\fP
+The user's password 
+.sp
+Type: \fIstring\fP
+.
+.
+.
+
+.TP 4
+\fB\-\-phone\fP
+The user's phone number 
+.sp
+Type: \fIstring\fP
+.
+.
+.
+
+.TP 4
+\fB\-\-status\fP
+The user's status 
+.sp
+Type: \fIinteger\fP
+.
+.
+.
+.RE
+.
+.SS petstore user create-with-list <arguments>
+Create multiple users with a list
+.br
+Create multiple users using a JSON array payload\.
+
+.
+.PP
+\fBArguments:\fR
+.
+.RS 4
+.TP 4
+\fI<path-to-users-body>\fR
+The path to a JSON file containing the user list payload
+.sp
+Type: \fIstring\fP, required
+.
+.RE
+.
+.
+.
+.
+.
+.SS petstore user login [flags]
+Log in a user
+.
+.
+.
+.
+.
+.PP
+\fBFlags:\fR
+.RS 4
+
+.TP 4
+\fB\-\-username\fP
+The user's username 
+.sp
+Type: \fIstring\fP
+.
+.
+.br
+Alternative sources:
+.RS 8
+.br
+env:\fI$PETSTORE_USER\fR
+.br
+file:\fI$.auth.user
+.RE
+.
+
+.TP 4
+\fB\-\-password\fP
+The user's password 
+.sp
+Type: \fIstring\fP
+.
+.
+.br
+Alternative sources:
+.RS 8
+.br
+env:\fI$PETSTORE_PASS\fR
+.br
+file:\fI$.auth.pass
+.RE
+.
+.RE
+.
+.SS petstore user logout
+Log out the current user
+.
+.
+.
+.
+.
+.
+.SS petstore user get [flags]
+Get user by username
+.
+.
+.
+.
+.
+.PP
+\fBFlags:\fR
+.RS 4
+
+.TP 4
+\fB\-\-username\fP
+The username to look up 
+.sp
+Type: \fIstring\fP, required
+.
+.
+.
+.RE
+.
+.SS petstore user update [flags]
+Update a user
+.br
+Update a user's information using a JSON payload or explicit flags\.
+
+.
+.
+.
+.
+.
+.PP
+\fBFlags:\fR
+.RS 4
+
+.TP 4
+\fB\-\-username\fP
+The username of the user to update 
+.sp
+Type: \fIstring\fP, required
+.
+.
+.
+
+.TP 4
+\fB\-\-firstName\fP
+The user's first name 
+.sp
+Type: \fIstring\fP
+.
+.
+.
+
+.TP 4
+\fB\-\-lastName\fP
+The user's last name 
+.sp
+Type: \fIstring\fP
+.
+.
+.
+
+.TP 4
+\fB\-\-email\fP
+The user's email address 
+.sp
+Type: \fIstring\fP
+.
+.
+.
+
+.TP 4
+\fB\-\-password\fP
+The user's password 
+.sp
+Type: \fIstring\fP
+.
+.
+.
+
+.TP 4
+\fB\-\-phone\fP
+The user's phone number 
+.sp
+Type: \fIstring\fP
+.
+.
+.
+
+.TP 4
+\fB\-\-userStatus\fP
+The user's status 
+.sp
+Type: \fIinteger\fP
+.
+.
+.
+.RE
+.
+.
+.SH EXIT STATUS
+
+.TP
+\fB0\fP (OK)
+The command was successful
+.TP
+\fB1\fP (INTERNAL_CLI_ERROR)
+The command failed
+.TP
+\fB2\fP (BAD_USER_INPUT_ERROR)
+Missing or invalid input
+.
+.SH AUTHORS
+.UR https://github.com/bcdxn/opencli
+OpenCLI Team
+.UE
+.
+.SH LICENSE
+.UR https://spdx.org/licenses/MIT.html
+MIT
+.UE
+.
+.SH VERSION
+1.0.0
+
+
