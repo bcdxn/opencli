@@ -113,6 +113,30 @@ func roffEscape(s string) string {
 			return fmt.Sprintf(".UR %s\n%s\n.UE \\c", caps[2], wsRe.ReplaceAllString(caps[1], " "))
 		}
 		return match
+	})
+
+	// 4. Restore code blocks with .nf/.fi wrappers.
+	var out strings.Builder
+	pos = 0
+	for pos < len(s) {
+		for _, b := range blocks {
+			if strings.HasPrefix(s[pos:], b.placeholder) {
+				out.WriteString(".nf\n")
+				out.WriteString(b.content)
+				out.WriteString("\n.fi")
+				pos += len(b.placeholder)
+				break
+			}
+		}
+		if pos >= len(s) {
+			break
+		}
+		r, size := utf8.DecodeRuneInString(s[pos:])
+		out.WriteRune(r)
+		pos += size
+	}
+
+	return out.String()
 }
 
 // collectExamples recursively collects all examples from the command tree.
