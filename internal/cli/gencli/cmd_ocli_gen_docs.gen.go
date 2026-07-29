@@ -53,14 +53,14 @@ func NewCmdOcliGenDocs(a ActionsInterface) *cobra.Command {
 func getSpecOcliGenDocsCmd() *spec.CommandItem {
 	return &spec.CommandItem{
 		Segment:         "docs",
-		CommandLine:     "ocli ocli gen docs",
+		CommandLine:     "ocli gen docs",
 		Summary:         "Generate documentation",
 		Description:     "The `ocli gen docs` command will generate documentation from an OpenCLI\nSpec document. You can specify the format of the documentation to be\ngenerated using the `--format` flag.",
 		VisibleChildren: false,
 		VisibleArgs:     true,
 		VisibleFlags:    true,
 		ArgsModifiers: []string{
-			"<path-to-spec>",
+			"<arguments>",
 		},
 		FlagsModifiers: []string{
 			"[flags]",

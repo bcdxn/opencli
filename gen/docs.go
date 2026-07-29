@@ -89,13 +89,13 @@ const (
 	// HTML_EMBED generates a JavaScript bundle that can be embedded in an existing page.
 	HTML_EMBED DocFormat = "HTML_EMBED"
 	// ManPage generates a man page (not yet implemented).
-	ManPage DocFormat = "MAN"
+	MAN DocFormat = "MAN"
 )
 
 // IsValid reports whether f is a supported DocFormat.
 func (f DocFormat) IsValid() bool {
 	switch f {
-	case Markdown, HTML_PAGE, HTML_EMBED, ManPage:
+	case Markdown, HTML_PAGE, HTML_EMBED, MAN:
 		return true
 	}
 	return false
@@ -125,7 +125,7 @@ func genDocs(data docsTmplData) ([]byte, error) {
 		return genDocsMarkdown(data)
 	case HTML_PAGE, HTML_EMBED:
 		return genDocsHTML(data)
-	case ManPage:
+	case MAN:
 		return genDocsMan(data)
 	}
 

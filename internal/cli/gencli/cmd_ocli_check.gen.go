@@ -39,14 +39,14 @@ func NewCmdOcliCheck(a ActionsInterface) *cobra.Command {
 func getSpecOcliCheckCmd() *spec.CommandItem {
 	return &spec.CommandItem{
 		Segment:         "check",
-		CommandLine:     "ocli ocli check",
+		CommandLine:     "ocli check",
 		Summary:         "Check an OpenCLI Spec document for errors",
 		Description:     "The `check` command will validate an OpenCLI Spec document and return any\nerrors that are found.",
 		VisibleChildren: false,
 		VisibleArgs:     true,
 		VisibleFlags:    true,
 		ArgsModifiers: []string{
-			"<path-to-spec>",
+			"<arguments>",
 		},
 		FlagsModifiers: []string{
 			"[flags]",

@@ -46,6 +46,9 @@ var codeBlockRe = regexp.MustCompile("```+[\\s\\S]*?```+")
 // urlRe matches markdown-style inline links [label](http://...).
 var urlRe = regexp.MustCompile(`\[([^\]]+)\]\((https?://[^)]+)\)`)
 
+// wsRe matches all new line whitespaces which _can_ occur within a URL label
+var wsRe = regexp.MustCompile(`\r?\n+`)
+
 // roffEscape escapes special roff/troff characters and converts certain
 // markdown constructs to their roff equivalents.
 // - Fenced code blocks are wrapped with .nf / .fi.
@@ -74,7 +77,9 @@ func roffEscape(s string) string {
 	s = urlRe.ReplaceAllStringFunc(s, func(match string) string {
 		caps := urlRe.FindStringSubmatch(match)
 		if len(caps) >= 3 {
-			return fmt.Sprintf(".UR %s\n%s\n.UE \\c", caps[2], caps[1])
+			fmt.Printf("found url and replaced: [%s]\n\n{%s}\n", match, wsRe.ReplaceAllString(caps[1], " "))
+
+			return fmt.Sprintf(".UR %s\n%s\n.UE \\c", caps[2], wsRe.ReplaceAllString(caps[1], " "))
 		}
 		return match
 	})

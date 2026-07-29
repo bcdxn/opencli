@@ -96,14 +96,13 @@ YAML configuration file.
 {{- if $examples}}
 .SH EXAMPLES
 {{range $examples}}
-.RS
+.PP
 .nf
 {{if .Title}}# {{.Title | roffEscape}}
 .
 {{end -}}
 {{.Content | roffEscape}}
 .fi
-.RE
 .
 {{- end}}
 {{- end}}

@@ -47,14 +47,14 @@ func NewCmdOcliGenCli(a ActionsInterface) *cobra.Command {
 func getSpecOcliGenCliCmd() *spec.CommandItem {
 	return &spec.CommandItem{
 		Segment:         "cli",
-		CommandLine:     "ocli ocli gen cli",
+		CommandLine:     "ocli gen cli",
 		Summary:         "Generate CLI Boilerplate code",
 		Description:     "The `ocli gen cli` command will generate the boilerplate code for\nvarious CLI frameworks from an OpenCLI Spec document.",
 		VisibleChildren: false,
 		VisibleArgs:     true,
 		VisibleFlags:    true,
 		ArgsModifiers: []string{
-			"<path-to-spec>",
+			"<arguments>",
 		},
 		FlagsModifiers: []string{
 			"[flags]",

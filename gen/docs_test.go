@@ -71,7 +71,7 @@ func TestDocs_ManPage(t *testing.T) {
 		t.Fatalf("unexpected error unmarshaling example OpenCLI doc: %v", err)
 	}
 
-	actual, err := Docs(doc, DocsWithFormat(ManPage))
+	actual, err := Docs(doc, DocsWithFormat(MAN))
 	if err != nil {
 		t.Fatalf("unexpected error generated documentation: %v", err)
 	}

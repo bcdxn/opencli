@@ -335,7 +335,7 @@ func TestDocFormatIsValid(t *testing.T) {
 		{Markdown, true},
 		{HTML_PAGE, true},
 		{HTML_EMBED, true},
-		{ManPage, true},
+		{MAN, true},
 		{"INVALID", false},
 	}
 	for _, tt := range tests {
@@ -356,7 +356,7 @@ func TestDocs_InvalidFormat(t *testing.T) {
 
 func TestDocs_ManPageNotImplemented(t *testing.T) {
 	doc := &spec.Document{}
-	_, err := Docs(doc, DocsWithFormat(ManPage))
+	_, err := Docs(doc, DocsWithFormat(MAN))
 	if err == nil {
 		t.Fatal("expected error for ManPage format")
 	}
