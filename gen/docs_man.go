@@ -44,7 +44,9 @@ func genDocsMan(data docsTmplData) ([]byte, error) {
 var codeBlockRe = regexp.MustCompile("```+[\\s\\S]*?```+")
 
 // urlRe matches markdown-style inline links [label](http://...).
-var urlRe = regexp.MustCompile(`\[([^\]]+)\]\((https?://[^)]+)\)`)
+// After character escaping, dots in URLs become \., so the pattern
+// accepts both escaped and unescaped dots.
+var urlRe = regexp.MustCompile(`\[([^\]]+)\]\((https?://[^)]*[\.\w][^)]*)\)`)
 
 // wsRe matches all new line whitespaces which _can_ occur within a URL label
 var wsRe = regexp.MustCompile(`\r?\n+`)
@@ -73,27 +75,15 @@ func roffEscape(s string) string {
 		return plh
 	})
 
-	// 2. Convert markdown URLs in the remaining text.
-	s = urlRe.ReplaceAllStringFunc(s, func(match string) string {
-		caps := urlRe.FindStringSubmatch(match)
-		if len(caps) >= 3 {
-			fmt.Printf("found url and replaced: [%s]\n\n{%s}\n", match, wsRe.ReplaceAllString(caps[1], " "))
-
-			return fmt.Sprintf(".UR %s\n%s\n.UE \\c", caps[2], wsRe.ReplaceAllString(caps[1], " "))
-		}
-		return match
-	})
-
-	// 3. Character-level escaping, restoring code blocks with .nf/.fi.
+	// 2. Character-level escaping (before markdown transformations,
+	//    so roff macros inserted later are not re-escaped).
 	var sb strings.Builder
 	pos := 0
 	for pos < len(s) {
 		matched := false
 		for _, b := range blocks {
 			if strings.HasPrefix(s[pos:], b.placeholder) {
-				sb.WriteString(".nf\n")
-				sb.WriteString(b.content)
-				sb.WriteString("\n.fi")
+				sb.WriteString(b.placeholder)
 				pos += len(b.placeholder)
 				matched = true
 				break
@@ -113,8 +103,16 @@ func roffEscape(s string) string {
 		}
 		pos += size
 	}
+	s = sb.String()
 
-	return sb.String()
+	// 3. Convert markdown URLs (roff macros inserted here are the final output,
+	//    so they won't be re-escaped).
+	s = urlRe.ReplaceAllStringFunc(s, func(match string) string {
+		caps := urlRe.FindStringSubmatch(match)
+		if len(caps) >= 3 {
+			return fmt.Sprintf(".UR %s\n%s\n.UE \\c", caps[2], wsRe.ReplaceAllString(caps[1], " "))
+		}
+		return match
 }
 
 // collectExamples recursively collects all examples from the command tree.
