@@ -37,7 +37,7 @@ Allowed values:
 .RS
 {{range .Choices}}
 .TP
-\fB{{.Value}}\fP{{if .Description}} \- {{.Description | roffEscape}}{{end}}
+\fB{{.Value}}\fP
 {{- end}}
 .RE
 {{- end}}
@@ -169,8 +169,8 @@ YAML configuration file.
 .RS 4
 {{- range .Args}}
 {{- if not .Hidden}}
-.TP 4
 \fI<{{.Name}}{{if .Variadic}}...{{end}}>\fR
+.RS 4
 {{- if .Summary}}
 {{.Summary | roffEscape}}
 {{- end}}
@@ -178,21 +178,22 @@ YAML configuration file.
 .br
 {{.Description | roffEscape}}
 {{- end}}
-.sp
+.PP
 Type: \fI{{.Type}}\fP{{if .Variadic}}, variadic{{end}}{{if .Required}}, required{{end}}
 .
 {{- if .Choices}}
 .br
 Allowed values:
-.RS 8
+.RS 4
 {{- range .Choices}}
 .br
-\fB{{.Value}}\fP{{if .Description}} \- {{.Description | roffEscape}}{{end}}
+\fB{{.Value}}\fP
 {{- end}}
 .RE
 {{- end}}
 {{- end}}
 {{- end}}
+.RE
 .RE
 {{- end}}{{/* end args */}}
 .
@@ -205,8 +206,8 @@ Allowed values:
 .RS 4
 {{- range .Flags}}
 {{if not .Hidden}}
-.TP 4
 \fB\-\-{{.Name}}\fP{{range .Aliases}}, \fB\-{{.}}\fR{{end}}
+.RS 4
 {{- if .Summary}}
 {{.Summary | roffEscape}}
 {{- end}}
@@ -214,7 +215,7 @@ Allowed values:
 .br
 {{.Description | roffEscape}}
 {{- end}} 
-.sp
+.PP
 Type: \fI{{.Type}}\fP{{if .Variadic}}, variadic{{end}}{{if .Required}}, required{{end}}
 .
 {{- if .Default}}
@@ -223,10 +224,10 @@ Default: \fB{{.Default}}\fR{{end}}
 {{- if .Choices}}
 .br
 Allowed values:
-.RS 8
+.RS 4
 {{- range .Choices}}
 .br
-\fB{{.Value}}\fP{{if .Description}} \- {{.Description | roffEscape}}{{end}}
+\fB{{.Value}}\fP
 {{- end}}
 .RE
 {{- end}}
@@ -234,7 +235,7 @@ Allowed values:
 {{- if .AltSources}}
 .br
 Alternative sources:
-.RS 8
+.RS 4
 {{- range .AltSources}}
 .br
 {{if eq .Type "$ENV"}}env:\fI${{.Property}}\fR{{else}}file:\fI{{.Property}}{{end}}
@@ -242,6 +243,7 @@ Alternative sources:
 .RE
 {{- end}}
 .
+.RE
 {{- end}}
 {{- end}}
 .RE

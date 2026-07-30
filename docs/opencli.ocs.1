@@ -10,16 +10,21 @@ ocli [GLOBAL OPTIONS] COMMAND [ARGUMENTS] [OPTIONS]
 .hy
 .
 .SH DESCRIPTION
-`ocli` is a command line interface designed to make working with .UR https://github\.com/bcdxn/opencli/tree/main
+`ocli` is a command line interface designed to make working with 
+.UR https://github.com/bcdxn/opencli/tree/main
 OpenCLI Spec documents
 .UE \c easier\. It provides a number of capabilities, including:
-
-- validating OpenCLI Spec documents
-- generating Documentation from OpenCLI Spec documents
-
+.PP
+.IP \(bu 4
+validating OpenCLI Spec documents
+.IP \(bu 4
+generating Documentation from OpenCLI Spec documents
+.PP
+\l'20n'
+.PP
 The commands are documented below\. You can also find out more about each
 command using the contextual `--help` flag\. e\.g\.:
-
+.PP
 .nf
 ```sh
 ocli gen --help
@@ -61,19 +66,26 @@ errors that are found\.
 \fBArguments:\fR
 .
 .RS 4
-.TP 4
 \fI<path-to-spec>\fR
+.RS 4
 The path to the OpenCLI Spec document to check
 .br
 this command will check the validity of the given OpenCLI document
 by parsing it and checking it against the OpenCLI Specification\.
+.PP
+.IP \(bu 4
+a list or something
+.IP \(bu 4
+and another item
+.PP
+.PP
+\fBTip:\fP
+The format of the input file will be determined by the file extension\.
 
-> [!TIP]
-> The format of the input file will be determined by the file extension\.
-
-.sp
+.PP
 Type: \fIstring\fP, required
 .
+.RE
 .RE
 .
 .
@@ -83,16 +95,17 @@ Type: \fIstring\fP, required
 \fBFlags:\fR
 .RS 4
 
-.TP 4
 \fB\-\-fail-on-err\fP
+.RS 4
 Return a non-zero exit code if validation fails 
-.sp
+.PP
 Type: \fIboolean\fP
 .
 .br
 Default: \fBtrue\fR
 .
 .
+.RE
 .RE
 .
 
@@ -109,12 +122,13 @@ generated using the `--format` flag\.
 \fBArguments:\fR
 .
 .RS 4
-.TP 4
 \fI<path-to-spec>\fR
+.RS 4
 Path to the OpenCLI Spec document
-.sp
+.PP
 Type: \fIstring\fP, required
 .
+.RE
 .RE
 .
 .
@@ -124,67 +138,67 @@ Type: \fIstring\fP, required
 \fBFlags:\fR
 .RS 4
 
-.TP 4
 \fB\-\-format\fP, \fB\-f\fR
+.RS 4
 The format of the documentation to generate 
-.sp
+.PP
 Type: \fIstring\fP, required
 .
 .br
 Allowed values:
-.RS 8
+.RS 4
 .br
-\fBmarkdown\fP \- Plain text using standard .UR https://commonmark\.org
-Markdown
-.UE \c\.
+\fBmarkdown\fP
 .br
-\fBhtml-page\fP \- Full standalone HTML document
+\fBhtml-page\fP
 .br
-\fBhtml-embed\fP \- An embeddable js bundle including CSS and HTML
+\fBhtml-embed\fP
 .br
-\fBman\fP \- .UR https://en\.wikipedia\.org/wiki/Man_page
-Man Page
-.UE \c using standard groff
+\fBman\fP
 .RE
 .
 .br
 Alternative sources:
-.RS 8
+.RS 4
 .br
 env:\fI$OCLI_DOCS_FORMAT\fR
 .br
 file:\fI$.docs.format
 .RE
 .
+.RE
 
-.TP 4
 \fB\-\-out\fP, \fB\-o\fR
+.RS 4
 The path to the directory where the generated docs will be written 
-.sp
+.PP
 Type: \fIstring\fP, required
 .
 .br
 Default: \fB./docs\fR
 .
 .
+.RE
 
-.TP 4
 \fB\-\-no-footer\fP
+.RS 4
 Do not include the footer in the docs 
-.sp
+.PP
 Type: \fIboolean\fP
 .
 .
 .
+.RE
 
-.TP 4
 \fB\-\-no-badge\fP
+.RS 4
 Do not include the OpenCLI badge 
-.sp
+.PP
 Type: \fIboolean\fP
 .
 .
 .
+.RE
 .RE
 .
 .SS ocli gen cli <arguments> [flags]
@@ -198,12 +212,13 @@ various CLI frameworks from an OpenCLI Spec document\.
 \fBArguments:\fR
 .
 .RS 4
-.TP 4
 \fI<path-to-spec>\fR
+.RS 4
 The spec used to generate the code
-.sp
+.PP
 Type: \fIstring\fP, required
 .
+.RE
 .RE
 .
 .
@@ -213,47 +228,43 @@ Type: \fIstring\fP, required
 \fBFlags:\fR
 .RS 4
 
-.TP 4
 \fB\-\-out\fP, \fB\-o\fR
+.RS 4
 The path to the directory where the generated code will be output 
-.sp
+.PP
 Type: \fIstring\fP, required
 .
 .
 .
+.RE
 
-.TP 4
 \fB\-\-framework\fP, \fB\-f\fR
+.RS 4
 The framework of the CLI boilerplate to generate 
-.sp
+.PP
 Type: \fIstring\fP, required
 .
 .br
 Allowed values:
-.RS 8
+.RS 4
 .br
-\fBcobra\fP \- .UR https://github\.com/spf13/cobra?tab=readme-ov-file
-Cobra
-.UE \c a powerful, battle-tested CLI framework for Go
+\fBcobra\fP
 .br
-\fBurfavecli\fP \- .UR https://github\.com/urfave/cli
-urfave/cli
-.UE \c is a declarative, simple, fast, and fun package for building command line tools in Go
+\fBurfavecli\fP
 .br
-\fByargs\fP \- .UR https://yargs\.js\.org
-yargs
-.UE \c be a node\.js library fer hearties tryin' ter parse optstrings
+\fByargs\fP
 .RE
 .
 .br
 Alternative sources:
-.RS 8
+.RS 4
 .br
 env:\fI$OCLI_CLI_FRAMEWORK\fR
 .br
 file:\fI$.cli.framework
 .RE
 .
+.RE
 .RE
 .
 .
