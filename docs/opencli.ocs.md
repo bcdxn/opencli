@@ -173,6 +173,7 @@ The format of the documentation to generate
 - `markdown` - Plain text using standard [Markdown](https://commonmark.org).
 - `html-page` - Full standalone HTML document
 - `html-embed` - An embeddable js bundle including CSS and HTML
+- `man` - [Man Page](https://en.wikipedia.org/wiki/Man_page) using standard groff
 
 ###### Alternative Sources
 

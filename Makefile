@@ -20,6 +20,11 @@ gen-docs: generate
 		--format html-embed \
 		--out ./web/public \
 		opencli.ocs.yaml
+	@go run cmd/ocli/main.go gen docs \
+		--format man \
+		--out ./docs \
+		opencli.ocs.yaml
+	mkdir -p build && mv docs/opencli.ocs.1 build/ocli.1
 
 .PHONY: gen-examples
 gen-examples: generate

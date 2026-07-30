@@ -182,7 +182,7 @@ func transformUnorderedLists(s string) string {
 		var buf strings.Builder
 		for _, line := range strings.Split(strings.TrimRight(block, "\n"), "\n") {
 			if len(line) >= 2 {
-				buf.WriteString(".IP \\(bu 4\n")
+				buf.WriteString(".IP \\(bu 2\n")
 				buf.WriteString(line[2:])
 				buf.WriteByte('\n')
 			}

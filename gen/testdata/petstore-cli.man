@@ -16,13 +16,13 @@ PetStore API
 .UE \c easier\. It provides a number of
 capabilities, including:
 .PP
-.IP \(bu 4
+.IP \(bu 2
 validating request parameters
-.IP \(bu 4
+.IP \(bu 2
 executing API requests
-.IP \(bu 4
+.IP \(bu 2
 parsing the API response
-.IP \(bu 4
+.IP \(bu 2
 handling API errors
 .PP
 The commands are documented below\. You can also find out more about each

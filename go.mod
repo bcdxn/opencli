@@ -7,14 +7,12 @@ require (
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/pflag v1.0.10
+	github.com/urfave/cli/v3 v3.10.1
 	github.com/yuin/goldmark v1.8.4
 	golang.org/x/text v0.40.0
 )
 
-require (
-	github.com/dlclark/regexp2/v2 v2.2.1 // indirect
-	github.com/urfave/cli/v3 v3.10.1 // indirect
-)
+require github.com/dlclark/regexp2/v2 v2.2.1 // indirect
 
 require (
 	charm.land/glamour/v2 v2.0.1

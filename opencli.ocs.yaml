@@ -9,8 +9,6 @@ info:
 
     - validating OpenCLI Spec documents
     - generating Documentation from OpenCLI Spec documents
-  
-    ---
 
     The commands are documented below. You can also find out more about each
     command using the contextual `--help` flag. e.g.:
@@ -89,9 +87,6 @@ commands:
         description: |
           this command will check the validity of the given OpenCLI document
           by parsing it and checking it against the OpenCLI Specification.
-
-          - a list or something
-          - and another item
 
           > [!TIP]
           > The format of the input file will be determined by the file extension.

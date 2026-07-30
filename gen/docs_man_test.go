@@ -249,17 +249,17 @@ func TestRoffEscape_UnorderedLists(t *testing.T) {
 		{
 			name:    "dash list items",
 			input:   "- item one\n- item two",
-			wantSub: []string{".IP \\(bu 4\nitem one", ".IP \\(bu 4\nitem two"},
+			wantSub: []string{".IP \\(bu 2\nitem one", ".IP \\(bu 2\nitem two"},
 		},
 		{
 			name:    "asterisk list items",
 			input:   "* item one\n* item two",
-			wantSub: []string{".IP \\(bu 4\nitem one", ".IP \\(bu 4\nitem two"},
+			wantSub: []string{".IP \\(bu 2\nitem one", ".IP \\(bu 2\nitem two"},
 		},
 		{
 			name:    "single list item",
 			input:   "- only item",
-			wantSub: []string{".IP \\(bu 4\nonly item"},
+			wantSub: []string{".IP \\(bu 2\nonly item"},
 		},
 	}
 
@@ -331,8 +331,8 @@ func TestRoffEscape_Integration(t *testing.T) {
 			input: "Introduction\n\n```\ncode block\n```\n\n- item1\n- item2\n\nFinal paragraph.",
 			wantSub: []string{
 				".nf\n```\ncode block\n```\n.fi",
-				".IP \\(bu 4\nitem1",
-				".IP \\(bu 4\nitem2",
+				".IP \\(bu 2\nitem1",
+				".IP \\(bu 2\nitem2",
 				"\n.PP\n",
 			},
 		},
