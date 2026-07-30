@@ -1,6 +1,6 @@
 .TH petstore 1 "1.0.0" "PetStore CLI"
 .SH NAME
-PetStore CLI \- An example CLI Document describing operations a petstore CLI may provide\.
+PetStore CLI \- An example CLI Document describing operations a petstore CLI may provide.
 .
 .SH SYNOPSIS
 .nh
@@ -13,7 +13,7 @@ petstore [GLOBAL OPTIONS] COMMAND [ARGUMENTS] [OPTIONS]
 `petstore` is an example command line interface designed to make working with the
 .UR https://petstore3.swagger.io
 PetStore API
-.UE \c easier\. It provides a number of
+.UE \c easier. It provides a number of
 capabilities, including:
 .PP
 .IP \(bu 2
@@ -25,8 +25,8 @@ parsing the API response
 .IP \(bu 2
 handling API errors
 .PP
-The commands are documented below\. You can also find out more about each
-command using the contextual `--help` flag\. e\.g\.:
+The commands are documented below. You can also find out more about each
+command using the contextual `--help` flag. e.g.:
 .PP
 .nf
 ```sh
@@ -53,13 +53,13 @@ print the version of the CLI
 .
 .SH CONFIG FILES
 .TP
-\fI~/\.petstore/config\.json\fP
+\fI~/.petstore/config.json\fP
 JSON configuration file.
 .TP
-\fI~/\.petstore/config\.toml\fP
+\fI~/.petstore/config.toml\fP
 TOML configuration file.
 .TP
-\fI~/\.petstore/config\.yaml\fP
+\fI~/.petstore/config.yaml\fP
 YAML configuration file.
 .
 .SH COMMANDS
@@ -82,7 +82,7 @@ List all endpoints available
 .SS petstore pet add <arguments> [flags]
 Add a new pet to the store
 .br
-Create a new pet in the store using a JSON payload or explicit flags\.
+Create a new pet in the store using a JSON payload or explicit flags.
 
 .
 .
@@ -96,11 +96,11 @@ Create a new pet in the store using a JSON payload or explicit flags\.
 The path to a JSON file containing the new pet payload
 .br
 A JSON formatted file with the exact POST body to send as part of the request to add a
-new pet to the store using the PetStore API\. The exact schema can be found
+new pet to the store using the PetStore API. The exact schema can be found
 .UR https://petstore3.swagger.io/api/v3/openapi.json#/components/schemas/PetPet
 here
-.UE \c\. You
-can use this option instead of passing individual flags\.
+.UE \c. You
+can use this option instead of passing individual flags.
 
 .PP
 Type: \fIstring\fP
@@ -128,7 +128,7 @@ Type: \fIstring\fP
 .RS 4
 A list of photo URLs to display for the pet
 .br
-Provide this flag multiple times to set multiple photo URLs\.
+Provide this flag multiple times to set multiple photo URLs.
  
 .PP
 Type: \fIstring\fP, variadic
@@ -163,7 +163,7 @@ Allowed values:
 .RS 4
 Tag to assign to the pet for grouping/sorting
 .br
-Provide this flag multiple times to add multiple tags\.
+Provide this flag multiple times to add multiple tags.
  
 .PP
 Type: \fIstring\fP, variadic
@@ -178,7 +178,7 @@ Type: \fIstring\fP, variadic
 .SS petstore pet update <arguments> [flags]
 Update an existing pet
 .br
-Update a pet using a JSON payload or explicit flags\.
+Update a pet using a JSON payload or explicit flags.
 
 .
 .
@@ -236,7 +236,7 @@ Allowed values:
 .RS 4
 A list of photo URLs to display for the pet
 .br
-Provide this flag multiple times to set multiple photo URLs\.
+Provide this flag multiple times to set multiple photo URLs.
  
 .PP
 Type: \fIstring\fP, variadic
@@ -249,7 +249,7 @@ Type: \fIstring\fP, variadic
 .RS 4
 Tags to assign to the pet
 .br
-Provide this flag multiple times to add multiple tags\.
+Provide this flag multiple times to add multiple tags.
  
 .PP
 Type: \fIstring\fP, variadic
@@ -312,7 +312,7 @@ Find pets by tags
 .RS 4
 The tags to filter pets by
 .br
-Provide this flag multiple times to filter by multiple tags\.
+Provide this flag multiple times to filter by multiple tags.
  
 .PP
 Type: \fIstring\fP, variadic
@@ -442,7 +442,7 @@ Type: \fIstring\fP
 .SS petstore pet upload-image <arguments> [flags]
 Upload an image for a pet
 .br
-Upload a binary image file for the specified pet\.
+Upload a binary image file for the specified pet.
 
 .
 .
@@ -510,7 +510,7 @@ Returns pet inventories by status
 .SS petstore store order place <arguments> [flags]
 Place an order for a pet
 .br
-Create a purchase order using a JSON payload or explicit flags\.
+Create a purchase order using a JSON payload or explicit flags.
 
 .
 .
@@ -642,7 +642,7 @@ Type: \fIinteger\fP, required
 .SS petstore user create <arguments> [flags]
 Create a user
 .br
-Create a new user using a JSON payload or explicit flags\.
+Create a new user using a JSON payload or explicit flags.
 
 .
 .
@@ -742,7 +742,7 @@ Type: \fIinteger\fP
 .SS petstore user create-with-list <arguments>
 Create multiple users with a list
 .br
-Create multiple users using a JSON array payload\.
+Create multiple users using a JSON array payload.
 
 .
 .
@@ -790,7 +790,7 @@ Alternative sources:
 .br
 env:\fI$PETSTORE_USER\fR
 .br
-file:\fI$\.auth\.user\fR
+file:\fI$.auth.user\fR
 .RE
 .
 .RE
@@ -808,7 +808,7 @@ Alternative sources:
 .br
 env:\fI$PETSTORE_PASS\fR
 .br
-file:\fI$\.auth\.pass\fR
+file:\fI$.auth.pass\fR
 .RE
 .
 .RE
@@ -855,7 +855,7 @@ Type: \fIstring\fP, required
 .SS petstore user update [flags]
 Update a user
 .br
-Update a user's information using a JSON payload or explicit flags\.
+Update a user's information using a JSON payload or explicit flags.
 
 .
 .
@@ -968,6 +968,6 @@ MIT
 .UE
 .
 .SH VERSION
-1\.0\.0
+1.0.0
 .
 

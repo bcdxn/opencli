@@ -68,19 +68,19 @@ func TestRoffEscape_CharacterEscaping(t *testing.T) {
 		want  string
 	}{
 		{
-			name:  "backslash escaped",
+			name:  "backslash escaped as double-backslash",
 			input: `hello\world`,
-			want:  `hello\bKworld`,
+			want:  `hello\\world`,
 		},
 		{
-			name:  "dot escaped",
+			name:  "dot mid-line is NOT escaped",
 			input: "hello.world",
-			want:  `hello\.world`,
+			want:  `hello.world`,
 		},
 		{
-			name:  "multiple special chars",
+			name:  "multiple special chars - only leading dot and backslash escaped",
 			input: `a.b\c.d`,
-			want:  `a\.b\bKc\.d`,
+			want:  `a.b\\c.d`,
 		},
 	}
 
@@ -89,6 +89,88 @@ func TestRoffEscape_CharacterEscaping(t *testing.T) {
 			got := roffEscape(tt.input)
 			if !strings.Contains(got, tt.want) {
 				t.Errorf("expected output to contain %q, got:\n%s", tt.want, got)
+			}
+		})
+	}
+}
+
+func TestRoffEscape_LeadingDotEscaped(t *testing.T) {
+	tests := []struct {
+		name    string
+		input   string
+		wantSub string // substring that must appear (escaped leading dot)
+		notSub  string // substring that must NOT appear (unescaped leading dot)
+	}{
+		{
+			name:    "dot at start of line is escaped",
+			input:   ".macro here",
+			wantSub: `\.macro here`,
+			notSub:  "",
+		},
+		{
+			name:    "dot after newline is escaped",
+			input:   "text\n.macro",
+			wantSub: `\.macro`,
+			notSub:  "\n.macro",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := roffEscape(tt.input)
+			if !strings.Contains(got, tt.wantSub) {
+				t.Errorf("expected output to contain %q, got:\n%s", tt.wantSub, got)
+			}
+			if tt.notSub != "" && strings.Contains(got, tt.notSub) {
+				t.Errorf("expected output to NOT contain %q, got:\n%s", tt.notSub, got)
+			}
+		})
+	}
+}
+
+func TestRoffEscape_NoBackK(t *testing.T) {
+	// \bK is a roff backspace escape, NOT a literal backslash.
+	// The converter must never emit \bK for user text.
+	input := `path\to\file`
+	got := roffEscape(input)
+	if strings.Contains(got, `\bK`) {
+		t.Errorf("output must not contain \\bK (backspace escape), got:\n%s", got)
+	}
+	if !strings.Contains(got, `\\`) {
+		t.Errorf("expected literal backslash to be escaped as \\\\, got:\n%s", got)
+	}
+}
+
+func TestRoffEscape_InjectedMacrosPreserved(t *testing.T) {
+	// The converter injects .UR/.UE/.nf/.fi macros. These must NOT be
+	// escaped by the character escaper, otherwise they become literal text.
+	tests := []struct {
+		name    string
+		input   string
+		wantSub string // the injected macro that must appear intact
+	}{
+		{
+			name:    "URL macro .UR preserved",
+			input:   "[link](http://example.com)",
+			wantSub: ".UR http://example.com",
+		},
+		{
+			name:    "URL macro .UE preserved with \\c",
+			input:   "[link](http://example.com)",
+			wantSub: `.UE \c`,
+		},
+		{
+			name:    "code block .nf/.fi preserved",
+			input:   "```\ncode\n```",
+			wantSub: ".nf",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := roffEscape(tt.input)
+			if !strings.Contains(got, tt.wantSub) {
+				t.Errorf("expected output to contain %q, got:\n%s", tt.wantSub, got)
 			}
 		})
 	}

@@ -93,9 +93,12 @@ func extractCodeBlocks(s string) (string, []codeBlock) {
 
 // escapeRoffChars escapes special roff/troff characters while skipping
 // code-block placeholders so they remain intact for restoration.
+// Only leading '.' at the start of a line is escaped (to prevent accidental
+// macro invocation). Literal backslashes are escaped as '\\' (not '\bK').
 func escapeRoffChars(s string, blocks []codeBlock) string {
 	var sb strings.Builder
 	pos := 0
+	atLineStart := true
 	for pos < len(s) {
 		matched := false
 		for _, b := range blocks {
@@ -112,11 +115,21 @@ func escapeRoffChars(s string, blocks []codeBlock) string {
 		r, size := utf8.DecodeRuneInString(s[pos:])
 		switch r {
 		case '\\':
-			sb.WriteString(`\bK`)
+			sb.WriteString(`\\`)
+			atLineStart = false
 		case '.':
-			sb.WriteString(`\.`)
+			if atLineStart {
+				sb.WriteString(`\.`)
+			} else {
+				sb.WriteRune('.')
+			}
+			atLineStart = false
+		case '\n':
+			sb.WriteRune('\n')
+			atLineStart = true
 		default:
 			sb.WriteRune(r)
+			atLineStart = false
 		}
 		pos += size
 	}
