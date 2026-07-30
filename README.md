@@ -135,6 +135,12 @@ commands:
 
 #### Generating Documentation
 
+Currenly supported formats include:
+
+- **Markdown**: clean deterministic markdown docs ready for GitHub or anywhere that renders markdown
+- **Man Pages**: Properly formatted `groff` files that can be interpretted by `man`
+- **HTML**: Rich, interactive docs as a standalone web page or as an embedded component.
+
 From this OpenCLI document we can generate clean markdown documentation using the follow command:
 
 ```sh
