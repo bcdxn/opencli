@@ -72,13 +72,20 @@ List all endpoints available
 .
 .
 .
+.
+.
+.
 
+.
+.
 .
 .SS petstore pet add <arguments> [flags]
 Add a new pet to the store
 .br
 Create a new pet in the store using a JSON payload or explicit flags\.
 
+.
+.
 .
 .PP
 \fBArguments:\fR
@@ -100,7 +107,6 @@ Type: \fIstring\fP
 .
 .RE
 .RE
-.
 .
 .
 .
@@ -167,11 +173,15 @@ Type: \fIstring\fP, variadic
 .RE
 .RE
 .
+.
+.
 .SS petstore pet update <arguments> [flags]
 Update an existing pet
 .br
 Update a pet using a JSON payload or explicit flags\.
 
+.
+.
 .
 .PP
 \fBArguments:\fR
@@ -185,7 +195,6 @@ Type: \fIstring\fP
 .
 .RE
 .RE
-.
 .
 .
 .
@@ -250,8 +259,11 @@ Type: \fIstring\fP, variadic
 .RE
 .RE
 .
+.
+.
 .SS petstore pet find-by-status [flags]
 Find pets by status
+.
 .
 .
 .
@@ -282,8 +294,11 @@ Allowed values:
 .RE
 .RE
 .
+.
+.
 .SS petstore pet find-by-tags [flags]
 Find pets by tags
+.
 .
 .
 .
@@ -307,8 +322,11 @@ Type: \fIstring\fP, variadic
 .RE
 .RE
 .
+.
+.
 .SS petstore pet get [flags]
 Find pet by ID
+.
 .
 .
 .
@@ -329,8 +347,11 @@ Type: \fIinteger\fP, required
 .RE
 .RE
 .
+.
+.
 .SS petstore pet update-form [flags]
 Update a pet using form data
+.
 .
 .
 .
@@ -381,8 +402,11 @@ Allowed values:
 .RE
 .RE
 .
+.
+.
 .SS petstore pet delete [flags]
 Delete a pet
+.
 .
 .
 .
@@ -413,11 +437,15 @@ Type: \fIstring\fP
 .RE
 .RE
 .
+.
+.
 .SS petstore pet upload-image <arguments> [flags]
 Upload an image for a pet
 .br
 Upload a binary image file for the specified pet\.
 
+.
+.
 .
 .PP
 \fBArguments:\fR
@@ -431,7 +459,6 @@ Type: \fIstring\fP, required
 .
 .RE
 .RE
-.
 .
 .
 .
@@ -460,10 +487,19 @@ Type: \fIstring\fP
 .RE
 .RE
 .
+.
+.
 
+.
+.
 .
 .SS petstore store inventory
 Returns pet inventories by status
+.
+.
+.
+.
+.
 .
 .
 .
@@ -477,6 +513,8 @@ Place an order for a pet
 Create a purchase order using a JSON payload or explicit flags\.
 
 .
+.
+.
 .PP
 \fBArguments:\fR
 .
@@ -489,7 +527,6 @@ Type: \fIstring\fP
 .
 .RE
 .RE
-.
 .
 .
 .
@@ -548,8 +585,11 @@ Type: \fIboolean\fP
 .RE
 .RE
 .
+.
+.
 .SS petstore store order get [flags]
 Find purchase order by ID
+.
 .
 .
 .
@@ -570,8 +610,12 @@ Type: \fIinteger\fP, required
 .RE
 .RE
 .
+.
+.
 .SS petstore store order delete <arguments>
 Delete purchase order by ID
+.
+.
 .
 .PP
 \fBArguments:\fR
@@ -590,13 +634,18 @@ Type: \fIinteger\fP, required
 .
 .
 .
+.
 
+.
+.
 .
 .SS petstore user create <arguments> [flags]
 Create a user
 .br
 Create a new user using a JSON payload or explicit flags\.
 
+.
+.
 .
 .PP
 \fBArguments:\fR
@@ -610,7 +659,6 @@ Type: \fIstring\fP
 .
 .RE
 .RE
-.
 .
 .
 .
@@ -689,11 +737,15 @@ Type: \fIinteger\fP
 .RE
 .RE
 .
+.
+.
 .SS petstore user create-with-list <arguments>
 Create multiple users with a list
 .br
 Create multiple users using a JSON array payload\.
 
+.
+.
 .
 .PP
 \fBArguments:\fR
@@ -712,8 +764,10 @@ Type: \fIstring\fP, required
 .
 .
 .
+.
 .SS petstore user login [flags]
 Log in a user
+.
 .
 .
 .
@@ -736,7 +790,7 @@ Alternative sources:
 .br
 env:\fI$PETSTORE_USER\fR
 .br
-file:\fI$.auth.user
+file:\fI$\.auth\.user\fR
 .RE
 .
 .RE
@@ -754,11 +808,13 @@ Alternative sources:
 .br
 env:\fI$PETSTORE_PASS\fR
 .br
-file:\fI$.auth.pass
+file:\fI$\.auth\.pass\fR
 .RE
 .
 .RE
 .RE
+.
+.
 .
 .SS petstore user logout
 Log out the current user
@@ -768,8 +824,12 @@ Log out the current user
 .
 .
 .
+.
+.
+.
 .SS petstore user get [flags]
 Get user by username
+.
 .
 .
 .
@@ -790,11 +850,14 @@ Type: \fIstring\fP, required
 .RE
 .RE
 .
+.
+.
 .SS petstore user update [flags]
 Update a user
 .br
 Update a user's information using a JSON payload or explicit flags\.
 
+.
 .
 .
 .
@@ -876,17 +939,23 @@ Type: \fIinteger\fP
 .RE
 .
 .
+.
+.
 .SH EXIT STATUS
 
 .TP
 \fB0\fP (OK)
 The command was successful
+.
 .TP
 \fB1\fP (INTERNAL_CLI_ERROR)
 The command failed
+.
 .TP
 \fB2\fP (BAD_USER_INPUT_ERROR)
 Missing or invalid input
+.
+.
 .
 .SH AUTHORS
 .UR https://github.com/bcdxn/opencli
@@ -899,6 +968,6 @@ MIT
 .UE
 .
 .SH VERSION
-1.0.0
-
+1\.0\.0
+.
 

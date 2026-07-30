@@ -88,7 +88,7 @@ const (
 	HTML_PAGE DocFormat = "HTML_PAGE"
 	// HTML_EMBED generates a JavaScript bundle that can be embedded in an existing page.
 	HTML_EMBED DocFormat = "HTML_EMBED"
-	// ManPage generates a man page (not yet implemented).
+	// ManPage generates a man page.
 	MAN DocFormat = "MAN"
 )
 

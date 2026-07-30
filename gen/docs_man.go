@@ -262,10 +262,9 @@ func roffEscape(s string) string {
 
 // collectExamples recursively collects all examples from the command tree.
 func collectExamples(cmd *spec.CommandItem) []spec.Example {
-	var examples []spec.Example
+	examples := append([]spec.Example{}, cmd.Examples...)
 	for _, c := range cmd.Commands {
 		if !c.Hidden {
-			examples = append(examples, c.Examples...)
 			examples = append(examples, collectExamples(c)...)
 		}
 	}

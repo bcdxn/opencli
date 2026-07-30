@@ -88,10 +88,10 @@ YAML configuration file.
 {{.Summary | roffEscape}}{{if .Description}}
 .PP
 {{.Description | roffEscape}}{{end}}
-
+.
 {{- end}}
 {{- end}}
-
+.
 {{- $examples := collectExamples .Doc.Commands}}
 {{- if $examples}}
 .SH EXAMPLES
@@ -148,8 +148,8 @@ YAML configuration file.
 {{- end}}
 .
 .SH VERSION
-{{.Doc.Info.Version}}
-
+{{.Doc.Info.Version | roffEscape}}
+.
 {{define "commandSection"}}
 {{- if and (not .Hidden)}}
 {{- if or (not .Kind) (ne .Kind "group")}}
@@ -161,6 +161,8 @@ YAML configuration file.
 .br
 {{.Description | roffEscape}}
 {{- end}}
+.
+.
 .
 {{- if .VisibleArgs }}
 .PP
@@ -199,7 +201,6 @@ Allowed values:
 .
 .
 .
-.
 {{- if .VisibleFlags}}
 .PP
 \fBFlags:\fR
@@ -220,7 +221,7 @@ Type: \fI{{.Type}}\fP{{if .Variadic}}, variadic{{end}}{{if .Required}}, required
 .
 {{- if .Default}}
 .br
-Default: \fB{{.Default}}\fR{{end}}
+Default: \fB{{print .Default | roffEscape}}\fR{{end}}
 {{- if .Choices}}
 .br
 Allowed values:
@@ -238,7 +239,7 @@ Alternative sources:
 .RS 4
 {{- range .AltSources}}
 .br
-{{if eq .Type "$ENV"}}env:\fI${{.Property}}\fR{{else}}file:\fI{{.Property}}{{end}}
+{{if eq .Type "$ENV"}}env:\fI${{.Property | roffEscape}}\fR{{else}}file:\fI{{.Property | roffEscape}}\fR{{end}}
 {{- end}}
 .RE
 {{- end}}
@@ -249,6 +250,8 @@ Alternative sources:
 .RE
 {{- end}}{{/* end flags */}}
 {{- end}}{{/* end of NOT group check */}}
+.
+.
 .
 {{- range $i, $node := .Commands}}
 {{- template "commandSection" $node}}
