@@ -62,14 +62,16 @@ var blockQuoteRe = regexp.MustCompile(`(?m)(?:^>[\t ]?[^\n]*\n?)+`)
 // gfmAlertRe matches a GitHub Flavored Markdown alert type marker, e.g. [!TIP].
 var gfmAlertRe = regexp.MustCompile(`(?i)^\[!(TIP|NOTE|WARNING|CAUTION|IMPORTANT)\]$`)
 
-// roffEscape escapes special roff/troff characters and converts certain
-// markdown constructs to their roff equivalents.
-// - Fenced code blocks are wrapped with .nf / .fi.
-// - Markdown links [label](url) become .UR /.UE macros.
-func roffEscape(s string) string {
-	// 1. Extract code blocks so their contents are not escaped or link-processed.
-	type block struct{ placeholder, content string }
-	var blocks []block
+// codeBlock holds a placeholder and the original content for restoration.
+type codeBlock struct {
+	placeholder string
+	content     string
+}
+
+// extractCodeBlocks replaces fenced code blocks with null-byte placeholders
+// so their contents are not processed by subsequent escaping/transformation steps.
+func extractCodeBlocks(s string) (string, []codeBlock) {
+	var blocks []codeBlock
 	idx := 0
 
 	s = codeBlockRe.ReplaceAllStringFunc(s, func(match string) string {
@@ -81,13 +83,17 @@ func roffEscape(s string) string {
 			}
 		}
 		plh := fmt.Sprintf("\x00CB%d\x00", idx)
-		blocks = append(blocks, block{plh, inner})
+		blocks = append(blocks, codeBlock{plh, inner})
 		idx++
 		return plh
 	})
 
-	// 2. Character-level escaping (before markdown transformations,
-	//    so roff macros inserted later are not re-escaped).
+	return s, blocks
+}
+
+// escapeRoffChars escapes special roff/troff characters while skipping
+// code-block placeholders so they remain intact for restoration.
+func escapeRoffChars(s string, blocks []codeBlock) string {
 	var sb strings.Builder
 	pos := 0
 	for pos < len(s) {
@@ -114,19 +120,27 @@ func roffEscape(s string) string {
 		}
 		pos += size
 	}
-	s = sb.String()
+	return sb.String()
+}
 
-	// 3. Convert markdown paragraphs 2+ newlines) into a .PP
-	s = paragraphRe.ReplaceAllString(s, "\n.PP\n")
+// transformParagraphs converts runs of 2+ newlines into .PP roff macros.
+func transformParagraphs(s string) string {
+	return paragraphRe.ReplaceAllString(s, "\n.PP\n")
+}
 
-	// 4. Convert orizontal breaks
-	s = hbRe.ReplaceAllString(s, "\n\\l'20n'\n")
+// transformHorizontalBreaks converts markdown horizontal rules (--- or ~~~) into roff lines.
+func transformHorizontalBreaks(s string) string {
+	return hbRe.ReplaceAllString(s, "\n\\l'20n'\n")
+}
 
-	// 5. Convert markdown block quotes (">" lines) and GFM alerts to roff.
-	//    A GFM alert header ([!TIP], [!NOTE], etc.) becomes a bold label.
-	//    All quote content is indented with .RS/.RE; .PP resets the margin
-	//    afterwards.
-	s = blockQuoteRe.ReplaceAllStringFunc(s, func(block string) string {
+// formatGFMAlertLabel returns the title-cased label for a GFM alert type.
+func formatGFMAlertLabel(alertType string) string {
+	return strings.ToUpper(alertType[:1]) + strings.ToLower(alertType[1:])
+}
+
+// transformBlockQuotes converts markdown block-quote lines and GFM alerts to roff.
+func transformBlockQuotes(s string) string {
+	return blockQuoteRe.ReplaceAllStringFunc(s, func(block string) string {
 		lines := strings.Split(strings.TrimRight(block, "\n"), "\n")
 		content := make([]string, 0, len(lines))
 		for _, line := range lines {
@@ -144,10 +158,9 @@ func roffEscape(s string) string {
 		buf.WriteString(".PP\n")
 		start := 0
 
-		// Detect GFM alert header and render as a bold label.
 		if len(content) > 0 {
 			if m := gfmAlertRe.FindStringSubmatch(content[0]); m != nil {
-				label := strings.ToUpper(m[1][:1]) + strings.ToLower(m[1][1:])
+				label := formatGFMAlertLabel(m[1])
 				buf.WriteString("\\fB")
 				buf.WriteString(label)
 				buf.WriteString(":\\fP\n")
@@ -155,90 +168,96 @@ func roffEscape(s string) string {
 			}
 		}
 
-		// Wrap remaining content in .RS/.RE for indentation.
-		if start < len(content) {
-			for _, line := range content[start:] {
-				buf.WriteString(line)
-				buf.WriteByte('\n')
-			}
+		for _, line := range content[start:] {
+			buf.WriteString(line)
+			buf.WriteByte('\n')
 		}
 		return buf.String()
 	})
+}
 
-	// 6. Convert markdown unordered list items ("- " / "* ") to .IP roff entries.
-	//    roff's fill mode reflows all text, joining adjacent list items onto one
-	//    line; .IP begins a fresh indented paragraph for each bullet. .PP after
-	//    the final item resets the indent level so subsequent text is not left
-	//    hanging at the list indentation.
-	s = listBlockRe.ReplaceAllStringFunc(s, func(block string) string {
+// transformUnorderedLists converts markdown unordered list items to .IP roff entries.
+func transformUnorderedLists(s string) string {
+	return listBlockRe.ReplaceAllStringFunc(s, func(block string) string {
 		var buf strings.Builder
 		for _, line := range strings.Split(strings.TrimRight(block, "\n"), "\n") {
 			if len(line) >= 2 {
 				buf.WriteString(".IP \\(bu 4\n")
-				buf.WriteString(line[2:]) // strip "- " / "* " prefix
+				buf.WriteString(line[2:])
 				buf.WriteByte('\n')
 			}
 		}
 		return buf.String()
 	})
+}
 
-	// 7. Convert markdown URLs (roff macros inserted here are the final output,
-	//    so they won't be re-escaped).
-	//    Two corrections are applied per match:
-	//      a) The URL had its dots escaped in step 2 (\. → .) — un-escape them
-	//         so .UR receives a valid plain URI.
-	//      b) .UR must start at column 1 to be recognised as a macro; if the
-	//         preceding text on the same line is non-empty, inject a newline.
-	{
-		var urlBuf strings.Builder
-		prev := 0
-		for _, loc := range urlRe.FindAllStringIndex(s, -1) {
-			start, end := loc[0], loc[1]
-			before := s[prev:start]
-			urlBuf.WriteString(before)
+// transformURLs converts markdown-style inline links to .UR /.UE roff macros.
+func transformURLs(s string) string {
+	var urlBuf strings.Builder
+	prev := 0
+	for _, loc := range urlRe.FindAllStringIndex(s, -1) {
+		start, end := loc[0], loc[1]
+		before := s[prev:start]
+		urlBuf.WriteString(before)
 
-			caps := urlRe.FindStringSubmatch(s[start:end])
-			if len(caps) >= 3 {
-				// Un-escape dots in the URL so the .UR argument is a valid URI.
-				url := strings.ReplaceAll(caps[2], `\.`, ".")
-				// Normalise the label: collapse newlines and surrounding whitespace.
-				label := strings.Join(strings.Fields(caps[1]), " ")
-				// Ensure .UR begins on its own line.
-				if len(before) > 0 && before[len(before)-1] != '\n' {
-					urlBuf.WriteByte('\n')
-				}
-				fmt.Fprintf(&urlBuf, ".UR %s\n%s\n.UE \\c", url, label)
-			} else {
-				urlBuf.WriteString(s[start:end])
+		caps := urlRe.FindStringSubmatch(s[start:end])
+		if len(caps) >= 3 {
+			url := strings.ReplaceAll(caps[2], `\.`, ".")
+			label := strings.Join(strings.Fields(caps[1]), " ")
+			if len(before) > 0 && before[len(before)-1] != '\n' {
+				urlBuf.WriteByte('\n')
 			}
-			prev = end
+			fmt.Fprintf(&urlBuf, ".UR %s\n%s\n.UE \\c", url, label)
+		} else {
+			urlBuf.WriteString(s[start:end])
 		}
-		urlBuf.WriteString(s[prev:])
-		s = urlBuf.String()
+		prev = end
 	}
+	urlBuf.WriteString(s[prev:])
+	return urlBuf.String()
+}
 
-	// 8. Restore code blocks with .nf/.fi wrappers.
+// restoreCodeBlocks replaces code-block placeholders with the original content,
+// wrapped in .nf/.fi roff macros for verbatim rendering.
+func restoreCodeBlocks(s string, blocks []codeBlock) string {
 	var out strings.Builder
-	pos = 0
+	pos := 0
 	for pos < len(s) {
+		replaced := false
 		for _, b := range blocks {
 			if strings.HasPrefix(s[pos:], b.placeholder) {
 				out.WriteString(".nf\n")
 				out.WriteString(b.content)
 				out.WriteString("\n.fi")
 				pos += len(b.placeholder)
+				replaced = true
 				break
 			}
 		}
-		if pos >= len(s) {
-			break
+		if replaced {
+			continue
 		}
 		r, size := utf8.DecodeRuneInString(s[pos:])
 		out.WriteRune(r)
 		pos += size
 	}
-
 	return out.String()
+}
+
+// roffEscape escapes special roff/troff characters and converts certain
+// markdown constructs to their roff equivalents.
+// - Fenced code blocks are wrapped with .nf / .fi.
+// - Markdown links [label](url) become .UR /.UE macros.
+func roffEscape(s string) string {
+	s, blocks := extractCodeBlocks(s)
+	s = escapeRoffChars(s, blocks)
+	s = transformParagraphs(s)
+	s = transformHorizontalBreaks(s)
+	s = transformBlockQuotes(s)
+	s = transformUnorderedLists(s)
+	s = transformURLs(s)
+
+	return restoreCodeBlocks(s, blocks)
 }
 
 // collectExamples recursively collects all examples from the command tree.

@@ -11,19 +11,23 @@ petstore [GLOBAL OPTIONS] COMMAND [ARGUMENTS] [OPTIONS]
 .
 .SH DESCRIPTION
 `petstore` is an example command line interface designed to make working with the
-\.UR https://petstore3\.swagger\.io
+.UR https://petstore3.swagger.io
 PetStore API
-\.UE \bKc easier\. It provides a number of
+.UE \c easier\. It provides a number of
 capabilities, including:
-
-- validating request parameters
-- executing API requests
-- parsing the API response
-- handling API errors
-
+.PP
+.IP \(bu 4
+validating request parameters
+.IP \(bu 4
+executing API requests
+.IP \(bu 4
+parsing the API response
+.IP \(bu 4
+handling API errors
+.PP
 The commands are documented below\. You can also find out more about each
 command using the contextual `--help` flag\. e\.g\.:
-
+.PP
 .nf
 ```sh
 petstore --help
@@ -80,20 +84,21 @@ Create a new pet in the store using a JSON payload or explicit flags\.
 \fBArguments:\fR
 .
 .RS 4
-.TP 4
 \fI<path-to-req-body>\fR
+.RS 4
 The path to a JSON file containing the new pet payload
 .br
 A JSON formatted file with the exact POST body to send as part of the request to add a
 new pet to the store using the PetStore API\. The exact schema can be found
-\.UR https://petstore3\.swagger\.io/api/v3/openapi\.json#/components/schemas/PetPet
+.UR https://petstore3.swagger.io/api/v3/openapi.json#/components/schemas/PetPet
 here
-\.UE \bKc\. You
+.UE \c\. You
 can use this option instead of passing individual flags\.
 
-.sp
+.PP
 Type: \fIstring\fP
 .
+.RE
 .RE
 .
 .
@@ -103,38 +108,40 @@ Type: \fIstring\fP
 \fBFlags:\fR
 .RS 4
 
-.TP 4
 \fB\-\-name\fP, \fB\-n\fR
+.RS 4
 The name of the pet 
-.sp
+.PP
 Type: \fIstring\fP
 .
 .
 .
+.RE
 
-.TP 4
 \fB\-\-photo-urls\fP, \fB\-p\fR
+.RS 4
 A list of photo URLs to display for the pet
 .br
 Provide this flag multiple times to set multiple photo URLs\.
  
-.sp
+.PP
 Type: \fIstring\fP, variadic
 .
 .
 .
+.RE
 
-.TP 4
 \fB\-\-status\fP
+.RS 4
 The pet status in the store 
-.sp
+.PP
 Type: \fIstring\fP
 .
 .br
 Default: \fBavailable\fR
 .br
 Allowed values:
-.RS 8
+.RS 4
 .br
 \fBavailable\fP
 .br
@@ -144,18 +151,20 @@ Allowed values:
 .RE
 .
 .
+.RE
 
-.TP 4
 \fB\-\-tag\fP
+.RS 4
 Tag to assign to the pet for grouping/sorting
 .br
 Provide this flag multiple times to add multiple tags\.
  
-.sp
+.PP
 Type: \fIstring\fP, variadic
 .
 .
 .
+.RE
 .RE
 .
 .SS petstore pet update <arguments> [flags]
@@ -168,12 +177,13 @@ Update a pet using a JSON payload or explicit flags\.
 \fBArguments:\fR
 .
 .RS 4
-.TP 4
 \fI<path-to-req-body>\fR
+.RS 4
 The path to a JSON file containing the updated pet payload
-.sp
+.PP
 Type: \fIstring\fP
 .
+.RE
 .RE
 .
 .
@@ -183,24 +193,25 @@ Type: \fIstring\fP
 \fBFlags:\fR
 .RS 4
 
-.TP 4
 \fB\-\-name\fP, \fB\-n\fR
+.RS 4
 The updated name of the pet 
-.sp
+.PP
 Type: \fIstring\fP
 .
 .
 .
+.RE
 
-.TP 4
 \fB\-\-status\fP
+.RS 4
 The updated pet status 
-.sp
+.PP
 Type: \fIstring\fP
 .
 .br
 Allowed values:
-.RS 8
+.RS 4
 .br
 \fBavailable\fP
 .br
@@ -210,30 +221,33 @@ Allowed values:
 .RE
 .
 .
+.RE
 
-.TP 4
 \fB\-\-photo-urls\fP, \fB\-p\fR
+.RS 4
 A list of photo URLs to display for the pet
 .br
 Provide this flag multiple times to set multiple photo URLs\.
  
-.sp
+.PP
 Type: \fIstring\fP, variadic
 .
 .
 .
+.RE
 
-.TP 4
 \fB\-\-tags\fP
+.RS 4
 Tags to assign to the pet
 .br
 Provide this flag multiple times to add multiple tags\.
  
-.sp
+.PP
 Type: \fIstring\fP, variadic
 .
 .
 .
+.RE
 .RE
 .
 .SS petstore pet find-by-status [flags]
@@ -247,15 +261,15 @@ Find pets by status
 \fBFlags:\fR
 .RS 4
 
-.TP 4
 \fB\-\-status\fP
+.RS 4
 The status to filter pets by 
-.sp
+.PP
 Type: \fIstring\fP, required
 .
 .br
 Allowed values:
-.RS 8
+.RS 4
 .br
 \fBavailable\fP
 .br
@@ -265,6 +279,7 @@ Allowed values:
 .RE
 .
 .
+.RE
 .RE
 .
 .SS petstore pet find-by-tags [flags]
@@ -278,17 +293,18 @@ Find pets by tags
 \fBFlags:\fR
 .RS 4
 
-.TP 4
 \fB\-\-tags\fP
+.RS 4
 The tags to filter pets by
 .br
 Provide this flag multiple times to filter by multiple tags\.
  
-.sp
+.PP
 Type: \fIstring\fP, variadic
 .
 .
 .
+.RE
 .RE
 .
 .SS petstore pet get [flags]
@@ -302,14 +318,15 @@ Find pet by ID
 \fBFlags:\fR
 .RS 4
 
-.TP 4
 \fB\-\-id\fP
+.RS 4
 The ID of the pet to retrieve 
-.sp
+.PP
 Type: \fIinteger\fP, required
 .
 .
 .
+.RE
 .RE
 .
 .SS petstore pet update-form [flags]
@@ -323,33 +340,35 @@ Update a pet using form data
 \fBFlags:\fR
 .RS 4
 
-.TP 4
 \fB\-\-id\fP
+.RS 4
 The ID of the pet to update 
-.sp
+.PP
 Type: \fIinteger\fP, required
 .
 .
 .
+.RE
 
-.TP 4
 \fB\-\-name\fP
+.RS 4
 The new name for the pet 
-.sp
+.PP
 Type: \fIstring\fP
 .
 .
 .
+.RE
 
-.TP 4
 \fB\-\-status\fP
+.RS 4
 The new status for the pet 
-.sp
+.PP
 Type: \fIstring\fP
 .
 .br
 Allowed values:
-.RS 8
+.RS 4
 .br
 \fBavailable\fP
 .br
@@ -359,6 +378,7 @@ Allowed values:
 .RE
 .
 .
+.RE
 .RE
 .
 .SS petstore pet delete [flags]
@@ -372,23 +392,25 @@ Delete a pet
 \fBFlags:\fR
 .RS 4
 
-.TP 4
 \fB\-\-id\fP
+.RS 4
 The ID of the pet to delete 
-.sp
+.PP
 Type: \fIinteger\fP, required
 .
 .
 .
+.RE
 
-.TP 4
 \fB\-\-api-key\fP
+.RS 4
 API key header used to authorize the delete request 
-.sp
+.PP
 Type: \fIstring\fP
 .
 .
 .
+.RE
 .RE
 .
 .SS petstore pet upload-image <arguments> [flags]
@@ -401,12 +423,13 @@ Upload a binary image file for the specified pet\.
 \fBArguments:\fR
 .
 .RS 4
-.TP 4
 \fI<path-to-file>\fR
+.RS 4
 The path to the file to upload
-.sp
+.PP
 Type: \fIstring\fP, required
 .
+.RE
 .RE
 .
 .
@@ -416,23 +439,25 @@ Type: \fIstring\fP, required
 \fBFlags:\fR
 .RS 4
 
-.TP 4
 \fB\-\-id\fP
+.RS 4
 The ID of the pet 
-.sp
+.PP
 Type: \fIinteger\fP, required
 .
 .
 .
+.RE
 
-.TP 4
 \fB\-\-additionalMetadata\fP
+.RS 4
 Additional metadata to store with the uploaded image 
-.sp
+.PP
 Type: \fIstring\fP
 .
 .
 .
+.RE
 .RE
 .
 
@@ -456,12 +481,13 @@ Create a purchase order using a JSON payload or explicit flags\.
 \fBArguments:\fR
 .
 .RS 4
-.TP 4
 \fI<path-to-order-body>\fR
+.RS 4
 The path to a JSON file containing the order payload
-.sp
+.PP
 Type: \fIstring\fP
 .
+.RE
 .RE
 .
 .
@@ -471,33 +497,35 @@ Type: \fIstring\fP
 \fBFlags:\fR
 .RS 4
 
-.TP 4
 \fB\-\-pet-id\fP
+.RS 4
 The ID of the pet to order 
-.sp
+.PP
 Type: \fIinteger\fP
 .
 .
 .
+.RE
 
-.TP 4
 \fB\-\-quantity\fP
+.RS 4
 How many pets to order 
-.sp
+.PP
 Type: \fIinteger\fP
 .
 .
 .
+.RE
 
-.TP 4
 \fB\-\-status\fP
+.RS 4
 The order status 
-.sp
+.PP
 Type: \fIstring\fP
 .
 .br
 Allowed values:
-.RS 8
+.RS 4
 .br
 \fBplaced\fP
 .br
@@ -507,15 +535,17 @@ Allowed values:
 .RE
 .
 .
+.RE
 
-.TP 4
 \fB\-\-complete\fP
+.RS 4
 Whether the order has been completed 
-.sp
+.PP
 Type: \fIboolean\fP
 .
 .
 .
+.RE
 .RE
 .
 .SS petstore store order get [flags]
@@ -529,14 +559,15 @@ Find purchase order by ID
 \fBFlags:\fR
 .RS 4
 
-.TP 4
 \fB\-\-id\fP
+.RS 4
 The ID of the order to retrieve 
-.sp
+.PP
 Type: \fIinteger\fP, required
 .
 .
 .
+.RE
 .RE
 .
 .SS petstore store order delete <arguments>
@@ -546,12 +577,13 @@ Delete purchase order by ID
 \fBArguments:\fR
 .
 .RS 4
-.TP 4
 \fI<id>\fR
+.RS 4
 The ID of the order to delete
-.sp
+.PP
 Type: \fIinteger\fP, required
 .
+.RE
 .RE
 .
 .
@@ -570,12 +602,13 @@ Create a new user using a JSON payload or explicit flags\.
 \fBArguments:\fR
 .
 .RS 4
-.TP 4
 \fI<path-to-user-body>\fR
+.RS 4
 The path to a JSON file containing the user payload
-.sp
+.PP
 Type: \fIstring\fP
 .
+.RE
 .RE
 .
 .
@@ -585,68 +618,75 @@ Type: \fIstring\fP
 \fBFlags:\fR
 .RS 4
 
-.TP 4
 \fB\-\-username\fP
+.RS 4
 The user's username 
-.sp
+.PP
 Type: \fIstring\fP
 .
 .
 .
+.RE
 
-.TP 4
 \fB\-\-firstName\fP
+.RS 4
 The user's first name 
-.sp
+.PP
 Type: \fIstring\fP
 .
 .
 .
+.RE
 
-.TP 4
 \fB\-\-lastName\fP
+.RS 4
 The user's last name 
-.sp
+.PP
 Type: \fIstring\fP
 .
 .
 .
+.RE
 
-.TP 4
 \fB\-\-email\fP
+.RS 4
 The user's email address 
-.sp
+.PP
 Type: \fIstring\fP
 .
 .
 .
+.RE
 
-.TP 4
 \fB\-\-password\fP
+.RS 4
 The user's password 
-.sp
+.PP
 Type: \fIstring\fP
 .
 .
 .
+.RE
 
-.TP 4
 \fB\-\-phone\fP
+.RS 4
 The user's phone number 
-.sp
+.PP
 Type: \fIstring\fP
 .
 .
 .
+.RE
 
-.TP 4
 \fB\-\-status\fP
+.RS 4
 The user's status 
-.sp
+.PP
 Type: \fIinteger\fP
 .
 .
 .
+.RE
 .RE
 .
 .SS petstore user create-with-list <arguments>
@@ -659,12 +699,13 @@ Create multiple users using a JSON array payload\.
 \fBArguments:\fR
 .
 .RS 4
-.TP 4
 \fI<path-to-users-body>\fR
+.RS 4
 The path to a JSON file containing the user list payload
-.sp
+.PP
 Type: \fIstring\fP, required
 .
+.RE
 .RE
 .
 .
@@ -682,39 +723,41 @@ Log in a user
 \fBFlags:\fR
 .RS 4
 
-.TP 4
 \fB\-\-username\fP
+.RS 4
 The user's username 
-.sp
+.PP
 Type: \fIstring\fP
 .
 .
 .br
 Alternative sources:
-.RS 8
+.RS 4
 .br
 env:\fI$PETSTORE_USER\fR
 .br
 file:\fI$.auth.user
 .RE
 .
+.RE
 
-.TP 4
 \fB\-\-password\fP
+.RS 4
 The user's password 
-.sp
+.PP
 Type: \fIstring\fP
 .
 .
 .br
 Alternative sources:
-.RS 8
+.RS 4
 .br
 env:\fI$PETSTORE_PASS\fR
 .br
 file:\fI$.auth.pass
 .RE
 .
+.RE
 .RE
 .
 .SS petstore user logout
@@ -736,14 +779,15 @@ Get user by username
 \fBFlags:\fR
 .RS 4
 
-.TP 4
 \fB\-\-username\fP
+.RS 4
 The username to look up 
-.sp
+.PP
 Type: \fIstring\fP, required
 .
 .
 .
+.RE
 .RE
 .
 .SS petstore user update [flags]
@@ -760,68 +804,75 @@ Update a user's information using a JSON payload or explicit flags\.
 \fBFlags:\fR
 .RS 4
 
-.TP 4
 \fB\-\-username\fP
+.RS 4
 The username of the user to update 
-.sp
+.PP
 Type: \fIstring\fP, required
 .
 .
 .
+.RE
 
-.TP 4
 \fB\-\-firstName\fP
+.RS 4
 The user's first name 
-.sp
+.PP
 Type: \fIstring\fP
 .
 .
 .
+.RE
 
-.TP 4
 \fB\-\-lastName\fP
+.RS 4
 The user's last name 
-.sp
+.PP
 Type: \fIstring\fP
 .
 .
 .
+.RE
 
-.TP 4
 \fB\-\-email\fP
+.RS 4
 The user's email address 
-.sp
+.PP
 Type: \fIstring\fP
 .
 .
 .
+.RE
 
-.TP 4
 \fB\-\-password\fP
+.RS 4
 The user's password 
-.sp
+.PP
 Type: \fIstring\fP
 .
 .
 .
+.RE
 
-.TP 4
 \fB\-\-phone\fP
+.RS 4
 The user's phone number 
-.sp
+.PP
 Type: \fIstring\fP
 .
 .
 .
+.RE
 
-.TP 4
 \fB\-\-userStatus\fP
+.RS 4
 The user's status 
-.sp
+.PP
 Type: \fIinteger\fP
 .
 .
 .
+.RE
 .RE
 .
 .
