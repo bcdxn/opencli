@@ -102,6 +102,7 @@ commands:
     - name: status
       type: string
       summary: The pet status in the store
+      default: available
       choices:
       - value: available
       - value: pending

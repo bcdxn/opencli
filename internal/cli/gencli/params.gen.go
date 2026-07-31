@@ -18,11 +18,12 @@ const (
 	OcliGenDocsFormatMarkdown  OcliGenDocsFormat = "markdown"
 	OcliGenDocsFormatHtmlPage  OcliGenDocsFormat = "html-page"
 	OcliGenDocsFormatHtmlEmbed OcliGenDocsFormat = "html-embed"
+	OcliGenDocsFormatMan       OcliGenDocsFormat = "man"
 )
 
 func (v OcliGenDocsFormat) IsValid() bool {
 	switch v {
-	case OcliGenDocsFormatMarkdown, OcliGenDocsFormatHtmlPage, OcliGenDocsFormatHtmlEmbed:
+	case OcliGenDocsFormatMarkdown, OcliGenDocsFormatHtmlPage, OcliGenDocsFormatHtmlEmbed, OcliGenDocsFormatMan:
 		return true
 	}
 	return false

@@ -35,7 +35,7 @@ func NewCmdOcli(a ActionsInterface) *cobra.Command {
 func getSpecOcliCmd() *spec.CommandItem {
 	return &spec.CommandItem{
 		Segment:         "ocli",
-		CommandLine:     "ocli ocli",
+		CommandLine:     "ocli",
 		Summary:         "A CLI for working with OpenCLI Specs",
 		Description:     "`ocli` is a command line interface designed to make working with [OpenCLI\nSpec documents](https://github.com/bcdxn/opencli/tree/main) easier. It provides a number of capabilities, including:\n\n- validating OpenCLI Spec documents\n- generating Documentation from OpenCLI Spec documents\n\nThe commands are documented below. You can also find out more about each\ncommand using the contextual `--help` flag. e.g.:\n\n```sh\nocli gen --help\n```\n",
 		VisibleChildren: true,

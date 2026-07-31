@@ -34,6 +34,12 @@ archives:
     format_overrides:
       - goos: windows
         formats: [zip]
+    files:
+      - README.md
+      - LICENSE
+      - src: build/ocli.1
+        strip_parent: true
+
 
 changelog:
   sort: asc
@@ -149,6 +155,8 @@ homebrew_casks:
     name: ocli
     binaries:
       - ocli
+    manpages:
+      ocli.1
     url:
       template: "https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
       verified: "github.com/opencli/opencli/"

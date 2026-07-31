@@ -1,0 +1,5941 @@
+opencliVersion: 1.0.0-alpha.13
+info:
+  title: command line tool to interact with Gitea
+  description: |
+    tea is a productivity helper for Gitea. It can be used to manage most entities on
+    one or multiple Gitea instances & provides local helpers like 'tea pr checkout'.
+    
+    tea tries to make use of context provided by the repository in $PWD if available.
+    tea works best in a upstream/fork workflow, when the local main branch tracks the
+    upstream repo. tea assumes that local git state is published on the remote before
+    doing operations with tea.    Configuration is persisted in $XDG_CONFIG_HOME/tea.
+  binary: tea
+  version: "Version: \x1b[1mdevelopment\x1b[0m\tgolang: 1.26.5"
+global:
+  config: {}
+  flags:
+  - name: help
+    aliases:
+    - h
+    type: boolean
+    summary: Show help for command
+  - name: version
+    aliases:
+    - v
+    type: boolean
+    summary: Show CLI version
+  - name: debug
+    aliases:
+    - vvv
+    type: boolean
+    summary: Enable debug mode
+commands:
+  tea {commands} [flags]:
+    summary: command line tool to interact with Gitea
+    description: |
+      tea is a productivity helper for Gitea. It can be used to manage most entities on
+      one or multiple Gitea instances & provides local helpers like 'tea pr checkout'.
+      
+      tea tries to make use of context provided by the repository in $PWD if available.
+      tea works best in a upstream/fork workflow, when the local main branch tracks the
+      upstream repo. tea assumes that local git state is published on the remote before
+      doing operations with tea.    Configuration is persisted in $XDG_CONFIG_HOME/tea.
+    flags:
+    - name: debug
+      aliases:
+      - vvv
+      type: boolean
+      summary: Enable debug mode
+    kind: action
+  tea logins {commands} [flags]:
+    summary: Log in to a Gitea server
+    description: Log in to a Gitea server
+    aliases:
+    - login
+    kind: action
+  tea logins list {commands} [flags]:
+    summary: List Gitea logins
+    description: List Gitea logins
+    aliases:
+    - ls
+    flags:
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea logins list help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea logins add {commands} [flags]:
+    summary: Add a Gitea login
+    description: |-
+      Add a Gitea login, without args it will create one interactively.
+      
+      By default tea only stores the token for its own API use. Pass --git-credentials
+      to also register tea as a git credential helper for the login's URL, so that
+      'git push' and 'git clone' over HTTPS authenticate silently using the stored
+      token. Equivalent to running 'tea login helper setup' afterwards.
+    flags:
+    - name: name
+      aliases:
+      - "n"
+      type: string
+      summary: Login name
+    - name: url
+      aliases:
+      - u
+      type: string
+      summary: Server URL
+    - name: no-version-check
+      aliases:
+      - nv
+      type: boolean
+      summary: Do not check version of Gitea instance
+    - name: token
+      aliases:
+      - t
+      type: string
+      summary: Access token. Can be obtained from Settings > Applications
+    - name: user
+      type: string
+      summary: User for basic auth (will create token)
+    - name: password
+      aliases:
+      - pwd
+      type: string
+      summary: Password for basic auth (will create token)
+    - name: otp
+      type: string
+      summary: OTP token for auth, if necessary
+    - name: scopes
+      type: string
+      summary: Token scopes to add when creating a new token, separated by a comma
+    - name: ssh-key
+      aliases:
+      - s
+      type: string
+      summary: Path to a SSH key/certificate to use, overrides auto-discovery
+    - name: insecure
+      aliases:
+      - i
+      type: boolean
+      summary: Disable TLS verification
+    - name: ssh-agent-principal
+      aliases:
+      - c
+      type: string
+      summary: Use SSH certificate with specified principal to login (needs a running ssh-agent with certificate loaded)
+    - name: ssh-agent-key
+      aliases:
+      - a
+      type: string
+      summary: Use SSH public key or SSH fingerprint to login (needs a running ssh-agent with ssh key loaded)
+    - name: git-credentials
+      aliases:
+      - helper
+      - j
+      type: boolean
+      summary: Register tea as a git credential helper for this login's URL, so 'git push' and 'git clone' over HTTPS authenticate silently using the stored token
+    - name: oauth
+      aliases:
+      - o
+      type: boolean
+      summary: Use interactive OAuth2 flow for authentication
+    - name: client-id
+      type: string
+      summary: OAuth client ID (for use with --oauth)
+    - name: redirect-url
+      type: string
+      summary: OAuth redirect URL (for use with --oauth)
+    kind: action
+  tea logins add help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea logins edit {commands} [flags]:
+    summary: Edit Gitea logins
+    description: Edit Gitea logins
+    aliases:
+    - e
+    flags:
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea logins edit help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea logins delete {commands} [flags]:
+    summary: Remove a Gitea login
+    description: Remove a Gitea login
+    aliases:
+    - rm
+    kind: action
+  tea logins delete help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea logins default {commands} [flags]:
+    summary: Get or Set Default Login
+    description: Get or Set Default Login
+    flags:
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea logins default help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea logins helper {commands} [flags]:
+    summary: Act as a git credential helper for stored Gitea logins
+    description: |-
+      Speaks git's credential helper protocol so that HTTPS push and clone
+      operations against your configured Gitea instances authenticate silently
+      using the tokens tea already stores.
+      
+      Typical use is automatic: 'tea login add --git-credentials' (or 'tea login
+      helper setup' for existing logins) registers '!tea login helper' as a
+      credential helper in ~/.gitconfig. Git then invokes the 'get' subcommand
+      when it needs credentials for a configured host.
+    aliases:
+    - git-credential
+    kind: group
+  tea logins helper store {commands} [flags]:
+    summary: No-op (git credential protocol store/erase)
+    description: No-op invoked by git on credential store/erase; tea persists credentials only in its own config
+    aliases:
+    - erase
+    kind: action
+  tea logins helper store help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea logins helper setup {commands} [flags]:
+    summary: Register tea as a git credential helper for every configured login
+    description: Register tea as a git credential helper in ~/.gitconfig for every configured login
+    kind: action
+  tea logins helper setup help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea logins helper get {commands} [flags]:
+    summary: Return the stored token for a URL (git credential protocol)
+    description: Return the stored token for a given URL in git's credential helper protocol (called by git, reads request from stdin)
+    flags:
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a specific login
+    kind: action
+  tea logins helper get help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea logins helper help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea logins oauth-refresh {commands} [flags]:
+    summary: Refresh an OAuth token
+    description: Manually refresh an expired OAuth token. If the refresh token is also expired, opens a browser for re-authentication.
+    kind: action
+  tea logins oauth-refresh help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea logins help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea logout {commands} [flags]:
+    summary: Log out from a Gitea server
+    description: Log out from a Gitea server
+    kind: action
+  tea logout help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea whoami {commands} [flags]:
+    summary: Show current logged in user
+    description: For debugging purposes, show the user that is currently logged in.
+    kind: action
+  tea whoami help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea issues {commands} [flags]:
+    summary: List, create and update issues
+    description: Lists issues when called without argument. If issue index is provided, will show it in detail.
+    aliases:
+    - issue
+    - i
+    flags:
+    - name: comments
+      type: boolean
+      summary: Whether to display comments (will prompt if not provided & run interactively)
+    - name: fields
+      aliases:
+      - f
+      type: string
+      summary: |-
+        Comma-separated list of fields to print. Available values:
+        			index,state,kind,author,author-id,url,title,body,created,updated,deadline,assignees,milestone,labels,comments,owner,repo
+        		
+    - name: state
+      type: string
+      summary: Filter by state (all|open|closed)
+      default: open
+    - name: kind
+      aliases:
+      - K
+      type: string
+      summary: Whether to return `issues`, `pulls`, or `all` (you can use this to apply advanced search filters to PRs)
+      default: issues
+    - name: keyword
+      aliases:
+      - k
+      type: string
+      summary: Filter by search string
+    - name: labels
+      aliases:
+      - L
+      type: string
+      summary: |-
+        Comma-separated list of labels to match issues against.
+        			
+        		
+    - name: milestones
+      aliases:
+      - m
+      type: string
+      summary: |-
+        Comma-separated list of milestones to match issues against.
+        			
+        		
+    - name: author
+      aliases:
+      - A
+      type: string
+    - name: assignee
+      aliases:
+      - a
+      type: string
+    - name: mentions
+      aliases:
+      - M
+      type: string
+    - name: owner
+      aliases:
+      - org
+      type: string
+    - name: from
+      aliases:
+      - F
+      type: string
+      summary: Filter by activity after this date
+    - name: until
+      aliases:
+      - u
+      type: string
+      summary: Filter by activity before this date
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea issues list {commands} [flags]:
+    summary: List issues of the repository
+    description: List issues of the repository
+    aliases:
+    - ls
+    flags:
+    - name: fields
+      aliases:
+      - f
+      type: string
+      summary: |-
+        Comma-separated list of fields to print. Available values:
+        			index,state,kind,author,author-id,url,title,body,created,updated,deadline,assignees,milestone,labels,comments,owner,repo
+        		
+    - name: state
+      type: string
+      summary: Filter by state (all|open|closed)
+      default: open
+    - name: kind
+      aliases:
+      - K
+      type: string
+      summary: Whether to return `issues`, `pulls`, or `all` (you can use this to apply advanced search filters to PRs)
+      default: issues
+    - name: keyword
+      aliases:
+      - k
+      type: string
+      summary: Filter by search string
+    - name: labels
+      aliases:
+      - L
+      type: string
+      summary: |-
+        Comma-separated list of labels to match issues against.
+        			
+        		
+    - name: milestones
+      aliases:
+      - m
+      type: string
+      summary: |-
+        Comma-separated list of milestones to match issues against.
+        			
+        		
+    - name: author
+      aliases:
+      - A
+      type: string
+    - name: assignee
+      aliases:
+      - a
+      type: string
+    - name: mentions
+      aliases:
+      - M
+      type: string
+    - name: owner
+      aliases:
+      - org
+      type: string
+    - name: from
+      aliases:
+      - F
+      type: string
+      summary: Filter by activity after this date
+    - name: until
+      aliases:
+      - u
+      type: string
+      summary: Filter by activity before this date
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea issues list help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea issues create {commands} [flags]:
+    summary: Create an issue on repository
+    description: Create an issue on repository
+    aliases:
+    - c
+    flags:
+    - name: assignees
+      aliases:
+      - a
+      type: string
+      summary: Comma-separated list of usernames to assign
+    - name: labels
+      aliases:
+      - L
+      type: string
+      summary: Comma-separated list of labels to assign
+    - name: title
+      aliases:
+      - t
+      type: string
+    - name: description
+      aliases:
+      - d
+      type: string
+    - name: referenced-version
+      aliases:
+      - v
+      type: string
+      summary: commit-hash or tag name to assign
+    - name: milestone
+      aliases:
+      - m
+      type: string
+      summary: Milestone to assign
+    - name: deadline
+      aliases:
+      - D
+      type: string
+      summary: Deadline timestamp to assign
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    kind: action
+  tea issues create help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea issues edit {commands} [flags]:
+    summary: Edit one or more issues
+    description: |-
+      Edit one or more issues. To unset a property again,
+      use an empty string (eg. --milestone "").
+    aliases:
+    - e
+    flags:
+    - name: set-assignees
+      type: string
+      summary: Clear all existing assignees and assign comma-separated list of usernames. Takes precedence over --add-assignees and --remove-assignees
+    - name: add-assignees
+      aliases:
+      - a
+      type: string
+      summary: Comma-separated list of usernames to assign. Takes precedence over --remove-assignees
+    - name: remove-assignees
+      type: string
+      summary: Comma-separated list of usernames to remove
+    - name: add-labels
+      aliases:
+      - L
+      type: string
+      summary: Comma-separated list of labels to assign. Takes precedence over --remove-labels
+    - name: remove-labels
+      type: string
+      summary: Comma-separated list of labels to remove
+    - name: title
+      aliases:
+      - t
+      type: string
+    - name: description
+      aliases:
+      - d
+      type: string
+    - name: referenced-version
+      aliases:
+      - v
+      type: string
+      summary: commit-hash or tag name to assign
+    - name: milestone
+      aliases:
+      - m
+      type: string
+      summary: Milestone to assign
+    - name: deadline
+      aliases:
+      - D
+      type: string
+      summary: Deadline timestamp to assign
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    kind: action
+  tea issues edit help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea issues reopen {commands} [flags]:
+    summary: Change state of one or more issues to 'open'
+    description: Change state of one or more issues to 'open'
+    aliases:
+    - open
+    flags:
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea issues reopen help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea issues close {commands} [flags]:
+    summary: Change state of one ore more issues to 'closed'
+    description: Change state of one ore more issues to 'closed'
+    flags:
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea issues close help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea issues help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea pulls {commands} [flags]:
+    summary: Manage and checkout pull requests
+    description: Lists PRs when called without argument. If PR index is provided, will show it in detail.
+    aliases:
+    - pull
+    - pr
+    flags:
+    - name: comments
+      type: boolean
+      summary: Whether to display comments (will prompt if not provided & run interactively)
+    - name: fields
+      aliases:
+      - f
+      type: string
+      summary: |-
+        Comma-separated list of fields to print. Available values:
+        			index,state,author,author-id,url,title,body,mergeable,base,base-commit,head,diff,patch,created,updated,deadline,assignees,milestone,labels,comments,ci
+        		
+    - name: state
+      type: string
+      summary: Filter by state (all|open|closed)
+      default: open
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea pulls list {commands} [flags]:
+    summary: List pull requests of the repository
+    description: List pull requests of the repository
+    aliases:
+    - ls
+    flags:
+    - name: fields
+      aliases:
+      - f
+      type: string
+      summary: |-
+        Comma-separated list of fields to print. Available values:
+        			index,state,author,author-id,url,title,body,mergeable,base,base-commit,head,diff,patch,created,updated,deadline,assignees,milestone,labels,comments,ci
+        		
+    - name: state
+      type: string
+      summary: Filter by state (all|open|closed)
+      default: open
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea pulls list help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea pulls checkout {commands} [flags]:
+    summary: Locally check out the given PR
+    description: Locally check out the given PR
+    aliases:
+    - co
+    flags:
+    - name: branch
+      aliases:
+      - b
+      type: boolean
+      summary: Create a local branch if it doesn't exist yet
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea pulls checkout help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea pulls clean {commands} [flags]:
+    summary: Deletes local & remote feature-branches for a closed pull request
+    description: Deletes local & remote feature-branches for a closed pull request
+    flags:
+    - name: ignore-sha
+      type: boolean
+      summary: Find the local branch by name instead of commit hash (less precise)
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea pulls clean help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea pulls create {commands} [flags]:
+    summary: Create a pull-request
+    description: Create a pull-request in the current repo
+    aliases:
+    - c
+    flags:
+    - name: head
+      type: string
+      summary: Branch name of the PR source (default is current one). To specify a different head repo, use <user>:<branch>
+    - name: base
+      aliases:
+      - b
+      type: string
+      summary: Branch name of the PR target (default is repos default branch)
+    - name: allow-maintainer-edits
+      aliases:
+      - edits
+      type: boolean
+      summary: Enable maintainers to push to the base branch of created pull
+    - name: agit
+      type: boolean
+      summary: Create an agit flow pull request
+    - name: topic
+      type: string
+      summary: Topic name for agit flow pull request
+    - name: draft
+      type: boolean
+      summary: "Create as a draft (prepends \"WIP: \" to the title; Gitea treats WIP-prefixed PRs as drafts)"
+    - name: assignees
+      aliases:
+      - a
+      type: string
+      summary: Comma-separated list of usernames to assign
+    - name: labels
+      aliases:
+      - L
+      type: string
+      summary: Comma-separated list of labels to assign
+    - name: title
+      aliases:
+      - t
+      type: string
+    - name: description
+      aliases:
+      - d
+      type: string
+    - name: referenced-version
+      aliases:
+      - v
+      type: string
+      summary: commit-hash or tag name to assign
+    - name: milestone
+      aliases:
+      - m
+      type: string
+      summary: Milestone to assign
+    - name: deadline
+      aliases:
+      - D
+      type: string
+      summary: Deadline timestamp to assign
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    kind: action
+  tea pulls create help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea pulls close {commands} [flags]:
+    summary: Change state of one or more pull requests to 'closed'
+    description: Change state of one or more pull requests to 'closed'
+    flags:
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea pulls close help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea pulls reopen {commands} [flags]:
+    summary: Change state of one or more pull requests to 'open'
+    description: Change state of one or more pull requests to 'open'
+    aliases:
+    - open
+    flags:
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea pulls reopen help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea pulls edit {commands} [flags]:
+    summary: Edit one or more pull requests
+    description: |-
+      Edit one or more pull requests. To unset a property again,
+      use an empty string (eg. --milestone "").
+    aliases:
+    - e
+    flags:
+    - name: set-assignees
+      type: string
+      summary: Clear all existing assignees and assign comma-separated list of usernames. Takes precedence over --add-assignees and --remove-assignees
+    - name: add-assignees
+      aliases:
+      - a
+      type: string
+      summary: Comma-separated list of usernames to assign. Takes precedence over --remove-assignees
+    - name: remove-assignees
+      type: string
+      summary: Comma-separated list of usernames to remove
+    - name: add-labels
+      aliases:
+      - L
+      type: string
+      summary: Comma-separated list of labels to assign. Takes precedence over --remove-labels
+    - name: remove-labels
+      type: string
+      summary: Comma-separated list of labels to remove
+    - name: title
+      aliases:
+      - t
+      type: string
+    - name: description
+      aliases:
+      - d
+      type: string
+    - name: referenced-version
+      aliases:
+      - v
+      type: string
+      summary: commit-hash or tag name to assign
+    - name: milestone
+      aliases:
+      - m
+      type: string
+      summary: Milestone to assign
+    - name: deadline
+      aliases:
+      - D
+      type: string
+      summary: Deadline timestamp to assign
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: add-reviewers
+      aliases:
+      - r
+      type: string
+      summary: Comma-separated list of usernames to request review from
+    - name: remove-reviewers
+      type: string
+      summary: Comma-separated list of usernames to remove from reviewers
+    - name: draft
+      type: boolean
+      summary: "Mark as draft by prepending \"WIP: \" to the title (idempotent)"
+    - name: ready
+      type: boolean
+      summary: "Mark as ready for review by stripping any leading \"WIP: \" or \"[WIP]\" prefix"
+    kind: action
+  tea pulls edit help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea pulls review {commands} [flags]:
+    summary: Interactively review a pull request
+    description: Interactively review a pull request
+    flags:
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea pulls review help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea pulls approve {commands} [flags]:
+    summary: Approve a pull request
+    description: Approve a pull request
+    aliases:
+    - lgtm
+    - a
+    flags:
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea pulls approve help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea pulls reject {commands} [flags]:
+    summary: Request changes to a pull request
+    description: Request changes to a pull request
+    flags:
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea pulls reject help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea pulls merge {commands} [flags]:
+    summary: Merge a pull request
+    description: Merge a pull request
+    aliases:
+    - m
+    flags:
+    - name: style
+      aliases:
+      - s
+      type: string
+      summary: "Kind of merge to perform: merge, rebase, squash, rebase-merge"
+    - name: title
+      aliases:
+      - t
+      type: string
+      summary: Merge commit title
+    - name: message
+      aliases:
+      - m
+      type: string
+      summary: Merge commit message
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea pulls merge help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea pulls reply {commands} [flags]:
+    summary: Reply to a pull request review comment
+    description: Reply to a pull request review comment
+    flags:
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea pulls reply help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea pulls review-comments {commands} [flags]:
+    summary: List review comments on a pull request
+    description: List review comments on a pull request
+    aliases:
+    - rc
+    flags:
+    - name: fields
+      aliases:
+      - f
+      type: string
+      summary: |-
+        Comma-separated list of fields to print. Available values:
+        			id,body,reviewer,path,line,resolver,created,updated,url
+        		
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea pulls review-comments help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea pulls resolve {commands} [flags]:
+    summary: Resolve a review comment on a pull request
+    description: Resolve a review comment on a pull request
+    flags:
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea pulls resolve help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea pulls unresolve {commands} [flags]:
+    summary: Unresolve a review comment on a pull request
+    description: Unresolve a review comment on a pull request
+    flags:
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea pulls unresolve help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea pulls help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea labels {commands} [flags]:
+    summary: Manage issue labels
+    description: Manage issue labels
+    aliases:
+    - label
+    flags:
+    - name: save
+      aliases:
+      - s
+      type: boolean
+      summary: Save all the labels as a file
+    - name: org
+      type: string
+      summary: List organization labels
+    - name: exclude-org
+      type: boolean
+      summary: Exclude organization labels from the list
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea labels list {commands} [flags]:
+    summary: List labels
+    description: List labels
+    aliases:
+    - ls
+    flags:
+    - name: save
+      aliases:
+      - s
+      type: boolean
+      summary: Save all the labels as a file
+    - name: org
+      type: string
+      summary: List organization labels
+    - name: exclude-org
+      type: boolean
+      summary: Exclude organization labels from the list
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea labels list help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea labels create {commands} [flags]:
+    summary: Create a label
+    description: Create a label
+    aliases:
+    - c
+    flags:
+    - name: name
+      type: string
+      summary: label name
+    - name: color
+      type: string
+      summary: label color value
+    - name: description
+      type: string
+      summary: label description
+    - name: file
+      type: string
+      summary: indicate a label file
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea labels create help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea labels update {commands} [flags]:
+    summary: Update a label
+    description: Update a label
+    flags:
+    - name: id
+      type: integer
+      summary: label id
+    - name: name
+      type: string
+      summary: label name
+    - name: color
+      type: string
+      summary: label color value
+    - name: description
+      type: string
+      summary: label description
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea labels update help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea labels delete {commands} [flags]:
+    summary: Delete a label
+    description: Delete a label
+    aliases:
+    - rm
+    flags:
+    - name: id
+      type: integer
+      summary: label id
+      required: true
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea labels delete help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea labels help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea milestones {commands} [flags]:
+    summary: List and create milestones
+    description: List and create milestones
+    aliases:
+    - milestone
+    - ms
+    flags:
+    - name: fields
+      aliases:
+      - f
+      type: string
+      summary: |-
+        Comma-separated list of fields to print. Available values:
+        			title,state,items_open,items_closed,items,duedate,description,created,updated,closed,id
+        		
+    - name: state
+      type: string
+      summary: Filter by milestone state (all|open|closed)
+      default: open
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea milestones list {commands} [flags]:
+    summary: List milestones of the repository
+    description: List milestones of the repository
+    aliases:
+    - ls
+    flags:
+    - name: fields
+      aliases:
+      - f
+      type: string
+      summary: |-
+        Comma-separated list of fields to print. Available values:
+        			title,state,items_open,items_closed,items,duedate,description,created,updated,closed,id
+        		
+    - name: state
+      type: string
+      summary: Filter by milestone state (all|open|closed)
+      default: open
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea milestones list help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea milestones create {commands} [flags]:
+    summary: Create an milestone on repository
+    description: Create an milestone on repository
+    aliases:
+    - c
+    flags:
+    - name: title
+      aliases:
+      - t
+      type: string
+      summary: milestone title to create
+    - name: description
+      aliases:
+      - d
+      type: string
+      summary: milestone description to create
+    - name: deadline
+      aliases:
+      - expires
+      - x
+      type: string
+      summary: set milestone deadline (default is no due date)
+    - name: state
+      type: string
+      summary: set milestone state (default is open)
+      default: open
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea milestones create help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea milestones close {commands} [flags]:
+    summary: Change state of one or more milestones to 'closed'
+    description: Change state of one or more milestones to 'closed'
+    flags:
+    - name: force
+      aliases:
+      - f
+      type: boolean
+      summary: delete milestone
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea milestones close help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea milestones delete {commands} [flags]:
+    summary: delete a milestone
+    description: delete a milestone
+    aliases:
+    - rm
+    flags:
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea milestones delete help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea milestones reopen {commands} [flags]:
+    summary: Change state of one or more milestones to 'open'
+    description: Change state of one or more milestones to 'open'
+    aliases:
+    - open
+    flags:
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea milestones reopen help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea milestones issues {commands} [flags]:
+    summary: manage issue/pull of an milestone
+    description: manage issue/pull of an milestone
+    aliases:
+    - i
+    flags:
+    - name: state
+      type: string
+      summary: Filter by issue state (all|open|closed)
+      default: open
+    - name: kind
+      type: string
+      summary: Filter by kind (issue|pull)
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: fields
+      aliases:
+      - f
+      type: string
+      summary: |-
+        Comma-separated list of fields to print. Available values:
+        			index,state,kind,author,author-id,url,title,body,created,updated,deadline,assignees,milestone,labels,comments,owner,repo
+        		
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea milestones issues add {commands} [flags]:
+    summary: Add an issue/pull to an milestone
+    description: Add an issue/pull to an milestone
+    aliases:
+    - a
+    flags:
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea milestones issues add help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea milestones issues remove {commands} [flags]:
+    summary: Remove an issue/pull to an milestone
+    description: Remove an issue/pull to an milestone
+    aliases:
+    - r
+    flags:
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea milestones issues remove help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea milestones issues help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea milestones help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea releases {commands} [flags]:
+    summary: Manage releases
+    description: Manage releases
+    aliases:
+    - release
+    - r
+    flags:
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea releases list {commands} [flags]:
+    summary: List Releases
+    description: List Releases
+    aliases:
+    - ls
+    flags:
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea releases list help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea releases create {commands} [flags]:
+    summary: Create a release
+    description: Create a release for a new or existing git tag
+    aliases:
+    - c
+    flags:
+    - name: tag
+      type: string
+      summary: Tag name. If the tag does not exist yet, it will be created by Gitea
+    - name: target
+      type: string
+      summary: Target branch name or commit hash. Defaults to the default branch of the repo
+    - name: title
+      aliases:
+      - t
+      type: string
+      summary: Release title
+    - name: note
+      aliases:
+      - "n"
+      type: string
+      summary: Release notes
+    - name: note-file
+      aliases:
+      - f
+      type: string
+      summary: Release notes file name. If set, --note is ignored.
+    - name: draft
+      aliases:
+      - d
+      type: boolean
+      summary: Is a draft
+    - name: prerelease
+      aliases:
+      - p
+      type: boolean
+      summary: Is a pre-release
+    - name: asset
+      aliases:
+      - a
+      type: string
+      variadic: true
+      summary: Path to file attachment. Can be specified multiple times
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea releases create help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea releases delete {commands} [flags]:
+    summary: Delete one or more releases
+    description: Delete one or more releases
+    aliases:
+    - rm
+    flags:
+    - name: confirm
+      aliases:
+      - "y"
+      type: boolean
+      summary: Confirm deletion (required)
+    - name: delete-tag
+      type: boolean
+      summary: Also delete the git tag for this release
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea releases delete help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea releases edit {commands} [flags]:
+    summary: Edit one or more releases
+    description: Edit one or more releases
+    aliases:
+    - e
+    flags:
+    - name: tag
+      type: string
+      summary: Change Tag
+    - name: target
+      type: string
+      summary: Change Target
+    - name: title
+      aliases:
+      - t
+      type: string
+      summary: Change Title
+    - name: note
+      aliases:
+      - "n"
+      type: string
+      summary: Change Notes
+    - name: draft
+      aliases:
+      - d
+      type: string
+      summary: Mark as Draft [True/false]
+      default: "true"
+    - name: prerelease
+      aliases:
+      - p
+      type: string
+      summary: Mark as Pre-Release [True/false]
+      default: "true"
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea releases edit help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea releases assets {commands} [flags]:
+    summary: Manage release assets
+    description: Manage release assets
+    aliases:
+    - asset
+    - a
+    flags:
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea releases assets list {commands} [flags]:
+    summary: List Release Attachments
+    description: List Release Attachments
+    aliases:
+    - ls
+    flags:
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea releases assets list help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea releases assets create {commands} [flags]:
+    summary: Create one or more release attachments
+    description: Create one or more release attachments
+    aliases:
+    - c
+    flags:
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea releases assets create help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea releases assets delete {commands} [flags]:
+    summary: Delete one or more release attachments
+    description: Delete one or more release attachments
+    aliases:
+    - rm
+    flags:
+    - name: confirm
+      aliases:
+      - "y"
+      type: boolean
+      summary: Confirm deletion (required)
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea releases assets delete help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea releases assets help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea releases help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea times {commands} [flags]:
+    summary: Operate on tracked times of a repository's issues & pulls
+    description: |-
+      Operate on tracked times of a repository's issues & pulls.
+      		 Depending on your permissions on the repository, only your own tracked
+      		 times might be listed.
+    aliases:
+    - time
+    - t
+    flags:
+    - name: from
+      aliases:
+      - f
+      type: string
+      summary: Show only times tracked after this date
+    - name: until
+      aliases:
+      - u
+      type: string
+      summary: Show only times tracked before this date
+    - name: total
+      aliases:
+      - t
+      type: boolean
+      summary: Print the total duration at the end
+    - name: mine
+      aliases:
+      - m
+      type: boolean
+      summary: Show all times tracked by you across all repositories (overrides command arguments)
+    - name: fields
+      type: string
+      summary: |
+        Comma-separated list of fields to print. Available values:
+        	id,created,repo,issue,user,duration
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea times add {commands} [flags]:
+    summary: Track spent time on an issue
+    description: |-
+      Track spent time on an issue
+      	 Example:
+      		tea times add 1 1h25m
+      	
+    aliases:
+    - a
+    flags:
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    kind: action
+  tea times add help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea times delete {commands} [flags]:
+    summary: Delete a single tracked time on an issue
+    aliases:
+    - rm
+    flags:
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    kind: action
+  tea times delete help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea times reset {commands} [flags]:
+    summary: Reset tracked time on an issue
+    flags:
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    kind: action
+  tea times reset help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea times list {commands} [flags]:
+    summary: List tracked times on issues & pulls
+    description: |-
+      List tracked times, across repos, or on a single repo or issue:
+      - given a username all times on a repo by that user are shown,
+      - given a issue index with '#' prefix, all times on that issue are listed,
+      - given --mine, your times are listed across all repositories.
+      Depending on your permissions on the repository, only your own tracked times might be listed.
+    aliases:
+    - ls
+    flags:
+    - name: from
+      aliases:
+      - f
+      type: string
+      summary: Show only times tracked after this date
+    - name: until
+      aliases:
+      - u
+      type: string
+      summary: Show only times tracked before this date
+    - name: total
+      aliases:
+      - t
+      type: boolean
+      summary: Print the total duration at the end
+    - name: mine
+      aliases:
+      - m
+      type: boolean
+      summary: Show all times tracked by you across all repositories (overrides command arguments)
+    - name: fields
+      type: string
+      summary: |
+        Comma-separated list of fields to print. Available values:
+        	id,created,repo,issue,user,duration
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea times list help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea times help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea organizations {commands} [flags]:
+    summary: List, create, delete organizations
+    description: Show organization details
+    aliases:
+    - organization
+    - org
+    flags:
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea organizations list {commands} [flags]:
+    summary: List Organizations
+    description: List users organizations
+    aliases:
+    - ls
+    flags:
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea organizations list help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea organizations create {commands} [flags]:
+    summary: Create an organization
+    description: Create an organization
+    aliases:
+    - c
+    flags:
+    - name: full-name
+      aliases:
+      - "n"
+      type: string
+    - name: description
+      aliases:
+      - d
+      type: string
+    - name: website
+      aliases:
+      - w
+      type: string
+    - name: location
+      aliases:
+      - L
+      type: string
+    - name: visibility
+      aliases:
+      - v
+      type: string
+    - name: repo-admins-can-change-team-access
+      type: boolean
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    kind: action
+  tea organizations create help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea organizations delete {commands} [flags]:
+    summary: Delete users Organizations
+    description: Delete users organizations
+    aliases:
+    - rm
+    flags:
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    kind: action
+  tea organizations delete help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea organizations help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea repos {commands} [flags]:
+    summary: Manage repositories
+    description: Manage repositories
+    aliases:
+    - repo
+    flags:
+    - name: watched
+      aliases:
+      - w
+      type: boolean
+      summary: List your watched repos instead
+    - name: starred
+      aliases:
+      - s
+      type: boolean
+      summary: List your starred repos instead
+    - name: owner
+      aliases:
+      - O
+      type: string
+      summary: List repos of a specific owner (org or user)
+    - name: fields
+      aliases:
+      - f
+      type: string
+      summary: |-
+        Comma-separated list of fields to print. Available values:
+        			description,forks,id,name,owner,stars,ssh,updated,url,permission,type
+        		
+    - name: type
+      aliases:
+      - T
+      type: string
+      summary: "Filter by type: fork, mirror, source"
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea repos list {commands} [flags]:
+    summary: List repositories you have access to
+    description: List repositories you have access to
+    aliases:
+    - ls
+    flags:
+    - name: watched
+      aliases:
+      - w
+      type: boolean
+      summary: List your watched repos instead
+    - name: starred
+      aliases:
+      - s
+      type: boolean
+      summary: List your starred repos instead
+    - name: owner
+      aliases:
+      - O
+      type: string
+      summary: List repos of a specific owner (org or user)
+    - name: fields
+      aliases:
+      - f
+      type: string
+      summary: |-
+        Comma-separated list of fields to print. Available values:
+        			description,forks,id,name,owner,stars,ssh,updated,url,permission,type
+        		
+    - name: type
+      aliases:
+      - T
+      type: string
+      summary: "Filter by type: fork, mirror, source"
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea repos list help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea repos search {commands} [flags]:
+    summary: Find any repo on an Gitea instance
+    description: Find any repo on an Gitea instance
+    aliases:
+    - s
+    flags:
+    - name: topic
+      aliases:
+      - t
+      type: boolean
+      summary: Search for term in repo topics instead of name
+    - name: type
+      aliases:
+      - T
+      type: string
+      summary: "Filter by type: fork, mirror, source"
+    - name: owner
+      aliases:
+      - O
+      type: string
+      summary: Filter by owner
+    - name: private
+      type: string
+      summary: Filter private repos (true|false)
+    - name: archived
+      type: string
+      summary: Filter archived repos (true|false)
+    - name: fields
+      aliases:
+      - f
+      type: string
+      summary: |-
+        Comma-separated list of fields to print. Available values:
+        			description,forks,id,name,owner,stars,ssh,updated,url,permission,type
+        		
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea repos search help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea repos create {commands} [flags]:
+    summary: Create a repository
+    description: Create a repository
+    aliases:
+    - c
+    flags:
+    - name: name
+      aliases:
+      - ""
+      type: string
+      summary: name of new repo
+      required: true
+    - name: owner
+      aliases:
+      - O
+      type: string
+      summary: name of repo owner
+    - name: private
+      type: boolean
+      summary: make repo private
+    - name: description
+      aliases:
+      - desc
+      type: string
+      summary: add description to repo
+    - name: init
+      type: boolean
+      summary: initialize repo
+    - name: labels
+      type: string
+      summary: name of label set to add
+    - name: gitignores
+      aliases:
+      - git
+      type: string
+      summary: list of gitignore templates (need --init)
+    - name: license
+      type: string
+      summary: add license (need --init)
+    - name: readme
+      type: string
+      summary: use readme template (need --init)
+    - name: branch
+      type: string
+      summary: use custom default branch (need --init)
+    - name: template
+      type: boolean
+      summary: make repo a template repo
+    - name: trustmodel
+      type: string
+      summary: select trust model (committer,collaborator,collaborator+committer)
+    - name: object-format
+      type: string
+      summary: select git object format (sha1,sha256)
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea repos create help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea repos create-from-template {commands} [flags]:
+    summary: Create a repository based on an existing template
+    description: Create a repository based on an existing template
+    aliases:
+    - ct
+    flags:
+    - name: template
+      aliases:
+      - t
+      type: string
+      summary: source template to copy from
+      required: true
+    - name: name
+      aliases:
+      - "n"
+      type: string
+      summary: name of new repo
+      required: true
+    - name: owner
+      aliases:
+      - O
+      type: string
+      summary: name of repo owner
+    - name: private
+      type: boolean
+      summary: make new repo private
+    - name: description
+      aliases:
+      - desc
+      type: string
+      summary: add custom description to repo
+    - name: content
+      type: boolean
+      summary: copy git content from template
+    - name: githooks
+      type: boolean
+      summary: copy git hooks from template
+    - name: avatar
+      type: boolean
+      summary: copy repo avatar from template
+    - name: labels
+      type: boolean
+      summary: copy repo labels from template
+    - name: topics
+      type: boolean
+      summary: copy topics from template
+    - name: webhooks
+      type: boolean
+      summary: copy webhooks from template
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea repos create-from-template help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea repos fork {commands} [flags]:
+    summary: Fork an existing repository
+    description: Create a repository from an existing repo
+    aliases:
+    - f
+    flags:
+    - name: owner
+      aliases:
+      - O
+      type: string
+      summary: name of fork's owner, defaults to current user
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    kind: action
+  tea repos fork help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea repos migrate {commands} [flags]:
+    summary: Migrate a repository
+    description: Migrate a repository and or mirror it.
+    aliases:
+    - m
+    flags:
+    - name: name
+      type: string
+      summary: Name of the repository
+      required: true
+    - name: owner
+      type: string
+      summary: Owner of the repository
+      required: true
+    - name: clone-url
+      type: string
+      summary: Clone URL of the repository
+      required: true
+    - name: service
+      type: string
+      summary: "Service to migrate from. Supported services are: git, gitea, gitlab, gogs"
+      required: true
+    - name: mirror
+      type: boolean
+      summary: Mirror the repository
+    - name: private
+      type: boolean
+      summary: Make the repository private
+    - name: template
+      type: boolean
+      summary: Make the repository a template
+    - name: wiki
+      type: boolean
+      summary: Copy the wiki
+    - name: issues
+      type: boolean
+      summary: Copy the issues
+    - name: labels
+      type: boolean
+      summary: Copy the lables
+    - name: pull-requests
+      type: boolean
+      summary: Copy the pull requests
+    - name: releases
+      type: boolean
+      summary: Copy the releases
+    - name: milestones
+      type: boolean
+      summary: Copy the milestones
+    - name: mirror-interval
+      type: string
+      summary: Interval to mirror the repository.
+    - name: lfs
+      type: boolean
+      summary: Copy the LFS objects
+    - name: lfs-endpoint
+      type: string
+      summary: LFS endpoint to use
+    - name: auth-user
+      type: string
+      summary: Username to use for authentication.
+    - name: auth-password
+      type: string
+      summary: Password to use for authentication.
+    - name: auth-token
+      type: string
+      summary: Token to use for authentication.
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea repos migrate help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea repos delete {commands} [flags]:
+    summary: Delete an existing repository
+    description: Removes a repository from your Gitea instance
+    aliases:
+    - rm
+    flags:
+    - name: name
+      aliases:
+      - ""
+      type: string
+      summary: name of the repo
+      required: true
+    - name: owner
+      aliases:
+      - O
+      type: string
+      summary: owner of the repo
+    - name: force
+      aliases:
+      - f
+      type: boolean
+      summary: Force the deletion and don't ask for confirmation
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea repos delete help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea repos edit {commands} [flags]:
+    summary: Edit repository properties
+    description: Edit repository properties
+    aliases:
+    - e
+    flags:
+    - name: name
+      type: string
+      summary: New name of the repository
+    - name: description
+      aliases:
+      - desc
+      type: string
+      summary: New description of the repository
+    - name: website
+      type: string
+      summary: New website URL of the repository
+    - name: private
+      type: string
+      summary: Set private [true/false]
+      default: "true"
+    - name: template
+      type: string
+      summary: Set template [true/false]
+      default: "true"
+    - name: archived
+      type: string
+      summary: Set archived [true/false]
+      default: "true"
+    - name: default-branch
+      type: string
+      summary: Set default branch
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea repos edit help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea repos help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea branches {commands} [flags]:
+    summary: Consult branches
+    description: Lists branches when called without argument. If a branch is provided, will show it in detail.
+    aliases:
+    - branch
+    - b
+    flags:
+    - name: comments
+      type: boolean
+      summary: Whether to display comments (will prompt if not provided & run interactively)
+    - name: fields
+      aliases:
+      - f
+      type: string
+      summary: |-
+        Comma-separated list of fields to print. Available values:
+        			name,protected,user-can-merge,user-can-push,protection
+        		
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea branches list {commands} [flags]:
+    summary: List branches of the repository
+    description: List branches of the repository
+    aliases:
+    - ls
+    flags:
+    - name: fields
+      aliases:
+      - f
+      type: string
+      summary: |-
+        Comma-separated list of fields to print. Available values:
+        			name,protected,user-can-merge,user-can-push,protection
+        		
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea branches list help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea branches protect {commands} [flags]:
+    summary: Protect branches
+    description: Block actions push/merge on specified branches
+    aliases:
+    - P
+    flags:
+    - name: fields
+      aliases:
+      - f
+      type: string
+      summary: |-
+        Comma-separated list of fields to print. Available values:
+        			name,protected,user-can-merge,user-can-push,protection
+        		
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea branches protect help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea branches unprotect {commands} [flags]:
+    summary: Unprotect branches
+    description: Suppress existing protections on specified branches
+    aliases:
+    - U
+    flags:
+    - name: fields
+      aliases:
+      - f
+      type: string
+      summary: |-
+        Comma-separated list of fields to print. Available values:
+        			name,protected,user-can-merge,user-can-push,protection
+        		
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea branches unprotect help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea branches rename {commands} [flags]:
+    summary: Rename a branch
+    description: Rename a branch in a repository
+    aliases:
+    - rn
+    flags:
+    - name: fields
+      aliases:
+      - f
+      type: string
+      summary: |-
+        Comma-separated list of fields to print. Available values:
+        			name,protected,user-can-merge,user-can-push,protection
+        		
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea branches rename help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea branches help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea actions {commands} [flags]:
+    summary: Manage repository actions
+    description: Manage repository actions including secrets, variables, and workflow runs
+    aliases:
+    - action
+    flags:
+    - name: repo
+      type: string
+      summary: repository to operate on
+    - name: login
+      type: string
+      summary: gitea login instance to use
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: output format [table, csv, simple, tsv, yaml, json]
+    kind: action
+  tea actions secrets {commands} [flags]:
+    summary: Manage repository action secrets
+    description: Manage secrets used by repository actions and workflows
+    aliases:
+    - secret
+    kind: action
+  tea actions secrets list {commands} [flags]:
+    summary: List action secrets
+    description: List secrets configured for repository actions
+    aliases:
+    - ls
+    flags:
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea actions secrets list help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea actions secrets create {commands} [flags]:
+    summary: Create an action secret
+    description: Create a secret for use in repository actions and workflows
+    aliases:
+    - add
+    - set
+    flags:
+    - name: file
+      type: string
+      summary: read secret value from file
+    - name: stdin
+      type: boolean
+      summary: read secret value from stdin
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea actions secrets create help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea actions secrets delete {commands} [flags]:
+    summary: Delete an action secret
+    description: Delete a secret used by repository actions
+    aliases:
+    - remove
+    - rm
+    flags:
+    - name: confirm
+      aliases:
+      - "y"
+      type: boolean
+      summary: confirm deletion without prompting
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea actions secrets delete help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea actions secrets help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea actions variables {commands} [flags]:
+    summary: Manage repository action variables
+    description: Manage variables used by repository actions and workflows
+    aliases:
+    - variable
+    - vars
+    - var
+    kind: action
+  tea actions variables list {commands} [flags]:
+    summary: List action variables
+    description: List variables configured for repository actions
+    aliases:
+    - ls
+    flags:
+    - name: name
+      type: string
+      summary: show specific variable by name
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea actions variables list help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea actions variables set {commands} [flags]:
+    summary: Set an action variable
+    description: Set a variable for use in repository actions and workflows
+    aliases:
+    - create
+    - update
+    flags:
+    - name: file
+      type: string
+      summary: read variable value from file
+    - name: stdin
+      type: boolean
+      summary: read variable value from stdin
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea actions variables set help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea actions variables delete {commands} [flags]:
+    summary: Delete an action variable
+    description: Delete a variable used by repository actions
+    aliases:
+    - remove
+    - rm
+    flags:
+    - name: confirm
+      aliases:
+      - "y"
+      type: boolean
+      summary: confirm deletion without prompting
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea actions variables delete help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea actions variables help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea actions runs {commands} [flags]:
+    summary: Manage workflow runs
+    description: List, view, and manage workflow runs for repository actions
+    aliases:
+    - run
+    kind: action
+  tea actions runs list {commands} [flags]:
+    summary: List workflow runs
+    description: List workflow runs for repository actions with optional filtering
+    aliases:
+    - ls
+    flags:
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: status
+      type: string
+      summary: Filter by status (success, failure, pending, queued, in_progress, skipped, canceled)
+    - name: branch
+      type: string
+      summary: Filter by branch name
+    - name: event
+      type: string
+      summary: Filter by event type (push, pull_request, etc.)
+    - name: actor
+      type: string
+      summary: Filter by actor username (who triggered the run)
+    - name: since
+      type: string
+      summary: Show runs started after this time (e.g., '24h', '2024-01-01')
+    - name: until
+      type: string
+      summary: Show runs started before this time (e.g., '2024-01-01')
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea actions runs list help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea actions runs view {commands} [flags]:
+    summary: View workflow run details
+    description: View details of a specific workflow run including jobs
+    aliases:
+    - show
+    - get
+    flags:
+    - name: jobs
+      type: boolean
+      summary: show jobs table
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea actions runs view help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea actions runs delete {commands} [flags]:
+    summary: Delete or cancel a workflow run
+    description: Delete (cancel) a workflow run from the repository
+    aliases:
+    - remove
+    - rm
+    - cancel
+    flags:
+    - name: confirm
+      aliases:
+      - "y"
+      type: boolean
+      summary: confirm deletion without prompting
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea actions runs delete help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea actions runs logs {commands} [flags]:
+    summary: View workflow run logs
+    description: View logs for a workflow run or specific job
+    aliases:
+    - log
+    flags:
+    - name: job
+      type: string
+      summary: specific job ID to view logs for (if omitted, shows all jobs)
+    - name: follow
+      aliases:
+      - f
+      type: boolean
+      summary: follow log output (like tail -f), requires job to be in progress
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea actions runs logs help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea actions runs help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea actions workflows {commands} [flags]:
+    summary: Manage repository workflows
+    description: List and manage repository action workflows
+    aliases:
+    - workflow
+    kind: action
+  tea actions workflows list {commands} [flags]:
+    summary: List repository workflows
+    description: List workflows in the repository with their status
+    aliases:
+    - ls
+    flags:
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea actions workflows list help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea actions workflows view {commands} [flags]:
+    summary: View workflow details
+    description: View details of a specific workflow
+    aliases:
+    - show
+    - get
+    flags:
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea actions workflows view help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea actions workflows dispatch {commands} [flags]:
+    summary: Dispatch a workflow run
+    description: Trigger a workflow_dispatch event for a workflow
+    aliases:
+    - trigger
+    - run
+    flags:
+    - name: ref
+      aliases:
+      - r
+      type: string
+      summary: "branch or tag to dispatch on (default: current branch)"
+    - name: input
+      aliases:
+      - i
+      type: string
+      variadic: true
+      summary: workflow input in key=value format (can be specified multiple times)
+    - name: follow
+      aliases:
+      - f
+      type: boolean
+      summary: follow log output after dispatching
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea actions workflows dispatch help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea actions workflows enable {commands} [flags]:
+    summary: Enable a workflow
+    description: Enable a disabled workflow in the repository
+    flags:
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea actions workflows enable help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea actions workflows disable {commands} [flags]:
+    summary: Disable a workflow
+    description: Disable a workflow in the repository
+    flags:
+    - name: confirm
+      aliases:
+      - "y"
+      type: boolean
+      summary: confirm disable without prompting
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea actions workflows disable help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea actions workflows help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea actions help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea wiki {commands} [flags]:
+    summary: Manage repository wiki pages
+    description: Manage repository wiki pages
+    flags:
+    - name: fields
+      aliases:
+      - f
+      type: string
+      summary: |-
+        Comma-separated list of fields to print. Available values:
+        			title,path,url,sha,author,updated,message
+        		
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea wiki list {commands} [flags]:
+    summary: List wiki pages of the repository
+    description: List wiki pages of the repository
+    aliases:
+    - ls
+    flags:
+    - name: fields
+      aliases:
+      - f
+      type: string
+      summary: |-
+        Comma-separated list of fields to print. Available values:
+        			title,path,url,sha,author,updated,message
+        		
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea wiki list help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea wiki view {commands} [flags]:
+    summary: View a wiki page
+    description: View a wiki page
+    flags:
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea wiki view help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea wiki revisions {commands} [flags]:
+    summary: List revisions of a wiki page
+    description: List revisions of a wiki page
+    aliases:
+    - history
+    flags:
+    - name: fields
+      aliases:
+      - f
+      type: string
+      summary: |-
+        Comma-separated list of fields to print. Available values:
+        			sha,message,author,date
+        		
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea wiki revisions help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea wiki create {commands} [flags]:
+    summary: Create a wiki page
+    description: Create a wiki page
+    aliases:
+    - c
+    flags:
+    - name: title
+      aliases:
+      - t
+      type: string
+      summary: wiki page title
+    - name: content
+      aliases:
+      - c
+      type: string
+      summary: wiki page content
+    - name: message
+      aliases:
+      - m
+      type: string
+      summary: commit message for the wiki change
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    kind: action
+  tea wiki create help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea wiki edit {commands} [flags]:
+    summary: Edit a wiki page
+    description: Edit a wiki page
+    aliases:
+    - e
+    flags:
+    - name: title
+      aliases:
+      - t
+      type: string
+      summary: wiki page title
+    - name: content
+      aliases:
+      - c
+      type: string
+      summary: wiki page content
+    - name: message
+      aliases:
+      - m
+      type: string
+      summary: commit message for the wiki change
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    kind: action
+  tea wiki edit help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea wiki delete {commands} [flags]:
+    summary: Delete a wiki page
+    description: Delete a wiki page
+    aliases:
+    - rm
+    flags:
+    - name: confirm
+      aliases:
+      - "y"
+      type: boolean
+      summary: confirm deletion without prompting
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    kind: action
+  tea wiki delete help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea wiki help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea webhooks {commands} [flags]:
+    summary: Manage webhooks
+    description: List, create, update, and delete repository, organization, or global webhooks
+    aliases:
+    - webhook
+    - hooks
+    - hook
+    flags:
+    - name: repo
+      type: string
+      summary: repository to operate on
+    - name: org
+      type: string
+      summary: organization to operate on
+    - name: global
+      type: boolean
+      summary: operate on global webhooks
+    - name: login
+      type: string
+      summary: gitea login instance to use
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: output format [table, csv, simple, tsv, yaml, json]
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea webhooks list {commands} [flags]:
+    summary: List webhooks
+    description: List webhooks in repository, organization, or globally
+    aliases:
+    - ls
+    flags:
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea webhooks list help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea webhooks create {commands} [flags]:
+    summary: Create a webhook
+    description: Create a webhook in repository, organization, or globally
+    aliases:
+    - c
+    flags:
+    - name: type
+      type: string
+      summary: webhook type (gitea, gogs, slack, discord, dingtalk, telegram, msteams, feishu, wechatwork, packagist)
+    - name: secret
+      type: string
+      summary: webhook secret
+    - name: events
+      type: string
+      summary: comma separated list of events
+    - name: active
+      type: boolean
+      summary: webhook is active
+    - name: branch-filter
+      type: string
+      summary: branch filter for push events
+    - name: authorization-header
+      type: string
+      summary: authorization header
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea webhooks create help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea webhooks delete {commands} [flags]:
+    summary: Delete a webhook
+    description: Delete a webhook by ID from repository, organization, or globally
+    aliases:
+    - rm
+    flags:
+    - name: confirm
+      aliases:
+      - "y"
+      type: boolean
+      summary: confirm deletion without prompting
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea webhooks delete help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea webhooks update {commands} [flags]:
+    summary: Update a webhook
+    description: Update webhook configuration in repository, organization, or globally
+    aliases:
+    - edit
+    - u
+    flags:
+    - name: url
+      type: string
+      summary: webhook URL
+    - name: secret
+      type: string
+      summary: webhook secret
+    - name: events
+      type: string
+      summary: comma separated list of events
+    - name: active
+      type: boolean
+      summary: webhook is active
+    - name: inactive
+      type: boolean
+      summary: webhook is inactive
+    - name: branch-filter
+      type: string
+      summary: branch filter for push events
+    - name: authorization-header
+      type: string
+      summary: authorization header
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea webhooks update help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea webhooks help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea comments {commands} [flags]:
+    summary: Manage comments on issues and pull requests
+    description: |-
+      Manage comments on issues and pull requests.
+      
+      When invoked with an issue/PR index and an optional body, behaves like 'tea comments add'
+      (this preserves the historical 'tea comment <idx> "<body>"' shorthand).
+    aliases:
+    - comment
+    - c
+    flags:
+    - name: description
+      aliases:
+      - d
+      type: string
+      summary: comment body (alternative to the positional argument)
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea comments add {commands} [flags]:
+    summary: Add a comment to an issue or pull request
+    description: Add a comment to an issue or pull request.
+    aliases:
+    - a
+    flags:
+    - name: description
+      aliases:
+      - d
+      type: string
+      summary: comment body (alternative to the positional argument)
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea comments add help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea comments list {commands} [flags]:
+    summary: List comments on an issue or pull request
+    description: List comments on an issue or pull request. Comment IDs returned here are the IDs accepted by 'tea comments edit' and 'tea comments delete'.
+    aliases:
+    - ls
+    flags:
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea comments list help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea comments edit {commands} [flags]:
+    summary: Edit the body of an existing comment
+    description: |-
+      Edit the body of an existing comment by its comment ID. Use 'tea comments list <issue>' to find IDs.
+      
+      The new body can be supplied as a positional argument, via -d/--description, piped on stdin, or (if none is given and stdin is a terminal) entered in your $EDITOR.
+    aliases:
+    - e
+    flags:
+    - name: description
+      aliases:
+      - d
+      type: string
+      summary: new comment body (alternative to the positional argument)
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea comments edit help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea comments delete {commands} [flags]:
+    summary: Delete one or more comments by ID
+    description: Delete one or more comments by their comment ID. Use 'tea comments list <issue>' to find IDs.
+    aliases:
+    - rm
+    flags:
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea comments delete help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea comments help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea open {commands} [flags]:
+    summary: Open something of the repository in web browser
+    description: Open something of the repository in web browser
+    aliases:
+    - o
+    flags:
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    kind: action
+  tea open help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea notifications {commands} [flags]:
+    summary: Show notifications
+    description: Show notifications, by default based on the current repo if available
+    aliases:
+    - notification
+    - "n"
+    flags:
+    - name: fields
+      aliases:
+      - f
+      type: string
+      summary: |-
+        Comma-separated list of fields to print. Available values:
+        			id,status,updated,index,type,state,title,repository
+        		
+    - name: types
+      aliases:
+      - t
+      type: string
+      summary: |-
+        Comma-separated list of subject types to filter by. Available values:
+        			issue,pull,repository,commit
+        		
+    - name: states
+      aliases:
+      - s
+      type: string
+      summary: |-
+        Comma-separated list of notification states to filter by. Available values:
+        			pinned,unread,read
+        		
+    - name: mine
+      aliases:
+      - m
+      type: boolean
+      summary: Show notifications across all your repositories instead of the current repository only
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea notifications ls {commands} [flags]:
+    summary: List notifications
+    description: List notifications
+    aliases:
+    - list
+    flags:
+    - name: fields
+      aliases:
+      - f
+      type: string
+      summary: |-
+        Comma-separated list of fields to print. Available values:
+        			id,status,updated,index,type,state,title,repository
+        		
+    - name: types
+      aliases:
+      - t
+      type: string
+      summary: |-
+        Comma-separated list of subject types to filter by. Available values:
+        			issue,pull,repository,commit
+        		
+    - name: states
+      aliases:
+      - s
+      type: string
+      summary: |-
+        Comma-separated list of notification states to filter by. Available values:
+        			pinned,unread,read
+        		
+    - name: mine
+      aliases:
+      - m
+      type: boolean
+      summary: Show notifications across all your repositories instead of the current repository only
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea notifications ls help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea notifications read {commands} [flags]:
+    summary: Mark all filtered or a specific notification as read
+    description: Mark all filtered or a specific notification as read
+    aliases:
+    - r
+    flags:
+    - name: states
+      aliases:
+      - s
+      type: string
+      summary: |-
+        Comma-separated list of notification states to filter by. Available values:
+        			pinned,unread,read
+        		
+    - name: mine
+      aliases:
+      - m
+      type: boolean
+      summary: Show notifications across all your repositories instead of the current repository only
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea notifications read help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea notifications unread {commands} [flags]:
+    summary: Mark all filtered or a specific notification as unread
+    description: Mark all filtered or a specific notification as unread
+    aliases:
+    - u
+    flags:
+    - name: states
+      aliases:
+      - s
+      type: string
+      summary: |-
+        Comma-separated list of notification states to filter by. Available values:
+        			pinned,unread,read
+        		
+    - name: mine
+      aliases:
+      - m
+      type: boolean
+      summary: Show notifications across all your repositories instead of the current repository only
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea notifications unread help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea notifications pin {commands} [flags]:
+    summary: Mark all filtered or a specific notification as pinned
+    description: Mark all filtered or a specific notification as pinned
+    aliases:
+    - p
+    flags:
+    - name: states
+      aliases:
+      - s
+      type: string
+      summary: |-
+        Comma-separated list of notification states to filter by. Available values:
+        			pinned,unread,read
+        		
+    - name: mine
+      aliases:
+      - m
+      type: boolean
+      summary: Show notifications across all your repositories instead of the current repository only
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea notifications pin help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea notifications unpin {commands} [flags]:
+    summary: Unpin all pinned or a specific notification
+    description: Marks all pinned or a specific notification as read
+    flags:
+    - name: states
+      aliases:
+      - s
+      type: string
+      summary: |-
+        Comma-separated list of notification states to filter by. Available values:
+        			pinned,unread,read
+        		
+    - name: mine
+      aliases:
+      - m
+      type: boolean
+      summary: Show notifications across all your repositories instead of the current repository only
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea notifications unpin help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea notifications help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea clone {commands} [flags]:
+    summary: Clone a repository locally
+    description: |-
+      Clone a repository locally, without a local git installation required.
+      The repo slug can be specified in different formats:
+      	gitea/tea
+      	tea
+      	gitea.com/gitea/tea
+      	git@gitea.com:gitea/tea
+      	https://gitea.com/gitea/tea
+      	ssh://gitea.com:22/gitea/tea
+      When a host is specified in the repo-slug, it will override the login specified with --login.
+      	
+    aliases:
+    - C
+    flags:
+    - name: depth
+      aliases:
+      - d
+      type: integer
+      summary: num commits to fetch, defaults to all
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    kind: action
+  tea clone help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea ssh-keys {commands} [flags]:
+    summary: Manage SSH public keys
+    description: List, add, or delete SSH public keys on the current user's account
+    aliases:
+    - ssh-key
+    flags:
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea ssh-keys list {commands} [flags]:
+    summary: List SSH keys
+    description: List the SSH keys registered for the current user
+    aliases:
+    - ls
+    flags:
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea ssh-keys list help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea ssh-keys add {commands} [flags]:
+    summary: Add an SSH public key
+    description: Add an SSH public key to the current user's profile
+    flags:
+    - name: title
+      aliases:
+      - t
+      type: string
+      summary: Title for the key (defaults to the filename without extension)
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea ssh-keys add help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea ssh-keys delete {commands} [flags]:
+    summary: Delete an SSH key
+    description: Delete an SSH key from the current user's profile by its numeric ID
+    aliases:
+    - rm
+    flags:
+    - name: confirm
+      aliases:
+      - "y"
+      type: boolean
+      summary: Confirm deletion (required)
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea ssh-keys delete help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea ssh-keys help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea admin {commands} [flags]:
+    summary: Operations requiring admin access on the Gitea instance
+    aliases:
+    - a
+    kind: action
+  tea admin users {commands} [flags]:
+    summary: Manage registered users
+    aliases:
+    - u
+    flags:
+    - name: fields
+      aliases:
+      - f
+      type: string
+      summary: |-
+        Comma-separated list of fields to print. Available values:
+        			id,login,full_name,email,avatar_url,language,is_admin,restricted,prohibit_login,location,website,description,visibility,activated,lastlogin_at,created_at
+        		
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea admin users list {commands} [flags]:
+    summary: List Users
+    description: List users
+    aliases:
+    - ls
+    flags:
+    - name: fields
+      aliases:
+      - f
+      type: string
+      summary: |-
+        Comma-separated list of fields to print. Available values:
+        			id,login,full_name,email,avatar_url,language,is_admin,restricted,prohibit_login,location,website,description,visibility,activated,lastlogin_at,created_at
+        		
+    - name: page
+      aliases:
+      - p
+      type: integer
+      summary: specify page
+    - name: limit
+      aliases:
+      - lm
+      type: integer
+      summary: specify limit of items per page
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea admin users list help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea admin users create {commands} [flags]:
+    summary: Create a new user
+    description: Create a new user account
+    aliases:
+    - add
+    - new
+    flags:
+    - name: username
+      aliases:
+      - u
+      type: string
+      summary: Username for the new user (required)
+      required: true
+    - name: password
+      aliases:
+      - p
+      type: string
+      summary: Password for the new user (will prompt if not provided)
+    - name: password-file
+      type: string
+      summary: Read password from file
+    - name: password-stdin
+      type: boolean
+      summary: Read password from stdin
+    - name: email
+      aliases:
+      - e
+      type: string
+      summary: Email address for the new user (required)
+      required: true
+    - name: full-name
+      type: string
+      summary: Full name for the new user
+    - name: admin
+      type: boolean
+      summary: Make the user an administrator
+    - name: restricted
+      type: boolean
+      summary: Make the user restricted
+    - name: prohibit-login
+      type: boolean
+      summary: Prohibit the user from logging in
+    - name: no-must-change-password
+      type: boolean
+      summary: "Don't require the user to change password on first login (default: password change required)"
+    - name: visibility
+      type: string
+      summary: Visibility of the user profile (public, limited, private)
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea admin users create help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea admin users edit {commands} [flags]:
+    summary: Edit a user
+    description: Edit user account properties
+    aliases:
+    - update
+    - e
+    - u
+    flags:
+    - name: password
+      type: string
+      summary: New password (use empty value --password="" to trigger interactive prompt)
+    - name: password-file
+      type: string
+      summary: Read password from file
+    - name: password-stdin
+      type: boolean
+      summary: Read password from stdin
+    - name: email
+      aliases:
+      - e
+      type: string
+      summary: Email address
+    - name: full-name
+      type: string
+      summary: Full name
+    - name: description
+      type: string
+      summary: User description
+    - name: website
+      type: string
+      summary: Website URL
+    - name: location
+      type: string
+      summary: Location
+    - name: admin
+      type: boolean
+      summary: Make the user an administrator
+    - name: no-admin
+      type: boolean
+      summary: Remove administrator status
+    - name: restricted
+      type: boolean
+      summary: Make the user restricted
+    - name: no-restricted
+      type: boolean
+      summary: Remove restricted status
+    - name: prohibit-login
+      type: boolean
+      summary: Prohibit the user from logging in
+    - name: allow-login
+      type: boolean
+      summary: Allow the user to log in
+    - name: active
+      type: boolean
+      summary: Activate the user
+    - name: inactive
+      type: boolean
+      summary: Deactivate the user
+    - name: no-must-change-password
+      type: boolean
+      summary: "Don't require the user to change password on next login (default: password change required)"
+    - name: visibility
+      type: string
+      summary: Visibility of the user profile (public, limited, private)
+    - name: max-repo-creation
+      type: integer
+      summary: Maximum number of repositories the user can create (-1 for unlimited)
+    - name: allow-git-hook
+      type: boolean
+      summary: Allow the user to use git hooks
+    - name: no-allow-git-hook
+      type: boolean
+      summary: Disallow the user from using git hooks
+    - name: allow-import-local
+      type: boolean
+      summary: Allow the user to import local repositories
+    - name: no-allow-import-local
+      type: boolean
+      summary: Disallow the user from importing local repositories
+    - name: allow-create-organization
+      type: boolean
+      summary: Allow the user to create organizations
+    - name: no-allow-create-organization
+      type: boolean
+      summary: Disallow the user from creating organizations
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea admin users edit help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea admin users delete {commands} [flags]:
+    summary: Delete a user
+    description: Delete a user account
+    aliases:
+    - rm
+    - remove
+    flags:
+    - name: confirm
+      aliases:
+      - "y"
+      type: boolean
+      summary: confirm deletion without prompting
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Output format. (simple, table, csv, tsv, yaml, json)
+    kind: action
+  tea admin users delete help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea admin users help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea admin help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea api {commands} [flags]:
+    summary: Make an authenticated API request
+    description: |-
+      Makes an authenticated HTTP request to the Gitea API and prints the response.
+      
+      The endpoint argument is the path to the API endpoint, which will be prefixed
+      with /api/v1/ if it doesn't start with /api/ or http(s)://.
+      
+      Placeholders like {owner} and {repo} in the endpoint will be replaced with
+      values from the current repository context.
+      
+      Use -f for string fields and -F for typed fields (numbers, booleans, null).
+      With -F, prefix value with @ to read from file (@- for stdin). Values starting
+      with [ or { are parsed as JSON arrays/objects. Wrap values in quotes to force
+      string type (e.g., -F key="null" for literal string "null").
+      
+      Use -d/--data to send a raw JSON body. Use @file to read from a file, or @-
+      to read from stdin. The -d flag cannot be combined with -f or -F.
+      
+      When a request body is provided via -f, -F, or -d, the method defaults to POST
+      unless explicitly set with -X/--method.
+      
+      Note: if your endpoint contains ? or &, quote it to prevent shell expansion
+      (e.g., '/repos/{owner}/{repo}/issues?state=open').
+    flags:
+    - name: method
+      aliases:
+      - X
+      type: string
+      summary: HTTP method (GET, POST, PUT, PATCH, DELETE)
+    - name: field
+      aliases:
+      - f
+      type: string
+      variadic: true
+      summary: Add a string field to the request body (key=value)
+    - name: Field
+      aliases:
+      - F
+      type: string
+      variadic: true
+      summary: "Add a typed field to the request body (key=value, @file, or @- for stdin)"
+    - name: header
+      aliases:
+      - H
+      type: string
+      variadic: true
+      summary: Add a custom header (key:value)
+    - name: data
+      aliases:
+      - d
+      type: string
+      summary: "Raw JSON request body (use @file to read from file, @- for stdin)"
+    - name: include
+      aliases:
+      - i
+      type: boolean
+      summary: Include HTTP status and response headers in output (written to stderr)
+    - name: output
+      aliases:
+      - o
+      type: string
+      summary: Write response body to file instead of stdout (use '-' for stdout)
+    - name: login
+      aliases:
+      - l
+      type: string
+      summary: Use a different Gitea Login. Optional
+    - name: repo
+      aliases:
+      - r
+      type: string
+      summary: Override local repository path or gitea repository slug to interact with. Optional
+    - name: remote
+      aliases:
+      - R
+      type: string
+      summary: Discover Gitea login from remote. Optional
+    kind: action
+  tea api help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea man {commands} [flags]:
+    summary: Generate man page
+    flags:
+    - name: out
+      aliases:
+      - o
+      type: string
+      summary: Path to output docs to, otherwise prints to stdout
+    hidden: true
+    kind: action
+  tea man help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea completion {commands} [flags]:
+    summary: Output shell completion script for bash, zsh, fish, or Powershell
+    description: |
+      Output shell completion script for bash, zsh, fish, or Powershell.
+      Source the output to enable completion.
+      
+      # .bashrc
+      source <(tea completion bash)
+      
+      # .zshrc
+      source <(tea completion zsh)
+      
+      # fish
+      tea completion fish > ~/.config/fish/completions/tea.fish
+      
+      # Powershell
+      Output the script to path/to/autocomplete/tea.ps1 an run it.
+    hidden: true
+    kind: group
+  tea completion bash {commands} [flags]:
+    summary: Output bash completion script
+    kind: action
+  tea completion bash help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea completion zsh {commands} [flags]:
+    summary: Output zsh completion script
+    kind: action
+  tea completion zsh help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea completion fish {commands} [flags]:
+    summary: Output fish completion script
+    kind: action
+  tea completion fish help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea completion pwsh {commands} [flags]:
+    summary: Output pwsh completion script
+    kind: action
+  tea completion pwsh help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action
+  tea completion help:
+    summary: Shows a list of commands or help for one command
+    aliases:
+    - h
+    kind: action

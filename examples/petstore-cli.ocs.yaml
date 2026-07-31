@@ -113,6 +113,7 @@ commands:
       - value: available
       - value: pending
       - value: sold
+      default: "available"
     - name: tag
       type: string
       summary: Tag to assign to the pet for grouping/sorting

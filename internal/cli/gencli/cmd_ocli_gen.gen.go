@@ -36,7 +36,7 @@ func NewCmdOcliGen(a ActionsInterface) *cobra.Command {
 func getSpecOcliGenCmd() *spec.CommandItem {
 	return &spec.CommandItem{
 		Segment:         "gen",
-		CommandLine:     "ocli ocli gen",
+		CommandLine:     "ocli gen",
 		Summary:         "Collection of commands used to generate code/docs from an OpenCLI Spec document",
 		Description:     "",
 		VisibleChildren: true,

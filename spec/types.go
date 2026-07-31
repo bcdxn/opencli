@@ -138,3 +138,7 @@ var (
 	CommandKindGroup  CommandKind = "group"
 	CommandKindAction CommandKind = "action"
 )
+
+func (c CommandKind) String() string {
+	return string(c)
+}

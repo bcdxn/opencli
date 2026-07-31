@@ -64,7 +64,7 @@ func (a Actions) OcliGenDocs(_ context.Context, args gencli.OcliGenDocsArgs, fla
 		"markdown":   {gen.Markdown, ".md"},
 		"html-page":  {gen.HTML_PAGE, ".html"},
 		"html-embed": {gen.HTML_EMBED, ".js"},
-		"man":        {gen.ManPage, ".1"},
+		"man":        {gen.MAN, ".1"},
 	}
 	meta, ok := supportedFormats[strings.ToLower(string(flags.Format))]
 	if !ok {

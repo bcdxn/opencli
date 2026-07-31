@@ -133,7 +133,7 @@ Provide this flag multiple times to set multiple photo URLs.
 
 The pet status in the store
 
-`string` `enum`
+`string` `enum` `default:available`
 
 ###### Supported Values of `--status`
 

@@ -16,7 +16,7 @@ info:
     ```sh
     ocli gen --help
     ```
-  version: "1.0.0-alpha.13"
+  version: "1.2.0"
   binary: "ocli"
   license:
     name: "MIT"
@@ -135,9 +135,8 @@ commands:
             description: "Full standalone HTML document"
           - value: "html-embed"
             description: "An embeddable js bundle including CSS and HTML"
-          # coming soon
-          # - value: "man"
-          #   description: "Plain text using [Man Page](https://en.wikipedia.org/wiki/Man_page) formatting"
+          - value: "man"
+            description: "[Man Page](https://en.wikipedia.org/wiki/Man_page) using standard groff"
         alternativeSources:
           - type: "$ENV"
             property: "OCLI_DOCS_FORMAT"
