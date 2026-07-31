@@ -20,7 +20,10 @@ jobs:
         uses: actions/checkout@v7
         with:
           ref: ${{ inputs.target_ref }}
-          fetch-depth: 0 
+          fetch-depth: 0
+      
+      - name: Go Generate
+        run: make gen-docs
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v7
