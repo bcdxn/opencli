@@ -156,7 +156,7 @@ homebrew_casks:
     binaries:
       - ocli
     manpages:
-      ocli.1
+      - ocli.1
     url:
       template: "https://github.com/bcdxn/opencli/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
       verified: "github.com/opencli/opencli/"
