@@ -28,7 +28,14 @@ export const metadata: Metadata = {
     title: "OpenCLI Specification",
     description: "OpenAPI for command line interfaces.",
     card: "summary_large_image",
-    images: ["https://opencli.dev/img/twitter-image.png"],
+    images: [
+      {
+        url: "https://opencli.dev/img/twitter-image.png",
+        width: 1200,
+        height: 630,
+        type: "image/png",
+      },
+    ],
   },
 };
 
