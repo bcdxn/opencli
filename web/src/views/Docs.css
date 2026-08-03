@@ -269,6 +269,11 @@
 
 /* === Step indicators ====================================================== */
 
+.guide-step__vertical-space {
+  width: 100%;
+  padding-top: 20px;
+}
+
 .guide-step {
   display: flex;
   gap: 16px;

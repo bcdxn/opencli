@@ -316,6 +316,9 @@ export default function GuidePage() {
               <a href="/docs/html-docs" className="guide-nav__link">
                 HTML Docs
               </a>
+              <a href="/docs/man-pages" className="guide-nav__link">
+                Man Pages
+              </a>
               <a href="/docs/code-generation-go" className="guide-nav__link">
                 Code Generation (Go)
               </a>
