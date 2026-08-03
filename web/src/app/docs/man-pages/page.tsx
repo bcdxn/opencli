@@ -7,6 +7,12 @@ export const metadata = {
   alternates: {
     canonical: "/docs/man-pages",
   },
+  keywords: [
+    "opencli",
+    "open cli",
+    "opencli specification",
+    "generate cli man pages",
+  ],
 };
 
 export default function Page() {

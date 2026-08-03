@@ -7,6 +7,7 @@ export const metadata = {
   alternates: {
     canonical: "/specification",
   },
+  keywords: ["opencli", "open cli", "opencli specification"],
 };
 
 export default function Page() {

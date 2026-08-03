@@ -7,6 +7,12 @@ export const metadata = {
   alternates: {
     canonical: "/docs/getting-started",
   },
+  keywords: [
+    "opencli",
+    "open cli",
+    "opencli specification",
+    "getting started with open cli specs",
+  ],
 };
 
 export default function Page() {

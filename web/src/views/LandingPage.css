@@ -28,10 +28,7 @@
   max-width: 560px;
 }
 
-.hero-copy h2 {
-  padding: 5px 0 20px 0;
-}
-.hero-kicker {
+.hero-copy h1.hero-kicker {
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   color: var(--blue);
   letter-spacing: 0.16em;
@@ -39,12 +36,16 @@
   font-weight: 700;
 }
 
-.hero-copy h1 {
+.hero-copy h2 {
   margin: 18px 0 16px;
   font-size: clamp(1.5rem, 6vw, 2.5rem);
   line-height: 0.98;
   letter-spacing: -0.055em;
   color: var(--blue-strong);
+}
+
+.hero-copy h3 {
+  padding: 5px 0 20px 0;
 }
 
 .hero-copy p {

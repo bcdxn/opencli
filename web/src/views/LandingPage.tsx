@@ -117,9 +117,9 @@ export default function LandingPage() {
       <main className="landing-main">
         <section className="hero-shell">
           <div className="hero-copy">
-            <div className="hero-kicker">{t("landing.kicker")}</div>
-            <h1>{t("landing.title")}</h1>
-            <h2>{t("landing.subtitle")}</h2>
+            <h1 className="hero-kicker">{t("landing.kicker")}</h1>
+            <h2>{t("landing.title")}</h2>
+            <h3>{t("landing.subtitle")}</h3>
             <p>{t("landing.description")}</p>
 
             <div className="hero-actions">

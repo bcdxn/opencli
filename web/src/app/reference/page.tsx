@@ -6,6 +6,13 @@ export const metadata = {
   alternates: {
     canonical: "/reference",
   },
+  keywords: [
+    "opencli",
+    "open cli",
+    "opencli specification",
+    "ocli",
+    "opencli cli",
+  ],
 };
 
 export default function Page() {

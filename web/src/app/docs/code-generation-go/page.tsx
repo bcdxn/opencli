@@ -7,6 +7,14 @@ export const metadata = {
   alternates: {
     canonical: "/docs/code-generation-go",
   },
+  keywords: [
+    "opencli",
+    "open cli",
+    "opencli specification",
+    "generate cli go code",
+    "generate cobra cli",
+    "generate urfave/cli cli",
+  ],
 };
 
 export default function Page() {

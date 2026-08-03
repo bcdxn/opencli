@@ -7,6 +7,12 @@ export const metadata = {
   alternates: {
     canonical: "/docs/html-docs",
   },
+  keywords: [
+    "opencli",
+    "open cli",
+    "opencli specification",
+    "generate cli documentation",
+  ],
 };
 
 export default function Page() {

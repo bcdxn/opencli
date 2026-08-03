@@ -7,6 +7,12 @@ export const metadata = {
   alternates: {
     canonical: "/docs/markdown-docs",
   },
+  keywords: [
+    "opencli",
+    "open cli",
+    "opencli specification",
+    "generate cli markdown documentation",
+  ],
 };
 
 export default function Page() {

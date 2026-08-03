@@ -7,6 +7,15 @@ export const metadata = {
   alternates: {
     canonical: "/editor",
   },
+  keywords: [
+    "opencli",
+    "open cli",
+    "opencli specification",
+    "preview opencli documentation",
+    "validate opencli specs",
+    "validate open cli specs",
+    "live opencli editor",
+  ],
 };
 
 export default function Page() {
