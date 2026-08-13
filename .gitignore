@@ -21,3 +21,6 @@ web/public/opencli.wasm
 # Next.JS
 .next
 next-env.d.ts
+
+# [VHS](https://github.com/charmbracelet/vhs)
+*.tape
