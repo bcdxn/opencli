@@ -20,6 +20,12 @@ type urfaveCliAllCommandsTmplData struct {
 	LeafCommands  []cliCmdEntry
 	ExitCodes     []spec.ExitCode
 	GlobalFlags   []urfaveCliFlagEntry
+	// Config file paths from global.config (only formats that are declared)
+	ConfigJSON string
+	ConfigTOML string
+	ConfigYAML string
+	// HasConfig is true if any config file path is declared
+	HasConfig bool
 }
 
 // urfaveCliCommandFileTmplData is the template data passed to command.tmpl.
@@ -40,17 +46,25 @@ type urfaveCliArgEntry struct {
 	TypeName   string // non-empty when the struct field uses a generated type (needs cast)
 }
 
+// urfaveCliAltSource represents an alternative source for a flag value ($ENV or $FILE).
+type urfaveCliAltSource struct {
+	Type     string // "$ENV" or "$FILE"
+	Property string // env var name or JSONPath in config file
+}
+
 // urfaveCliFlagEntry describes how to bind a flag in an urfave command.
 type urfaveCliFlagEntry struct {
-	FieldName  string
-	FlagName   string
-	GoType     string
-	UrfaveFlag string // e.g. "cli.StringFlag", "cli.Int64Flag"
-	Default    string // Go literal for the default value
-	Summary    string
-	TypeName   string   // non-empty when the struct field uses a generated type (needs cast)
-	Aliases    []string // all aliases (urfave uses Aliases []string, not separate shorthand)
-	Accessor   string   // e.g. "String", "Int64", "Bool", "Float64", "StringSlice", etc.
+	FieldName    string
+	FlagName     string
+	GoType       string
+	UrfaveFlag   string // e.g. "cli.StringFlag", "cli.Int64Flag"
+	Default      string // Go literal for the default value
+	Summary      string
+	TypeName     string               // non-empty when the struct field uses a generated type (needs cast)
+	Aliases      []string             // all aliases (urfave uses Aliases []string, not separate shorthand)
+	Accessor     string               // e.g. "String", "Int64", "Bool", "Float64", "StringSlice", etc.
+	AltSources   []urfaveCliAltSource // alternative sources from flag's alternativeSources
+	HasAltSource bool                 // true if AltSources is non-empty
 }
 
 //go:embed templates/code/urfavecli
@@ -77,21 +91,30 @@ func genCLIUrfaveCli(doc *spec.Document, opts *genCLIOptions) (map[string][]byte
 
 	var exitCodes []spec.ExitCode
 	var globalFlags []urfaveCliFlagEntry
+	var configJSON, configTOML, configYAML string
+	hasConfig := false
 	if doc.Global != nil {
 		exitCodes = doc.Global.ExitCodes
+		configJSON = doc.Global.Config.JSON
+		configTOML = doc.Global.Config.TOML
+		configYAML = doc.Global.Config.YAML
+		hasConfig = configJSON != "" || configTOML != "" || configYAML != ""
 		for _, flag := range doc.Global.Flags {
 			if flag.Name == "help" || flag.Name == "version" {
 				continue
 			}
+			altSources := urfaveCliAltSources(flag.AltSources)
 			globalFlags = append(globalFlags, urfaveCliFlagEntry{
-				FieldName:  toPascalCase(flag.Name),
-				FlagName:   flag.Name,
-				GoType:     toGoType(flag.Type, flag.Variadic),
-				UrfaveFlag: urfaveCliFlagStruct(flag.Type, flag.Variadic),
-				Default:    urfaveCliDefaultVal(flag.Default, flag.Type, flag.Variadic),
-				Summary:    flag.Summary,
-				Aliases:    flag.Aliases,
-				Accessor:   urfaveCliAccessor(flag.Type, flag.Variadic),
+				FieldName:    toPascalCase(flag.Name),
+				FlagName:     flag.Name,
+				GoType:       toGoType(flag.Type, flag.Variadic),
+				UrfaveFlag:   urfaveCliFlagStruct(flag.Type, flag.Variadic),
+				Default:      urfaveCliDefaultVal(flag.Default, flag.Type, flag.Variadic),
+				Summary:      flag.Summary,
+				Aliases:      flag.Aliases,
+				Accessor:     urfaveCliAccessor(flag.Type, flag.Variadic),
+				AltSources:   altSources,
+				HasAltSource: len(altSources) > 0,
 			})
 		}
 	}
@@ -103,6 +126,10 @@ func genCLIUrfaveCli(doc *spec.Document, opts *genCLIOptions) (map[string][]byte
 		LeafCommands:  leafCommands,
 		ExitCodes:     exitCodes,
 		GlobalFlags:   globalFlags,
+		ConfigJSON:    configJSON,
+		ConfigTOML:    configTOML,
+		ConfigYAML:    configYAML,
+		HasConfig:     hasConfig,
 	}
 
 	funcMap := urfaveCliTemplateFuncMap()
@@ -113,6 +140,7 @@ func genCLIUrfaveCli(doc *spec.Document, opts *genCLIOptions) (map[string][]byte
 	}
 	gencliFiles := []gencliFile{
 		{"gencli/actions.gen.go", "templates/code/urfavecli/gencli/actions.tmpl"},
+		{"gencli/config.gen.go", "templates/code/urfavecli/gencli/config.tmpl"},
 		{"gencli/errors.gen.go", "templates/code/urfavecli/gencli/errors.tmpl"},
 		{"gencli/help.gen.go", "templates/code/urfavecli/gencli/help.tmpl"},
 		{"gencli/iostreams.gen.go", "templates/code/urfavecli/gencli/iostreams.tmpl"},
@@ -253,21 +281,24 @@ func walkUrfaveCliCmdTree(
 		if len(flag.Choices) > 0 && (flag.Type == "string" || flag.Type == "") && !flag.Variadic {
 			flagTypeName = methodName + toPascalCase(flag.Name)
 		}
+		altSources := urfaveCliAltSources(flag.AltSources)
 		specFlags = append(specFlags, specFlagEntry{
 			Name:    flag.Name,
 			Summary: flag.Summary,
 			Aliases: flag.Aliases,
 		})
 		urfaveFlags = append(urfaveFlags, urfaveCliFlagEntry{
-			FieldName:  toPascalCase(flag.Name),
-			FlagName:   flag.Name,
-			GoType:     toGoType(flag.Type, flag.Variadic),
-			UrfaveFlag: urfaveCliFlagStruct(flag.Type, flag.Variadic),
-			Default:    urfaveCliDefaultVal(flag.Default, flag.Type, flag.Variadic),
-			Summary:    flag.Summary,
-			TypeName:   flagTypeName,
-			Aliases:    flag.Aliases,
-			Accessor:   urfaveCliAccessor(flag.Type, flag.Variadic),
+			FieldName:    toPascalCase(flag.Name),
+			FlagName:     flag.Name,
+			GoType:       toGoType(flag.Type, flag.Variadic),
+			UrfaveFlag:   urfaveCliFlagStruct(flag.Type, flag.Variadic),
+			Default:      urfaveCliDefaultVal(flag.Default, flag.Type, flag.Variadic),
+			Summary:      flag.Summary,
+			TypeName:     flagTypeName,
+			Aliases:      flag.Aliases,
+			Accessor:     urfaveCliAccessor(flag.Type, flag.Variadic),
+			AltSources:   altSources,
+			HasAltSource: len(altSources) > 0,
 		})
 	}
 
@@ -332,6 +363,51 @@ func urfaveCliTemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
 		"goString": func(s string) string {
 			return fmt.Sprintf("%q", s)
+		},
+		"resolveFlagValue": func(f urfaveCliFlagEntry) string {
+			if !f.HasAltSource {
+				// No alternative sources — read directly from CLI
+				if f.TypeName != "" {
+					return fmt.Sprintf("%s(c.%s(%q))", f.TypeName, f.Accessor, f.FlagName)
+				}
+				return fmt.Sprintf("c.%s(%q)", f.Accessor, f.FlagName)
+			}
+			// Has alternative sources — read from CLI first, fall back to env/config
+			// We use a helper that checks if the CLI value is the zero value
+			switch f.GoType {
+			case "string":
+				srcs := formatAltSources(f.AltSources)
+				if f.TypeName != "" {
+					return fmt.Sprintf("%s(resolveStringFlag(c.String(%q), %s))", f.TypeName, f.FlagName, srcs)
+				}
+				return fmt.Sprintf("resolveStringFlag(c.String(%q), %s)", f.FlagName, srcs)
+			case "int64":
+				srcs := formatAltSources(f.AltSources)
+				return fmt.Sprintf("resolveInt64Flag(c.Int64(%q), %s)", f.FlagName, srcs)
+			case "bool":
+				srcs := formatAltSources(f.AltSources)
+				return fmt.Sprintf("resolveBoolFlag(c.Bool(%q), %s)", f.FlagName, srcs)
+			case "float64":
+				srcs := formatAltSources(f.AltSources)
+				return fmt.Sprintf("resolveFloat64Flag(c.Float64(%q), %s)", f.FlagName, srcs)
+			case "[]string":
+				srcs := formatAltSources(f.AltSources)
+				return fmt.Sprintf("resolveStringSliceFlag(c.StringSlice(%q), %s)", f.FlagName, srcs)
+			case "[]int64":
+				srcs := formatAltSources(f.AltSources)
+				return fmt.Sprintf("resolveInt64SliceFlag(c.Int64Slice(%q), %s)", f.FlagName, srcs)
+			case "[]bool":
+				srcs := formatAltSources(f.AltSources)
+				return fmt.Sprintf("resolveBoolSliceFlag(c.BoolSlice(%q), %s)", f.FlagName, srcs)
+			case "[]float64":
+				srcs := formatAltSources(f.AltSources)
+				return fmt.Sprintf("resolveFloat64SliceFlag(c.Float64Slice(%q), %s)", f.FlagName, srcs)
+			default:
+				if f.TypeName != "" {
+					return fmt.Sprintf("%s(c.%s(%q))", f.TypeName, f.Accessor, f.FlagName)
+				}
+				return fmt.Sprintf("c.%s(%q)", f.Accessor, f.FlagName)
+			}
 		},
 	}
 }
@@ -462,4 +538,32 @@ func urfaveCliDefaultVal(val any, t string, variadic bool) string {
 		// should never panic because the spec will have been validated before generation is run
 		panic(fmt.Sprintf("unsupported type: must be a slice of string, int, float64, or bool - %T", val))
 	}
+}
+
+// urfaveCliAltSources converts spec.AlternativeSource slices to urfaveCliAltSource slices.
+func urfaveCliAltSources(sources []spec.AlternativeSource) []urfaveCliAltSource {
+	if len(sources) == 0 {
+		return nil
+	}
+	result := make([]urfaveCliAltSource, 0, len(sources))
+	for _, s := range sources {
+		result = append(result, urfaveCliAltSource{
+			Type:     s.Type,
+			Property: s.Property,
+		})
+	}
+	return result
+}
+
+// formatAltSources formats a slice of urfaveCliAltSource as a Go composite literal
+// for use in generated template code.
+func formatAltSources(sources []urfaveCliAltSource) string {
+	if len(sources) == 0 {
+		return "nil"
+	}
+	var parts []string
+	for _, s := range sources {
+		parts = append(parts, fmt.Sprintf("{Type: %q, Property: %q}", s.Type, s.Property))
+	}
+	return fmt.Sprintf("[]struct{Type,Property string}{%s}", strings.Join(parts, ","))
 }

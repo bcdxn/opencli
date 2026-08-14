@@ -42,7 +42,7 @@ func {{.FuncName}}(a ActionsInterface) *cli.Command {
 {{- if .UrfaveFlags}}
 			cmdFlags := {{.FlagsTypeName}}{
 {{- range .UrfaveFlags}}
-				{{.FieldName}}: {{if .TypeName}}{{.TypeName}}(c.{{.Accessor}}("{{.FlagName}}")){{else}}c.{{.Accessor}}("{{.FlagName}}"){{end}},
+				{{.FieldName}}: {{resolveFlagValue .}},
 {{- end}}
 			}
 {{- range .UrfaveFlags}}
