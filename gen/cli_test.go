@@ -380,3 +380,145 @@ func TestDocs_HTMLPage(t *testing.T) {
 		t.Fatal("expected HTML output")
 	}
 }
+
+func TestCobraPlainFlagExpr(t *testing.T) {
+	tests := []struct {
+		name string
+		f    cobraFlagEntry
+		want string
+	}{
+		{"bare_var", cobraFlagEntry{VarName: "flagUsername"}, "flagUsername"},
+		{"cast_to_type", cobraFlagEntry{VarName: "flagStatus", TypeName: "PetstoreStatus"}, "PetstoreStatus(flagStatus)"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := plainCobraFlagExpr(tt.f); got != tt.want {
+				t.Errorf("plainCobraFlagExpr(%+v) = %q, want %q", tt.f, got, tt.want)
+			}
+		})
+	}
+}
+
+// TestCobraResolveFlagValue exercises the resolveFlagValue template function exactly as the
+// command.tmpl uses it (pulled from cobraTemplateFuncMap so there is a single source of truth).
+func TestCobraResolveFlagValue(t *testing.T) {
+	resolve := func(f cobraFlagEntry) string {
+		fn, ok := cobraTemplateFuncMap()["resolveFlagValue"].(func(cobraFlagEntry) string)
+		if !ok {
+			t.Fatal("resolveFlagValue not found in cobra template func map")
+		}
+		return fn(f)
+	}
+
+	envUser := spec.AlternativeSource{Type: "$ENV", Property: "PETSTORE_USER"}
+	fileAuth := spec.AlternativeSource{Type: "$FILE", Property: "$.auth.user"}
+
+	tests := []struct {
+		name string
+		f    cobraFlagEntry
+		want string
+	}{
+		// No alternative sources -> plain bound variable (optionally cast).
+		{"no_alt_bare", cobraFlagEntry{VarName: "flagUsername"}, "flagUsername"},
+		{"no_alt_cast", cobraFlagEntry{VarName: "flagStatus", TypeName: "PetstoreStatus"}, "PetstoreStatus(flagStatus)"},
+
+		// Single $ENV source.
+		{"env_only",
+			cobraFlagEntry{VarName: "flagUsername", FlagName: "username", GoType: "string", AltSources: []spec.AlternativeSource{envUser}},
+			`resolveStringFlag(c.Flags(), "username", []AltSource{{Type: "$ENV", Property: "PETSTORE_USER"}})`},
+
+		// Single $FILE source.
+		{"file_only",
+			cobraFlagEntry{VarName: "flagUsername", FlagName: "username", GoType: "string", AltSources: []spec.AlternativeSource{fileAuth}},
+			`resolveStringFlag(c.Flags(), "username", []AltSource{{Type: "$FILE", Property: "$.auth.user"}})`},
+
+		// Mixed sources preserve declared order ($ENV before $FILE).
+		{"env_then_file_order",
+			cobraFlagEntry{VarName: "flagUsername", FlagName: "username", GoType: "string", AltSources: []spec.AlternativeSource{envUser, fileAuth}},
+			`resolveStringFlag(c.Flags(), "username", []AltSource{{Type: "$ENV", Property: "PETSTORE_USER"}, {Type: "$FILE", Property: "$.auth.user"}})`},
+
+		// Resolver is selected by Go type; a generated choices type wraps the call.
+		{"int64_env",
+			cobraFlagEntry{VarName: "flagLimit", FlagName: "limit", GoType: "int64", AltSources: []spec.AlternativeSource{{Type: "$ENV", Property: "LIMIT"}}},
+			`resolveInt64Flag(c.Flags(), "limit", []AltSource{{Type: "$ENV", Property: "LIMIT"}})`},
+
+		{"bool_env_cast",
+			cobraFlagEntry{VarName: "flagVerbose", FlagName: "verbose", GoType: "bool", TypeName: "Verbosity", AltSources: []spec.AlternativeSource{{Type: "$ENV", Property: "VERBOSE"}}},
+			`Verbosity(resolveBoolFlag(c.Flags(), "verbose", []AltSource{{Type: "$ENV", Property: "VERBOSE"}}))`},
+
+		{"float64_env",
+			cobraFlagEntry{VarName: "flagRate", FlagName: "rate", GoType: "float64", AltSources: []spec.AlternativeSource{{Type: "$FILE", Property: "$.rate"}}},
+			`resolveFloat64Flag(c.Flags(), "rate", []AltSource{{Type: "$FILE", Property: "$.rate"}})`},
+
+		// Variadic types map to their slice resolvers (GetStringArray-backed for strings).
+		{"string_slice_env",
+			cobraFlagEntry{VarName: "flagTags", FlagName: "tags", GoType: "[]string", AltSources: []spec.AlternativeSource{{Type: "$ENV", Property: "TAGS"}}},
+			`resolveStringSliceFlag(c.Flags(), "tags", []AltSource{{Type: "$ENV", Property: "TAGS"}})`},
+
+		{"int64_slice_env",
+			cobraFlagEntry{VarName: "flagIds", FlagName: "ids", GoType: "[]int64", AltSources: []spec.AlternativeSource{{Type: "$FILE", Property: "$.ids"}}},
+			`resolveInt64SliceFlag(c.Flags(), "ids", []AltSource{{Type: "$FILE", Property: "$.ids"}})`},
+
+		{"bool_slice_env",
+			cobraFlagEntry{VarName: "flagFlags", FlagName: "flags", GoType: "[]bool", AltSources: []spec.AlternativeSource{{Type: "$ENV", Property: "FLAGS"}}},
+			`resolveBoolSliceFlag(c.Flags(), "flags", []AltSource{{Type: "$ENV", Property: "FLAGS"}})`},
+
+		{"float64_slice_env",
+			cobraFlagEntry{VarName: "flagRates", FlagName: "rates", GoType: "[]float64", AltSources: []spec.AlternativeSource{{Type: "$FILE", Property: "$.rates"}}},
+			`resolveFloat64SliceFlag(c.Flags(), "rates", []AltSource{{Type: "$FILE", Property: "$.rates"}})`},
+
+		// Unknown Go type with alt sources falls back to the plain expression (defensive).
+		{"unknown_type_falls_back",
+			cobraFlagEntry{VarName: "flagWeird", FlagName: "weird", GoType: "int32", AltSources: []spec.AlternativeSource{envUser}},
+			"flagWeird"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := resolve(tt.f); got != tt.want {
+				t.Errorf("resolveFlagValue(%+v)\n  = %q\nwant %q", tt.f, got, tt.want)
+			}
+		})
+	}
+}
+
+// TestCobraScanAltSources verifies the has-alt / has-file scan that gates emission of
+// gencli/config.gen.go and its JSONPath import.
+func TestCobraScanAltSources(t *testing.T) {
+	tests := []struct {
+		name     string
+		flags    []cobraFlagEntry
+		wantHas  bool
+		wantFile bool
+	}{
+		{"none", nil, false, false},
+		{
+			"env_only",
+			[]cobraFlagEntry{{AltSources: []spec.AlternativeSource{{Type: "$ENV", Property: "X"}}}},
+			true, false,
+		},
+		{
+			"file_only",
+			[]cobraFlagEntry{{AltSources: []spec.AlternativeSource{{Type: "$FILE", Property: "$.x"}}}},
+			true, true,
+		},
+		{
+			"mixed_across_flags",
+			[]cobraFlagEntry{
+				{}, // no alt sources
+				{AltSources: []spec.AlternativeSource{{Type: "$ENV", Property: "X"}, {Type: "$FILE", Property: "$.y"}}},
+			},
+			true, true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			hasAlt, hasFile := scanCobraAltSources(tt.flags)
+			if hasAlt != tt.wantHas || hasFile != tt.wantFile {
+				t.Errorf("scanCobraAltSources(%+v) = (%v, %v), want (%v, %v)", tt.flags, hasAlt, hasFile, tt.wantHas, tt.wantFile)
+			}
+		})
+	}
+}

@@ -12,7 +12,11 @@ import (
 
 // Run executes the root cobra command and returns an exit code.
 func Run(ctx context.Context, actions ActionsInterface) int {
-{{- range .GlobalFlags}}
+{{- if .HasAltSources}}
+	// Load config file from disk (JSON/YAML/TOML) for $FILE alternative sources
+	loadConfig()
+
+{{- end}}{{- range .GlobalFlags}}
 	var {{.VarName}} {{.GoType}}
 {{- end}}
 	// Instantiate root command

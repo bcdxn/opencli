@@ -20,6 +20,16 @@ type cliAllCommandsTmplData struct {
 	LeafCommands  []cliCmdEntry
 	ExitCodes     []spec.ExitCode
 	GlobalFlags   []cobraFlagEntry
+	// Config file paths from global.config (only formats that are declared)
+	ConfigJSON string
+	ConfigTOML string
+	ConfigYAML string
+	// HasAltSources is true if any flag declares an alternative source, which
+	// requires emitting gencli/config.gen.go and calling loadConfig at startup.
+	HasAltSources bool
+	// HasFileAltSource is true if any flag declares a $FILE alternative source,
+	// which requires the generated config code to import a JSONPath library.
+	HasFileAltSource bool
 }
 
 // cliCmdEntry holds the pre-computed template data for a single leaf command.
@@ -82,6 +92,7 @@ type cobraFlagEntry struct {
 	TypeName     string   // non-empty when the struct field uses a generated type (needs cast)
 	Shorthand    string   // first single-char alias, or empty string
 	ExtraAliases []string // aliases not used as shorthand; mapped via SetNormalizeFunc
+	AltSources   []spec.AlternativeSource
 }
 
 //go:embed templates/code/cobra
@@ -108,8 +119,12 @@ func genCLICobra(doc *spec.Document, opts *genCLIOptions) (map[string][]byte, er
 
 	var exitCodes []spec.ExitCode
 	var globalFlags []cobraFlagEntry
+	configJSON, configTOML, configYAML := "", "", ""
 	if doc.Global != nil {
 		exitCodes = doc.Global.ExitCodes
+		configJSON = doc.Global.Config.JSON
+		configTOML = doc.Global.Config.TOML
+		configYAML = doc.Global.Config.YAML
 		for _, flag := range doc.Global.Flags {
 			if flag.Name == "help" || flag.Name == "version" {
 				continue
@@ -125,17 +140,33 @@ func genCLICobra(doc *spec.Document, opts *genCLIOptions) (map[string][]byte, er
 				Summary:      flag.Summary,
 				Shorthand:    shorthand,
 				ExtraAliases: extraAliases,
+				AltSources:   flag.AltSources,
 			})
 		}
 	}
 
+	// Track alternative-source usage across all flags so we know whether to emit
+	// gencli/config.gen.go (and call loadConfig from run.tmpl). A $FILE source
+	// additionally requires the generated config code to import a JSONPath library.
+	hasAltSources, hasFileAltSource := scanCobraAltSources(globalFlags)
+	for i := range cmdFiles {
+		cmdHasAlt, cmdHasFile := scanCobraAltSources(cmdFiles[i].CobraFlags)
+		hasAltSources = hasAltSources || cmdHasAlt
+		hasFileAltSource = hasFileAltSource || cmdHasFile
+	}
+
 	allCmdsData := cliAllCommandsTmplData{
-		ModuleVersion: opts.ModuleVersion,
-		Binary:        binary,
-		BinaryPascal:  binaryPascal,
-		LeafCommands:  leafCommands,
-		ExitCodes:     exitCodes,
-		GlobalFlags:   globalFlags,
+		ModuleVersion:    opts.ModuleVersion,
+		Binary:           binary,
+		BinaryPascal:     binaryPascal,
+		LeafCommands:     leafCommands,
+		ExitCodes:        exitCodes,
+		GlobalFlags:      globalFlags,
+		ConfigJSON:       configJSON,
+		ConfigTOML:       configTOML,
+		ConfigYAML:       configYAML,
+		HasFileAltSource: hasFileAltSource,
+		HasAltSources:    hasAltSources,
 	}
 
 	funcMap := cobraTemplateFuncMap()
@@ -146,11 +177,18 @@ func genCLICobra(doc *spec.Document, opts *genCLIOptions) (map[string][]byte, er
 	}
 	gencliFiles := []gencliFile{
 		{"gencli/actions.gen.go", "templates/code/cobra/gencli/actions.tmpl"},
+		// Only emitted when at least one flag declares alternative sources, so that
+		// specs without this feature produce no extra files or imports.
+	}
+	if hasAltSources {
+		gencliFiles = append(gencliFiles, gencliFile{"gencli/config.gen.go", "templates/code/cobra/gencli/config.tmpl"})
+	}
+	gencliFiles = append(gencliFiles, []gencliFile{
 		{"gencli/errors.gen.go", "templates/code/cobra/gencli/errors.tmpl"},
 		{"gencli/help.gen.go", "templates/code/cobra/gencli/help.tmpl"},
 		{"gencli/iostreams.gen.go", "templates/code/cobra/gencli/iostreams.tmpl"},
 		{"gencli/params.gen.go", "templates/code/cobra/gencli/params.tmpl"},
-	}
+	}...)
 
 	for _, f := range gencliFiles {
 		content, err := renderCobraTemplate(f.tmplPath, funcMap, allCmdsData)
@@ -308,6 +346,7 @@ func walkCmdTree(
 			TypeName:     flagTypeName,
 			Shorthand:    shorthand,
 			ExtraAliases: extraAliases,
+			AltSources:   flag.AltSources,
 		})
 	}
 
@@ -381,7 +420,65 @@ func cobraTemplateFuncMap() template.FuncMap {
 			}
 			return false
 		},
+		// resolveFlagValue returns the Go expression that yields a flag's value inside
+		// RunE. Without alternative sources it is just the bound variable (optionally cast
+		// to a generated choices type). With alternative sources it calls the matching
+		// resolver from gencli/config.gen.go, which prefers the CLI value when the flag was
+		// set on the command line and otherwise falls back to env/config in declared order.
+		"resolveFlagValue": func(f cobraFlagEntry) string {
+			if len(f.AltSources) == 0 {
+				return plainCobraFlagExpr(f)
+			}
+			resolver, ok := cobraCliAltSourceResolvers[f.GoType]
+			if !ok {
+				return plainCobraFlagExpr(f)
+			}
+			expr := fmt.Sprintf("%s(c.Flags(), %q, %s)", resolver, f.FlagName, formatAltSources(f.AltSources))
+			if f.TypeName != "" {
+				expr = fmt.Sprintf("%s(%s)", f.TypeName, expr)
+			}
+			return expr
+		},
 	}
+}
+
+// plainCobraFlagExpr returns the expression for a flag with no alternative sources: the bound
+// variable, cast to its generated choices type when one exists.
+func plainCobraFlagExpr(f cobraFlagEntry) string {
+	if f.TypeName != "" {
+		return fmt.Sprintf("%s(%s)", f.TypeName, f.VarName)
+	}
+	return f.VarName
+}
+
+// scanCobraAltSources reports whether any flag in the slice declares an alternative
+// source (hasAlt), and specifically whether any of them is a $FILE source
+// (hasFile). A $FILE source requires the generated config code to import a JSONPath library.
+func scanCobraAltSources(flags []cobraFlagEntry) (hasAlt, hasFile bool) {
+	for _, f := range flags {
+		if len(f.AltSources) > 0 {
+			hasAlt = true
+		}
+		for _, src := range f.AltSources {
+			if src.Type == "$FILE" {
+				hasFile = true
+			}
+		}
+	}
+	return hasAlt, hasFile
+}
+
+// cobraCliAltSourceResolvers maps a Go flag type to the generated resolver function in
+// gencli/config.gen.go that falls back to alternative sources when the flag is not set.
+var cobraCliAltSourceResolvers = map[string]string{
+	"string":    "resolveStringFlag",
+	"int64":     "resolveInt64Flag",
+	"bool":      "resolveBoolFlag",
+	"float64":   "resolveFloat64Flag",
+	"[]string":  "resolveStringSliceFlag",
+	"[]int64":   "resolveInt64SliceFlag",
+	"[]bool":    "resolveBoolSliceFlag",
+	"[]float64": "resolveFloat64SliceFlag",
 }
 
 // cobraBindFn returns the cobra Flags() method name for the given spec type and variadic flag.

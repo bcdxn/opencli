@@ -21,7 +21,7 @@ func NewCmdOcliGenDocs(a ActionsInterface) *cobra.Command {
 				cmdArgs.PathToSpec = args[0]
 			}
 			cmdFlags := OcliGenDocsFlags{
-				Format:   OcliGenDocsFormat(flagFormat),
+				Format:   OcliGenDocsFormat(resolveStringFlag(c.Flags(), "format", []AltSource{{Type: "$ENV", Property: "OCLI_DOCS_FORMAT"}, {Type: "$FILE", Property: "$.docs.format"}})),
 				Out:      flagOut,
 				NoFooter: flagNoFooter,
 				NoBadge:  flagNoBadge,

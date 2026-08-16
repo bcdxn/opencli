@@ -49,7 +49,7 @@ func {{.FuncName}}(a ActionsInterface) *cobra.Command {
 {{- if .CobraFlags}}
 			cmdFlags := {{.FlagsTypeName}}{
 {{- range .CobraFlags}}
-				{{.FieldName}}: {{if .TypeName}}{{.TypeName}}({{.VarName}}){{else}}{{.VarName}}{{end}},
+				{{.FieldName}}: {{resolveFlagValue .}},
 {{- end}}
 			}
 {{- range .CobraFlags}}

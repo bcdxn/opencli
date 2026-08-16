@@ -9,6 +9,8 @@ import (
 
 // Run executes the root cobra command and returns an exit code.
 func Run(ctx context.Context, actions ActionsInterface) int {
+	// Load config file from disk (JSON/YAML/TOML) for $FILE alternative sources
+	loadConfig()
 	// Instantiate root command
 	rootCmd := NewCmdPetstore(actions)
 	// Add version for `--version` flag
