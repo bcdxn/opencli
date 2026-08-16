@@ -24,8 +24,9 @@ type urfaveCliAllCommandsTmplData struct {
 	ConfigJSON string
 	ConfigTOML string
 	ConfigYAML string
-	// HasConfig is true if any config file path is declared
-	HasConfig bool
+	// HasAltSources is true if any flag declares an alternative source, which
+	// requires emitting gencli/config.gen.go and calling loadConfig at startup.
+	HasAltSources bool
 	// HasFileAltSource is true if any flag declares a $FILE alternative source,
 	// which requires the generated config code to import a JSONPath library.
 	HasFileAltSource bool
@@ -89,13 +90,11 @@ func genCLIUrfaveCli(doc *spec.Document, opts *genCLIOptions) (map[string][]byte
 	var exitCodes []spec.ExitCode
 	var globalFlags []urfaveCliFlagEntry
 	var configJSON, configTOML, configYAML string
-	hasConfig := false
 	if doc.Global != nil {
 		exitCodes = doc.Global.ExitCodes
 		configJSON = doc.Global.Config.JSON
 		configTOML = doc.Global.Config.TOML
 		configYAML = doc.Global.Config.YAML
-		hasConfig = configJSON != "" || configTOML != "" || configYAML != ""
 		for _, flag := range doc.Global.Flags {
 			if flag.Name == "help" || flag.Name == "version" {
 				continue
@@ -114,17 +113,14 @@ func genCLIUrfaveCli(doc *spec.Document, opts *genCLIOptions) (map[string][]byte
 		}
 	}
 
-	// hasFileAltSource is true if any flag (global or command) declares a $FILE
-	// alternative source, which requires the generated config code to import a
-	// JSONPath library.
-	hasFileAltSource := hasFileAltSourceInFlags(globalFlags)
-	if !hasFileAltSource {
-		for _, cmdFile := range cmdFiles {
-			if hasFileAltSourceInFlags(cmdFile.UrfaveFlags) {
-				hasFileAltSource = true
-				break
-			}
-		}
+	// Track alternative-source usage across all flags so we know whether to emit
+	// gencli/config.gen.go (and call loadConfig from run.tmpl). A $FILE source
+	// additionally requires the generated config code to import a JSONPath library.
+	hasAltSources, hasFileAltSource := scanUrfaveCliAltSources(globalFlags)
+	for i := range cmdFiles {
+		cmdHasAlt, cmdHasFile := scanUrfaveCliAltSources(cmdFiles[i].UrfaveFlags)
+		hasAltSources = hasAltSources || cmdHasAlt
+		hasFileAltSource = hasFileAltSource || cmdHasFile
 	}
 
 	allCmdsData := urfaveCliAllCommandsTmplData{
@@ -137,7 +133,7 @@ func genCLIUrfaveCli(doc *spec.Document, opts *genCLIOptions) (map[string][]byte
 		ConfigJSON:       configJSON,
 		ConfigTOML:       configTOML,
 		ConfigYAML:       configYAML,
-		HasConfig:        hasConfig,
+		HasAltSources:    hasAltSources,
 		HasFileAltSource: hasFileAltSource,
 	}
 
@@ -149,14 +145,19 @@ func genCLIUrfaveCli(doc *spec.Document, opts *genCLIOptions) (map[string][]byte
 	}
 	gencliFiles := []gencliFile{
 		{"gencli/actions.gen.go", "templates/code/urfavecli/gencli/actions.tmpl"},
-		{"gencli/config.gen.go", "templates/code/urfavecli/gencli/config.tmpl"},
+		// Only emitted when at least one flag declares alternative sources, so that
+		// specs without this feature produce no extra files or imports.
+	}
+	if hasAltSources {
+		gencliFiles = append(gencliFiles, gencliFile{"gencli/config.gen.go", "templates/code/urfavecli/gencli/config.tmpl"})
+	}
+	gencliFiles = append(gencliFiles, []gencliFile{
 		{"gencli/errors.gen.go", "templates/code/urfavecli/gencli/errors.tmpl"},
 		{"gencli/help.gen.go", "templates/code/urfavecli/gencli/help.tmpl"},
 		{"gencli/iostreams.gen.go", "templates/code/urfavecli/gencli/iostreams.tmpl"},
 		{"gencli/params.gen.go", "templates/code/urfavecli/gencli/params.tmpl"},
 		{"gencli/run.gen.go", "templates/code/urfavecli/gencli/run.tmpl"},
-	}
-
+	}...)
 	for _, f := range gencliFiles {
 		content, err := renderUrfaveCliTemplate(f.tmplPath, funcMap, allCmdsData)
 		if err != nil {
@@ -184,17 +185,22 @@ func genCLIUrfaveCli(doc *spec.Document, opts *genCLIOptions) (map[string][]byte
 	return out, nil
 }
 
-// hasFileAltSourceInFlags reports whether any flag in the slice declares a $FILE
-// alternative source.
-func hasFileAltSourceInFlags(flags []urfaveCliFlagEntry) bool {
-	for _, flag := range flags {
-		for _, src := range flag.AltSources {
+// scanUrfaveCliAltSources reports whether any flag in the slice declares an
+// alternative source (hasAlt), and specifically whether any of them is a $FILE
+// source (hasFile). A $FILE source requires the generated config code to import
+// a JSONPath library.
+func scanUrfaveCliAltSources(flags []urfaveCliFlagEntry) (hasAlt, hasFile bool) {
+	for _, f := range flags {
+		if len(f.AltSources) > 0 {
+			hasAlt = true
+		}
+		for _, src := range f.AltSources {
 			if src.Type == "$FILE" {
-				return true
+				hasFile = true
 			}
 		}
 	}
-	return false
+	return hasAlt, hasFile
 }
 
 // walkUrfaveCliCmdTree recursively collects template data for all commands in the tree.
