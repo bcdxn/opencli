@@ -26,6 +26,9 @@ type urfaveCliAllCommandsTmplData struct {
 	ConfigYAML string
 	// HasConfig is true if any config file path is declared
 	HasConfig bool
+	// HasFileAltSource is true if any flag declares a $FILE alternative source,
+	// which requires the generated config code to import a JSONPath library.
+	HasFileAltSource bool
 }
 
 // urfaveCliCommandFileTmplData is the template data passed to command.tmpl.
@@ -111,17 +114,31 @@ func genCLIUrfaveCli(doc *spec.Document, opts *genCLIOptions) (map[string][]byte
 		}
 	}
 
+	// hasFileAltSource is true if any flag (global or command) declares a $FILE
+	// alternative source, which requires the generated config code to import a
+	// JSONPath library.
+	hasFileAltSource := hasFileAltSourceInFlags(globalFlags)
+	if !hasFileAltSource {
+		for _, cmdFile := range cmdFiles {
+			if hasFileAltSourceInFlags(cmdFile.UrfaveFlags) {
+				hasFileAltSource = true
+				break
+			}
+		}
+	}
+
 	allCmdsData := urfaveCliAllCommandsTmplData{
-		ModuleVersion: opts.ModuleVersion,
-		Binary:        binary,
-		BinaryPascal:  binaryPascal,
-		LeafCommands:  leafCommands,
-		ExitCodes:     exitCodes,
-		GlobalFlags:   globalFlags,
-		ConfigJSON:    configJSON,
-		ConfigTOML:    configTOML,
-		ConfigYAML:    configYAML,
-		HasConfig:     hasConfig,
+		ModuleVersion:    opts.ModuleVersion,
+		Binary:           binary,
+		BinaryPascal:     binaryPascal,
+		LeafCommands:     leafCommands,
+		ExitCodes:        exitCodes,
+		GlobalFlags:      globalFlags,
+		ConfigJSON:       configJSON,
+		ConfigTOML:       configTOML,
+		ConfigYAML:       configYAML,
+		HasConfig:        hasConfig,
+		HasFileAltSource: hasFileAltSource,
 	}
 
 	funcMap := urfaveCliTemplateFuncMap()
@@ -165,6 +182,19 @@ func genCLIUrfaveCli(doc *spec.Document, opts *genCLIOptions) (map[string][]byte
 	}
 
 	return out, nil
+}
+
+// hasFileAltSourceInFlags reports whether any flag in the slice declares a $FILE
+// alternative source.
+func hasFileAltSourceInFlags(flags []urfaveCliFlagEntry) bool {
+	for _, flag := range flags {
+		for _, src := range flag.AltSources {
+			if src.Type == "$FILE" {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // walkUrfaveCliCmdTree recursively collects template data for all commands in the tree.

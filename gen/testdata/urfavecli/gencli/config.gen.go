@@ -4,6 +4,7 @@ package gencli
 import (
 	"encoding/json"
 	"github.com/BurntSushi/toml"
+	"github.com/ohler55/ojg/jp"
 	"gopkg.in/yaml.v3"
 	"os"
 	"path/filepath"
@@ -68,52 +69,18 @@ func loadConfig() {
 	}
 }
 
-// resolveJSONPath resolves a simple JSONPath expression against the global
-// config. Supports paths like $.key, $.key.subkey, and $.key[0].
-func resolveJSONPath(path string) any {
+// resolveJSONPath resolves a JSONPath expression against the global config
+// using the ohler55/ojg JSONPath implementation. It returns the value at the
+// path, or nil if the path does not match.
+func resolveJSONPath(expr string) any {
 	if globalConfig == nil {
 		return nil
 	}
-	current := any(globalConfig)
-	for _, part := range strings.Split(strings.TrimPrefix(path, "$"), ".") {
-		if part == "" {
-			continue
-		}
-		// A part may carry an array index, e.g. "key[0]".
-		key, index, hasIndex := part, 0, false
-		if i := strings.Index(part, "["); i >= 0 {
-			key = part[:i]
-			idx, err := strconv.Atoi(part[i+1 : len(part)-1])
-			if err != nil {
-				return nil // malformed index
-			}
-			index, hasIndex = idx, true
-		}
-		switch cur := current.(type) {
-		case map[string]any:
-			next, ok := cur[key]
-			if !ok {
-				return nil
-			}
-			if hasIndex {
-				arr, ok := next.([]any)
-				if !ok || index < 0 || index >= len(arr) {
-					return nil
-				}
-				next = arr[index]
-			}
-			current = next
-		case []any:
-			idx, err := strconv.Atoi(key)
-			if err != nil || idx < 0 || idx >= len(cur) {
-				return nil
-			}
-			current = cur[idx]
-		default:
-			return nil
-		}
+	p, err := jp.ParseString(expr)
+	if err != nil {
+		return nil
 	}
-	return current
+	return p.First(globalConfig)
 }
 
 // altSourceValue returns the raw value from a single alternative source, or nil
