@@ -163,6 +163,12 @@ func TestCobraDefaultVal(t *testing.T) {
 		{"bool_true", true, "", false, `true`},
 		{"bool_false", false, "", false, `false`},
 
+		// Variadic defaults (canonical shapes produced by the codec)
+		{"variadic_string_list", []string{"a", "b"}, "string", true, `[]string{"a", "b"}`},
+		{"variadic_integer_list", []int64{1, 2, 3}, "integer", true, `[]int64{1, 2, 3}`},
+		{"variadic_number_list", []float64{1.5, 2.5}, "number", true, `[]float64{1.5, 2.5}`},
+		{"variadic_boolean_list", []bool{true, false}, "boolean", true, `[]bool{true, false}`},
+
 		// Variadic zero values
 		{"variadic_string", nil, "string", true, `[]string{}`},
 		{"variadic_integer", nil, "integer", true, `[]int64{}`},
@@ -267,6 +273,44 @@ func TestUrfaveCliZeroValue(t *testing.T) {
 	}
 }
 
+func TestUrfaveCliDefaultVal(t *testing.T) {
+	tests := []struct {
+		name     string
+		val      any
+		t        string
+		variadic bool
+		want     string
+	}{
+		// Provided scalars (canonical shapes produced by the codec)
+		{"string_val", "hello", "", false, `"hello"`},
+		{"int64_val", int64(42), "", false, `42`},
+		{"uint64_val", uint64(42), "", false, `42`},
+		{"float_val", float64(3.5), "", false, `3.500000`},
+		{"bool_true", true, "", false, `true`},
+
+		// Variadic defaults (canonical shapes produced by the codec)
+		{"variadic_string_list", []string{"a", "b"}, "string", true, `[]string{"a", "b"}`},
+		{"variadic_integer_list", []int64{1, 2, 3}, "integer", true, `[]int64{1, 2, 3}`},
+		{"variadic_number_list", []float64{1.5, 2.5}, "number", true, `[]float64{1.5, 2.5}`},
+		{"variadic_boolean_list", []bool{true, false}, "boolean", true, `[]bool{true, false}`},
+
+		// No default -> zero value
+		{"zero_string", nil, "string", false, `""`},
+		{"zero_integer", nil, "integer", false, `0`},
+		{"zero_boolean", nil, "boolean", false, `false`},
+		{"zero_number", nil, "number", false, `0.0`},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := urfaveCliDefaultVal(tt.val, tt.t, tt.variadic)
+			if got != tt.want {
+				t.Errorf("urfaveCliDefaultVal(%v, %q, %v) = %q, want %q", tt.val, tt.t, tt.variadic, got, tt.want)
+			}
+		})
+	}
+}
+
 func TestYargsDefaultVal(t *testing.T) {
 	tests := []struct {
 		name string
@@ -280,6 +324,13 @@ func TestYargsDefaultVal(t *testing.T) {
 		{"float", float64(3.14), `3.140000`},
 		{"bool_true", true, `true`},
 		{"bool_false", false, `false`},
+
+		// Variadic defaults (canonical shapes produced by the codec)
+		{"string_list", []string{"a", "b"}, `["a", "b"]`},
+		{"int64_list", []int64{1, 2, 3}, `[1, 2, 3]`},
+		{"float_list", []float64{1.5, 2.5}, `[1.5, 2.5]`},
+		{"bool_list", []bool{true, false}, `[true, false]`},
+
 		{"nil", nil, ``},
 	}
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"go/format"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -512,7 +513,7 @@ func cobraBindFn(t string, variadic bool) string {
 
 // cobraDefaultVal returns the Go literal for the default value of a cobra flag.
 func cobraDefaultVal(val any, t string, variadic bool) string {
-	switch val.(type) {
+	switch v := val.(type) {
 	case string:
 		return fmt.Sprintf("\"%s\"", strings.ReplaceAll(fmt.Sprintf("%s", val), "\"", "\\\""))
 	case int, int32, int64:
@@ -521,6 +522,30 @@ func cobraDefaultVal(val any, t string, variadic bool) string {
 		return fmt.Sprintf("%f", val)
 	case bool:
 		return fmt.Sprintf("%t", val)
+	case []string:
+		parts := make([]string, len(v))
+		for i, s := range v {
+			parts[i] = fmt.Sprintf("\"%s\"", strings.ReplaceAll(s, "\"", "\\\""))
+		}
+		return "[]string{" + strings.Join(parts, ", ") + "}"
+	case []int64:
+		parts := make([]string, len(v))
+		for i, n := range v {
+			parts[i] = strconv.FormatInt(n, 10)
+		}
+		return "[]int64{" + strings.Join(parts, ", ") + "}"
+	case []float64:
+		parts := make([]string, len(v))
+		for i, f := range v {
+			parts[i] = strconv.FormatFloat(f, 'f', -1, 64)
+		}
+		return "[]float64{" + strings.Join(parts, ", ") + "}"
+	case []bool:
+		parts := make([]string, len(v))
+		for i, b := range v {
+			parts[i] = strconv.FormatBool(b)
+		}
+		return "[]bool{" + strings.Join(parts, ", ") + "}"
 	}
 
 	// no default was provided in the spec, use a zero value for cobra

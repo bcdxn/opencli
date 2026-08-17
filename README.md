@@ -62,7 +62,7 @@ OpenCLI specification is a document specification that can be used to describe C
 Use the CLI to validate specs, generate docs and generate boilerplate code.
 
 - [Markdown Docs](https://github.com/bcdxn/opencli/blob/main/docs/opencli.ocs.md)
-- [OpenCLI Spec-compliant Document](https://github.com/bcdxn/opencli/blob/main/opencli.ocs.yaml)
+- [OpenCLI Spec-compliant Document](https://github.com/bcdxn/opencli/blob/main/ocli.ocs.yaml)
 
 ## Live Editor
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -453,12 +454,38 @@ func yargsCommandDSL(cmd *spec.CommandItem) string {
 	return strings.Join(cmdDSL, " ")
 }
 
-// yargsDefaultVal returns a TypeScript literal default value for a flag.
+// yargsDefaultVal returns a TypeScript literal default value for a flag. The
+// codec normalizes defaults to string/int64/float64/bool (and typed slices for
+// variadic flags); the other scalar cases are kept as defensive fallbacks.
 func yargsDefaultVal(val any) string {
-	switch val.(type) {
+	switch v := val.(type) {
+	case []string:
+		parts := make([]string, len(v))
+		for i, s := range v {
+			parts[i] = fmt.Sprintf("\"%s\"", strings.ReplaceAll(s, "\"", "\\\""))
+		}
+		return "[" + strings.Join(parts, ", ") + "]"
+	case []int64:
+		parts := make([]string, len(v))
+		for i, n := range v {
+			parts[i] = strconv.FormatInt(n, 10)
+		}
+		return "[" + strings.Join(parts, ", ") + "]"
+	case []float64:
+		parts := make([]string, len(v))
+		for i, f := range v {
+			parts[i] = strconv.FormatFloat(f, 'f', -1, 64)
+		}
+		return "[" + strings.Join(parts, ", ") + "]"
+	case []bool:
+		parts := make([]string, len(v))
+		for i, b := range v {
+			parts[i] = strconv.FormatBool(b)
+		}
+		return "[" + strings.Join(parts, ", ") + "]"
 	case string:
 		return fmt.Sprintf("\"%s\"", strings.ReplaceAll(fmt.Sprintf("%s", val), "\"", "\\\""))
-	case int, int32, int64:
+	case int, int32, int64, uint64:
 		return fmt.Sprintf("%d", val)
 	case float32, float64:
 		return fmt.Sprintf("%f", val)

@@ -16,15 +16,15 @@ gen-docs: generate
 	@go run cmd/ocli/main.go gen docs \
 		--format markdown \
 		--out ./docs \
-		opencli.ocs.yaml
+		ocli.ocs.yaml
 	@go run cmd/ocli/main.go gen docs \
 		--format html-embed \
 		--out ./web/public \
-		opencli.ocs.yaml
+		ocli.ocs.yaml
 	@go run cmd/ocli/main.go gen docs \
 		--format man \
 		--out ./docs \
-		opencli.ocs.yaml
+		ocli.ocs.yaml
 	mkdir -p build && mv docs/opencli.ocs.1 build/ocli.1
 
 
@@ -55,8 +55,8 @@ gen-examples: generate
 gen-ocli:
 	@go run cmd/ocli/main.go gen cli \
 		--framework cobra \
-		--out ./internal \
-		./opencli.ocs.yaml
+		--out ./internal/cli \
+		./ocli.ocs.yaml
 
 .PHONY: release
 release: gen-docs gen-examples

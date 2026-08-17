@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"go/format"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -513,7 +514,7 @@ func urfaveCliZeroValue(t string, variadic bool) string {
 // urfaveCliDefaultVal returns the Go literal for the default value of an urfave flag.
 func urfaveCliDefaultVal(val any, t string, variadic bool) string {
 	switch slice := val.(type) {
-	// handle slice types first
+	// handle slice types first; the codec normalizes list defaults to these shapes
 	case []string:
 		var elems []string
 		for _, v := range slice {
@@ -521,33 +522,32 @@ func urfaveCliDefaultVal(val any, t string, variadic bool) string {
 		}
 		return fmt.Sprintf("[]string{%s}", strings.Join(elems, ", "))
 
-	case []int:
+	case []int64:
 		var elems []string
 		for _, v := range slice {
-			elems = append(elems, fmt.Sprintf("%d", v))
+			elems = append(elems, strconv.FormatInt(v, 10))
 		}
 		return fmt.Sprintf("[]int64{%s}", strings.Join(elems, ", "))
 
 	case []float64:
 		var elems []string
 		for _, v := range slice {
-			// %g prints the most compact representation of a float
-			elems = append(elems, fmt.Sprintf("%g", v))
+			elems = append(elems, strconv.FormatFloat(v, 'f', -1, 64))
 		}
 		return fmt.Sprintf("[]float64{%s}", strings.Join(elems, ", "))
 
 	case []bool:
 		var elems []string
 		for _, v := range slice {
-			elems = append(elems, fmt.Sprintf("%t", v))
+			elems = append(elems, strconv.FormatBool(v))
 		}
 		return fmt.Sprintf("[]bool{%s}", strings.Join(elems, ", "))
-	// handle non-slice scalars
+	// handle non-slice scalars; the codec normalizes these to string/int64/float64/bool
 	case string:
 		return fmt.Sprintf("%q", val)
-	case int:
+	case int, int32, int64, uint64:
 		return fmt.Sprintf("%d", val)
-	case float64:
+	case float32, float64:
 		return fmt.Sprintf("%f", val)
 	case bool:
 		return fmt.Sprintf("%t", val)
@@ -555,8 +555,8 @@ func urfaveCliDefaultVal(val any, t string, variadic bool) string {
 		return urfaveCliZeroValue(t, variadic)
 
 	default:
-		// should never panic because the spec will have been validated before generation is run
-		panic(fmt.Sprintf("unsupported type: must be a slice of string, int, float64, or bool - %T", val))
+		// should never panic because the codec normalizes defaults before generation is run
+		panic(fmt.Sprintf("unsupported type: must be a slice of string, int64, float64, or bool - %T", val))
 	}
 }
 

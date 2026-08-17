@@ -10,7 +10,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/bcdxn/opencli/internal/ds"
@@ -46,7 +48,10 @@ func UnmarshalJSON(data []byte) (*spec.Document, error) {
 		return nil, err
 	}
 
-	doc := buildSpecDoc(rawDoc)
+	doc, err := buildSpecDoc(&rawDoc)
+	if err != nil {
+		return nil, fmt.Errorf("error building OpenCLI spec document: %w", err)
+	}
 
 	return doc, nil
 }
@@ -69,12 +74,15 @@ func UnmarshalYAML(data []byte) (*spec.Document, error) {
 		return nil, err
 	}
 
-	doc := buildSpecDoc(rawDoc)
+	doc, err := buildSpecDoc(&rawDoc)
+	if err != nil {
+		return nil, fmt.Errorf("error building OpenCLI spec document: %w", err)
+	}
 
 	return doc, nil
 }
 
-func buildSpecDoc(rawDoc rawDocument) *spec.Document {
+func buildSpecDoc(rawDoc *rawDocument) (*spec.Document, error) {
 	// Build hierarchical data structure
 	var doc spec.Document
 
@@ -87,9 +95,11 @@ func buildSpecDoc(rawDoc rawDocument) *spec.Document {
 		insertCommand(&doc, rawCmd.Key, rawCmd.Value)
 	}
 	// run post processing to add/update values after building hierarchical command structure
-	postProcessing(&doc, &rawDoc)
+	if err := postProcessing(&doc); err != nil {
+		return nil, err
+	}
 
-	return &doc
+	return &doc, nil
 }
 
 // MarshalJSON encodes a spec.Document into JSON bytes.
@@ -220,18 +230,18 @@ func indexOfSubcommand(cmd *spec.CommandItem, segment string) int {
 
 // postProcessing is applied to the Document which traverses the command Items,
 // processing each command in the Trie.
-func postProcessing(doc *spec.Document, rawDoc *rawDocument) {
+func postProcessing(doc *spec.Document) error {
 	if doc.Commands == nil {
-		return
+		return nil
 	}
 
-	postProcessingDFS(doc.Commands, rawDoc)
+	return postProcessingDFS(doc.Commands)
 }
 
 // postProcessingDFS is a recursive function that processes each command item.
-func postProcessingDFS(node *spec.CommandItem, rawDoc *rawDocument) {
+func postProcessingDFS(node *spec.CommandItem) error {
 	if node == nil {
-		return
+		return nil
 	}
 	// process node
 
@@ -269,9 +279,235 @@ func postProcessingDFS(node *spec.CommandItem, rawDoc *rawDocument) {
 	node.VisibleChildrenFlags = node.VisibleChildren && visibleChildrenFlags(node)
 	// 7. Add the arguments modifiers
 	addModifiers(node)
+	// 8. Normalize flag default values to canonical Go types so downstream
+	// consumers (code generation, docs) don't depend on decoder-specific types
+	if err := normalizeFlagDefaults(node); err != nil {
+		return fmt.Errorf("command %q: %w", node.CommandLine, err)
+	}
 	// iterate through the node's subcommands and process each child recursively
 	for _, child := range node.Commands {
-		postProcessingDFS(child, rawDoc)
+		if err := postProcessingDFS(child); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// normalizeFlagDefaults coerces every flag default value in a command to a
+// canonical Go type based on the declared flag type. Decoders produce different
+// concrete types for the same literal (e.g. goccy/go-yaml decodes integers as
+// uint64 while encoding/json uses float64), so downstream consumers must not
+// rely on the raw decoded type. Canonical forms: string -> string, integer ->
+// int64, number -> float64, boolean -> bool. Variadic flags may carry list
+// defaults (rejected by schema validation but still decodable); their elements
+// are coerced to []string, []int64, []float64, or []bool respectively so the
+// emitters can render them without panicking on decoder-specific shapes. A
+// default whose value cannot be represented as its declared type is a decode
+// error rather than something silently dropped downstream.
+func normalizeFlagDefaults(node *spec.CommandItem) error {
+	if node == nil {
+		return nil
+	}
+
+	for i := range node.Flags {
+		flag := &node.Flags[i]
+		var (
+			norm any
+			err  error
+		)
+		switch flag.Type {
+		case "string":
+			norm, err = toStringDefault(flag.Default, flag.Name)
+		case "integer":
+			norm, err = toInt64Default(flag.Default, flag.Name)
+		case "number":
+			norm, err = toFloat64Default(flag.Default, flag.Name)
+		case "boolean":
+			norm, err = toBoolDefault(flag.Default, flag.Name)
+		default:
+			// Unknown or unset type: leave the value untouched.
+			continue
+		}
+		if err != nil {
+			return err
+		}
+		flag.Default = norm
+	}
+
+	return nil
+}
+
+func toStringDefault(val any, name string) (any, error) {
+	switch v := val.(type) {
+	case nil:
+		return nil, nil
+	case []any:
+		out := make([]string, 0, len(v))
+		for _, e := range v {
+			s, ok := coerceString(e)
+			if !ok {
+				return nil, fmt.Errorf("flag %q has a non-string element in its default list", name)
+			}
+			out = append(out, s)
+		}
+		return out, nil
+	case string:
+		return v, nil
+	default:
+		s, ok := coerceString(val)
+		if !ok {
+			return nil, fmt.Errorf("flag %q has a non-string default value", name)
+		}
+		return s, nil
+	}
+}
+
+func toInt64Default(val any, name string) (any, error) {
+	switch v := val.(type) {
+	case nil:
+		return nil, nil
+	case []any:
+		out := make([]int64, 0, len(v))
+		for _, e := range v {
+			n, ok := coerceInt64(e)
+			if !ok {
+				return nil, fmt.Errorf("flag %q has a non-integer element in its default list", name)
+			}
+			out = append(out, n)
+		}
+		return out, nil
+	default:
+		n, ok := coerceInt64(val)
+		if !ok {
+			return nil, fmt.Errorf("flag %q has an invalid integer default value", name)
+		}
+		return n, nil
+	}
+}
+
+func toFloat64Default(val any, name string) (any, error) {
+	switch v := val.(type) {
+	case nil:
+		return nil, nil
+	case []any:
+		out := make([]float64, 0, len(v))
+		for _, e := range v {
+			f, ok := coerceFloat64(e)
+			if !ok {
+				return nil, fmt.Errorf("flag %q has a non-numeric element in its default list", name)
+			}
+			out = append(out, f)
+		}
+		return out, nil
+	default:
+		f, ok := coerceFloat64(val)
+		if !ok {
+			return nil, fmt.Errorf("flag %q has an invalid number default value", name)
+		}
+		return f, nil
+	}
+}
+
+func toBoolDefault(val any, name string) (any, error) {
+	switch v := val.(type) {
+	case nil:
+		return nil, nil
+	case []any:
+		out := make([]bool, 0, len(v))
+		for _, e := range v {
+			b, ok := coerceBool(e)
+			if !ok {
+				return nil, fmt.Errorf("flag %q has a non-boolean element in its default list", name)
+			}
+			out = append(out, b)
+		}
+		return out, nil
+	default:
+		b, ok := coerceBool(val)
+		if !ok {
+			return nil, fmt.Errorf("flag %q has an invalid boolean default value", name)
+		}
+		return b, nil
+	}
+}
+
+// coerceString converts a decoded scalar to its string form. Decoders may yield
+// strings directly or numeric/boolean scalars for loosely-typed documents.
+func coerceString(val any) (string, bool) {
+	switch v := val.(type) {
+	case nil:
+		return "", false
+	case string:
+		return v, true
+	case int64:
+		return strconv.FormatInt(v, 10), true
+	case uint64:
+		return strconv.FormatUint(v, 10), true
+	case float64:
+		if math.Trunc(v) == v && !math.IsInf(v, 0) {
+			return strconv.FormatInt(int64(v), 10), true
+		}
+		return strconv.FormatFloat(v, 'f', -1, 64), true
+	case bool:
+		return strconv.FormatBool(v), true
+	default:
+		return "", false
+	}
+}
+
+// coerceInt64 converts a decoded scalar to int64. Both decoders may represent
+// integers as uint64 (goccy/go-yaml) or float64 (encoding/json).
+func coerceInt64(val any) (int64, bool) {
+	switch v := val.(type) {
+	case nil:
+		return 0, false
+	case int64:
+		return v, true
+	case uint64:
+		if v > math.MaxInt64 {
+			return 0, false
+		}
+		return int64(v), true
+	case float64:
+		if v != math.Trunc(v) || v < math.MinInt64 || v > math.MaxInt64 {
+			return 0, false
+		}
+		return int64(v), true
+	default:
+		return 0, false
+	}
+}
+
+// coerceFloat64 converts a decoded scalar to float64.
+func coerceFloat64(val any) (float64, bool) {
+	switch v := val.(type) {
+	case nil:
+		return 0, false
+	case int64:
+		return float64(v), true
+	case uint64:
+		if v > math.MaxInt64 {
+			return 0, false
+		}
+		return float64(int64(v)), true
+	case float64:
+		return v, true
+	default:
+		return 0, false
+	}
+}
+
+// coerceBool converts a decoded scalar to bool. Only real booleans are accepted;
+// coercing numbers or strings would silently change the flag's semantics.
+func coerceBool(val any) (bool, bool) {
+	switch v := val.(type) {
+	case nil:
+		return false, false
+	case bool:
+		return v, true
+	default:
+		return false, false
 	}
 }
 
