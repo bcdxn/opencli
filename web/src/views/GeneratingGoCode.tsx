@@ -315,7 +315,7 @@ function GeneratingGoCodePage() {
               `    \u251c\u2500\u2500 help.gen.go       Default help/usage messaging`,
               `    \u251c\u2500\u2500 iostreams.gen.go  Standard I/O streams abstraction`,
               `    \u251c\u2500\u2500 params.gen.go     Command flags & parameter types`,
-              `    \u251c\u2500\u2500 run.go            CLI entry point (Run function)`,
+              `    \u251c\u2500\u2500 run.gen.go        CLI entry point (Run function)`,
               `    \u2514\u2500\u2500 cmd_...           Generated Cobra command definitions`,
             ]}
           />

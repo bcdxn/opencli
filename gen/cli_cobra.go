@@ -205,13 +205,13 @@ func genCLICobra(doc *spec.Document, opts *genCLIOptions) (map[string][]byte, er
 
 	runContent, err := renderCobraTemplate("templates/code/cobra/gencli/run.tmpl", funcMap, allCmdsData)
 	if err != nil {
-		return nil, fmt.Errorf("rendering gencli/run.go: %w", err)
+		return nil, fmt.Errorf("rendering gencli/run.gen.go: %w", err)
 	}
 	formattedRun, err := format.Source(runContent)
 	if err != nil {
-		return nil, fmt.Errorf("formatting gencli/run.go: %w\nsource:\n%s", err, runContent)
+		return nil, fmt.Errorf("formatting gencli/run.gen.go: %w\nsource:\n%s", err, runContent)
 	}
-	out["gencli/run.go"] = formattedRun
+	out["gencli/run.gen.go"] = formattedRun
 
 	for _, cmdFile := range cmdFiles {
 		cmdFile.GlobalFlags = globalFlags

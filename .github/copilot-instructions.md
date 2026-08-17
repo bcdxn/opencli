@@ -123,3 +123,4 @@ OpenCLI Specification is a declarative, language-agnostic document specification
 - The project is self-documenting: `opencli.ocs.yaml` describes the CLI itself
 - Generated code uses `gencli` package and directory naming convention to avoid conflicts. We can safely regenerate the code in the repo without fear of clobbering any of the logic
 - Web app uses Next.js 16 App Router with static export
+- You should always prioritize human-readable code that is maintainable and testable. Strive for elegance over cleverness
