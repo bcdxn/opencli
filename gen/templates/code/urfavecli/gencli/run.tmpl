@@ -6,6 +6,10 @@ import (
 	"errors"
 	"fmt"
 	"os"
+{{- if .GlobalFlags}}
+
+	"github.com/urfave/cli/v3"
+{{- end}}
 )
 
 // Run executes the root urfave command and returns an exit code.

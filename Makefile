@@ -44,6 +44,10 @@ gen-examples: generate
 		--framework cobra \
 		--out ./examples/code/cobra/pleasantries/internal \
 		./examples/pleasantries-cli.ocs.yaml
+	@go run cmd/ocli/main.go gen cli \
+		--framework urfavecli \
+		--out ./examples/code/urfavecli/pleasantries/internal \
+		./examples/pleasantries-cli.ocs.yaml
 
 .PHONY: release
 release: gen-docs gen-examples

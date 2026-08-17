@@ -63,6 +63,7 @@ type cobraCommandFileTmplData struct {
 	ChildImports []subCmdImport
 	CobraArgs    []cobraArgEntry
 	CobraFlags   []cobraFlagEntry
+	GlobalFlags  []cobraFlagEntry // non-help/version global flags, shared by all leaf commands
 }
 
 // subCmdImport holds data needed to call a child command constructor (same package, no import).
@@ -213,6 +214,7 @@ func genCLICobra(doc *spec.Document, opts *genCLIOptions) (map[string][]byte, er
 	out["gencli/run.go"] = formattedRun
 
 	for _, cmdFile := range cmdFiles {
+		cmdFile.GlobalFlags = globalFlags
 		content, err := renderCobraTemplate("templates/code/cobra/gencli/command.tmpl", funcMap, cmdFile)
 		if err != nil {
 			return nil, fmt.Errorf("rendering %s: %w", cmdFile.OutPath, err)

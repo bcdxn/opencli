@@ -52,3 +52,12 @@ type {{.FlagsTypeName}} struct {
 {{- end}}
 }
 {{end}}{{end}}
+{{if $.GlobalFlags}}
+
+// GlobalFlags holds the global (root-level) flag values shared by every action.
+type GlobalFlags struct {
+{{- range $.GlobalFlags}}
+	{{.FieldName}} {{.GoType}}
+{{- end}}
+}
+{{end}}

@@ -40,6 +40,7 @@ type urfaveCliCommandFileTmplData struct {
 	ChildImports []subCmdImport
 	UrfaveArgs   []urfaveCliArgEntry
 	UrfaveFlags  []urfaveCliFlagEntry
+	GlobalFlags  []urfaveCliFlagEntry // non-help/version global flags, shared by all leaf commands
 }
 
 // urfaveCliArgEntry describes how to bind a positional argument in an urfave command.
@@ -171,6 +172,7 @@ func genCLIUrfaveCli(doc *spec.Document, opts *genCLIOptions) (map[string][]byte
 	}
 
 	for _, cmdFile := range cmdFiles {
+		cmdFile.GlobalFlags = globalFlags
 		content, err := renderUrfaveCliTemplate("templates/code/urfavecli/gencli/command.tmpl", funcMap, cmdFile)
 		if err != nil {
 			return nil, fmt.Errorf("rendering %s: %w", cmdFile.OutPath, err)

@@ -62,7 +62,14 @@ func {{.FuncName}}(a ActionsInterface) *cobra.Command {
 {{- end}}
 {{- end}}
 {{- end}}
-			return a.{{.MethodName}}(c.Context(), {{if and .CobraArgs .CobraFlags}}cmdArgs, cmdFlags{{else if .CobraArgs}}cmdArgs{{else if .CobraFlags}}cmdFlags{{end}})
+{{- if .GlobalFlags}}
+			globalFlags := GlobalFlags{
+{{- range .GlobalFlags}}
+				{{.FieldName}}: {{resolveFlagValue .}},
+{{- end}}
+			}
+{{- end}}
+			return a.{{.MethodName}}(c.Context(), {{if and .CobraArgs .CobraFlags}}cmdArgs, cmdFlags{{else if .CobraArgs}}cmdArgs{{else if .CobraFlags}}cmdFlags{{end}}{{if .GlobalFlags}}, globalFlags{{end}})
 		},
 {{- end}}
 	}

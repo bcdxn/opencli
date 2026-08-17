@@ -5,17 +5,21 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 )
 
-// Run executes the root cobra command and returns an exit code.
+// Run executes the root urfave command and returns an exit code.
 func Run(ctx context.Context, actions ActionsInterface) int {
+	// Setup custom help printer with glamour/lipgloss rendering
+	SetupUrfaveHelpPrinter(actions)
+
 	// Instantiate root command
-	rootCmd := NewCmdPetstore(actions)
+	rootCmd := NewCmdPleasantries(actions)
 	// Add version for `--version` flag
 	rootCmd.Version = actions.Version()
 
 	// Run the CLI
-	if _, err := rootCmd.ExecuteContextC(ctx); err != nil {
+	if err := rootCmd.Run(ctx, os.Args); err != nil {
 		fmt.Fprintf(actions.IOStreams().Out(), "error: %v\n\n", err.Error())
 
 		if cliErr, ok := errors.AsType[*CLIError](err); ok {
