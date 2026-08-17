@@ -187,10 +187,14 @@ Flag Resolver Functions
 These functions are called from generated command code to resolve flag values.
 When the flag was provided on the command line (set is true) the CLI value is
 used as-is; otherwise the value is resolved from the flag's alternative sources
-(environment variables, config file) in the order they are declared.
+(environment variables, config file) in the order they are declared, falling back
+to cliVal when no source yields a usable result. For an unset flag the caller passes
+the bound default via the command accessor (or the zero value if none was declared),
+so this fallback honors any default declared in the spec.
 */
 
-// resolveStringFlag resolves a string flag from the CLI or its alternative sources.
+// resolveStringFlag resolves a string flag from the CLI or its alternative sources, falling
+// back to the bound default when no source yields a usable result.
 func resolveStringFlag(set bool, cliVal string, sources []AltSource) string {
 	if set {
 		return cliVal
@@ -200,10 +204,11 @@ func resolveStringFlag(set bool, cliVal string, sources []AltSource) string {
 			return v
 		}
 	}
-	return ""
+	return cliVal
 }
 
-// resolveInt64Flag resolves an int64 flag from the CLI or its alternative sources.
+// resolveInt64Flag resolves an int64 flag from the CLI or its alternative sources, falling
+// back to the bound default when no source yields a usable result.
 func resolveInt64Flag(set bool, cliVal int64, sources []AltSource) int64 {
 	if set {
 		return cliVal
@@ -213,10 +218,11 @@ func resolveInt64Flag(set bool, cliVal int64, sources []AltSource) int64 {
 			return v
 		}
 	}
-	return 0
+	return cliVal
 }
 
-// resolveBoolFlag resolves a bool flag from the CLI or its alternative sources.
+// resolveBoolFlag resolves a bool flag from the CLI or its alternative sources, falling back
+// to the bound default when no source yields a usable result.
 func resolveBoolFlag(set bool, cliVal bool, sources []AltSource) bool {
 	if set {
 		return cliVal
@@ -226,10 +232,11 @@ func resolveBoolFlag(set bool, cliVal bool, sources []AltSource) bool {
 			return v
 		}
 	}
-	return false
+	return cliVal
 }
 
-// resolveFloat64Flag resolves a float64 flag from the CLI or its alternative sources.
+// resolveFloat64Flag resolves a float64 flag from the CLI or its alternative sources, falling
+// back to the bound default when no source yields a usable result.
 func resolveFloat64Flag(set bool, cliVal float64, sources []AltSource) float64 {
 	if set {
 		return cliVal
@@ -239,12 +246,13 @@ func resolveFloat64Flag(set bool, cliVal float64, sources []AltSource) float64 {
 			return v
 		}
 	}
-	return 0
+	return cliVal
 }
 
 // resolveSliceFlag resolves a variadic flag from the CLI or its alternative
 // sources. When the flag was not set, it returns the first source that yields
-// at least one value coercible to T.
+// at least one value coercible to T; otherwise the bound default (an empty slice
+// if none was declared).
 func resolveSliceFlag[T any](set bool, cliVal []T, sources []AltSource, coerce func(any) (T, bool)) []T {
 	if set {
 		return cliVal
@@ -260,7 +268,7 @@ func resolveSliceFlag[T any](set bool, cliVal []T, sources []AltSource, coerce f
 			return result
 		}
 	}
-	return []T{}
+	return cliVal
 }
 
 // resolveStringSliceFlag resolves a string slice flag from the CLI or its alternative sources.

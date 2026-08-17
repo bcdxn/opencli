@@ -212,12 +212,14 @@ Flag Resolver Functions
 These functions are called from generated command code to resolve flag values. When the
 flag was provided on the command line (fs.Changed) its CLI value is used as-is; otherwise
 the value is resolved from the flag's alternative sources (environment variables, config
-file) in the order they are declared, falling back to the zero value when no source yields
-a usable result. The merged pflag.FlagSet passed in already contains both local and
-inherited persistent flags at RunE time.
+file) in the order they are declared, falling back to the flag's bound default when no
+source yields a usable result. The pflag getters return that bound default for unchanged
+flags (or the zero value if none was declared). The merged pflag.FlagSet passed in already
+contains both local and inherited persistent flags at RunE time.
 */
 
-// resolveStringFlag resolves a string flag from the CLI or its alternative sources.
+// resolveStringFlag resolves a string flag from the CLI or its alternative sources, falling
+// back to the bound default when no source yields a usable result.
 func resolveStringFlag(fs *pflag.FlagSet, name string, sources []AltSource) string {
 	if fs.Changed(name) {
 		val, _ := fs.GetString(name)
@@ -228,10 +230,12 @@ func resolveStringFlag(fs *pflag.FlagSet, name string, sources []AltSource) stri
 			return v
 		}
 	}
-	return ""
+	defaultVal, _ := fs.GetString(name)
+	return defaultVal
 }
 
-// resolveInt64Flag resolves an int64 flag from the CLI or its alternative sources.
+// resolveInt64Flag resolves an int64 flag from the CLI or its alternative sources, falling
+// back to the bound default when no source yields a usable result.
 func resolveInt64Flag(fs *pflag.FlagSet, name string, sources []AltSource) int64 {
 	if fs.Changed(name) {
 		val, _ := fs.GetInt64(name)
@@ -242,12 +246,14 @@ func resolveInt64Flag(fs *pflag.FlagSet, name string, sources []AltSource) int64
 			return v
 		}
 	}
-	return 0
+	defaultVal, _ := fs.GetInt64(name)
+	return defaultVal
 }
 
 // resolveBoolFlag resolves a bool flag from the CLI or its alternative sources. An explicit
 // --flag=false on the command line is honored (fs.Changed); omitting the flag consults the
-// alternative sources, matching urfave/cli behavior for cross-framework parity.
+// alternative sources, matching urfave/cli behavior for cross-framework parity. Falls back
+// to the bound default when no source yields a usable result.
 func resolveBoolFlag(fs *pflag.FlagSet, name string, sources []AltSource) bool {
 	if fs.Changed(name) {
 		val, _ := fs.GetBool(name)
@@ -258,10 +264,12 @@ func resolveBoolFlag(fs *pflag.FlagSet, name string, sources []AltSource) bool {
 			return v
 		}
 	}
-	return false
+	defaultVal, _ := fs.GetBool(name)
+	return defaultVal
 }
 
-// resolveFloat64Flag resolves a float64 flag from the CLI or its alternative sources.
+// resolveFloat64Flag resolves a float64 flag from the CLI or its alternative sources, falling
+// back to the bound default when no source yields a usable result.
 func resolveFloat64Flag(fs *pflag.FlagSet, name string, sources []AltSource) float64 {
 	if fs.Changed(name) {
 		val, _ := fs.GetFloat64(name)
@@ -272,13 +280,14 @@ func resolveFloat64Flag(fs *pflag.FlagSet, name string, sources []AltSource) flo
 			return v
 		}
 	}
-	return 0
+	defaultVal, _ := fs.GetFloat64(name)
+	return defaultVal
 }
 
 // resolveSliceFlag resolves a variadic flag from the CLI or its alternative sources. When
 // the flag was not set on the command line it returns the first source that yields at least
-// one value coercible to T; otherwise an empty slice. get is the bound pflag getter for the
-// concrete element type (e.g. fs.GetStringArray).
+// one value coercible to T; otherwise the bound default (an empty slice if none was declared).
+// get is the bound pflag getter for the concrete element type (e.g. fs.GetStringArray).
 func resolveSliceFlag[T any](fs *pflag.FlagSet, name string, sources []AltSource, get func(string) ([]T, error), coerce func(any) (T, bool)) []T {
 	if fs.Changed(name) {
 		val, _ := get(name)
@@ -295,7 +304,8 @@ func resolveSliceFlag[T any](fs *pflag.FlagSet, name string, sources []AltSource
 			return result
 		}
 	}
-	return []T{}
+	defaultVal, _ := get(name)
+	return defaultVal
 }
 
 // resolveStringSliceFlag resolves a string slice flag from the CLI or its alternative sources.
