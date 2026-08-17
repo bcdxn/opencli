@@ -81,16 +81,17 @@ type yargsArgEntry struct {
 
 // yargsFlagEntry describes how to bind an option/flag in a yargs command.
 type yargsFlagEntry struct {
-	FieldName    string // camelCase field on argv
-	RawName      string // unmodified name from spec, used for .option() and the local argv interface
-	TSType       string
-	IsRequired   bool
-	IsVariadic   bool
-	TypeName     string // non-empty when field uses generated enum type
-	Choices      []yargsChoiceEntry
-	Shorthand    string
-	ExtraAliases []string
-	Default      string // TypeScript literal or empty
+	FieldName      string // camelCase field on argv
+	RawName        string // unmodified name from spec, used for .option() and the local argv interface
+	TSType         string
+	IsRequired     bool
+	IsVariadic     bool
+	TypeName       string // non-empty when field uses generated enum type
+	Choices        []yargsChoiceEntry
+	Shorthand      string
+	ExtraAliases   []string
+	Default        string // TypeScript literal or empty
+	VariadicCoerce string // pre-rendered JS arrow coercing array elements for non-string variadics ("" otherwise)
 }
 
 //go:embed templates/code/yargs
@@ -305,16 +306,17 @@ func walkYargsCmdTree(
 		}
 		specFlags = append(specFlags, specFlagEntry{Name: flag.Name, Summary: flag.Summary, Aliases: extraAliases})
 		yargsFlags = append(yargsFlags, yargsFlagEntry{
-			FieldName:    toCamelCase(flag.Name),
-			RawName:      flag.Name,
-			TSType:       toTSType(flag.Type, flag.Variadic),
-			IsRequired:   flag.Required,
-			IsVariadic:   flag.Variadic,
-			TypeName:     flagTypeName,
-			Choices:      choices,
-			Shorthand:    shorthand,
-			ExtraAliases: extraAliases,
-			Default:      yargsDefaultVal(flag.Default),
+			FieldName:      toCamelCase(flag.Name),
+			RawName:        flag.Name,
+			TSType:         toTSType(flag.Type, flag.Variadic),
+			IsRequired:     flag.Required,
+			IsVariadic:     flag.Variadic,
+			VariadicCoerce: yargsVariadicCoerce(flag.Type),
+			TypeName:       flagTypeName,
+			Choices:        choices,
+			Shorthand:      shorthand,
+			ExtraAliases:   extraAliases,
+			Default:        yargsDefaultVal(flag.Default),
 		})
 	}
 
@@ -452,6 +454,24 @@ func yargsCommandDSL(cmd *spec.CommandItem) string {
 	cmdDSL = append(cmdDSL, args...)
 
 	return strings.Join(cmdDSL, " ")
+}
+
+// yargsVariadicCoerce returns a pre-rendered JavaScript arrow function that maps
+// the array elements of a non-string variadic flag to their proper JS type, or ""
+// when no coercion is needed (non-variadics and string variadics). Yargs has no
+// native typed-array support: with only `type: "array"`, elements arrive as
+// strings (and the parser's numeric heuristic misses non-integers), so we coerce
+// explicitly. The Array.isArray guard keeps absent flags undefined rather than
+// turning them into empty arrays.
+func yargsVariadicCoerce(t string) string {
+	switch t {
+	case "integer", "number":
+		return "(v) => Array.isArray(v) ? v.map(Number) : v"
+	case "boolean":
+		return `(v) => Array.isArray(v) ? v.map((x) => x === true || x === "true") : v`
+	default:
+		return ""
+	}
 }
 
 // yargsDefaultVal returns a TypeScript literal default value for a flag. The

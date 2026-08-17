@@ -27,7 +27,7 @@ interface {{.CommandArgName}} {
   "{{.RawName}}"{{if not .IsRequired}}?{{end}}: {{.TSType}};
 {{- end}}
 {{- range .YargsFlags}}
-  "{{.FieldName}}"{{if not .IsRequired}}?{{end}}: {{if .IsVariadic}}string[] | undefined{{else}}{{.TSType}}{{end}};
+  "{{.FieldName}}"{{if not .IsRequired}}?{{end}}: {{.TSType}}{{if .IsVariadic}} | undefined{{end}};
 {{- end}}
   help: boolean;
 }
@@ -68,7 +68,7 @@ export function {{.FuncName}}(
 {{- end}}
 {{- if .IsVariadic}}
           type: "array",
-          string: true,
+          {{if .VariadicCoerce}}coerce: {{.VariadicCoerce}},{{else}}string: true,{{end}}
 {{- else}}
           type: {{if eq .TSType "number"}}"number"{{else if eq .TSType "boolean"}}"boolean"{{else}}"string"{{end}},
 {{- end}}
