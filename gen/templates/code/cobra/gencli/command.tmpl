@@ -81,8 +81,10 @@ func {{.FuncName}}(a ActionsInterface) *cobra.Command {
 {{- range .ChildImports}}
 	command.AddCommand({{.FuncName}}(a))
 {{- end}}
+{{- if not .IsGroup}}
 {{- range .CobraFlags}}
 	command.Flags().{{.CobraBindFn}}(&{{.VarName}}, {{goString .FlagName}}, {{goString .Shorthand}}, {{.Default}}, {{goString .Summary}})
+{{- end}}
 {{- end}}
 {{- if hasExtraAliases .CobraFlags}}
 	command.Flags().SetNormalizeFunc(func(_ *pflag.FlagSet, name string) pflag.NormalizedName {
