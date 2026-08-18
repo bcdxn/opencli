@@ -6,6 +6,7 @@ import (
 	"flag"
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
 
 	"github.com/bcdxn/opencli/codec"
@@ -731,6 +732,32 @@ func TestYargsScanAltSources(t *testing.T) {
 			hasAlt, hasFile := scanYargsAltSources(tt.flags)
 			if hasAlt != tt.wantHas || hasFile != tt.wantFile {
 				t.Errorf("scanYargsAltSources(%+v) = (%v, %v), want (%v, %v)", tt.flags, hasAlt, hasFile, tt.wantHas, tt.wantFile)
+			}
+		})
+	}
+}
+
+// TestYargsAltSourceNames verifies the accepted-option-name list passed to the generated
+// wasSetOnCli scanner: field name first (used to read argv), then raw name and shorthand
+// when present, then extra aliases — with duplicates collapsed. The shorthand must be
+// included so that a flag set via its single-character form is still detected as CLI-set.
+func TestYargsAltSourceNames(t *testing.T) {
+	tests := []struct {
+		name string
+		flag yargsFlagEntry
+		want []string
+	}{
+		{"field_only", yargsFlagEntry{FieldName: "verbose"}, []string{"verbose"}},
+		{"kebab_raw_name", yargsFlagEntry{FieldName: "dryRun", RawName: "dry-run"}, []string{"dryRun", "dry-run"}},
+		{"shorthand_included", yargsFlagEntry{FieldName: "verbose", RawName: "verbose", Shorthand: "v"}, []string{"verbose", "v"}},
+		{"all_names_deduped", yargsFlagEntry{FieldName: "output", RawName: "out-file", Shorthand: "o", ExtraAliases: []string{"dest"}}, []string{"output", "out-file", "o", "dest"}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := yargsAltSourceNames(tt.flag)
+			if !slices.Equal(got, tt.want) {
+				t.Errorf("yargsAltSourceNames(%+v) = %v, want %v", tt.flag, got, tt.want)
 			}
 		})
 	}

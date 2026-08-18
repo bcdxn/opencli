@@ -600,6 +600,7 @@ func yargsAltSourceNames(f yargsFlagEntry) []string {
 	}
 	add(f.FieldName)
 	add(f.RawName)
+	add(f.Shorthand)
 	for _, a := range f.ExtraAliases {
 		add(a)
 	}
