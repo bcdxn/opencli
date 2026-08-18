@@ -4,6 +4,7 @@ package gencli
 import (
 	"github.com/ohler55/ojg/jp"
 	"gopkg.in/yaml.v3"
+	"math"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -132,6 +133,9 @@ func toInt64(v any) (int64, bool) {
 	case int64:
 		return n, true
 	case float64:
+		if n != math.Trunc(n) || n < math.MinInt64 || n > math.MaxInt64 {
+			return 0, false
+		}
 		return int64(n), true
 	case string:
 		if i, err := strconv.ParseInt(n, 10, 64); err == nil {
