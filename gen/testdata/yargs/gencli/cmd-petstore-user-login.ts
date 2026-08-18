@@ -4,6 +4,10 @@ import { ActionsInterface } from "./actions";
 import {
   PetstoreUserLoginFlags,
 } from "./params";
+import {
+  resolveStringFlag
+} from "./config";
+
 import { CommandPrintData } from "./types";
 import { CliError, ExitCode, createBadUserInputError } from "./errors";
 // Local argv shape for this command's builder.
@@ -62,8 +66,8 @@ export function newPetstoreUserLoginCmd(
         process.exit(0);
       }
       const cmdFlags: PetstoreUserLoginFlags = {
-        username: argv.username as string,
-        password: argv.password as string,
+        username: resolveStringFlag(argv, ["username"], [{ type: "$ENV", property: "PETSTORE_USER" }, { type: "$FILE", property: "$.auth.user" }]),
+        password: resolveStringFlag(argv, ["password"], [{ type: "$ENV", property: "PETSTORE_PASS" }, { type: "$FILE", property: "$.auth.pass" }]),
       };
       return actions.PetstoreUserLogin(cmdFlags);
     },

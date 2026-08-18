@@ -4,6 +4,7 @@ import { newPetstoreListCmd } from "./cmd-petstore-list";
 import { newPetstorePetCmd } from "./cmd-petstore-pet";
 import { newPetstoreStoreCmd } from "./cmd-petstore-store";
 import { newPetstoreUserCmd } from "./cmd-petstore-user";
+import { loadConfig } from "./config";
 import { ActionsInterface } from "./actions";
 import { CommandPrintData } from "./types";
 import { CliError, ExitCode } from "./errors";
@@ -13,6 +14,8 @@ export async function run(
   yargsInstance: yargs.Argv<{}>,
   actions: ActionsInterface,
 ): Promise<void> {
+  // Load config file from disk (JSON/YAML/TOML) for $FILE alternative sources.
+  loadConfig();
   await yargsInstance
     .scriptName("petstore")
     .help(false)

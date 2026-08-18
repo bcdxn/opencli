@@ -695,3 +695,124 @@ commands:
 		}
 	})
 }
+
+// TestYargsScanAltSources verifies the has-alt / has-file scan that gates emission of
+// gencli/config.ts and its JSONPath import for the yargs framework.
+func TestYargsScanAltSources(t *testing.T) {
+	tests := []struct {
+		name     string
+		flags    []yargsFlagEntry
+		wantHas  bool
+		wantFile bool
+	}{
+		{"none", nil, false, false},
+		{
+			"env_only",
+			[]yargsFlagEntry{{AltSources: []spec.AlternativeSource{{Type: "$ENV", Property: "X"}}}},
+			true, false,
+		},
+		{
+			"file_only",
+			[]yargsFlagEntry{{AltSources: []spec.AlternativeSource{{Type: "$FILE", Property: "$.x"}}}},
+			true, true,
+		},
+		{
+			"mixed_across_flags",
+			[]yargsFlagEntry{
+				{}, // no alt sources
+				{AltSources: []spec.AlternativeSource{{Type: "$ENV", Property: "X"}, {Type: "$FILE", Property: "$.y"}}},
+			},
+			true, true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			hasAlt, hasFile := scanYargsAltSources(tt.flags)
+			if hasAlt != tt.wantHas || hasFile != tt.wantFile {
+				t.Errorf("scanYargsAltSources(%+v) = (%v, %v), want (%v, %v)", tt.flags, hasAlt, hasFile, tt.wantHas, tt.wantFile)
+			}
+		})
+	}
+}
+
+// TestCLI_Yargs_ConfigEmissionConditional verifies that gencli/config.ts is only emitted when
+// at least one flag declares an alternative source. Specs without this feature must produce no
+// extra config file (and therefore no unused imports), matching the cobra/urfave behavior.
+func TestCLI_Yargs_ConfigEmissionConditional(t *testing.T) {
+	generate := func(t *testing.T, docYAML string) map[string][]byte {
+		t.Helper()
+		doc, err := codec.UnmarshalYAML([]byte(docYAML))
+		if err != nil {
+			t.Fatalf("unexpected error unmarshaling doc: %v", err)
+		}
+		files, err := CLI(
+			doc,
+			GenCLIWithFramework(YargsFramework),
+		)
+		if err != nil {
+			t.Fatalf("unexpected error generating Yargs CLI: %v", err)
+		}
+		return files
+	}
+
+	fileNames := func(files map[string][]byte) []string {
+		names := make([]string, 0, len(files))
+		for n := range files {
+			names = append(names, n)
+		}
+		return names
+	}
+
+	t.Run("no_alt_sources", func(t *testing.T) {
+		files := generate(t, `opencliVersion: 1.0.0-alpha.13
+info:
+  title: minimal cli for alt-source emission test
+  binary: minicli
+commands:
+  minicli greet [flags]:
+    summary: say hello
+`)
+
+		if _, hasConfig := files["gencli/config.ts"]; hasConfig {
+			t.Errorf("config.ts should not be emitted without alternative sources; generated files: %v", fileNames(files))
+		}
+
+		runContent, ok := files["gencli/run.ts"]
+		if !ok {
+			t.Fatal("expected gencli/run.ts in output")
+		}
+		if bytes.Contains(runContent, []byte("loadConfig()")) {
+			t.Error("run.ts should not call loadConfig without alternative sources")
+		}
+	})
+
+	t.Run("with_alt_sources", func(t *testing.T) {
+		files := generate(t, `opencliVersion: 1.0.0-alpha.13
+info:
+  title: minimal cli for alt-source emission test
+  binary: minicli
+commands:
+  minicli greet [flags]:
+    summary: say hello
+    flags:
+      - name: username
+        type: string
+        alternativeSources:
+          - type: $ENV
+            property: MINI_USER
+`)
+
+		if _, hasConfig := files["gencli/config.ts"]; !hasConfig {
+			t.Errorf("expected config.ts when alt sources present; generated files: %v", fileNames(files))
+		}
+
+		runContent, ok := files["gencli/run.ts"]
+		if !ok {
+			t.Fatal("expected gencli/run.ts in output")
+		}
+		if !bytes.Contains(runContent, []byte("loadConfig()")) {
+			t.Error("expected run.ts to call loadConfig when alt sources present")
+		}
+	})
+}

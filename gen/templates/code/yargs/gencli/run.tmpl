@@ -3,6 +3,10 @@ import yargs from "yargs";
 {{- range .ChildImports}}
 import { {{.FuncName}} } from "./{{.FileName}}";
 {{- end}}
+{{- if .HasAltSources}}
+import { loadConfig } from "./config";
+
+{{- end}}
 import { ActionsInterface } from "./actions";
 import { CommandPrintData } from "./types";
 import { CliError, ExitCode } from "./errors";
@@ -12,12 +16,36 @@ export async function run(
   yargsInstance: yargs.Argv<{}>,
   actions: ActionsInterface,
 ): Promise<void> {
+{{- if .HasAltSources}}
+  // Load config file from disk (JSON/YAML/TOML) for $FILE alternative sources.
+  loadConfig();
+
+{{- end}}
   await yargsInstance
     .scriptName({{tsString .Binary}})
     .help(false)
 {{- range .ChildImports}}
     .command({{.FuncName}}(actions))
+{{- end}}{{- if .GlobalFlags}}{{range .GlobalFlags}}
+    .option({{tsString .RawName}}, {
+      describe: {{tsString .Summary}},
+{{- if or .Shorthand .ExtraAliases}}
+      aliases: [{{range $i, $a := .ExtraAliases}}{{if $i}}, {{end}}{{tsString $a}}{{end}}],
 {{- end}}
+{{- if .IsVariadic}}
+      type: "array",
+      string: true,
+{{- else}}
+      type: {{if eq .TSType "number"}}"number"{{else if eq .TSType "boolean"}}"boolean"{{else}}"string"{{end}},
+{{- end}}
+{{- if and .IsRequired (not .AltSources)}}
+      demandOption: true,
+{{- end}}
+{{- if .Default}}
+      default: {{.Default}},
+{{- end}}
+    })
+{{- end}}{{end}}
     .demandCommand(1)
     .option("help", {
       alias: "h",

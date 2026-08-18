@@ -22,6 +22,17 @@ type yargsAllCmdsTmplData struct {
 	RootImport    yargsChildImport   // import stub for the root command (used by run.ts)
 	ChildImports  []yargsChildImport // direct children of root (used by run.ts)
 	ExitCodes     []spec.ExitCode
+	GlobalFlags   []yargsFlagEntry
+	// Config file paths from global.config (only formats that are declared)
+	ConfigJSON string
+	ConfigTOML string
+	ConfigYAML string
+	// HasAltSources is true if any flag declares an alternative source, which
+	// requires emitting gencli/config.ts and calling loadConfig at startup.
+	HasAltSources bool
+	// HasFileAltSource is true if any flag declares a $FILE alternative source,
+	// which requires the generated config code to import a JSONPath library.
+	HasFileAltSource bool
 }
 
 // yargsCmdEntry holds pre-computed data for a single leaf command (used by actions/params).
@@ -58,6 +69,8 @@ type yargsCommandFileTmplData struct {
 	ChildImports   []yargsChildImport
 	YargsArgs      []yargsArgEntry
 	YargsFlags     []yargsFlagEntry
+	GlobalFlags    []yargsFlagEntry // non-help/version global flags, shared by all leaf commands
+	ConfigImports  []string         // unique resolver names from gencli/config.ts used by this command's alt-source flags
 }
 
 // yargsChildImport holds data for importing and registering a child command module.
@@ -91,7 +104,9 @@ type yargsFlagEntry struct {
 	Shorthand      string
 	ExtraAliases   []string
 	Default        string // TypeScript literal or empty
+	Summary        string // flag summary (used for global option registration)
 	VariadicCoerce string // pre-rendered JS arrow coercing array elements for non-string variadics ("" otherwise)
+	AltSources     []spec.AlternativeSource
 }
 
 //go:embed templates/code/yargs
@@ -118,12 +133,54 @@ func genCLIYargs(doc *spec.Document, opts *genCLIOptions) (map[string][]byte, er
 
 	rootChildImports := yargsBuildChildImports(rootCmd.Commands, []string{binary})
 
+	var globalFlags []yargsFlagEntry
+	configJSON, configTOML, configYAML := "", "", ""
+	if doc.Global != nil {
+		configJSON = doc.Global.Config.JSON
+		configTOML = doc.Global.Config.TOML
+		configYAML = doc.Global.Config.YAML
+		for _, flag := range doc.Global.Flags {
+			if flag.Name == "help" || flag.Name == "version" {
+				continue
+			}
+			shorthand, extraAliases := splitAliases(flag.Aliases)
+			globalFlags = append(globalFlags, yargsFlagEntry{
+				FieldName:    toCamelCase(flag.Name),
+				RawName:      flag.Name,
+				TSType:       toTSType(flag.Type, flag.Variadic),
+				IsRequired:   flag.Required,
+				IsVariadic:   flag.Variadic,
+				Shorthand:    shorthand,
+				ExtraAliases: extraAliases,
+				Default:      yargsDefaultVal(flag.Default),
+				Summary:      flag.Summary,
+				AltSources:   flag.AltSources,
+			})
+		}
+	}
+
+	// Track alternative-source usage across all flags so we know whether to emit
+	// gencli/config.ts (and call loadConfig from run.tmpl). A $FILE source
+	// additionally requires the generated config code to import a JSONPath library.
+	hasAltSources, hasFileAltSource := scanYargsAltSources(globalFlags)
+	for i := range cmdFiles {
+		cmdHasAlt, cmdHasFile := scanYargsAltSources(cmdFiles[i].YargsFlags)
+		hasAltSources = hasAltSources || cmdHasAlt
+		hasFileAltSource = hasFileAltSource || cmdHasFile
+	}
+
 	allCmdsData := yargsAllCmdsTmplData{
-		ModuleVersion: opts.ModuleVersion,
-		Binary:        binary,
-		BinaryPascal:  binaryPascal,
-		LeafCommands:  leafCommands,
-		ChildImports:  rootChildImports,
+		ModuleVersion:    opts.ModuleVersion,
+		Binary:           binary,
+		BinaryPascal:     binaryPascal,
+		LeafCommands:     leafCommands,
+		ChildImports:     rootChildImports,
+		GlobalFlags:      globalFlags,
+		ConfigJSON:       configJSON,
+		ConfigTOML:       configTOML,
+		ConfigYAML:       configYAML,
+		HasAltSources:    hasAltSources,
+		HasFileAltSource: hasFileAltSource,
 		RootImport: yargsChildImport{
 			FuncName: yargsCommandFuncName([]string{binary}),
 			FileName: yargsCommandFileName([]string{binary}),
@@ -143,12 +200,19 @@ func genCLIYargs(doc *spec.Document, opts *genCLIOptions) (map[string][]byte, er
 	}
 	supportFiles := []gencliFile{
 		{"gencli/actions.ts", "templates/code/yargs/gencli/actions.tmpl"},
-		{"gencli/params.ts", "templates/code/yargs/gencli/params.tmpl"},
-		{"gencli/errors.ts", "templates/code/yargs/gencli/errors.tmpl"},
-		{"gencli/help.ts", "templates/code/yargs/gencli/help.tmpl"},
-		{"gencli/types.ts", "templates/code/yargs/gencli/types.tmpl"},
-		{"gencli/run.ts", "templates/code/yargs/gencli/run.tmpl"},
+		// Only emitted when at least one flag declares alternative sources, so that
+		// specs without this feature produce no extra files or imports.
 	}
+	if hasAltSources {
+		supportFiles = append(supportFiles, gencliFile{"gencli/config.ts", "templates/code/yargs/gencli/config.tmpl"})
+	}
+	supportFiles = append(supportFiles,
+		gencliFile{"gencli/params.ts", "templates/code/yargs/gencli/params.tmpl"},
+		gencliFile{"gencli/errors.ts", "templates/code/yargs/gencli/errors.tmpl"},
+		gencliFile{"gencli/help.ts", "templates/code/yargs/gencli/help.tmpl"},
+		gencliFile{"gencli/types.ts", "templates/code/yargs/gencli/types.tmpl"},
+		gencliFile{"gencli/run.ts", "templates/code/yargs/gencli/run.tmpl"},
+	)
 	for _, f := range supportFiles {
 		content, err := renderYargsTemplate(f.tmplPath, funcMap, allCmdsData)
 		if err != nil {
@@ -158,6 +222,35 @@ func genCLIYargs(doc *spec.Document, opts *genCLIOptions) (map[string][]byte, er
 	}
 
 	sort.Slice(cmdFiles, func(i, j int) bool { return cmdFiles[i].OutPath < cmdFiles[j].OutPath })
+	for i := range cmdFiles {
+		cmdFiles[i].GlobalFlags = globalFlags
+	}
+	// Collect the resolver functions each command file needs from gencli/config.ts,
+	// based on its own flags plus any alt-source global flags (which every leaf
+	// command handler also resolves).
+	hasGlobalAlt, _ := scanYargsAltSources(globalFlags)
+	for i := range cmdFiles {
+		seen := make(map[string]bool)
+		var imports []string
+		addResolver := func(f yargsFlagEntry) {
+			if len(f.AltSources) == 0 {
+				return
+			}
+			if r, ok := yargsAltSourceResolvers[f.TSType]; ok && !seen[r] {
+				seen[r] = true
+				imports = append(imports, r)
+			}
+		}
+		for _, f := range cmdFiles[i].YargsFlags {
+			addResolver(f)
+		}
+		if hasGlobalAlt {
+			for _, f := range globalFlags {
+				addResolver(f)
+			}
+		}
+		cmdFiles[i].ConfigImports = imports
+	}
 	for _, cmdFile := range cmdFiles {
 		content, err := renderYargsTemplate("templates/code/yargs/gencli/command.tmpl", funcMap, cmdFile)
 		if err != nil {
@@ -317,6 +410,7 @@ func walkYargsCmdTree(
 			Shorthand:      shorthand,
 			ExtraAliases:   extraAliases,
 			Default:        yargsDefaultVal(flag.Default),
+			AltSources:     flag.AltSources,
 		})
 	}
 
@@ -397,8 +491,128 @@ func yargsTemplateFuncMap() template.FuncMap {
 			}
 			return result
 		},
+		// appendParamImports returns the param type import list for actions.ts: every
+		// Args/Flags type used by a leaf command plus GlobalFlags when global flags exist.
+		"appendParamImports": func(imports []string, hasGlobal bool) []string {
+			if !hasGlobal || len(imports) == 0 {
+				return imports
+			}
+			for _, n := range imports {
+				if n == "GlobalFlags" {
+					return imports
+				}
+			}
+			result := make([]string, len(imports)+1)
+			copy(result, imports)
+			result[len(imports)] = "GlobalFlags"
+			return result
+		},
 		"joinStrings": strings.Join,
+		// resolveFlagValue returns the expression that yields a flag's value in
+		// generated command code. Without alternative sources it reads the parsed
+		// argv field directly; with alt-sources it calls the type-specific resolver
+		// from gencli/config.ts, which prefers an explicit CLI value and otherwise
+		// falls back to env/config in declared order.
+		"resolveFlagValue": func(f yargsFlagEntry) string {
+			if len(f.AltSources) == 0 {
+				return plainYargsFlagExpr(f)
+			}
+			resolver, ok := yargsAltSourceResolvers[f.TSType]
+			if !ok {
+				return plainYargsFlagExpr(f)
+			}
+			names := formatTSAltNames(yargsAltSourceNames(f))
+			expr := fmt.Sprintf("%s(argv, %s, %s)", resolver, names, formatTSAltSources(f.AltSources))
+			if f.TypeName != "" {
+				expr = fmt.Sprintf("%s(%s)", f.TypeName, expr)
+			}
+			return expr
+		},
 	}
+}
+
+// plainYargsFlagExpr returns the expression for a flag with no alternative sources:
+// the parsed argv field cast to its generated type (choices enum when one exists, else
+// the base TS type). This mirrors the pre-alt-source template exactly so that specs
+// without alternative sources produce byte-identical output.
+func plainYargsFlagExpr(f yargsFlagEntry) string {
+	if f.TypeName != "" {
+		return fmt.Sprintf("argv.%s as %s", f.FieldName, f.TypeName)
+	}
+	return fmt.Sprintf("argv.%s as %s", f.FieldName, f.TSType)
+}
+
+// scanYargsAltSources reports whether any flag in the slice declares an alternative
+// source (hasAlt), and specifically whether any of them is a $FILE source
+// (hasFile). A $FILE source requires the generated config code to import a JSONPath library.
+func scanYargsAltSources(flags []yargsFlagEntry) (hasAlt, hasFile bool) {
+	for _, f := range flags {
+		if len(f.AltSources) > 0 {
+			hasAlt = true
+		}
+		for _, src := range f.AltSources {
+			if src.Type == "$FILE" {
+				hasFile = true
+			}
+		}
+	}
+	return hasAlt, hasFile
+}
+
+// yargsAltSourceResolvers maps a TypeScript flag type to the generated resolver
+// function in gencli/config.ts that falls back to alternative sources when the
+// flag was not provided on the command line.
+var yargsAltSourceResolvers = map[string]string{
+	"string":    "resolveStringFlag",
+	"number":    "resolveNumberFlag",
+	"boolean":   "resolveBoolFlag",
+	"string[]":  "resolveStringSliceFlag",
+	"number[]":  "resolveNumberSliceFlag",
+	"boolean[]": "resolveBoolSliceFlag",
+}
+
+// formatTSAltSources formats a slice of spec.AlternativeSource as a TypeScript array
+// literal of the generated AltSource type, for use in generated template code.
+func formatTSAltSources(sources []spec.AlternativeSource) string {
+	if len(sources) == 0 {
+		return "[]"
+	}
+	parts := make([]string, 0, len(sources))
+	for _, s := range sources {
+		parts = append(parts, fmt.Sprintf("{ type: %q, property: %q }", s.Type, s.Property))
+	}
+	return "[" + strings.Join(parts, ", ") + "]"
+}
+
+// yargsAltSourceNames returns every option spelling that can reference the flag on the
+// command line: its camelCase field name (always first — used to read argv), its raw
+// spec name when different (yargs accepts kebab-case too), and all aliases. The generated
+// wasSetOnCli scanner matches process.argv tokens against this list, mirroring how pflag's
+// Changed and urfave/cli's IsSet account for shorthands and aliases.
+func yargsAltSourceNames(f yargsFlagEntry) []string {
+	seen := make(map[string]bool)
+	var names []string
+	add := func(s string) {
+		if s != "" && !seen[s] {
+			seen[s] = true
+			names = append(names, s)
+		}
+	}
+	add(f.FieldName)
+	add(f.RawName)
+	for _, a := range f.ExtraAliases {
+		add(a)
+	}
+	return names
+}
+
+// formatTSAltNames formats the accepted option-name list as a TypeScript string array literal.
+func formatTSAltNames(names []string) string {
+	parts := make([]string, 0, len(names))
+	for _, n := range names {
+		parts = append(parts, fmt.Sprintf("%q", n))
+	}
+	return "[" + strings.Join(parts, ", ") + "]"
 }
 
 // yargsSpecFuncName returns the help-data factory function name for a command.

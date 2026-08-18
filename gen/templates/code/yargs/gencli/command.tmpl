@@ -15,8 +15,17 @@ import {
 {{- range .YargsFlags}}{{if .TypeName}}
   {{.TypeName}},
 {{- end}}{{end}}
-} from "./params";
+{{- if .GlobalFlags}}
+  GlobalFlags,
 {{- end}}
+} from "./params";
+{{- end}}{{if .ConfigImports}}
+import {
+  {{joinStrings .ConfigImports ",\n  "}}
+} from "./config";
+
+{{else}}
+{{end -}}
 import { CommandPrintData } from "./types";
 import { CliError, ExitCode, createBadUserInputError } from "./errors";
 
@@ -28,6 +37,11 @@ interface {{.CommandArgName}} {
 {{- end}}
 {{- range .YargsFlags}}
   "{{.FieldName}}"{{if not .IsRequired}}?{{end}}: {{.TSType}}{{if .IsVariadic}} | undefined{{end}};
+{{- end}}
+{{- if .GlobalFlags}}
+{{- range .GlobalFlags}}
+  "{{.FieldName}}"{{if not (or .IsRequired .AltSources)}}?{{end}}: {{.TSType}}{{if or .IsVariadic .AltSources}} | undefined{{end}};
+{{- end}}
 {{- end}}
   help: boolean;
 }
@@ -75,7 +89,7 @@ export function {{.FuncName}}(
 {{- if .Choices}}
           choices: [{{range $i, $c := .Choices}}{{if $i}}, {{end}}{{tsString $c.Value}}{{end}}],
 {{- end}}
-{{- if .IsRequired}}
+{{- if and .IsRequired (not .AltSources)}}
           demandOption: true,
 {{- end}}
 {{- if .Default}}
@@ -134,22 +148,25 @@ export function {{.FuncName}}(
 {{- if .YargsFlags}}
       const cmdFlags: {{.FlagsTypeName}} = {
 {{- range .YargsFlags}}
-{{- if .TypeName}}
-        {{.FieldName}}: argv.{{.FieldName}} as {{.TypeName}},
-{{- else}}
-        {{.FieldName}}: argv.{{.FieldName}} as {{.TSType}},
+        {{.FieldName}}: {{resolveFlagValue .}},
 {{- end}}
+      };
+{{- end}}
+{{- if .GlobalFlags}}
+      const globalFlags: GlobalFlags = {
+{{- range .GlobalFlags}}
+        {{.FieldName}}: {{resolveFlagValue .}},
 {{- end}}
       };
 {{- end}}
 {{- if and .YargsArgs .YargsFlags}}
-      return actions.{{.MethodName}}(cmdArgs, cmdFlags);
+      return actions.{{.MethodName}}(cmdArgs, cmdFlags{{if .GlobalFlags}}, globalFlags{{end}});
 {{- else if .YargsArgs}}
-      return actions.{{.MethodName}}(cmdArgs);
+      return actions.{{.MethodName}}(cmdArgs{{if .GlobalFlags}}, globalFlags{{end}});
 {{- else if .YargsFlags}}
-      return actions.{{.MethodName}}(cmdFlags);
+      return actions.{{.MethodName}}(cmdFlags{{if .GlobalFlags}}, globalFlags{{end}});
 {{- else}}
-      return actions.{{.MethodName}}();
+      return actions.{{.MethodName}}{{if .GlobalFlags}}(globalFlags){{else}}(){{end}};
 {{- end}}
 {{- end}}
     },
