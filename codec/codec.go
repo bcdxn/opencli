@@ -87,6 +87,16 @@ func buildSpecDoc(rawDoc *rawDocument) (*spec.Document, error) {
 	var doc spec.Document
 
 	doc.Global = rawDoc.Global
+	if doc.Global != nil {
+		// Global flags are not part of the command Trie, so postProcessing never
+		// reaches them. Normalize their defaults here to keep every flag default
+		// in canonical Go types regardless of where it is declared.
+		for i := range doc.Global.Flags {
+			if err := normalizeOneFlagDefault(&doc.Global.Flags[i]); err != nil {
+				return nil, fmt.Errorf("global flag: %w", err)
+			}
+		}
+	}
 	doc.Info = rawDoc.Info
 	doc.Install = rawDoc.Install
 	doc.OpenCLIVersion = rawDoc.OpenCLIVersion
@@ -311,29 +321,39 @@ func normalizeFlagDefaults(node *spec.CommandItem) error {
 	}
 
 	for i := range node.Flags {
-		flag := &node.Flags[i]
-		var (
-			norm any
-			err  error
-		)
-		switch flag.Type {
-		case "string":
-			norm, err = toStringDefault(flag.Default, flag.Name)
-		case "integer":
-			norm, err = toInt64Default(flag.Default, flag.Name)
-		case "number":
-			norm, err = toFloat64Default(flag.Default, flag.Name)
-		case "boolean":
-			norm, err = toBoolDefault(flag.Default, flag.Name)
-		default:
-			// Unknown or unset type: leave the value untouched.
-			continue
-		}
-		if err != nil {
+		if err := normalizeOneFlagDefault(&node.Flags[i]); err != nil {
 			return err
 		}
-		flag.Default = norm
 	}
+
+	return nil
+}
+
+// normalizeOneFlagDefault coerces a single flag's default value to its canonical
+// Go type based on the declared flag type. It is shared by command flags (via
+// normalizeFlagDefaults) and global flags, which live outside the command Trie.
+func normalizeOneFlagDefault(flag *spec.FlagItem) error {
+	var (
+		norm any
+		err  error
+	)
+	switch flag.Type {
+	case "string":
+		norm, err = toStringDefault(flag.Default, flag.Name)
+	case "integer":
+		norm, err = toInt64Default(flag.Default, flag.Name)
+	case "number":
+		norm, err = toFloat64Default(flag.Default, flag.Name)
+	case "boolean":
+		norm, err = toBoolDefault(flag.Default, flag.Name)
+	default:
+		// Unknown or unset type: leave the value untouched.
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	flag.Default = norm
 
 	return nil
 }
