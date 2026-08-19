@@ -507,10 +507,7 @@ func coerceFloat64(val any) (float64, bool) {
 	case int64:
 		return float64(v), true
 	case uint64:
-		if v > math.MaxInt64 {
-			return 0, false
-		}
-		return float64(int64(v)), true
+		return float64(v), true
 	case float64:
 		return v, true
 	default:

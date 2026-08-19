@@ -125,4 +125,4 @@ OpenCLI Specification is a declarative, language-agnostic document specification
 - Web app uses Next.js 16 App Router with static export
 - You should always prioritize human-readable code that is maintainable and testable. Strive for elegance over cleverness
 - Don't guess about how newer libraries work based on old training data. Look up the docs via go.pkg.dev or using the built in websearch tool call.
-- For temporary / test files always use a subdirectory within `/tmp`. And be sure to clean up after yourself when done.
+- For temporary, test, scratch files always use a subdirectory within `/tmp`. And be sure to clean up after yourself when done.
