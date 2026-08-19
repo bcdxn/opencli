@@ -6,7 +6,10 @@ import (
 	"github.com/spf13/cobra"
 {{- if hasExtraAliases .CobraFlags}}
 	"github.com/spf13/pflag"
-{{- end}}
+{{- end}}{{if .GlobalFlags}}
+
+	"context"
+{{- end -}}
 )
 
 func {{.FuncName}}(a ActionsInterface) *cobra.Command {
@@ -63,13 +66,16 @@ func {{.FuncName}}(a ActionsInterface) *cobra.Command {
 {{- end}}
 {{- end}}
 {{- if .GlobalFlags}}
-			globalFlags := GlobalFlags{
+			ctx := c.Context()
+			ctx = WithGlobalFlags(ctx, GlobalFlags{
 {{- range .GlobalFlags}}
 				{{.FieldName}}: {{resolveFlagValue .}},
 {{- end}}
-			}
+			})
+			return a.{{.MethodName}}(ctx, {{if and .CobraArgs .CobraFlags}}cmdArgs, cmdFlags{{else if .CobraArgs}}cmdArgs{{else if .CobraFlags}}cmdFlags{{end}})
+{{- else}}
+			return a.{{.MethodName}}(c.Context(), {{if and .CobraArgs .CobraFlags}}cmdArgs, cmdFlags{{else if .CobraArgs}}cmdArgs{{else if .CobraFlags}}cmdFlags{{end}})
 {{- end}}
-			return a.{{.MethodName}}(c.Context(), {{if and .CobraArgs .CobraFlags}}cmdArgs, cmdFlags{{else if .CobraArgs}}cmdArgs{{else if .CobraFlags}}cmdFlags{{end}}{{if .GlobalFlags}}, globalFlags{{end}})
 		},
 {{- end}}
 	}

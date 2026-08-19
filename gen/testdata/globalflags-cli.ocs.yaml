@@ -1,0 +1,86 @@
+opencliVersion: 1.0.0-alpha.13
+
+info:
+  title: Global Flags CLI
+  summary: A minimal spec that declares real (non-help/version) global flags to exercise the context/accessor codegen paths for every framework.
+  description: |
+    `gflag` is a tiny fixture whose only purpose is to declare genuine global flags so
+    generated output exercises the `GlobalFlagsFromContext` / `setGlobalFlags` /
+    `getGlobalFlags` helpers and their call sites in each command handler.
+
+    It also declares one leaf per return-branch shape (args+flags, args-only,
+    flags-only, neither) so all four action-call forms appear in the goldens.
+  version: 0.1.0
+  binary: gflag
+
+global:
+  exitCodes:
+    - code: 0
+      status: OK
+      summary: The command was successful
+    - code: 2
+      status: BAD_USER_INPUT_ERROR
+      summary: Missing or invalid input
+  config: {}
+  flags:
+    # help/version are filtered out by codegen and must NOT appear in GlobalFlags.
+    - name: "help"
+      aliases:
+        - "h"
+      type: boolean
+      summary: contextual help
+    - name: "version"
+      type: boolean
+      summary: print the version of the CLI
+    # The real global flags below DO appear in GlobalFlags and are injected into
+    # context (Go) / set via setGlobalFlags (Yargs).
+    - name: "debug"
+      aliases:
+        - "v"
+      type: boolean
+      summary: enable verbose debug output
+    - name: "timeout"
+      type: integer
+      default: 30
+      summary: request timeout in seconds
+    - name: "output-format"
+      type: string
+      default: text
+      summary: preferred output format
+
+commands:
+  gflag {command} [flags]:
+    kind: group
+
+  # Neither args nor flags -> action called with no parameters.
+  gflag ping [flags]:
+    summary: Report that the CLI is alive
+
+  # Args only -> action called with just cmdArgs.
+  gflag echo <text> [flags]:
+    summary: Echo a single argument back
+    args:
+      - name: text
+        type: string
+        summary: the text to echo
+
+  # Flags only -> action called with just cmdFlags.
+  gflag greet --name <string> [flags]:
+    summary: Greet someone by name
+    flags:
+      - name: "name"
+        type: string
+        summary: who to greet
+
+  # Args + flags -> action called with both cmdArgs and cmdFlags.
+  gflag send <recipient> --count <integer> [flags]:
+    summary: Send a message the given number of times
+    args:
+      - name: recipient
+        type: string
+        summary: who to send to
+    flags:
+      - name: "count"
+        type: integer
+        default: 1
+        summary: how many times to send

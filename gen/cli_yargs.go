@@ -491,22 +491,6 @@ func yargsTemplateFuncMap() template.FuncMap {
 			}
 			return result
 		},
-		// appendParamImports returns the param type import list for actions.ts: every
-		// Args/Flags type used by a leaf command plus GlobalFlags when global flags exist.
-		"appendParamImports": func(imports []string, hasGlobal bool) []string {
-			if !hasGlobal || len(imports) == 0 {
-				return imports
-			}
-			for _, n := range imports {
-				if n == "GlobalFlags" {
-					return imports
-				}
-			}
-			result := make([]string, len(imports)+1)
-			copy(result, imports)
-			result[len(imports)] = "GlobalFlags"
-			return result
-		},
 		"joinStrings": strings.Join,
 		// resolveFlagValue returns the expression that yields a flag's value in
 		// generated command code. Without alternative sources it reads the parsed

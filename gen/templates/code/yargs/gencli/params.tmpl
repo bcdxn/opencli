@@ -7,6 +7,15 @@ export interface GlobalFlags {
 {{- end}}
 }
 
+// Module-level holder for the current invocation's global flag values, set by each generated command handler before calling an action.
+let _globalFlags: GlobalFlags = {} as GlobalFlags;
+export function setGlobalFlags(flags: GlobalFlags): void {
+  _globalFlags = flags;
+}
+export function getGlobalFlags(): GlobalFlags {
+  return _globalFlags;
+}
+
 {{end -}}
 {{- range .LeafCommands}}
 {{- range .Args}}{{if .TypeName}}{{$t := .TypeName}}

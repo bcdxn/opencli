@@ -17,6 +17,7 @@ import {
 {{- end}}{{end}}
 {{- if .GlobalFlags}}
   GlobalFlags,
+  setGlobalFlags,
 {{- end}}
 } from "./params";
 {{- end}}{{if .ConfigImports}}
@@ -153,20 +154,20 @@ export function {{.FuncName}}(
       };
 {{- end}}
 {{- if .GlobalFlags}}
-      const globalFlags: GlobalFlags = {
+      setGlobalFlags({
 {{- range .GlobalFlags}}
         {{.FieldName}}: {{resolveFlagValue .}},
 {{- end}}
-      };
+      });
 {{- end}}
 {{- if and .YargsArgs .YargsFlags}}
-      return actions.{{.MethodName}}(cmdArgs, cmdFlags{{if .GlobalFlags}}, globalFlags{{end}});
+      return actions.{{.MethodName}}(cmdArgs, cmdFlags);
 {{- else if .YargsArgs}}
-      return actions.{{.MethodName}}(cmdArgs{{if .GlobalFlags}}, globalFlags{{end}});
+      return actions.{{.MethodName}}(cmdArgs);
 {{- else if .YargsFlags}}
-      return actions.{{.MethodName}}(cmdFlags{{if .GlobalFlags}}, globalFlags{{end}});
+      return actions.{{.MethodName}}(cmdFlags);
 {{- else}}
-      return actions.{{.MethodName}}{{if .GlobalFlags}}(globalFlags){{else}}(){{end}};
+      return actions.{{.MethodName}}();
 {{- end}}
 {{- end}}
     },

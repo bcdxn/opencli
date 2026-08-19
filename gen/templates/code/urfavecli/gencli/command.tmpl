@@ -56,13 +56,13 @@ func {{.FuncName}}(a ActionsInterface) *cli.Command {
 {{- end}}
 {{- end}}
 {{- if .GlobalFlags}}
-			globalFlags := GlobalFlags{
+			ctx = WithGlobalFlags(ctx, GlobalFlags{
 {{- range .GlobalFlags}}
 				{{.FieldName}}: {{resolveFlagValue .}},
 {{- end}}
-			}
+			})
 {{- end}}
-			return a.{{.MethodName}}(ctx, {{if and .UrfaveArgs .UrfaveFlags}}cmdArgs, cmdFlags{{else if .UrfaveArgs}}cmdArgs{{else if .UrfaveFlags}}cmdFlags{{end}}{{if .GlobalFlags}}, globalFlags{{end}})
+			return a.{{.MethodName}}(ctx, {{if and .UrfaveArgs .UrfaveFlags}}cmdArgs, cmdFlags{{else if .UrfaveArgs}}cmdArgs{{else if .UrfaveFlags}}cmdFlags{{end}})
 		},
 {{- end}}
 	}
