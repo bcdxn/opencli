@@ -29,8 +29,8 @@ export async function run(
 {{- end}}{{- if .GlobalFlags}}{{range .GlobalFlags}}
     .option({{tsString .RawName}}, {
       describe: {{tsString .Summary}},
-{{- if or .Shorthand .ExtraAliases}}
-      aliases: [{{range $i, $a := .ExtraAliases}}{{if $i}}, {{end}}{{tsString $a}}{{end}}],
+{{- if or .Shorthand .ExtraAliases}}{{$sh := .Shorthand}}
+      aliases: [{{if $sh}}{{tsString $sh}}{{end}}{{range $i, $a := .ExtraAliases}}{{if or $i $sh}}, {{end}}{{tsString $a}}{{end}}],
 {{- end}}
 {{- if .IsVariadic}}
       type: "array",
