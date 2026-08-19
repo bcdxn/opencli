@@ -277,8 +277,9 @@ func resolveSliceFlag[T any](fs *pflag.FlagSet, name string, sources []AltSource
 		return val
 	}
 	for _, src := range sources {
-		result := make([]T, 0, len(altSourceItems(src)))
-		for _, item := range altSourceItems(src) {
+		items := altSourceItems(src)
+		result := make([]T, 0, len(items))
+		for _, item := range items {
 			if v, ok := coerce(item); ok {
 				result = append(result, v)
 			}
