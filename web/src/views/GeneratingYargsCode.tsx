@@ -67,13 +67,13 @@ function HighlightedCodeBlock({
   );
 }
 
-// ── Code Generation (Go) Page ──────────────────────────────────────────────────
+// ── Code Generation (Yargs) Page ───────────────────────────────────────────────
 
-function GeneratingGoCodePage() {
+function GeneratingYargsCodePage() {
   return (
     <>
       <h2 className="guide-section__title">
-        Generating A Go CLI From OpenCLI Specs
+        Generating A TypeScript CLI From OpenCLI Specs
       </h2>
       <p className="guide-section__subtitle">
         Turn a declarative OpenCLI Specification into framework-specific,
@@ -143,94 +143,62 @@ function GeneratingGoCodePage() {
           <h4>Define your OpenCLI Document</h4>
           <p>
             Every OpenCLI-powered project starts with a spec-compliant YAML (or
-            JSON) file. For this walkthrough we'll use the
+            JSON) file. For this walkthrough we'll use the{" "}
+            <a
+              href="https://github.com/bcdxn/opencli/blob/main/examples/pleasantries-cli.ocs.yaml"
+              target="_blank"
+              rel="noreferrer"
+            >
+              pleasantries-cli.ocs.yaml
+            </a>{" "}
+            example from the{" "}
+            <a href="https://github.com/bcdxn/opencli">
+              OpenCLI GitHub repository
+            </a>
+            , a small CLI for greeting and bidding farewell to people by name.
           </p>
-          <a
-            href="https://github.com/bcdxn/opencli/blob/main/examples/petstore-cli.ocs.yaml"
-            target="_blank"
-            rel="noreferrer"
-          >
-            petstore-cli.ocs.yaml
-          </a>{" "}
-          example from the{" "}
-          <a
-            href="https://github.com/bcdxn/opencli"
-            target="_blank"
-            rel="noreferrer"
-          >
-            OpenCLI GitHub repository
-          </a>
-          , modeled after the classic Swagger petstore API so the concepts feel
-          familiar.
-          <p>
-            The document describes a CLI for managing pets, orders, and users.
-            Here's a portion of what it looks like:
-          </p>
+
           <HighlightedCodeBlock
             language="yaml"
             lines={[
-              `opencliVersion: 1.0.0-alpha.12`,
+              `opencliVersion: 1.0.0-alpha.13`,
               ``,
               `info:`,
-              `  title: PetStore CLI`,
-              `  summary: An example CLI Document describing operations a petstore CLI may provide.`,
-              `  # ...`,
+              `  title: Pleasantries`,
+              `  summary: A fun CLI to greet or bid farewell`,
+              `  version: 1.0.0`,
+              `  binary: pleasantries`,
               ``,
               `commands:`,
-              `  petstore pet add [flags]:`,
-              `    summary: Add a new pet to the store`,
+              `  pleasantries {command} <arguments> [flags]:`,
+              `    kind: group`,
+              ``,
+              `  pleasantries greet <name> [flags]:`,
+              `    summary: "Say hello"`,
               `    args:`,
-              `      - name: path-to-req-body`,
-              `        type: string`,
-              `        summary: The path to a JSON file containing the new pet payload`,
-              `        required: false`,
-              `    flags:`,
-              `      - name: name`,
-              `        aliases:`,
-              `          - n`,
-              `        type: string`,
-              `        summary: The name of the pet`,
-              `      - name: photo-urls`,
-              `        aliases:`,
-              `          - p`,
-              `        type: string`,
-              `        summary: A list of photo URLs to display for the pet`,
-              `        description: |`,
-              `          Provide this flag multiple times to set multiple photo URLs.`,
-              `        variadic: true`,
-              `      - name: status`,
-              `        type: string`,
-              `        summary: The pet status in the store`,
-              `        choices:`,
-              `          - value: available`,
-              `          - value: pending`,
-              `          - value: sold`,
-              `      - name: tag`,
-              `        type: string`,
-              `        summary: Tag to assign to the pet for grouping/sorting`,
-              `        description: |`,
-              `          Provide this flag multiple times to add multiple tags.`,
-              `        variadic: true`,
-              ``,
-              `  petstore pet find-by-status [flags]:`,
-              `    summary: Find pets by status`,
-              `    flags:`,
-              `      - name: status`,
-              `        type: string`,
-              `        summary: The status to filter pets by`,
-              `        choices:`,
-              `          - value: available`,
-              `          - value: pending`,
-              `          - value: sold`,
+              `      - name: "name"`,
+              `        summary: "A name to include in the greeting"`,
               `        required: true`,
+              `        type: "string"`,
+              `    flags:`,
+              `      - name: "language"`,
+              `        summary: "The language of the greeting"`,
+              `        type: "string"`,
+              `        choices:`,
+              `          - value: "english"`,
+              `          - value: "spanish"`,
+              `        default: "english"`,
               ``,
-              `  # ...`,
+              `  pleasantries farewell <name> [flags]:`,
+              `    summary: "Say goodbye"`,
+              `    # ... same shape as greet, but for farewells`,
             ]}
           />
+
           <p>
             You can find the full example document{" "}
             <a
-              href="https://github.com/bcdxn/opencli/blob/main/examples/petstore-cli.ocs.yaml"
+              href="https://github.com/bcdxn/opencli/blob/main/examples/pleasantries-cli.ocs.yaml"
               target="_blank"
               rel="noreferrer"
             >
@@ -247,22 +215,39 @@ function GeneratingGoCodePage() {
         <div className="guide-step__number">3</div>
         <div className="guide-step__content">
           <h4>Initialize the Project</h4>
-          <p>Set up a fresh Go module and pull in the petstore spec:</p>
+          <p>
+            Set up a fresh Node.js project and pull in the pleasantries spec:
+          </p>
 
           <HighlightedCodeBlock
             language="sh"
             lines={[
-              `$ mkdir petstore && cd petstore`,
-              `$ go mod init petstore`,
+              `$ mkdir pleasantries && cd pleasantries`,
+              `$ npm init -y`,
               `# pull in the full example ocs file (or use your own)`,
-              `$ curl -O https://raw.githubusercontent.com/bcdxn/opencli/refs/heads/main/examples/petstore-cli.ocs.yaml`,
+              `$ curl -O https://raw.githubusercontent.com/bcdxn/opencli/refs/heads/main/examples/pleasantries-cli.ocs.yaml`,
             ]}
           />
 
-          <p>
-            That's it for setup — one spec file, one module. Now we're ready to
-            generate code.
-          </p>
+          <p>Then install the runtime and dev dependencies:</p>
+
+          <HighlightedCodeBlock
+            language="sh"
+            lines={[
+              `$ npm i yargs command-line-usage`,
+              `$ npm i -D typescript @types/yargs @types/node @types/command-line-usage`,
+            ]}
+          />
+
+          <div className="guide-callout">
+            <p>
+              The generated code uses{" "}
+              <span className="guide-inline-code">command-line-usage</span> to
+              render help and usage output, so it's a required dependency.
+            </p>
+          </div>
+
+          <p>That's it for setup — one spec file, one package.</p>
         </div>
       </div>
 
@@ -273,51 +258,44 @@ function GeneratingGoCodePage() {
           <h4>Generate Boilerplate Code</h4>
           <p>
             A single <span className="guide-inline-code">ocli gen cli</span>{" "}
-            command produces all the scaffolding. We'll generate a
-            urfave/cli-based CLI here, but the same process works for Cobra. If
-            you want to see a JS/TS example checkout the{" "}
-            <a href="/docs/code-generation-yargs">Code Generation (Yargs)</a>{" "}
-            docs.
+            command produces all the scaffolding:
           </p>
 
           <HighlightedCodeBlock
             language="sh"
             lines={[
               `$ ocli gen cli \\`,
-              `  --framework urfavecli \\`,
-              `  --out ./internal \\`,
-              `  ./petstore-cli.ocs.yaml`,
-              `# → Reading spec:       ./petstore-cli.ocs.yaml`,
-              `# → Generating CLI code:    framework=cobra, output=./internal`,
-              `# ✓ CLI Code written to: ./internal`,
+              `  --framework yargs \\`,
+              `  --out ./src \\`,
+              `  ./pleasantries-cli.ocs.yaml`,
+              `# → Reading spec:        ./pleasantries-cli.ocs.yaml`,
+              `# → Generating CLI code: framework=yargs, output=./src`,
+              `# ✓ CLI Code written to: ./src`,
             ]}
           />
 
-          <p>Then resolve dependencies:</p>
-
-          <HighlightedCodeBlock language="sh" lines={["$ go mod tidy"]} />
-
           <p>
             All generated code is encapsulated in the{" "}
-            <span className="guide-inline-code">gencli</span> package. Each
+            <span className="guide-inline-code">gencli</span> directory. Each
             command gets its own file, plus supporting files for bootstrapping,
-            error handling, and I/O management:
+            error handling, and help rendering:
           </p>
 
           <HighlightedCodeBlock
             language="plain"
             lines={[
-              `go.mod`,
-              `petstore-cli.ocs.yaml`,
-              `internal/`,
+              `package.json`,
+              `pleasantries-cli.ocs.yaml`,
+              `src/`,
               `\u2514\u2500\u2500 gencli/`,
-              `    \u251c\u2500\u2500 actions.gen.go    Actions interface & command signatures`,
-              `    \u251c\u2500\u2500 errors.gen.go     CLI error types & exit codes`,
-              `    \u251c\u2500\u2500 help.gen.go       Default help/usage messaging`,
-              `    \u251c\u2500\u2500 iostreams.gen.go  Standard I/O streams abstraction`,
-              `    \u251c\u2500\u2500 params.gen.go     Command flags & parameter types`,
-              `    \u251c\u2500\u2500 run.gen.go        CLI entry point (Run function)`,
-              `    \u2514\u2500\u2500 cmd_...           Generated Cobra command definitions`,
+              `    \u251c\u2500\u2500 actions.ts            ActionsInterface & command signatures`,
+              `    \u251c\u2500\u2500 cmd-pleasantries-greet.ts     Generated yargs command definitions`,
+              `    \u251c\u2500\u2500 cmd-pleasantries-farewell.ts  Generated yargs command definitions`,
+              `    \u251c\u2500\u2500 errors.ts             CLI error types & exit codes`,
+              `    \u251c\u2500\u2500 help.ts               Default help/usage rendering`,
+              `    \u251c\u2500\u2500 params.ts             Command args, flags & choice enums`,
+              `    \u251c\u2500\u2500 types.ts              Shared command metadata types`,
+              `    \u2514\u2500\u2500 run.ts                CLI entry point (run function)`,
             ]}
           />
 
@@ -332,27 +310,20 @@ function GeneratingGoCodePage() {
           </div>
 
           <p>
-            {" "}
             Let's take a look at the all-important{" "}
-            <span className="guide-inline-code">
-              internal/gencli/actions.gen.go
-            </span>{" "}
-            Below shows an example of a method from that interface.
+            <span className="guide-inline-code">src/gencli/actions.ts</span>. It
+            defines one method per command, plus helpers for help and usage:
           </p>
 
           <HighlightedCodeBlock
-            language="go"
+            language="ts"
             lines={[
-              `// internal/gencli/actions.gen.go`,
-              `type ActionsInterface interface {`,
-              `  // ...`,
-              `  func NewCmdPetstorePetAdd(`,
-              `    ctx context.Context,`,
-              `    args PetstorePetAddArgs,`,
-              `    flags PetstorePetAddFlags,`,
-              `  ) error {`,
-              `    // ...`,
-              `  }`,
+              `// src/gencli/actions.ts`,
+              `export interface ActionsInterface {`,
+              `  PleasantriesGreet(args: PleasantriesGreetArgs, flags: PleasantriesGreetFlags): Promise<void>;`,
+              `  PleasantriesFarewell(args: PleasantriesFarewellArgs, flags: PleasantriesFarewellFlags): Promise<void>;`,
+              `  help(cmd: CommandPrintData): void;`,
+              `  usage(cmd: CommandPrintData): void;`,
               `}`,
             ]}
           />
@@ -360,59 +331,69 @@ function GeneratingGoCodePage() {
           <div className="guide-callout">
             <p>
               Look at your generated{" "}
-              <span className="guide-inline-code">
-                internal/gencli/actions.gen.go
-              </span>{" "}
+              <span className="guide-inline-code">src/gencli/actions.ts</span>{" "}
               to see the full interface we'll need to implement.
             </p>
           </div>
 
           <p>
             Notice that the methods we need to implement have no
-            framework-dependencies injected. We could reuse our same
+            framework-dependencies injected. We could reuse our same{" "}
             <span className="guide-inline-code">ActionsInterface</span>{" "}
-            implementation for multiple frameworks within the same language
-            (e.g. cobra and urfave/cli within Go).
+            implementation for multiple frameworks within the same language (or
+            port it across languages entirely).
           </p>
+
           <p>
             The generated types for{" "}
             <span className="guide-inline-code">args</span> and{" "}
             <span className="guide-inline-code">flags</span> are strongly typed,
             so you get compile-time safety — no more typos in flag names or
-            mismatched types.
-          </p>
-
-          <p>
-            Next we can take a look at the generated command files{" "}
-            <span className="guide-inline-code">
-              internal/gencli/cmd_*.gen.go
-            </span>
-            . Each generated command file adapts our ActionsInterface methods,
-            handling the framework specifics of parsing args and flags and
-            passing them to our framework-<i>agnostic</i> implementations.
-          </p>
-
-          <p>
-            If you're interested, you can look at a generated file to see how
-            the
-            <span className="guide-inline-code">Action</span> handler delegates
-            to the corresponding function on our struct implementing the{" "}
-            <span className="guide-inline-code">ActionsInterface</span> shown
-            below. But in general you can treat these generated command files as
-            black boxes.
+            mismatched types. Flags with choices even become enums:
           </p>
 
           <HighlightedCodeBlock
-            language="go"
+            language="ts"
             lines={[
-              `cmd := &cli.Command{`,
-              `  Name:        "add",`,
-              `  Usage:       "Add a new pet to the store",`,
-              `  Action: func(ctx context.Context, c *cli.Command) error {`,
-              `    // ... parse and validate args/flags`,
-              `    return a.PetstorePetAdd(ctx, cmdArgs, cmdFlags)`,
-              `  },`,
+              `// src/gencli/params.ts`,
+              `export enum PleasantriesGreetLanguage {`,
+              `  ENGLISH = "english",`,
+              `  SPANISH = "spanish",`,
               `}`,
+              ``,
+              `export interface PleasantriesGreetArgs {`,
+              `  name: string;`,
+              `}`,
+              ``,
+              `export interface PleasantriesGreetFlags {`,
+              `  language?: PleasantriesGreetLanguage | undefined;`,
+              `}`,
+            ]}
+          />
+
+          <p>
+            Next we can take a look at the generated command files, like{" "}
+            <span className="guide-inline-code">
+              src/gencli/cmd-pleasantries-greet.ts
+            </span>
+            . Each generated command file adapts our ActionsInterface methods,
+            handling the framework specifics of parsing args and flags and
+            passing them to our framework-<i>agnostic</i> implementations. If
+            you're interested, you can look at a generated file to see how the{" "}
+            <span className="guide-inline-code">handler</span> delegates to the
+            corresponding method on your class implementing the{" "}
+            <span className="guide-inline-code">ActionsInterface</span>. But in
+            general you can treat these generated command files as black boxes.
+          </p>
+
+          <HighlightedCodeBlock
+            language="ts"
+            lines={[
+              `handler: async (argv) => {`,
+              `  const cmdArgs: PleasantriesGreetArgs = { name: argv.name };`,
+              `  const cmdFlags: PleasantriesGreetFlags = { language: argv.language as PleasantriesGreetLanguage };`,
+              `  return actions.PleasantriesGreet(cmdArgs, cmdFlags);`,
+              `},`,
             ]}
           />
         </div>
@@ -424,7 +405,7 @@ function GeneratingGoCodePage() {
         <div className="guide-step__content">
           <h4>Implement the Actions Interface</h4>
           <p>
-            This is where you write your actual business logic. Create a type
+            This is where you write your actual business logic. Create a class
             that satisfies{" "}
             <span className="guide-inline-code">ActionsInterface</span>. The
             pattern feels familiar if you've used{" "}
@@ -439,42 +420,32 @@ function GeneratingGoCodePage() {
           </p>
 
           <p>
-            Start by creating a new package for your implementation to keep it
+            Start by creating a new file for your implementation to keep it
             separate from the generated code in the{" "}
             <span className="guide-inline-code">gencli</span> package:
           </p>
 
           <HighlightedCodeBlock
             language="sh"
-            lines={[
-              `$ mkdir -p ./internal/cliapp`,
-              `$ touch ./internal/cliapp/actions.go`,
-            ]}
+            lines={[`$ touch ./src/actions.ts`]}
           />
 
           <p>
-            Define your <span className="guide-inline-code">Actions</span> type:
+            Define your <span className="guide-inline-code">Actions</span>{" "}
+            class:
           </p>
 
           <HighlightedCodeBlock
-            language="go"
+            language="ts"
             lines={[
-              `package cliapp`,
+              `// src/actions.ts`,
+              `import { ActionsInterface } from "./gencli/actions";`,
+              `import { CommandPrintData } from "./gencli/types";`,
+              `import { PleasantriesGreetArgs, PleasantriesGreetFlags, ... } from "./gencli/params";`,
+              `import { defaultHelpFn, defaultUsageFn } from "./gencli/help";`,
               ``,
-              `import (`,
-              `  "context"`,
-              `  "fmt"`,
-              ``,
-              `  "petstore/internal/gencli"`,
-              `  "github.com/bcdxn/opencli/spec"`,
-              `)`,
-              ``,
-              `func NewActions(version string) Actions {`,
-              `  return Actions{version: version}`,
-              `}`,
-              ``,
-              `type Actions struct {`,
-              `  version string`,
+              `export class Actions implements ActionsInterface {`,
+              `  // ... implement each command method below`,
               `}`,
             ]}
           />
@@ -487,40 +458,30 @@ function GeneratingGoCodePage() {
           </p>
 
           <HighlightedCodeBlock
-            language="go"
+            language="ts"
             lines={[
-              `func (a Actions) PetstoreList(ctx context.Context) error {`,
-              `  fmt.Println("listing all resources...")`,
-              `  return nil`,
+              `async PleasantriesGreet(args: PleasantriesGreetArgs, flags: PleasantriesGreetFlags): Promise<void> {`,
+              `  if (flags.language == "english") {`,
+              `    console.log("hello", args.name);`,
+              `  } else {`,
+              `    console.log("hola", args.name);`,
+              `  }`,
               `}`,
               ``,
-              `func (a Actions) PetstorePetAdd(`,
-              `  ctx context.Context,`,
-              `  args gencli.PetstorePetAddArgs,`,
-              `  flags gencli.PetstorePetAddFlags,`,
-              `) error {`,
-              `  fmt.Printf("adding pet: name=%s, status=%s, tags=%v\\n",`,
-              `    flags.Name, flags.Status, flags.Tag)`,
-              `  return nil`,
+              `async PleasantriesFarewell(args: PleasantriesFarewellArgs, flags: PleasantriesFarewellFlags): Promise<void> {`,
+              `  if (flags.language == "english") {`,
+              `    console.log("good bye", args.name);`,
+              `  } else {`,
+              `    console.log("adios", args.name);`,
+              `  }`,
               `}`,
-              ``,
-              `func (a Actions) PetstorePetUpdate(`,
-              `  ctx context.Context,`,
-              `  args gencli.PetstorePetUpdateArgs,`,
-              `  flags gencli.PetstorePetUpdateFlags,`,
-              `) error {`,
-              `  fmt.Printf("updating pet with data from: %s\\n", args.PathToReqBody)`,
-              `  return nil`,
-              `}`,
-              ``,
-              `// ... implement remaining methods to satisfy ActionsInterface ...`,
             ]}
           />
 
           <div className="guide-callout">
             <p>
               You can download a full example implementation{" "}
-              <a href="/assets/code/actions.go">here</a>.
+              <a href="/assets/code/actions.ts">here</a>.
             </p>
           </div>
 
@@ -531,23 +492,14 @@ function GeneratingGoCodePage() {
           </p>
 
           <HighlightedCodeBlock
-            language="go"
+            language="ts"
             lines={[
-              `func (a Actions) HelpFunc(cmd *spec.CommandItem) {`,
-              `  gencli.DefaultHelpFunc(a, cmd)`,
+              `help(cmd: CommandPrintData): void {`,
+              `  defaultHelpFn(cmd);`,
               `}`,
               ``,
-              `func (a Actions) UsageFunc(cmd *spec.CommandItem) error {`,
-              `  gencli.DefaultUsageFunc(a, cmd)`,
-              `  return nil`,
-              `}`,
-              ``,
-              `func (a Actions) IOStreams() gencli.IOStreams {`,
-              `  return gencli.DefaultIOS()`,
-              `}`,
-              ``,
-              `func (a Actions) Version() string {`,
-              `  return a.version`,
+              `usage(cmd: CommandPrintData): void {`,
+              `  defaultUsageFn(cmd);`,
               `}`,
             ]}
           />
@@ -570,39 +522,32 @@ function GeneratingGoCodePage() {
           <h4>Wire Up the Entry Point</h4>
           <p>
             The final piece is a minimal{" "}
-            <span className="guide-inline-code">main.go</span>:
+            <span className="guide-inline-code">src/index.ts</span>:
           </p>
 
           <HighlightedCodeBlock
-            language="sh"
-            lines={[`$ mkdir -p cmd/petstore`, `$ touch cmd/petstore/main.go`]}
-          />
-
-          <HighlightedCodeBlock
-            language="go"
+            language="ts"
             lines={[
-              `package main`,
+              `#!/usr/bin/env node`,
+              `import yargs from "yargs";`,
+              `import { hideBin } from "yargs/helpers";`,
+              `import { run } from "./gencli/run";`,
+              `import { Actions } from "./actions";`,
               ``,
-              `import (`,
-              `  "context"`,
-              `  "os"`,
-              ``,
-              `  "petstore/internal/cliapp"`,
-              `  "petstore/internal/gencli"`,
-              `)`,
-              ``,
-              `var version = "DEV"`,
-              ``,
-              `func main() {`,
-              `  actions := cliapp.NewActions(version)`,
-              `  code := gencli.Run(context.Background(), actions)`,
-              `  os.Exit(code)`,
+              `async function main() {`,
+              `  const actions = new Actions();`,
+              `  await run(yargs(hideBin(process.argv)), actions);`,
               `}`,
+              ``,
+              `main().catch((err) => {`,
+              `  console.error(err);`,
+              `  process.exit(1);`,
+              `});`,
             ]}
           />
 
           <p>
-            Just three lines of substance, and critically — no framework
+            Just a handful of lines of substance, and critically — no framework
             dependencies in your user-land code.
           </p>
         </div>
@@ -613,31 +558,21 @@ function GeneratingGoCodePage() {
         <div className="guide-step__number">7</div>
         <div className="guide-step__content">
           <h4>Try It Out</h4>
-          <p>That's the entire application. Let's run it:</p>
+          <p>That's the entire application. Let's build and run it:</p>
 
           <HighlightedCodeBlock
             language="sh"
             lines={[
-              `$ go run cmd/petstore/main.go --help`,
-              `# An example CLI Document describing operations a petstore CLI may provide.`,
-              `#`,
-              `# USAGE:`,
-              `#   petstore {command} <arguments> [flags]`,
-              `#`,
-              `# AVAILABLE COMMANDS`,
-              `#   list  List all endpoints available`,
-              `#   pet   A collection of commands for managing pets`,
-              `#   store A collection of commands for store operations`,
-              `#   user  A collection of commands for user management`,
+              `$ npx tsc   # compiles src/ → dist/`,
+              ``,
+              `$ node dist/index.js greet John --language spanish`,
+              `# hola John`,
             ]}
           />
 
           <HighlightedCodeBlock
             language="sh"
-            lines={[
-              `$ go run cmd/petstore/main.go pet add --name fluffy --status available --tag dog`,
-              `# adding pet: name=fluffy, status=available, tags=[dog]`,
-            ]}
+            lines={[`$ node dist/index.js farewell Alice`, `# good bye Alice`]}
           />
 
           <p>
@@ -686,7 +621,7 @@ export default function GuidePage() {
         <nav className="guide-nav" aria-label="Guide navigation">
           <p className="guide-nav__heading">Guide</p>
           <ul className="guide-nav__list">
-            <li key="code-generation-go">
+            <li key="code-generation-yargs">
               <a href="/docs/getting-started" className="guide-nav__link">
                 Getting Started
               </a>
@@ -699,13 +634,13 @@ export default function GuidePage() {
               <a href="/docs/man-pages" className="guide-nav__link">
                 Man Pages
               </a>
-              <a
-                href="/docs/code-generation-go"
-                className="guide-nav__link is-active"
-              >
+              <a href="/docs/code-generation-go" className="guide-nav__link">
                 Code Generation (Go)
               </a>
-              <a href="/docs/code-generation-yargs" className="guide-nav__link">
+              <a
+                href="/docs/code-generation-yargs"
+                className="guide-nav__link is-active"
+              >
                 Code Generation (Yargs)
               </a>
             </li>
@@ -714,7 +649,7 @@ export default function GuidePage() {
 
         {/* Main content */}
         <main className="guide-main">
-          <GeneratingGoCodePage key="code-generation-go" />
+          <GeneratingYargsCodePage key="code-generation-yargs" />
         </main>
       </div>
     </div>

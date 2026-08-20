@@ -252,6 +252,9 @@ export default function GuidePage() {
               <a href="/docs/code-generation-go" className="guide-nav__link">
                 Code Generation (Go)
               </a>
+              <a href="/docs/code-generation-yargs" className="guide-nav__link">
+                Code Generation (Yargs)
+              </a>
             </li>
           </ul>
         </nav>

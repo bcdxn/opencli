@@ -25,7 +25,7 @@ gen-docs: generate
 		--format man \
 		--out ./docs \
 		ocli.ocs.yaml
-	mkdir -p build && mv docs/opencli.ocs.1 build/ocli.1
+	mkdir -p build && mv docs/ocli.ocs.1 build/ocli.1
 
 
 .PHONY: gen-examples
