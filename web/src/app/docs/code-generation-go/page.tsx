@@ -1,7 +1,7 @@
 import GeneratingGoCode from "../../../views/GeneratingGoCode";
 
 export const metadata = {
-  title: "OpenCLI Specification | Docs",
+  title: "OpenCLI Specification | Docs - Go Code Gen",
   description:
     "Learn how to generate framework-specific CLI code from an OpenCLI Specification document.",
   alternates: {

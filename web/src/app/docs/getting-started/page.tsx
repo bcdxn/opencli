@@ -1,7 +1,7 @@
 import GettingStarted from "../../../views/GettingStarted";
 
 export const metadata = {
-  title: "OpenCLI Specification | Docs",
+  title: "OpenCLI Specification | Docs - Getting Started",
   description:
     "Guides for getting started with the OpenCLI Specification, including markdown and HTML documentation generation.",
   alternates: {

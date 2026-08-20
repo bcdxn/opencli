@@ -1,7 +1,7 @@
 import GenHtmlDocs from "../../../views/GenHtmlDocs";
 
 export const metadata = {
-  title: "OpenCLI Specification | Docs",
+  title: "OpenCLI Specification | Docs - HTML Gen",
   description:
     "Guides for getting started with the OpenCLI Specification, including markdown and HTML documentation generation.",
   alternates: {

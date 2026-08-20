@@ -1,7 +1,7 @@
 import GenManDocs from "../../../views/GenManDocs";
 
 export const metadata = {
-  title: "OpenCLI Specification | Man Pages",
+  title: "OpenCLI Specification | Docs - Man Pages Gen",
   description:
     "Generate roff/troff man pages from your OpenCLI Specification for native Unix man support.",
   alternates: {
