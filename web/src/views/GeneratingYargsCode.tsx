@@ -67,7 +67,7 @@ function HighlightedCodeBlock({
   );
 }
 
-// ── Code Generation (Yargs) Page ───────────────────────────────────────────────
+// ── Code Generation (TS) Page ───────────────────────────────────────────────
 
 function GeneratingYargsCodePage() {
   return (
@@ -76,8 +76,8 @@ function GeneratingYargsCodePage() {
         Generating A TypeScript CLI From OpenCLI Specs
       </h2>
       <p className="guide-section__subtitle">
-        Turn a declarative OpenCLI Specification into framework-specific,
-        production-ready CLI code — then implement only the business logic.
+        Turn a declarative OpenCLI Specification into production-ready CLI code
+        using the <a href="https://yargs.js.org">Yargs framework</a>.
       </p>
       <div className="guide-callout">
         <strong>Tip:</strong> Support is currently available for{" "}
@@ -486,6 +486,50 @@ function GeneratingYargsCodePage() {
           </div>
 
           <p>
+            If your OpenCLI document declares root-level{" "}
+            <span className="guide-inline-code">global</span> flags, they're not
+            passed to action methods either. Yargs has no context object, so
+            codegen instead exports a pair of accessors from{" "}
+            <span className="guide-inline-code">params.ts</span>: the generated
+            handler calls{" "}
+            <span className="guide-inline-code">setGlobalFlags(...)</span>{" "}
+            immediately before invoking your action, and you read them with{" "}
+            <span className="guide-inline-code">getGlobalFlags()</span> inside:
+          </p>
+
+          <HighlightedCodeBlock
+            language="ts"
+            lines={[
+              `import { getGlobalFlags } from "./gencli/params";`,
+              ``,
+              `// inside your Actions class...`,
+              `async PleasantriesGreet(args: PleasantriesGreetArgs, flags: PleasantriesGreetFlags): Promise<void> {`,
+              `  const name = args.name; // positional arg — arrives as a parameter`,
+              ``,
+              `  // Global (root-level) flags come from the module accessor, not the method signature.`,
+              `  const global = getGlobalFlags();`,
+              `  if (global.debug) { // e.g., for a root-level --debug flag declared in your spec`,
+              `    console.error(\`greeting \${name} in debug mode\`);`,
+              `  }`,
+              `}`,
+            ]}
+          />
+
+          <div className="guide-callout">
+            <p>
+              These types and accessors are only emitted when your document
+              declares root-level flags. Yargs parameter fields are typed{" "}
+              <span className="guide-inline-code">T | undefined</span> even for
+              required args, so guard values with{" "}
+              <span className="guide-inline-code">??</span> or an explicit check
+              rather than assuming presence (e.g.,{" "}
+              <span className="guide-inline-code">global.timeout ?? 30</span>
+              ). The accessor is a module-level singleton set per invocation by
+              the generated handler — safe under normal sequential CLI use.
+            </p>
+          </div>
+
+          <p>
             Finally, wire up the helper methods using sensible defaults provided
             by the generated code (or replace them with custom implementations
             if you need tailored behavior):
@@ -641,7 +685,7 @@ export default function GuidePage() {
                 href="/docs/code-generation-yargs"
                 className="guide-nav__link is-active"
               >
-                Code Generation (Yargs)
+                Code Generation (TS)
               </a>
             </li>
           </ul>

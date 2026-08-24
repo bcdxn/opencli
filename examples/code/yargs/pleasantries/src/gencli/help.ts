@@ -79,11 +79,11 @@ function appendArgSections(
   if (cmd.args?.length) {
     sections.push({
       header: "ARGUMENTS",
-      optionList: cmd.args.map((a) => ({
+      content: cmd.args.map((a) => ({
         name: a.name,
         description: escapeChalk(a.summary),
       })),
-    } as commandLineUsage.OptionList);
+    } as commandLineUsage.Content);
   }
 }
 

@@ -1,14 +1,12 @@
 #!/usr/bin/env node
 
-import yargs from "yargs";
-import { hideBin } from "yargs/helpers";
 import { run } from "./gencli/run";
 import { Actions } from "./actions";
 
 // Parse arguments using yargs
 async function main() {
   const actions = new Actions();
-  await run(yargs(hideBin(process.argv)), actions);
+  await run(process.argv, actions);
 }
 
 main().catch((err) => {

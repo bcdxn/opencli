@@ -4,8 +4,6 @@ package gencli
 import (
 	"github.com/bcdxn/opencli/spec"
 	"github.com/spf13/cobra"
-
-	"context"
 )
 
 func NewCmdGflagEcho(a ActionsInterface) *cobra.Command {
