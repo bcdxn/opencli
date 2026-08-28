@@ -78,7 +78,7 @@ func (a *app) ExampleCmd(
 	// Global flags are NOT a method parameter — read them from ctx.
 	global := gencli.GlobalFlagsFromContext(ctx)
 	if global.Debug {
-		fmt.Fprintf(a.IOStreams().Err, "sending %d message(s) to %s\n", count, recipient)
+		fmt.Fprintf(a.IOStreams().ErrOut(), "sending %d message(s) to %s\n", count, recipient)
 	}
 	timeout := time.Duration(global.Timeout) * time.Second
 
