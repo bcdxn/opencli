@@ -161,7 +161,7 @@ function GeneratingYargsCodePage() {
           <HighlightedCodeBlock
             language="yaml"
             lines={[
-              `opencliVersion: 1.0.0-alpha.13`,
+              `opencliVersion: 1.0.0-alpha.14`,
               ``,
               `info:`,
               `  title: Pleasantries`,

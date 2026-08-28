@@ -88,7 +88,7 @@ The CLI above can be described using an OpenCLI Specification Document in YAML (
 ```yaml
 # cli.yaml
 
-opencliVersion: 1.0.0-alpha.13
+opencliVersion: 1.0.0-alpha.14
 
 info:
   title: Pleasantries
@@ -243,7 +243,7 @@ Run the CLI to generate the OpenCLI document.
 
 ```sh
 pleasantries __opencli
-# opencliVersion: 1.0.0-alpha.13
+# opencliVersion: 1.0.0-alpha.14
 # info:
 #   title: pleasantries
 #   summary: A fun CLI that greets the caller

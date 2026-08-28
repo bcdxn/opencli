@@ -15,7 +15,7 @@ func defaultTestSpecYAML(t *testing.T, frag string) []byte {
 	t.Helper()
 
 	doc := strings.Join([]string{
-		"opencliVersion: 1.0.0-alpha.13",
+		"opencliVersion: 1.0.0-alpha.14",
 		"info:",
 		"  title: default test",
 		"  version: 0.1.0",
@@ -34,7 +34,7 @@ func defaultTestSpecYAML(t *testing.T, frag string) []byte {
 func defaultTestSpecJSON(t *testing.T, flagObj string) []byte {
 	t.Helper()
 
-	doc := `{"opencliVersion":"1.0.0-alpha.13","info":{"title":"default test","version":"0.1.0","binary":"deftest"},"commands":{"root":{"flags":[` + flagObj + `]}}}`
+	doc := `{"opencliVersion":"1.0.0-alpha.14","info":{"title":"default test","version":"0.1.0","binary":"deftest"},"commands":{"root":{"flags":[` + flagObj + `]}}}`
 
 	return []byte(doc)
 }
@@ -44,7 +44,7 @@ func globalFlagSpecYAML(t *testing.T, frag string) []byte {
 	t.Helper()
 
 	doc := strings.Join([]string{
-		"opencliVersion: 1.0.0-alpha.13",
+		"opencliVersion: 1.0.0-alpha.14",
 		"info:",
 		"  title: default test",
 		"  version: 0.1.0",
@@ -64,7 +64,7 @@ func globalFlagSpecYAML(t *testing.T, frag string) []byte {
 func globalFlagSpecJSON(t *testing.T, flagObj string) []byte {
 	t.Helper()
 
-	doc := `{"opencliVersion":"1.0.0-alpha.13","info":{"title":"default test","version":"0.1.0","binary":"deftest"},"global":{"flags":[` + flagObj + `]},"commands":{"root":{}}}`
+	doc := `{"opencliVersion":"1.0.0-alpha.14","info":{"title":"default test","version":"0.1.0","binary":"deftest"},"global":{"flags":[` + flagObj + `]},"commands":{"root":{}}}`
 
 	return []byte(doc)
 }

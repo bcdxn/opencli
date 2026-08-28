@@ -13,7 +13,7 @@ import (
 // which validation forbids but callers may skip (e.g., ocli gen cli).
 func groupTestDoc(root *spec.CommandItem) *spec.Document {
 	return &spec.Document{
-		OpenCLIVersion: "1.0.0-alpha.13",
+		OpenCLIVersion: "1.0.0-alpha.14",
 		Info:           spec.Info{Title: "Group Test CLI", Binary: "grouptest"},
 		Commands:       root,
 	}

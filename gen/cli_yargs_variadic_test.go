@@ -14,7 +14,7 @@ import (
 // typed. String variadics must remain byte-identical to prior output.
 func TestCLI_YargsVariadicNonString(t *testing.T) {
 	doc := &spec.Document{
-		OpenCLIVersion: "1.0.0-alpha.13",
+		OpenCLIVersion: "1.0.0-alpha.14",
 		Info:           spec.Info{Title: "VarTest CLI", Binary: "vartest"},
 		Commands: &spec.CommandItem{
 			Segment: "greet",
