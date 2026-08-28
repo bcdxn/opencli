@@ -508,7 +508,7 @@ func yargsTemplateFuncMap() template.FuncMap {
 			names := formatTSAltNames(yargsAltSourceNames(f))
 			expr := fmt.Sprintf("%s(argv, %s, %s)", resolver, names, formatTSAltSources(f.AltSources))
 			if f.TypeName != "" {
-				expr = fmt.Sprintf("%s(%s)", f.TypeName, expr)
+				expr = fmt.Sprintf("%s as %s | undefined", expr, f.TypeName)
 			}
 			return expr
 		},
