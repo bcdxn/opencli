@@ -64,13 +64,24 @@ commands:
         type: string
         summary: the text to echo
 
-  # Flags only -> action called with just cmdFlags.
+  # Flags only -> action called with just cmdFlags. The `name` flag also carries
+  # choices plus alternative sources so the goldens exercise resolved-value
+  # choice validation (yargs assertChoice / Go IsValid) alongside alt-source
+  # resolution, and force a config file loader into every framework's output.
   gflag greet --name <string> [flags]:
     summary: Greet someone by name
     flags:
       - name: "name"
         type: string
-        summary: who to greet
+        choices:
+          - value: alice
+          - value: bob
+        alternativeSources:
+          - type: $ENV
+            property: GFLAG_NAME
+          - type: $FILE
+            property: $.greeting.name
+        summary: who to greet (only alice or bob)
 
   # Args + flags -> action called with both cmdArgs and cmdFlags.
   gflag send <recipient> --count <integer> [flags]:

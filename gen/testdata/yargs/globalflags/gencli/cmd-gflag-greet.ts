@@ -3,9 +3,15 @@ import yargs from "yargs";
 import { ActionsInterface } from "./actions";
 import {
   GflagGreetFlags,
+  GflagGreetName,
   GlobalFlags,
   setGlobalFlags,
 } from "./params";
+import {
+  assertChoice,
+  resolveStringFlag
+} from "./config";
+
 import { CommandPrintData } from "./types";
 import { CliError, ExitCode, createBadUserInputError } from "./errors";
 // Local argv shape for this command's builder.
@@ -27,6 +33,7 @@ export function newGflagGreetCmd(
       return argv
         .option("name", {
           type: "string",
+          choices: ["alice", "bob"],
         })
         .help(false)
         .option("help", {
@@ -63,7 +70,7 @@ export function newGflagGreetCmd(
         process.exit(0);
       }
       const cmdFlags: GflagGreetFlags = {
-        name: argv.name as string,
+        name: assertChoice("name", (resolveStringFlag(argv, ["name"], [{ type: "$ENV", property: "GFLAG_NAME" }, { type: "$FILE", property: "$.greeting.name" }])) as GflagGreetName | undefined, ["alice", "bob"]),
       };
       setGlobalFlags({
         debug: argv.debug as boolean,
@@ -87,7 +94,7 @@ function getGflagGreetCmdHelpData(): CommandPrintData {
       "[flags]",
     ],
     flags: [
-      { name: "name", summary: "who to greet", aliases: [] },
+      { name: "name", summary: "who to greet (only alice or bob)", aliases: [] },
     ],
   };
 }

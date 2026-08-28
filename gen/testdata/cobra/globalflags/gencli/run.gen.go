@@ -12,6 +12,8 @@ var flagTimeout int64       // global flag, bound to the root command's persiste
 var flagOutputFormat string // global flag, bound to the root command's persistent flags in Run()
 // Run executes the root cobra command and returns an exit code.
 func Run(ctx context.Context, actions ActionsInterface) int {
+	// Load config file from disk (JSON/YAML/TOML) for $FILE alternative sources
+	loadConfig()
 	// Instantiate root command
 	rootCmd := NewCmdGflag(actions)
 	// Add version for `--version` flag

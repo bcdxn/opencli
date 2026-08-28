@@ -15,7 +15,12 @@ func NewCmdGflagGreet(a ActionsInterface) *cli.Command {
 		Metadata:    map[string]any{"spec_cmd": getSpecGflagGreetCmd()},
 		Action: func(ctx context.Context, c *cli.Command) error {
 			cmdFlags := GflagGreetFlags{
-				Name: c.String("name"),
+				Name: GflagGreetName(resolveStringFlag(c.IsSet("name"), c.String("name"), []AltSource{{Type: "$ENV", Property: "GFLAG_NAME"}, {Type: "$FILE", Property: "$.greeting.name"}})),
+			}
+			if cmdFlags.Name != "" && !cmdFlags.Name.IsValid() {
+				return BadUserInput("invalid value for --name flag: "+string(cmdFlags.Name), func() error {
+					return a.UsageFunc(getSpecGflagGreetCmd())
+				})
 			}
 			ctx = WithGlobalFlags(ctx, GlobalFlags{
 				Debug:        c.Bool("debug"),
@@ -28,7 +33,7 @@ func NewCmdGflagGreet(a ActionsInterface) *cli.Command {
 	cmd.Flags = append(cmd.Flags, &cli.StringFlag{
 		Name:  "name",
 		Value: "",
-		Usage: "who to greet",
+		Usage: "who to greet (only alice or bob)",
 	})
 
 	return cmd
@@ -47,7 +52,7 @@ func getSpecGflagGreetCmd() *spec.CommandItem {
 			"[flags]",
 		},
 		Flags: []spec.FlagItem{
-			{Name: "name", Summary: "who to greet"},
+			{Name: "name", Summary: "who to greet (only alice or bob)"},
 		},
 	}
 }

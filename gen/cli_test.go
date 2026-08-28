@@ -763,6 +763,82 @@ func TestYargsAltSourceNames(t *testing.T) {
 	}
 }
 
+// TestYargsResolveFlagValue exercises the resolveFlagValue template function exactly as the
+// command.tmpl uses it (pulled from yargsTemplateFuncMap so there is a single source of
+// truth). Choice-typed flags with alternative sources must be wrapped in assertChoice:
+// yargs only validates values parsed from the command line against .choices(), so a value
+// resolved from $ENV or $FILE has to be checked before it reaches the action.
+func TestYargsResolveFlagValue(t *testing.T) {
+	resolve := func(f yargsFlagEntry) string {
+		fn, ok := yargsTemplateFuncMap()["resolveFlagValue"].(func(yargsFlagEntry) string)
+		if !ok {
+			t.Fatal("resolveFlagValue not found in yargs template func map")
+		}
+		return fn(f)
+	}
+
+	envUser := spec.AlternativeSource{Type: "$ENV", Property: "PETSTORE_USER"}
+	fileAuth := spec.AlternativeSource{Type: "$FILE", Property: "$.auth.user"}
+
+	tests := []struct {
+		name string
+		f    yargsFlagEntry
+		want string
+	}{
+		// No alternative sources -> plain argv field (optionally cast).
+		{"no_alt_bare", yargsFlagEntry{FieldName: "username", TSType: "string"}, `argv.username as string`},
+		{"no_alt_cast", yargsFlagEntry{FieldName: "status", TypeName: "PetstoreStatus"}, `argv.status as PetstoreStatus`},
+
+		// Single $ENV source.
+		{"env_only",
+			yargsFlagEntry{FieldName: "username", RawName: "username", TSType: "string", AltSources: []spec.AlternativeSource{envUser}},
+			`resolveStringFlag(argv, ["username"], [{ type: "$ENV", property: "PETSTORE_USER" }])`},
+
+		// Single $FILE source.
+		{"file_only",
+			yargsFlagEntry{FieldName: "username", RawName: "username", TSType: "string", AltSources: []spec.AlternativeSource{fileAuth}},
+			`resolveStringFlag(argv, ["username"], [{ type: "$FILE", property: "$.auth.user" }])`},
+
+		// Mixed sources preserve declared order ($ENV before $FILE).
+		{"env_then_file_order",
+			yargsFlagEntry{FieldName: "username", RawName: "username", TSType: "string", AltSources: []spec.AlternativeSource{envUser, fileAuth}},
+			`resolveStringFlag(argv, ["username"], [{ type: "$ENV", property: "PETSTORE_USER" }, { type: "$FILE", property: "$.auth.user" }])`},
+
+		// Resolver is selected by TS type; non-choice flags are not wrapped in assertChoice.
+		{"number_env",
+			yargsFlagEntry{FieldName: "limit", RawName: "limit", TSType: "number", AltSources: []spec.AlternativeSource{{Type: "$ENV", Property: "LIMIT"}}},
+			`resolveNumberFlag(argv, ["limit"], [{ type: "$ENV", property: "LIMIT" }])`},
+
+		{"bool_env",
+			yargsFlagEntry{FieldName: "verbose", RawName: "verbose", TSType: "boolean", AltSources: []spec.AlternativeSource{{Type: "$ENV", Property: "VERBOSE"}}},
+			`resolveBoolFlag(argv, ["verbose"], [{ type: "$ENV", property: "VERBOSE" }])`},
+
+		// Choice-typed flag with alt sources is wrapped in assertChoice so $ENV/$FILE-resolved
+		// values are validated against the declared choices before reaching the action.
+		{"choices_env_wrapped",
+			yargsFlagEntry{FieldName: "status", RawName: "status", TSType: "string", TypeName: "PetstoreStatus", Choices: []yargsChoiceEntry{{EnumKey: "AVAILABLE", Value: "available"}, {EnumKey: "SOLD_OUT", Value: "sold-out"}}, AltSources: []spec.AlternativeSource{envUser}},
+			`assertChoice("status", (resolveStringFlag(argv, ["status"], [{ type: "$ENV", property: "PETSTORE_USER" }])) as PetstoreStatus | undefined, ["available", "sold-out"])`},
+
+		// Choice-typed flag with both $ENV and $FILE sources.
+		{"choices_env_file_wrapped",
+			yargsFlagEntry{FieldName: "status", RawName: "status", TSType: "string", TypeName: "PetstoreStatus", Choices: []yargsChoiceEntry{{EnumKey: "AVAILABLE", Value: "available"}}, AltSources: []spec.AlternativeSource{envUser, fileAuth}},
+			`assertChoice("status", (resolveStringFlag(argv, ["status"], [{ type: "$ENV", property: "PETSTORE_USER" }, { type: "$FILE", property: "$.auth.user" }])) as PetstoreStatus | undefined, ["available"])`},
+
+		// Unknown TS type with alt sources falls back to the plain expression (defensive).
+		{"unknown_type_falls_back",
+			yargsFlagEntry{FieldName: "weird", RawName: "weird", TSType: "int32", AltSources: []spec.AlternativeSource{envUser}},
+			`argv.weird as int32`},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := resolve(tt.f); got != tt.want {
+				t.Errorf("resolveFlagValue(%+v)\n  = %q\nwant %q", tt.f, got, tt.want)
+			}
+		})
+	}
+}
+
 // TestCLI_Yargs_ConfigEmissionConditional verifies that gencli/config.ts is only emitted when
 // at least one flag declares an alternative source. Specs without this feature must produce no
 // extra config file (and therefore no unused imports), matching the cobra/urfave behavior.

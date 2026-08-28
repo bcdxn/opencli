@@ -2,17 +2,12 @@
 package gencli
 
 import (
-	"encoding/json"
-	"github.com/BurntSushi/toml"
 	"github.com/ohler55/ojg/jp"
-	"gopkg.in/yaml.v3"
 	"math"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
-
-	"github.com/spf13/pflag"
 )
 
 // AltSource is a single alternative source for a flag value: either an
@@ -22,8 +17,7 @@ type AltSource struct {
 	Property string // env var name, or JSONPath into the config file
 }
 
-// globalConfig holds the parsed config file data as a nested map. It is loaded
-// lazily once via loadConfig at startup and shared by all $FILE lookups.
+// globalConfig holds the parsed config file data as a nested map.
 var globalConfig map[string]any
 
 // expandTilde expands a leading tilde (~) in the path to the user's home directory.
@@ -47,35 +41,11 @@ func loadConfig() {
 		return
 	}
 	globalConfig = make(map[string]any)
-	// Try JSON config first
-	if data, err := os.ReadFile(expandTilde("~/.petstore/config.json")); err == nil {
-		var cfg map[string]any
-		if err := json.Unmarshal(data, &cfg); err == nil {
-			globalConfig = cfg
-			return
-		}
-	}
-	// Try YAML config
-	if data, err := os.ReadFile(expandTilde("~/.petstore/config.yaml")); err == nil {
-		var cfg map[string]any
-		if err := yaml.Unmarshal(data, &cfg); err == nil {
-			globalConfig = cfg
-			return
-		}
-	}
-	// Try TOML config
-	if data, err := os.ReadFile(expandTilde("~/.petstore/config.toml")); err == nil {
-		var cfg map[string]any
-		if _, err := toml.Decode(string(data), &cfg); err == nil {
-			globalConfig = cfg
-			return
-		}
-	}
 }
 
-// resolveJSONPath resolves a JSONPath expression against the global config using
-// the ohler55/ojg JSONPath implementation. It returns the value at the path, or nil
-// if the path does not match (or no config was loaded).
+// resolveJSONPath resolves a JSONPath expression against the global config
+// using the ohler55/ojg JSONPath implementation. It returns the value at the
+// path, or nil if the path does not match.
 func resolveJSONPath(expr string) any {
 	if globalConfig == nil {
 		return nil
@@ -87,9 +57,9 @@ func resolveJSONPath(expr string) any {
 	return p.First(globalConfig)
 }
 
-// altSourceValue returns the raw value from a single alternative source, or nil if
-// the source yields nothing. $ENV sources yield the environment variable's string
-// value; $FILE sources yield the value at the given JSONPath.
+// altSourceValue returns the raw value from a single alternative source, or nil
+// if the source yields nothing. $ENV sources yield the environment variable's
+// string value; $FILE sources yield the value at the given JSONPath.
 func altSourceValue(src AltSource) any {
 	switch src.Type {
 	case "$ENV":
@@ -104,9 +74,9 @@ func altSourceValue(src AltSource) any {
 	return nil
 }
 
-// altSourceItems returns the raw element values from a single alternative source for
-// a variadic flag. $ENV sources are comma-separated; $FILE sources are arrays (a
-// single value is treated as a one-element list).
+// altSourceItems returns the raw element values from a single alternative
+// source for a variadic flag. $ENV sources are comma-separated; $FILE sources
+// are arrays (a single value is treated as a one-element list).
 func altSourceItems(src AltSource) []any {
 	switch src.Type {
 	case "$ENV":
@@ -135,9 +105,8 @@ func altSourceItems(src AltSource) []any {
 	return nil
 }
 
-// Coercion helpers convert a raw source value to a concrete Go type. Each returns
-// ok=false when the value cannot be interpreted as the target type, so resolvers can
-// skip it and try the next alternative source in order.
+// Coercion helpers convert a raw source value to a concrete Go type. Each
+// returns ok=false when the value cannot be interpreted as the target type.
 
 func toString(v any) (string, bool) {
 	if s, ok := v.(string); ok && s != "" {
@@ -207,89 +176,78 @@ func toFloat64(v any) (float64, bool) {
 /*
 Flag Resolver Functions
 
-These functions are called from generated command code to resolve flag values. When the
-flag was provided on the command line (fs.Changed) its CLI value is used as-is; otherwise
-the value is resolved from the flag's alternative sources (environment variables, config
-file) in the order they are declared, falling back to the flag's bound default when no
-source yields a usable result. The pflag getters return that bound default for unchanged
-flags (or the zero value if none was declared). The merged pflag.FlagSet passed in already
-contains both local and inherited persistent flags at RunE time.
+These functions are called from generated command code to resolve flag values.
+When the flag was provided on the command line (set is true) the CLI value is
+used as-is; otherwise the value is resolved from the flag's alternative sources
+(environment variables, config file) in the order they are declared, falling back
+to cliVal when no source yields a usable result. For an unset flag the caller passes
+the bound default via the command accessor (or the zero value if none was declared),
+so this fallback honors any default declared in the spec.
 */
 
 // resolveStringFlag resolves a string flag from the CLI or its alternative sources, falling
 // back to the bound default when no source yields a usable result.
-func resolveStringFlag(fs *pflag.FlagSet, name string, sources []AltSource) string {
-	if fs.Changed(name) {
-		val, _ := fs.GetString(name)
-		return val
+func resolveStringFlag(set bool, cliVal string, sources []AltSource) string {
+	if set {
+		return cliVal
 	}
 	for _, src := range sources {
 		if v, ok := toString(altSourceValue(src)); ok {
 			return v
 		}
 	}
-	defaultVal, _ := fs.GetString(name)
-	return defaultVal
+	return cliVal
 }
 
 // resolveInt64Flag resolves an int64 flag from the CLI or its alternative sources, falling
 // back to the bound default when no source yields a usable result.
-func resolveInt64Flag(fs *pflag.FlagSet, name string, sources []AltSource) int64 {
-	if fs.Changed(name) {
-		val, _ := fs.GetInt64(name)
-		return val
+func resolveInt64Flag(set bool, cliVal int64, sources []AltSource) int64 {
+	if set {
+		return cliVal
 	}
 	for _, src := range sources {
 		if v, ok := toInt64(altSourceValue(src)); ok {
 			return v
 		}
 	}
-	defaultVal, _ := fs.GetInt64(name)
-	return defaultVal
+	return cliVal
 }
 
-// resolveBoolFlag resolves a bool flag from the CLI or its alternative sources. An explicit
-// --flag=false on the command line is honored (fs.Changed); omitting the flag consults the
-// alternative sources, matching urfave/cli behavior for cross-framework parity. Falls back
+// resolveBoolFlag resolves a bool flag from the CLI or its alternative sources, falling back
 // to the bound default when no source yields a usable result.
-func resolveBoolFlag(fs *pflag.FlagSet, name string, sources []AltSource) bool {
-	if fs.Changed(name) {
-		val, _ := fs.GetBool(name)
-		return val
+func resolveBoolFlag(set bool, cliVal bool, sources []AltSource) bool {
+	if set {
+		return cliVal
 	}
 	for _, src := range sources {
 		if v, ok := toBool(altSourceValue(src)); ok {
 			return v
 		}
 	}
-	defaultVal, _ := fs.GetBool(name)
-	return defaultVal
+	return cliVal
 }
 
 // resolveFloat64Flag resolves a float64 flag from the CLI or its alternative sources, falling
 // back to the bound default when no source yields a usable result.
-func resolveFloat64Flag(fs *pflag.FlagSet, name string, sources []AltSource) float64 {
-	if fs.Changed(name) {
-		val, _ := fs.GetFloat64(name)
-		return val
+func resolveFloat64Flag(set bool, cliVal float64, sources []AltSource) float64 {
+	if set {
+		return cliVal
 	}
 	for _, src := range sources {
 		if v, ok := toFloat64(altSourceValue(src)); ok {
 			return v
 		}
 	}
-	defaultVal, _ := fs.GetFloat64(name)
-	return defaultVal
+	return cliVal
 }
 
-// resolveSliceFlag resolves a variadic flag from the CLI or its alternative sources. When
-// the flag was not set on the command line it returns the first source that yields at least
-// one value coercible to T; otherwise the bound default (an empty slice if none was declared).
-// get is the bound pflag getter for the concrete element type (e.g. fs.GetStringArray).
-func resolveSliceFlag[T any](fs *pflag.FlagSet, name string, sources []AltSource, get func(string) ([]T, error), coerce func(any) (T, bool)) []T {
-	if fs.Changed(name) {
-		val, _ := get(name)
-		return val
+// resolveSliceFlag resolves a variadic flag from the CLI or its alternative
+// sources. When the flag was not set, it returns the first source that yields
+// at least one value coercible to T; otherwise the bound default (an empty slice
+// if none was declared).
+func resolveSliceFlag[T any](set bool, cliVal []T, sources []AltSource, coerce func(any) (T, bool)) []T {
+	if set {
+		return cliVal
 	}
 	for _, src := range sources {
 		items := altSourceItems(src)
@@ -303,26 +261,25 @@ func resolveSliceFlag[T any](fs *pflag.FlagSet, name string, sources []AltSource
 			return result
 		}
 	}
-	defaultVal, _ := get(name)
-	return defaultVal
+	return cliVal
 }
 
 // resolveStringSliceFlag resolves a string slice flag from the CLI or its alternative sources.
-func resolveStringSliceFlag(fs *pflag.FlagSet, name string, sources []AltSource) []string {
-	return resolveSliceFlag(fs, name, sources, fs.GetStringArray, toString)
+func resolveStringSliceFlag(set bool, cliVal []string, sources []AltSource) []string {
+	return resolveSliceFlag(set, cliVal, sources, toString)
 }
 
 // resolveInt64SliceFlag resolves an int64 slice flag from the CLI or its alternative sources.
-func resolveInt64SliceFlag(fs *pflag.FlagSet, name string, sources []AltSource) []int64 {
-	return resolveSliceFlag(fs, name, sources, fs.GetInt64Slice, toInt64)
+func resolveInt64SliceFlag(set bool, cliVal []int64, sources []AltSource) []int64 {
+	return resolveSliceFlag(set, cliVal, sources, toInt64)
 }
 
 // resolveBoolSliceFlag resolves a bool slice flag from the CLI or its alternative sources.
-func resolveBoolSliceFlag(fs *pflag.FlagSet, name string, sources []AltSource) []bool {
-	return resolveSliceFlag(fs, name, sources, fs.GetBoolSlice, toBool)
+func resolveBoolSliceFlag(set bool, cliVal []bool, sources []AltSource) []bool {
+	return resolveSliceFlag(set, cliVal, sources, toBool)
 }
 
 // resolveFloat64SliceFlag resolves a float64 slice flag from the CLI or its alternative sources.
-func resolveFloat64SliceFlag(fs *pflag.FlagSet, name string, sources []AltSource) []float64 {
-	return resolveSliceFlag(fs, name, sources, fs.GetFloat64Slice, toFloat64)
+func resolveFloat64SliceFlag(set bool, cliVal []float64, sources []AltSource) []float64 {
+	return resolveSliceFlag(set, cliVal, sources, toFloat64)
 }

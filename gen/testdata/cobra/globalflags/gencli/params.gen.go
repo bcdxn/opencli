@@ -8,9 +8,25 @@ type GflagEchoArgs struct {
 	Text string
 }
 
+// GflagGreetName represents the allowed values for the Name flag.
+type GflagGreetName string
+
+const (
+	GflagGreetNameAlice GflagGreetName = "alice"
+	GflagGreetNameBob   GflagGreetName = "bob"
+)
+
+func (v GflagGreetName) IsValid() bool {
+	switch v {
+	case GflagGreetNameAlice, GflagGreetNameBob:
+		return true
+	}
+	return false
+}
+
 // GflagGreetFlags holds the flag values for the GflagGreet action.
 type GflagGreetFlags struct {
-	Name string
+	Name GflagGreetName
 }
 
 // GflagSendArgs holds the positional arguments for the GflagSend action.

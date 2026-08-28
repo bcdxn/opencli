@@ -3,8 +3,6 @@ import { createBadUserInputError } from "./errors";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { parse as parseYaml } from "yaml";
-import toml from "@iarna/toml";
 import { JSONPath } from "jsonpath-plus";
 
 // AltSource is a single alternative source for a flag value: either an
@@ -37,24 +35,6 @@ function expandTilde(p: string): string {
 export function loadConfig(): void {
   if (globalConfig !== null) return;
   globalConfig = {};
-  // Try JSON config first.
-  try {
-    const data = fs.readFileSync(expandTilde("~/.petstore/config.json"), "utf8");
-    globalConfig = JSON.parse(data) as Record<string, unknown>;
-    return;
-  } catch {}
-  // Try YAML config.
-  try {
-    const data = fs.readFileSync(expandTilde("~/.petstore/config.yaml"), "utf8");
-    globalConfig = parseYaml(data) as Record<string, unknown>;
-    return;
-  } catch {}
-  // Try TOML config.
-  try {
-    const data = fs.readFileSync(expandTilde("~/.petstore/config.toml"), "utf8");
-    globalConfig = toml.parse(data) as Record<string, unknown>;
-    return;
-  } catch {}
 }
 
 // resolveJSONPath resolves a JSONPath expression against the loaded config. It returns

@@ -5,6 +5,7 @@ import { newGflagPingCmd } from "./cmd-gflag-ping";
 import { newGflagEchoCmd } from "./cmd-gflag-echo";
 import { newGflagGreetCmd } from "./cmd-gflag-greet";
 import { newGflagSendCmd } from "./cmd-gflag-send";
+import { loadConfig, setCliArgv } from "./config";
 import { ActionsInterface } from "./actions";
 import { CommandPrintData } from "./types";
 import { CliError, ExitCode } from "./errors";
@@ -14,6 +15,12 @@ export async function run(
   argv: string[],
   actions: ActionsInterface,
 ): Promise<void> {
+  // Record the argument array this invocation was given so alternative-source precedence
+  // (explicit CLI value vs. environment/config) is determined from it rather than from
+  // process.argv, which differs when callers pass a custom argv for tests or embedding.
+  setCliArgv(hideBin(argv));
+  // Load config file from disk (JSON/YAML/TOML) for $FILE alternative sources.
+  loadConfig();
   await yargs(hideBin(argv))
     .scriptName("gflag")
     .help(false)

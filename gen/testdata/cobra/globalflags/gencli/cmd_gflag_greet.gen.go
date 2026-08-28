@@ -14,7 +14,12 @@ func NewCmdGflagGreet(a ActionsInterface) *cobra.Command {
 		Long:  "",
 		RunE: func(c *cobra.Command, args []string) error {
 			cmdFlags := GflagGreetFlags{
-				Name: flagName,
+				Name: GflagGreetName(resolveStringFlag(c.Flags(), "name", []AltSource{{Type: "$ENV", Property: "GFLAG_NAME"}, {Type: "$FILE", Property: "$.greeting.name"}})),
+			}
+			if cmdFlags.Name != "" && !cmdFlags.Name.IsValid() {
+				return BadUserInput("invalid value for --name flag: "+string(cmdFlags.Name), func() error {
+					return a.UsageFunc(getSpecGflagGreetCmd())
+				})
 			}
 			ctx := c.Context()
 			ctx = WithGlobalFlags(ctx, GlobalFlags{
@@ -27,7 +32,7 @@ func NewCmdGflagGreet(a ActionsInterface) *cobra.Command {
 	}
 	command.SilenceErrors = true
 	command.SilenceUsage = true
-	command.Flags().StringVarP(&flagName, "name", "", "", "who to greet")
+	command.Flags().StringVarP(&flagName, "name", "", "", "who to greet (only alice or bob)")
 	command.SetHelpFunc(func(_ *cobra.Command, _ []string) {
 		a.HelpFunc(getSpecGflagGreetCmd())
 	})
@@ -51,7 +56,7 @@ func getSpecGflagGreetCmd() *spec.CommandItem {
 			"[flags]",
 		},
 		Flags: []spec.FlagItem{
-			{Name: "name", Summary: "who to greet"},
+			{Name: "name", Summary: "who to greet (only alice or bob)"},
 		},
 	}
 }

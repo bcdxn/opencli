@@ -236,6 +236,12 @@ func genCLIYargs(doc *spec.Document, opts *genCLIOptions) (map[string][]byte, er
 			if len(f.AltSources) == 0 {
 				return
 			}
+			// Choice-typed alt-source flags also need assertChoice to validate values
+			// resolved from $ENV/$FILE against the declared choices.
+			if f.TypeName != "" && !seen["assertChoice"] {
+				seen["assertChoice"] = true
+				imports = append(imports, "assertChoice")
+			}
 			if r, ok := yargsAltSourceResolvers[f.TSType]; ok && !seen[r] {
 				seen[r] = true
 				imports = append(imports, r)
@@ -496,7 +502,11 @@ func yargsTemplateFuncMap() template.FuncMap {
 		// generated command code. Without alternative sources it reads the parsed
 		// argv field directly; with alt-sources it calls the type-specific resolver
 		// from gencli/config.ts, which prefers an explicit CLI value and otherwise
-		// falls back to env/config in declared order.
+		// falls back to env/config in declared order. For choice-typed flags the
+		// resolved expression is additionally wrapped in assertChoice: yargs only
+		// validates values parsed from the command line against .choices(), so a
+		// value sourced from $ENV or $FILE must be checked here before it reaches
+		// the action — mirroring the IsValid() check the Go generators perform.
 		"resolveFlagValue": func(f yargsFlagEntry) string {
 			if len(f.AltSources) == 0 {
 				return plainYargsFlagExpr(f)
@@ -508,7 +518,7 @@ func yargsTemplateFuncMap() template.FuncMap {
 			names := formatTSAltNames(yargsAltSourceNames(f))
 			expr := fmt.Sprintf("%s(argv, %s, %s)", resolver, names, formatTSAltSources(f.AltSources))
 			if f.TypeName != "" {
-				expr = fmt.Sprintf("%s as %s | undefined", expr, f.TypeName)
+				expr = fmt.Sprintf("assertChoice(%q, (%s) as %s | undefined, [%s])", f.RawName, expr, f.TypeName, yargsChoicesLiteral(f.Choices))
 			}
 			return expr
 		},
@@ -524,6 +534,16 @@ func plainYargsFlagExpr(f yargsFlagEntry) string {
 		return fmt.Sprintf("argv.%s as %s", f.FieldName, f.TypeName)
 	}
 	return fmt.Sprintf("argv.%s as %s", f.FieldName, f.TSType)
+}
+
+// yargsChoicesLiteral renders a flag's allowed choices as a TypeScript string array
+// literal (e.g. ["text", "json"]) for use in the assertChoice call.
+func yargsChoicesLiteral(choices []yargsChoiceEntry) string {
+	vals := make([]string, len(choices))
+	for i, c := range choices {
+		vals[i] = fmt.Sprintf("%q", c.Value)
+	}
+	return strings.Join(vals, ", ")
 }
 
 // scanYargsAltSources reports whether any flag in the slice declares an alternative

@@ -163,10 +163,19 @@ func toString(v any) (string, bool) {
 	return "", false
 }
 
+// YAML v3 decodes ordinary integer scalars into Go int and values that overflow int64
+// into uint64; JSON yields float64. All three representations are handled below.
 func toInt64(v any) (int64, bool) {
 	switch n := v.(type) {
+	case int:
+		return int64(n), true
 	case int64:
 		return n, true
+	case uint64:
+		if n > math.MaxInt64 {
+			return 0, false
+		}
+		return int64(n), true
 	case float64:
 		if n != math.Trunc(n) || n < math.MinInt64 || n > math.MaxInt64 {
 			return 0, false
@@ -192,11 +201,17 @@ func toBool(v any) (bool, bool) {
 	return false, false
 }
 
+// toFloat64 mirrors the integer representations handled by toInt64 (YAML's Go int and
+// uint64 in addition to JSON/TOML's float64/int64).
 func toFloat64(v any) (float64, bool) {
 	switch n := v.(type) {
 	case float64:
 		return n, true
+	case int:
+		return float64(n), true
 	case int64:
+		return float64(n), true
+	case uint64:
 		return float64(n), true
 	case string:
 		if parsed, err := strconv.ParseFloat(n, 64); err == nil {

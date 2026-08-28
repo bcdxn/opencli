@@ -21,9 +21,15 @@ export interface GflagEchoArgs {
   text: string | undefined;
 }
 
+// GflagGreetName represents the allowed values for the name flag.
+export enum GflagGreetName {
+  ALICE = "alice",
+  BOB = "bob",
+}
+
 // GflagGreetFlags holds the flag values for the GflagGreet action.
 export interface GflagGreetFlags {
-  name?: string | undefined;
+  name?: GflagGreetName | undefined;
 }
 
 // GflagSendArgs holds the positional arguments for the GflagSend action.
