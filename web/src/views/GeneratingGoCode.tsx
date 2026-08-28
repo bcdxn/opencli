@@ -519,7 +519,7 @@ function GeneratingGoCodePage() {
           <div className="guide-callout">
             <p>
               You can download a full example implementation{" "}
-              <a href="/assets/code/actions.go">here</a>.
+              <a href="/assets/code/actions.go.txt">here</a>.
             </p>
           </div>
 

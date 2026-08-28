@@ -481,7 +481,7 @@ function GeneratingYargsCodePage() {
           <div className="guide-callout">
             <p>
               You can download a full example implementation{" "}
-              <a href="/assets/code/actions.ts">here</a>.
+              <a href="/assets/code/actions.ts.txt">here</a>.
             </p>
           </div>
 
@@ -573,14 +573,12 @@ function GeneratingYargsCodePage() {
             language="ts"
             lines={[
               `#!/usr/bin/env node`,
-              `import yargs from "yargs";`,
-              `import { hideBin } from "yargs/helpers";`,
               `import { run } from "./gencli/run";`,
               `import { Actions } from "./actions";`,
               ``,
               `async function main() {`,
               `  const actions = new Actions();`,
-              `  await run(yargs(hideBin(process.argv)), actions);`,
+              `  await run(process.argv, actions);`,
               `}`,
               ``,
               `main().catch((err) => {`,
