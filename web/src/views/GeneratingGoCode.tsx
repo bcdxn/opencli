@@ -548,7 +548,7 @@ function GeneratingGoCodePage() {
               `  // Global (root-level) flags are NOT a method parameter — read them from ctx.`,
               `  global := gencli.GlobalFlagsFromContext(ctx)`,
               `  if global.Debug { // e.g., for a root-level --debug flag declared in your spec`,
-              `    fmt.Fprintln(a.IOStreams().Err, "debug mode enabled")`,
+              `    fmt.Fprintln(a.IOStreams().ErrOut(), "debug mode enabled")`
               `  }`,
               `  return nil`,
               `}`,
