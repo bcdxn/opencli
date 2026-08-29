@@ -15,7 +15,17 @@ export function setGlobalFlags(flags: GlobalFlags): void {
 export function getGlobalFlags(): GlobalFlags {
   return _globalFlags;
 }
+{{- range .GlobalFlags}}
+{{- if .TypeName}}{{$t := .TypeName}}
 
+// {{$t}} represents the allowed values for the {{.FieldName}} global flag.
+export enum {{$t}} {
+{{- range .Choices}}
+  {{.EnumKey}} = {{printf "%q" .Value}},
+{{- end}}
+}
+{{end -}}
+{{end}}
 {{end -}}
 {{- range .LeafCommands}}
 {{- range .Args}}{{if .TypeName}}{{$t := .TypeName}}

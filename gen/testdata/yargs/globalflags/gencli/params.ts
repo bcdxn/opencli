@@ -15,6 +15,12 @@ export function getGlobalFlags(): GlobalFlags {
   return _globalFlags;
 }
 
+// GflagOutputFormat represents the allowed values for the outputFormat global flag.
+export enum GflagOutputFormat {
+  TEXT = "text",
+  JSON = "json",
+}
+
 
 // GflagEchoArgs holds the positional arguments for the GflagEcho action.
 export interface GflagEchoArgs {

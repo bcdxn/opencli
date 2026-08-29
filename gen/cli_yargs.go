@@ -145,6 +145,24 @@ func genCLIYargs(doc *spec.Document, opts *genCLIOptions) (map[string][]byte, er
 				continue
 			}
 			shorthand, extraAliases := splitAliases(flag.Aliases)
+
+			// Choice-constrained globals get the same enum metadata as command flags so
+			// that root options emit .choices(...) and alt-sourced values are validated
+			// with assertChoice. The TSType stays the base type (not the enum name): it is
+			// used for resolver lookup in resolveFlagValue, which keys on "string"/"number".
+			flagTypeName := ""
+			var choices []yargsChoiceEntry
+			if len(flag.Choices) > 0 && (flag.Type == "string" || flag.Type == "") && !flag.Variadic {
+				flagTypeName = binaryPascal + toPascalCase(flag.Name)
+				for _, c := range flag.Choices {
+					valStr := fmt.Sprintf("%v", c.Value)
+					choices = append(choices, yargsChoiceEntry{
+						EnumKey: strings.ToUpper(strings.ReplaceAll(toGoPackageName(valStr), "-", "_")),
+						Value:   valStr,
+					})
+				}
+			}
+
 			globalFlags = append(globalFlags, yargsFlagEntry{
 				FieldName:      toCamelCase(flag.Name),
 				RawName:        flag.Name,
@@ -152,6 +170,8 @@ func genCLIYargs(doc *spec.Document, opts *genCLIOptions) (map[string][]byte, er
 				IsRequired:     flag.Required,
 				IsVariadic:     flag.Variadic,
 				VariadicCoerce: yargsVariadicCoerce(flag.Type),
+				TypeName:       flagTypeName,
+				Choices:        choices,
 				Shorthand:      shorthand,
 				ExtraAliases:   extraAliases,
 				Default:        yargsDefaultVal(flag.Default),

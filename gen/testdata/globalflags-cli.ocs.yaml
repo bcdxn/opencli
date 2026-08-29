@@ -43,9 +43,14 @@ global:
       type: integer
       default: 30
       summary: request timeout in seconds
+    # Carries choices so the yargs goldens exercise root-level .choices(...) and
+    # enum-typed global flag values (Go frameworks ignore Choices on globals).
     - name: "output-format"
       type: string
       default: text
+      choices:
+        - value: text
+        - value: json
       summary: preferred output format
 
 commands:

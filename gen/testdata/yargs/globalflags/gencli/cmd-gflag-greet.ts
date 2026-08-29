@@ -4,6 +4,8 @@ import { ActionsInterface } from "./actions";
 import {
   GflagGreetFlags,
   GflagGreetName,
+  GflagOutputFormat,
+
   GlobalFlags,
   setGlobalFlags,
 } from "./params";
@@ -75,7 +77,7 @@ export function newGflagGreetCmd(
       setGlobalFlags({
         debug: argv.debug as boolean,
         timeout: argv.timeout as number,
-        outputFormat: argv.outputFormat as string,
+        outputFormat: argv.outputFormat as GflagOutputFormat,
       });
       return actions.GflagGreet(cmdFlags);
     },

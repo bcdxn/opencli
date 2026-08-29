@@ -41,6 +41,7 @@ export async function run(
     .option("output-format", {
       describe: "preferred output format",
       type: "string",
+      choices: ["text", "json"],
       default: "text",
     })
     .demandCommand(1)

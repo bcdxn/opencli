@@ -43,6 +43,9 @@ export async function run(
 {{- else}}
       type: {{if eq .TSType "number"}}"number"{{else if eq .TSType "boolean"}}"boolean"{{else}}"string"{{end}},
 {{- end}}
+{{- if .Choices}}
+      choices: [{{range $i, $c := .Choices}}{{if $i}}, {{end}}{{tsString $c.Value}}{{end}}],
+{{- end}}
 {{- if and .IsRequired (not .AltSources)}}
       demandOption: true,
 {{- end}}

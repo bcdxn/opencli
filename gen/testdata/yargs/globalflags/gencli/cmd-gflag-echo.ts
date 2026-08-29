@@ -3,6 +3,8 @@ import yargs from "yargs";
 import { ActionsInterface } from "./actions";
 import {
   GflagEchoArgs,
+  GflagOutputFormat,
+
   GlobalFlags,
   setGlobalFlags,
 } from "./params";
@@ -69,7 +71,7 @@ export function newGflagEchoCmd(
       setGlobalFlags({
         debug: argv.debug as boolean,
         timeout: argv.timeout as number,
-        outputFormat: argv.outputFormat as string,
+        outputFormat: argv.outputFormat as GflagOutputFormat,
       });
       return actions.GflagEcho(cmdArgs);
     },
