@@ -91,7 +91,8 @@ type cobraFlagEntry struct {
 	CobraBindFn  string
 	Default      string
 	Summary      string
-	TypeName     string   // non-empty when the struct field uses a generated type (needs cast)
+	TypeName     string // non-empty when the struct field uses a generated type (needs cast)
+	Choices      []cliChoiceEntry
 	Shorthand    string   // first single-char alias, or empty string
 	ExtraAliases []string // aliases not used as shorthand; mapped via SetNormalizeFunc
 	AltSources   []spec.AlternativeSource
@@ -132,6 +133,25 @@ func genCLICobra(doc *spec.Document, opts *genCLIOptions) (map[string][]byte, er
 				continue
 			}
 			shorthand, extraAliases := splitAliases(flag.Aliases)
+
+			// Choice-constrained globals get the same enum metadata as command flags so
+			// that generated handlers validate both CLI values and alternative-sourced
+			// resolved values with IsValid(). The GoType stays the base type (not the
+			// enum name): it is used for pflag binding in run.tmpl and for resolver
+			// lookup in resolveFlagValue, which keys on "string"/"int64".
+			flagTypeName := ""
+			var choices []cliChoiceEntry
+			if len(flag.Choices) > 0 && (flag.Type == "string" || flag.Type == "") && !flag.Variadic {
+				flagTypeName = binaryPascal + toPascalCase(flag.Name)
+				for _, c := range flag.Choices {
+					valStr := fmt.Sprintf("%v", c.Value)
+					choices = append(choices, cliChoiceEntry{
+						ConstName: flagTypeName + toPascalCase(valStr),
+						Value:     valStr,
+					})
+				}
+			}
+
 			globalFlags = append(globalFlags, cobraFlagEntry{
 				FieldName:    toPascalCase(flag.Name),
 				VarName:      "flag" + toPascalCase(flag.Name),
@@ -140,6 +160,8 @@ func genCLICobra(doc *spec.Document, opts *genCLIOptions) (map[string][]byte, er
 				CobraBindFn:  cobraBindFn(flag.Type, flag.Variadic),
 				Default:      cobraDefaultVal(flag.Default, flag.Type, flag.Variadic),
 				Summary:      flag.Summary,
+				TypeName:     flagTypeName,
+				Choices:      choices,
 				Shorthand:    shorthand,
 				ExtraAliases: extraAliases,
 				AltSources:   flag.AltSources,

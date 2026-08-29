@@ -9,6 +9,11 @@ import {
   GlobalFlags,
   setGlobalFlags,
 } from "./params";
+import {
+  assertChoice,
+  resolveStringFlag
+} from "./config";
+
 import { CommandPrintData } from "./types";
 import { CliError, ExitCode, createBadUserInputError } from "./errors";
 // Local argv shape for this command's builder.
@@ -17,7 +22,7 @@ interface gflagSendArgs {
   "count"?: number;
   "debug"?: boolean;
   "timeout"?: number;
-  "outputFormat"?: string;
+  "outputFormat": string | undefined;
   help: boolean;
 }
 
@@ -80,7 +85,7 @@ export function newGflagSendCmd(
       setGlobalFlags({
         debug: argv.debug as boolean,
         timeout: argv.timeout as number,
-        outputFormat: argv.outputFormat as GflagOutputFormat,
+        outputFormat: assertChoice("output-format", (resolveStringFlag(argv, ["outputFormat", "output-format"], [{ type: "$ENV", property: "GFLAG_OUTPUT_FORMAT" }, { type: "$FILE", property: "$.greeting.outputFormat" }])) as GflagOutputFormat | undefined, ["text", "json"]),
       });
       return actions.GflagSend(cmdArgs, cmdFlags);
     },

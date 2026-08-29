@@ -64,11 +64,21 @@ func {{.FuncName}}(a ActionsInterface) *cobra.Command {
 {{- end}}
 {{- if .GlobalFlags}}
 			ctx := c.Context()
-			ctx = WithGlobalFlags(ctx, GlobalFlags{
+			globalFlags := GlobalFlags{
 {{- range .GlobalFlags}}
 				{{.FieldName}}: {{resolveFlagValue .}},
 {{- end}}
-			})
+			}
+{{- range .GlobalFlags}}
+{{- if .TypeName}}
+			if globalFlags.{{.FieldName}} != "" && !globalFlags.{{.FieldName}}.IsValid() {
+				return BadUserInput("invalid value for --{{.FlagName}} flag: "+string(globalFlags.{{.FieldName}}), func() error {
+					return a.UsageFunc({{$.SpecFuncName}}())
+				})
+			}
+{{- end}}
+{{- end}}
+			ctx = WithGlobalFlags(ctx, globalFlags)
 			return a.{{.MethodName}}(ctx, {{if and .CobraArgs .CobraFlags}}cmdArgs, cmdFlags{{else if .CobraArgs}}cmdArgs{{else if .CobraFlags}}cmdFlags{{end}})
 {{- else}}
 			return a.{{.MethodName}}(c.Context(), {{if and .CobraArgs .CobraFlags}}cmdArgs, cmdFlags{{else if .CobraArgs}}cmdArgs{{else if .CobraFlags}}cmdFlags{{end}})

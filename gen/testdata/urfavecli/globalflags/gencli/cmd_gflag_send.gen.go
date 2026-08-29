@@ -24,7 +24,7 @@ func NewCmdGflagSend(a ActionsInterface) *cli.Command {
 			ctx = WithGlobalFlags(ctx, GlobalFlags{
 				Debug:        c.Bool("debug"),
 				Timeout:      c.Int64("timeout"),
-				OutputFormat: c.String("output-format"),
+				OutputFormat: resolveStringFlag(c.IsSet("output-format"), c.String("output-format"), []AltSource{{Type: "$ENV", Property: "GFLAG_OUTPUT_FORMAT"}, {Type: "$FILE", Property: "$.greeting.outputFormat"}}),
 			})
 			return a.GflagSend(ctx, cmdArgs, cmdFlags)
 		},

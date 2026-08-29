@@ -21,7 +21,7 @@ interface gflagGreetArgs {
   "name": string | undefined;
   "debug"?: boolean;
   "timeout"?: number;
-  "outputFormat"?: string;
+  "outputFormat": string | undefined;
   help: boolean;
 }
 
@@ -77,7 +77,7 @@ export function newGflagGreetCmd(
       setGlobalFlags({
         debug: argv.debug as boolean,
         timeout: argv.timeout as number,
-        outputFormat: argv.outputFormat as GflagOutputFormat,
+        outputFormat: assertChoice("output-format", (resolveStringFlag(argv, ["outputFormat", "output-format"], [{ type: "$ENV", property: "GFLAG_OUTPUT_FORMAT" }, { type: "$FILE", property: "$.greeting.outputFormat" }])) as GflagOutputFormat | undefined, ["text", "json"]),
       });
       return actions.GflagGreet(cmdFlags);
     },

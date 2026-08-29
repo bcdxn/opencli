@@ -39,11 +39,27 @@ type GflagSendFlags struct {
 	Count int64
 }
 
+// GflagOutputFormat represents the allowed values for the OutputFormat global flag.
+type GflagOutputFormat string
+
+const (
+	GflagOutputFormatText GflagOutputFormat = "text"
+	GflagOutputFormatJson GflagOutputFormat = "json"
+)
+
+func (v GflagOutputFormat) IsValid() bool {
+	switch v {
+	case GflagOutputFormatText, GflagOutputFormatJson:
+		return true
+	}
+	return false
+}
+
 // GlobalFlags holds the global (root-level) flag values shared by every action.
 type GlobalFlags struct {
 	Debug        bool
 	Timeout      int64
-	OutputFormat string
+	OutputFormat GflagOutputFormat
 }
 
 // globalFlagsKey is an unexported context key so only this package can set or read the value.

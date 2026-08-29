@@ -3,7 +3,7 @@
 export interface GlobalFlags {
   debug?: boolean;
   timeout?: number;
-  outputFormat?: string;
+  outputFormat: string | undefined;
 }
 
 // Module-level holder for the current invocation's global flag values, set by each generated command handler before calling an action.

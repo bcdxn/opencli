@@ -21,11 +21,17 @@ func NewCmdGflagSend(a ActionsInterface) *cobra.Command {
 				Count: flagCount,
 			}
 			ctx := c.Context()
-			ctx = WithGlobalFlags(ctx, GlobalFlags{
+			globalFlags := GlobalFlags{
 				Debug:        flagDebug,
 				Timeout:      flagTimeout,
-				OutputFormat: flagOutputFormat,
-			})
+				OutputFormat: GflagOutputFormat(resolveStringFlag(c.Flags(), "output-format", []AltSource{{Type: "$ENV", Property: "GFLAG_OUTPUT_FORMAT"}, {Type: "$FILE", Property: "$.greeting.outputFormat"}})),
+			}
+			if globalFlags.OutputFormat != "" && !globalFlags.OutputFormat.IsValid() {
+				return BadUserInput("invalid value for --output-format flag: "+string(globalFlags.OutputFormat), func() error {
+					return a.UsageFunc(getSpecGflagSendCmd())
+				})
+			}
+			ctx = WithGlobalFlags(ctx, globalFlags)
 			return a.GflagSend(ctx, cmdArgs, cmdFlags)
 		},
 	}

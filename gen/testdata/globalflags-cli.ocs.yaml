@@ -43,14 +43,20 @@ global:
       type: integer
       default: 30
       summary: request timeout in seconds
-    # Carries choices so the yargs goldens exercise root-level .choices(...) and
-    # enum-typed global flag values (Go frameworks ignore Choices on globals).
+    # Carries choices plus alternative sources so the goldens exercise root-level
+    # choice enforcement (yargs .choices(...) + assertChoice, Go enum IsValid) for
+    # both CLI values and resolved env/config values.
     - name: "output-format"
       type: string
       default: text
       choices:
         - value: text
         - value: json
+      alternativeSources:
+        - type: $ENV
+          property: GFLAG_OUTPUT_FORMAT
+        - type: $FILE
+          property: $.greeting.outputFormat
       summary: preferred output format
 
 commands:

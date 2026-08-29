@@ -5,6 +5,11 @@ import { newGflagEchoCmd } from "./cmd-gflag-echo";
 import { newGflagGreetCmd } from "./cmd-gflag-greet";
 import { newGflagSendCmd } from "./cmd-gflag-send";
 import { ActionsInterface } from "./actions";
+import {
+  assertChoice,
+  resolveStringFlag
+} from "./config";
+
 import { CommandPrintData } from "./types";
 import { CliError, ExitCode, createBadUserInputError } from "./errors";
 export function newGflagCmd(

@@ -57,11 +57,30 @@ type {{.FlagsTypeName}} struct {
 }
 {{end}}{{end}}
 {{if $.GlobalFlags}}
+{{range $.GlobalFlags}}{{if .TypeName}}{{$t := .TypeName}}
+
+// {{$t}} represents the allowed values for the {{.FieldName}} global flag.
+type {{$t}} string
+
+const (
+{{- range .Choices}}
+	{{.ConstName}} {{$t}} = {{printf "%q" .Value}}
+{{- end}}
+)
+
+func (v {{$t}}) IsValid() bool {
+	switch v {
+	case {{range $i, $c := .Choices}}{{if $i}}, {{end}}{{$c.ConstName}}{{end}}:
+		return true
+	}
+	return false
+}
+{{end}}{{end}}
 
 // GlobalFlags holds the global (root-level) flag values shared by every action.
 type GlobalFlags struct {
 {{- range $.GlobalFlags}}
-	{{.FieldName}} {{.GoType}}
+	{{.FieldName}} {{if .TypeName}}{{.TypeName}}{{else}}{{.GoType}}{{end}}
 {{- end}}
 }
 
