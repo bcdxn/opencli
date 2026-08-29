@@ -53,6 +53,7 @@ type yargsFieldEntry struct {
 	IsVariadic bool
 	IsRequired bool
 	Default    any
+	AltSources []spec.AlternativeSource // alt-sourced flags may resolve to undefined even when required
 }
 
 // yargsChoiceEntry holds one allowed value for an enum field.
@@ -336,6 +337,7 @@ func walkYargsCmdTree(
 				IsRequired: flag.Required,
 				IsVariadic: flag.Variadic,
 				Default:    flag.Default,
+				AltSources: flag.AltSources,
 			}
 			if len(flag.Choices) > 0 && (flag.Type == "string" || flag.Type == "") && !flag.Variadic {
 				fe.TypeName = methodName + toPascalCase(flag.Name)
@@ -498,6 +500,19 @@ func yargsTemplateFuncMap() template.FuncMap {
 			return result
 		},
 		"joinStrings": strings.Join,
+		// requiredAltFlags returns only the flags that are both required and declare an
+		// alternative source. Such flags skip demandOption (a CLI-absent value may still
+		// resolve from env/config), so the handler must validate after resolution that at
+		// least one source produced a value before calling the action.
+		"requiredAltFlags": func(flags []yargsFlagEntry) []yargsFlagEntry {
+			var result []yargsFlagEntry
+			for _, f := range flags {
+				if f.IsRequired && len(f.AltSources) > 0 {
+					result = append(result, f)
+				}
+			}
+			return result
+		},
 		// resolveFlagValue returns the expression that yields a flag's value in
 		// generated command code. Without alternative sources it reads the parsed
 		// argv field directly; with alt-sources it calls the type-specific resolver

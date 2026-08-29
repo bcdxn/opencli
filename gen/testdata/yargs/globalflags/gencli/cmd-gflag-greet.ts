@@ -16,7 +16,7 @@ import { CommandPrintData } from "./types";
 import { CliError, ExitCode, createBadUserInputError } from "./errors";
 // Local argv shape for this command's builder.
 interface gflagGreetArgs {
-  "name"?: string;
+  "name": string | undefined;
   "debug"?: boolean;
   "timeout"?: number;
   "outputFormat"?: string;

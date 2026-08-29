@@ -37,7 +37,7 @@ interface {{.CommandArgName}} {
   "{{.RawName}}"{{if not .IsRequired}}?{{end}}: {{.TSType}};
 {{- end}}
 {{- range .YargsFlags}}
-  "{{.FieldName}}"{{if not .IsRequired}}?{{end}}: {{.TSType}}{{if .IsVariadic}} | undefined{{end}};
+  "{{.FieldName}}"{{if not (or .IsRequired .AltSources)}}?{{end}}: {{.TSType}}{{if or .IsVariadic .AltSources}} | undefined{{end}};
 {{- end}}
 {{- if .GlobalFlags}}
 {{- range .GlobalFlags}}
@@ -139,6 +139,8 @@ export function {{.FuncName}}(
         }),
       );
 {{- else}}
+{{- $reqAlt := requiredAltFlags .YargsFlags}}
+{{- $reqAltGlobal := requiredAltFlags .GlobalFlags}}
 {{- if .YargsArgs}}
       const cmdArgs: {{.ArgsTypeName}} = {
 {{- range .YargsArgs}}
@@ -153,12 +155,39 @@ export function {{.FuncName}}(
 {{- end}}
       };
 {{- end}}
+{{- if $reqAltGlobal}}
+      const _gFlags: GlobalFlags = {
+{{- range .GlobalFlags}}
+        {{.FieldName}}: {{resolveFlagValue .}},
+{{- end}}
+      };
+{{- end}}
+{{- if or $reqAlt $reqAltGlobal}}
+      // demandOption can't cover alt-sourced flags; reject if no source resolved a value.
+      const _missing: string[] = [];
+{{- range $f := $reqAlt}}
+      if (cmdFlags.{{$f.FieldName}} === undefined) _missing.push("--{{$f.RawName}}");
+{{- end}}
+{{- range $f := $reqAltGlobal}}
+      if (_gFlags.{{$f.FieldName}} === undefined) _missing.push("--{{$f.RawName}}");
+{{- end}}
+      if (_missing.length > 0) {
+        throw createBadUserInputError(
+          `Missing required arguments: ${_missing.join(", ")}`,
+          () => actions.usage({{.SpecFuncName}}()),
+        );
+      }
+{{- end}}
 {{- if .GlobalFlags}}
+{{- if $reqAltGlobal}}
+      setGlobalFlags(_gFlags);
+{{- else}}
       setGlobalFlags({
 {{- range .GlobalFlags}}
         {{.FieldName}}: {{resolveFlagValue .}},
 {{- end}}
       });
+{{- end}}
 {{- end}}
 {{- if and .YargsArgs .YargsFlags}}
       return actions.{{.MethodName}}(cmdArgs, cmdFlags);

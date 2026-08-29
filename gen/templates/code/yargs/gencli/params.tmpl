@@ -46,7 +46,7 @@ export interface {{.ArgsTypeName}} {
 // {{.FlagsTypeName}} holds the flag values for the {{.MethodName}} action.
 export interface {{.FlagsTypeName}} {
 {{- range .Flags}}
-  {{.FieldName}}{{if not .IsRequired}}?{{end}}: {{.TSType}}{{if not .IsRequired}} | undefined{{end}};
+  {{.FieldName}}{{if not .IsRequired}}?{{end}}: {{.TSType}}{{if or (not .IsRequired) .AltSources}} | undefined{{end}};
 {{- end}}
 }
 {{end}}{{end}}

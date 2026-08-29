@@ -12,8 +12,8 @@ import { CommandPrintData } from "./types";
 import { CliError, ExitCode, createBadUserInputError } from "./errors";
 // Local argv shape for this command's builder.
 interface petstoreUserLoginArgs {
-  "username"?: string;
-  "password"?: string;
+  "username": string | undefined;
+  "password": string | undefined;
   help: boolean;
 }
 
