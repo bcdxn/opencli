@@ -146,16 +146,17 @@ func genCLIYargs(doc *spec.Document, opts *genCLIOptions) (map[string][]byte, er
 			}
 			shorthand, extraAliases := splitAliases(flag.Aliases)
 			globalFlags = append(globalFlags, yargsFlagEntry{
-				FieldName:    toCamelCase(flag.Name),
-				RawName:      flag.Name,
-				TSType:       toTSType(flag.Type, flag.Variadic),
-				IsRequired:   flag.Required,
-				IsVariadic:   flag.Variadic,
-				Shorthand:    shorthand,
-				ExtraAliases: extraAliases,
-				Default:      yargsDefaultVal(flag.Default),
-				Summary:      flag.Summary,
-				AltSources:   flag.AltSources,
+				FieldName:      toCamelCase(flag.Name),
+				RawName:        flag.Name,
+				TSType:         toTSType(flag.Type, flag.Variadic),
+				IsRequired:     flag.Required,
+				IsVariadic:     flag.Variadic,
+				VariadicCoerce: yargsVariadicCoerce(flag.Type),
+				Shorthand:      shorthand,
+				ExtraAliases:   extraAliases,
+				Default:        yargsDefaultVal(flag.Default),
+				Summary:        flag.Summary,
+				AltSources:     flag.AltSources,
 			})
 		}
 	}

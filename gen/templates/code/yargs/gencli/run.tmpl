@@ -39,7 +39,7 @@ export async function run(
 {{- end}}
 {{- if .IsVariadic}}
       type: "array",
-      string: true,
+      {{if .VariadicCoerce}}coerce: {{.VariadicCoerce}},{{else}}string: true,{{end}}
 {{- else}}
       type: {{if eq .TSType "number"}}"number"{{else if eq .TSType "boolean"}}"boolean"{{else}}"string"{{end}},
 {{- end}}

@@ -71,3 +71,104 @@ func TestCLI_YargsVariadicNonString(t *testing.T) {
 		t.Error("expected non-variadic boolean flag to render as 'boolean' in interface")
 	}
 }
+
+// TestCLI_YargsGlobalVariadicNonString ensures that global variadic flags with
+// non-string types are registered in run.ts with the same coerce functions used
+// for command-level flags, so their runtime values match the typed arrays declared
+// on GlobalFlags. String variadics must keep string:true (golden parity).
+func TestCLI_YargsGlobalVariadicNonString(t *testing.T) {
+	doc := &spec.Document{
+		OpenCLIVersion: "1.0.0-alpha.14",
+		Info:           spec.Info{Title: "GVarTest CLI", Binary: "gvar"},
+		Global: &spec.Global{
+			Config: spec.Configuration{},
+			Flags: []spec.FlagItem{
+				{Name: "ids", Type: "integer", Variadic: true},
+				{Name: "ratios", Type: "number", Variadic: true},
+				{Name: "names", Type: "string", Variadic: true},
+			},
+		},
+		Commands: &spec.CommandItem{
+			Segment: "ping",
+		},
+	}
+
+	files, err := CLI(doc, GenCLIWithFramework(YargsFramework))
+	if err != nil {
+		t.Fatalf("unexpected error generating yargs output: %v", err)
+	}
+
+	runTS, ok := files["gencli/run.ts"]
+	if !ok {
+		t.Fatal("expected gencli/run.ts in generated files")
+	}
+	got := string(runTS)
+
+	intCoerce := `coerce: (v) => Array.isArray(v) ? v.map(Number) : v`
+	boolCoerce := `(v) => Array.isArray(v) ? v.map((x) => x === true || x === "true") : v`
+
+	// Integer and number variadics must coerce to numbers.
+	if n := strings.Count(got, intCoerce); n != 2 {
+		t.Errorf("expected %d occurrences of the numeric coerce function (ids + ratios), got %d", 2, n)
+	}
+	// String variadic keeps string:true for golden parity; no boolean global here.
+	if !strings.Contains(got, "string: true,") {
+		t.Error("global string variadic flag must still emit 'string: true,' in run.ts (golden parity)")
+	}
+	if strings.Count(got, boolCoerce) != 0 {
+		t.Errorf("unexpected boolean coerce function %q for non-boolean global flags", boolCoerce)
+	}
+
+	paramsTS, ok := files["gencli/params.ts"]
+	if !ok {
+		t.Fatal("expected gencli/params.ts in generated files")
+	}
+	gotParams := string(paramsTS)
+	for _, want := range []string{`ids?: number[] | undefined;`, `ratios?: number[] | undefined;`, `names?: string[] | undefined;`} {
+		if !strings.Contains(gotParams, want) {
+			t.Errorf("expected %q in GlobalFlags interface", want)
+		}
+	}
+}
+
+// TestCLI_YargsGlobalVariadicBoolean ensures a global boolean variadic flag gets
+// the boolean coerce function rather than string:true.
+func TestCLI_YargsGlobalVariadicBoolean(t *testing.T) {
+	doc := &spec.Document{
+		OpenCLIVersion: "1.0.0-alpha.14",
+		Info:           spec.Info{Title: "GBoolTest CLI", Binary: "gbool"},
+		Global: &spec.Global{
+			Config: spec.Configuration{},
+			Flags: []spec.FlagItem{
+				{Name: "verbose", Type: "boolean", Variadic: true},
+			},
+		},
+		Commands: &spec.CommandItem{
+			Segment: "ping",
+		},
+	}
+
+	files, err := CLI(doc, GenCLIWithFramework(YargsFramework))
+	if err != nil {
+		t.Fatalf("unexpected error generating yargs output: %v", err)
+	}
+
+	runTS, ok := files["gencli/run.ts"]
+	if !ok {
+		t.Fatal("expected gencli/run.ts in generated files")
+	}
+	got := string(runTS)
+
+	boolCoerce := `coerce: (v) => Array.isArray(v) ? v.map((x) => x === true || x === "true") : v`
+	if !strings.Contains(got, boolCoerce) {
+		t.Errorf("expected boolean coerce function %q for global boolean variadic flag", boolCoerce)
+	}
+	if strings.Contains(got, "string: true,") {
+		t.Error("global boolean variadic flag must NOT emit 'string: true,' in run.ts")
+	}
+
+	paramsTS := string(files["gencli/params.ts"])
+	if !strings.Contains(paramsTS, `verbose?: boolean[] | undefined;`) {
+		t.Error(`expected "verbose?: boolean[] | undefined;" in GlobalFlags interface`)
+	}
+}
