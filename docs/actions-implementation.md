@@ -128,8 +128,8 @@ export class App implements ActionsInterface {
 
 Notes:
 
-- Yargs parameter fields are typed `T | undefined` even for required args, so
-  guard with `??` or an explicit check rather than assuming presence.
+- Optional Yargs parameter fields are typed `T | undefined`, so guard optional
+  values with `??` or an explicit check.
 - The accessor is a module-level singleton set per invocation by the generated
   handler — it's safe under normal sequential CLI use (the same pattern codegen
   already uses for config loading).
