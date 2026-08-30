@@ -20,7 +20,7 @@ func NewCmdOcliGenCli(a ActionsInterface) *cobra.Command {
 			}
 			cmdFlags := OcliGenCliFlags{
 				Out:       flagOut,
-				Framework: OcliGenCliFramework(flagFramework),
+				Framework: OcliGenCliFramework(resolveStringFlag(c.Flags(), "framework", []AltSource{{Type: "$ENV", Property: "OCLI_CLI_FRAMEWORK"}, {Type: "$FILE", Property: "$.cli.framework"}})),
 			}
 			if cmdFlags.Framework != "" && !cmdFlags.Framework.IsValid() {
 				return BadUserInput("invalid value for --framework flag: "+string(cmdFlags.Framework), func() error {

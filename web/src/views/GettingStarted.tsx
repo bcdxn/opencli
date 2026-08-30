@@ -98,7 +98,7 @@ function GettingStartedPage() {
           <HighlightedCodeBlock
             language="yaml"
             lines={[
-              `opencliVersion: "1.0.0-alpha.13"`,
+              `opencliVersion: "1.0.0-alpha.14"`,
               ``,
               `# Metadata about your CLI"`,
               `info:`,
@@ -321,6 +321,9 @@ export default function GuidePage() {
               </a>
               <a href="/docs/code-generation-go" className="guide-nav__link">
                 Code Generation (Go)
+              </a>
+              <a href="/docs/code-generation-yargs" className="guide-nav__link">
+                Code Generation (TS)
               </a>
             </li>
           </ul>

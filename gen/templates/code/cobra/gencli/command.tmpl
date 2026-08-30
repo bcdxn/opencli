@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 {{- if hasExtraAliases .CobraFlags}}
 	"github.com/spf13/pflag"
-{{- end}}
+{{- end -}}
 )
 
 func {{.FuncName}}(a ActionsInterface) *cobra.Command {
@@ -49,7 +49,7 @@ func {{.FuncName}}(a ActionsInterface) *cobra.Command {
 {{- if .CobraFlags}}
 			cmdFlags := {{.FlagsTypeName}}{
 {{- range .CobraFlags}}
-				{{.FieldName}}: {{if .TypeName}}{{.TypeName}}({{.VarName}}){{else}}{{.VarName}}{{end}},
+				{{.FieldName}}: {{resolveFlagValue .}},
 {{- end}}
 			}
 {{- range .CobraFlags}}
@@ -62,7 +62,27 @@ func {{.FuncName}}(a ActionsInterface) *cobra.Command {
 {{- end}}
 {{- end}}
 {{- end}}
+{{- if .GlobalFlags}}
+			ctx := c.Context()
+			globalFlags := GlobalFlags{
+{{- range .GlobalFlags}}
+				{{.FieldName}}: {{resolveFlagValue .}},
+{{- end}}
+			}
+{{- range .GlobalFlags}}
+{{- if .TypeName}}
+			if globalFlags.{{.FieldName}} != "" && !globalFlags.{{.FieldName}}.IsValid() {
+				return BadUserInput("invalid value for --{{.FlagName}} flag: "+string(globalFlags.{{.FieldName}}), func() error {
+					return a.UsageFunc({{$.SpecFuncName}}())
+				})
+			}
+{{- end}}
+{{- end}}
+			ctx = WithGlobalFlags(ctx, globalFlags)
+			return a.{{.MethodName}}(ctx, {{if and .CobraArgs .CobraFlags}}cmdArgs, cmdFlags{{else if .CobraArgs}}cmdArgs{{else if .CobraFlags}}cmdFlags{{end}})
+{{- else}}
 			return a.{{.MethodName}}(c.Context(), {{if and .CobraArgs .CobraFlags}}cmdArgs, cmdFlags{{else if .CobraArgs}}cmdArgs{{else if .CobraFlags}}cmdFlags{{end}})
+{{- end}}
 		},
 {{- end}}
 	}
@@ -74,8 +94,10 @@ func {{.FuncName}}(a ActionsInterface) *cobra.Command {
 {{- range .ChildImports}}
 	command.AddCommand({{.FuncName}}(a))
 {{- end}}
+{{- if not .IsGroup}}
 {{- range .CobraFlags}}
 	command.Flags().{{.CobraBindFn}}(&{{.VarName}}, {{goString .FlagName}}, {{goString .Shorthand}}, {{.Default}}, {{goString .Summary}})
+{{- end}}
 {{- end}}
 {{- if hasExtraAliases .CobraFlags}}
 	command.Flags().SetNormalizeFunc(func(_ *pflag.FlagSet, name string) pflag.NormalizedName {

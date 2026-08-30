@@ -76,8 +76,8 @@ function GeneratingGoCodePage() {
         Generating A Go CLI From OpenCLI Specs
       </h2>
       <p className="guide-section__subtitle">
-        Turn a declarative OpenCLI Specification into framework-specific,
-        production-ready CLI code — then implement only the business logic.
+        Turn a declarative OpenCLI Specification into production-ready CLI Go
+        code — then implement only the business logic.
       </p>
       <div className="guide-callout">
         <strong>Tip:</strong> Support is currently available for{" "}
@@ -276,7 +276,7 @@ function GeneratingGoCodePage() {
             command produces all the scaffolding. We'll generate a
             urfave/cli-based CLI here, but the same process works for Cobra. If
             you want to see a JS/TS example checkout the{" "}
-            <a href="/docs/generating-ts-code">Generating TS Code</a> docs.
+            <a href="/docs/code-generation-yargs">Code Generation (TS)</a> docs.
           </p>
 
           <HighlightedCodeBlock
@@ -315,7 +315,7 @@ function GeneratingGoCodePage() {
               `    \u251c\u2500\u2500 help.gen.go       Default help/usage messaging`,
               `    \u251c\u2500\u2500 iostreams.gen.go  Standard I/O streams abstraction`,
               `    \u251c\u2500\u2500 params.gen.go     Command flags & parameter types`,
-              `    \u251c\u2500\u2500 run.go            CLI entry point (Run function)`,
+              `    \u251c\u2500\u2500 run.gen.go        CLI entry point (Run function)`,
               `    \u2514\u2500\u2500 cmd_...           Generated Cobra command definitions`,
             ]}
           />
@@ -397,7 +397,7 @@ function GeneratingGoCodePage() {
             <span className="guide-inline-code">Action</span> handler delegates
             to the corresponding function on our struct implementing the{" "}
             <span className="guide-inline-code">ActionsInterface</span> shown
-            below. But in general you can treat these generated command file as
+            below. But in general you can treat these generated command files as
             black boxes.
           </p>
 
@@ -519,7 +519,56 @@ function GeneratingGoCodePage() {
           <div className="guide-callout">
             <p>
               You can download a full example implementation{" "}
-              <a href="/assets/code/actions.go">here</a>.
+              <a href="/assets/code/actions.go.txt">here</a>.
+            </p>
+          </div>
+
+          <p>
+            If your OpenCLI document declares root-level{" "}
+            <span className="guide-inline-code">global</span> flags, they're
+            available to every action — but not as a method parameter. The
+            generated handler builds a{" "}
+            <span className="guide-inline-code">GlobalFlags</span> value and
+            injects it into the context before calling your action (identical
+            for Cobra and urfave/cli), so you retrieve it with an exported
+            helper from the gencli package:
+          </p>
+
+          <HighlightedCodeBlock
+            language="go"
+            lines={[
+              `func (a Actions) PetstorePetAdd(`,
+              `  ctx context.Context,`,
+              `  args gencli.PetstorePetAddArgs,`,
+              `  flags gencli.PetstorePetAddFlags,`,
+              `) error {`,
+              `  // Positional arguments and command-level flags arrive as struct parameters.`,
+              `  fmt.Printf("adding pet: name=%s", flags.Name)`,
+              ``,
+              `  // Global (root-level) flags are NOT a method parameter — read them from ctx.`,
+              `  global := gencli.GlobalFlagsFromContext(ctx)`,
+              `  if global.Debug { // e.g., for a root-level --debug flag declared in your spec`,
+              `    fmt.Fprintln(a.IOStreams().ErrOut(), "debug mode enabled")`,
+              `  }`,
+              `  return nil`,
+              `}`,
+            ]}
+          />
+
+          <div className="guide-callout">
+            <p>
+              The <span className="guide-inline-code">GlobalFlags</span> type
+              and context helpers are emitted into{" "}
+              <span className="guide-inline-code">params.gen.go</span> whenever
+              your document declares root-level flags. Note that{" "}
+              <span className="guide-inline-code">GlobalFlagsFromContext</span>{" "}
+              returns zero values if no globals were set (e.g., when calling an
+              action directly from a test without wrapping the context). To
+              mirror runtime context setup in tests, wrap it yourself with{" "}
+              <span className="guide-inline-code">
+                gencli.WithGlobalFlags(ctx, g)
+              </span>{" "}
+              in tests; that's what the generated handler does at runtime.
             </p>
           </div>
 
@@ -703,6 +752,9 @@ export default function GuidePage() {
                 className="guide-nav__link is-active"
               >
                 Code Generation (Go)
+              </a>
+              <a href="/docs/code-generation-yargs" className="guide-nav__link">
+                Code Generation (TS)
               </a>
             </li>
           </ul>

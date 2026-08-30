@@ -99,7 +99,7 @@ OpenCLI Specification is a declarative, language-agnostic document specification
 - `go.mod` - Go module definition
 - `go.work` - Workspace configuration
 - `Makefile` - Build targets (test, gen-docs, release)
-- `opencli.ocs.yaml` - Self-documenting spec for this project
+- `ocli.ocs.yaml` - Self-documenting spec for this project
 - `spec.schema.json` - JSON Schema that defines the OpenCLI Specification. This is the central pillar of the repository. All of the other packages and documentation serves this specification.
 
 ## Key Functionality
@@ -120,6 +120,9 @@ OpenCLI Specification is a declarative, language-agnostic document specification
 
 ## Important Notes
 
-- The project is self-documenting: `opencli.ocs.yaml` describes the CLI itself
+- The project is self-documenting: `ocli.ocs.yaml` describes the CLI itself
 - Generated code uses `gencli` package and directory naming convention to avoid conflicts. We can safely regenerate the code in the repo without fear of clobbering any of the logic
 - Web app uses Next.js 16 App Router with static export
+- You should always prioritize human-readable code that is maintainable and testable. Strive for elegance over cleverness
+- Don't guess about how newer libraries work based on old training data. Look up the docs via go.pkg.dev or using the built in websearch tool call.
+- For temporary, test, scratch files always use the subdirectory `./.scratch` within the workspace. And be sure to clean up after yourself when done.

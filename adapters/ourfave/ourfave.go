@@ -23,7 +23,7 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-const defaultOpenCLIVersion = "1.0.0-alpha.13"
+const defaultOpenCLIVersion = "1.0.0-alpha.14"
 
 // config holds the functional-option state.
 type config struct {

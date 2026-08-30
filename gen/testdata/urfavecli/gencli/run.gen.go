@@ -10,6 +10,9 @@ import (
 
 // Run executes the root urfave command and returns an exit code.
 func Run(ctx context.Context, actions ActionsInterface) int {
+	// Load config file from disk (JSON/YAML/TOML) for $FILE alternative sources
+	loadConfig()
+
 	// Setup custom help printer with glamour/lipgloss rendering
 	SetupUrfaveHelpPrinter(actions)
 

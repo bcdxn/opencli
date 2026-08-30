@@ -15,8 +15,8 @@ func NewCmdPetstoreUserLogin(a ActionsInterface) *cobra.Command {
 		Long:  "",
 		RunE: func(c *cobra.Command, args []string) error {
 			cmdFlags := PetstoreUserLoginFlags{
-				Username: flagUsername,
-				Password: flagPassword,
+				Username: resolveStringFlag(c.Flags(), "username", []AltSource{{Type: "$ENV", Property: "PETSTORE_USER"}, {Type: "$FILE", Property: "$.auth.user"}}),
+				Password: resolveStringFlag(c.Flags(), "password", []AltSource{{Type: "$ENV", Property: "PETSTORE_PASS"}, {Type: "$FILE", Property: "$.auth.pass"}}),
 			}
 			return a.PetstoreUserLogin(c.Context(), cmdFlags)
 		},

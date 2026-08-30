@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"go/format"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -20,6 +21,16 @@ type cliAllCommandsTmplData struct {
 	LeafCommands  []cliCmdEntry
 	ExitCodes     []spec.ExitCode
 	GlobalFlags   []cobraFlagEntry
+	// Config file paths from global.config (only formats that are declared)
+	ConfigJSON string
+	ConfigTOML string
+	ConfigYAML string
+	// HasAltSources is true if any flag declares an alternative source, which
+	// requires emitting gencli/config.gen.go and calling loadConfig at startup.
+	HasAltSources bool
+	// HasFileAltSource is true if any flag declares a $FILE alternative source,
+	// which requires the generated config code to import a JSONPath library.
+	HasFileAltSource bool
 }
 
 // cliCmdEntry holds the pre-computed template data for a single leaf command.
@@ -53,6 +64,7 @@ type cobraCommandFileTmplData struct {
 	ChildImports []subCmdImport
 	CobraArgs    []cobraArgEntry
 	CobraFlags   []cobraFlagEntry
+	GlobalFlags  []cobraFlagEntry // non-help/version global flags, shared by all leaf commands
 }
 
 // subCmdImport holds data needed to call a child command constructor (same package, no import).
@@ -79,9 +91,11 @@ type cobraFlagEntry struct {
 	CobraBindFn  string
 	Default      string
 	Summary      string
-	TypeName     string   // non-empty when the struct field uses a generated type (needs cast)
+	TypeName     string // non-empty when the struct field uses a generated type (needs cast)
+	Choices      []cliChoiceEntry
 	Shorthand    string   // first single-char alias, or empty string
 	ExtraAliases []string // aliases not used as shorthand; mapped via SetNormalizeFunc
+	AltSources   []spec.AlternativeSource
 }
 
 //go:embed templates/code/cobra
@@ -108,13 +122,36 @@ func genCLICobra(doc *spec.Document, opts *genCLIOptions) (map[string][]byte, er
 
 	var exitCodes []spec.ExitCode
 	var globalFlags []cobraFlagEntry
+	configJSON, configTOML, configYAML := "", "", ""
 	if doc.Global != nil {
 		exitCodes = doc.Global.ExitCodes
+		configJSON = doc.Global.Config.JSON
+		configTOML = doc.Global.Config.TOML
+		configYAML = doc.Global.Config.YAML
 		for _, flag := range doc.Global.Flags {
 			if flag.Name == "help" || flag.Name == "version" {
 				continue
 			}
 			shorthand, extraAliases := splitAliases(flag.Aliases)
+
+			// Choice-constrained globals get the same enum metadata as command flags so
+			// that generated handlers validate both CLI values and alternative-sourced
+			// resolved values with IsValid(). The GoType stays the base type (not the
+			// enum name): it is used for pflag binding in run.tmpl and for resolver
+			// lookup in resolveFlagValue, which keys on "string"/"int64".
+			flagTypeName := ""
+			var choices []cliChoiceEntry
+			if len(flag.Choices) > 0 && (flag.Type == "string" || flag.Type == "") && !flag.Variadic {
+				flagTypeName = binaryPascal + toPascalCase(flag.Name)
+				for _, c := range flag.Choices {
+					valStr := fmt.Sprintf("%v", c.Value)
+					choices = append(choices, cliChoiceEntry{
+						ConstName: flagTypeName + toPascalCase(valStr),
+						Value:     valStr,
+					})
+				}
+			}
+
 			globalFlags = append(globalFlags, cobraFlagEntry{
 				FieldName:    toPascalCase(flag.Name),
 				VarName:      "flag" + toPascalCase(flag.Name),
@@ -123,19 +160,37 @@ func genCLICobra(doc *spec.Document, opts *genCLIOptions) (map[string][]byte, er
 				CobraBindFn:  cobraBindFn(flag.Type, flag.Variadic),
 				Default:      cobraDefaultVal(flag.Default, flag.Type, flag.Variadic),
 				Summary:      flag.Summary,
+				TypeName:     flagTypeName,
+				Choices:      choices,
 				Shorthand:    shorthand,
 				ExtraAliases: extraAliases,
+				AltSources:   flag.AltSources,
 			})
 		}
 	}
 
+	// Track alternative-source usage across all flags so we know whether to emit
+	// gencli/config.gen.go (and call loadConfig from run.tmpl). A $FILE source
+	// additionally requires the generated config code to import a JSONPath library.
+	hasAltSources, hasFileAltSource := scanCobraAltSources(globalFlags)
+	for i := range cmdFiles {
+		cmdHasAlt, cmdHasFile := scanCobraAltSources(cmdFiles[i].CobraFlags)
+		hasAltSources = hasAltSources || cmdHasAlt
+		hasFileAltSource = hasFileAltSource || cmdHasFile
+	}
+
 	allCmdsData := cliAllCommandsTmplData{
-		ModuleVersion: opts.ModuleVersion,
-		Binary:        binary,
-		BinaryPascal:  binaryPascal,
-		LeafCommands:  leafCommands,
-		ExitCodes:     exitCodes,
-		GlobalFlags:   globalFlags,
+		ModuleVersion:    opts.ModuleVersion,
+		Binary:           binary,
+		BinaryPascal:     binaryPascal,
+		LeafCommands:     leafCommands,
+		ExitCodes:        exitCodes,
+		GlobalFlags:      globalFlags,
+		ConfigJSON:       configJSON,
+		ConfigTOML:       configTOML,
+		ConfigYAML:       configYAML,
+		HasFileAltSource: hasFileAltSource,
+		HasAltSources:    hasAltSources,
 	}
 
 	funcMap := cobraTemplateFuncMap()
@@ -146,11 +201,18 @@ func genCLICobra(doc *spec.Document, opts *genCLIOptions) (map[string][]byte, er
 	}
 	gencliFiles := []gencliFile{
 		{"gencli/actions.gen.go", "templates/code/cobra/gencli/actions.tmpl"},
+		// Only emitted when at least one flag declares alternative sources, so that
+		// specs without this feature produce no extra files or imports.
+	}
+	if hasAltSources {
+		gencliFiles = append(gencliFiles, gencliFile{"gencli/config.gen.go", "templates/code/cobra/gencli/config.tmpl"})
+	}
+	gencliFiles = append(gencliFiles, []gencliFile{
 		{"gencli/errors.gen.go", "templates/code/cobra/gencli/errors.tmpl"},
 		{"gencli/help.gen.go", "templates/code/cobra/gencli/help.tmpl"},
 		{"gencli/iostreams.gen.go", "templates/code/cobra/gencli/iostreams.tmpl"},
 		{"gencli/params.gen.go", "templates/code/cobra/gencli/params.tmpl"},
-	}
+	}...)
 
 	for _, f := range gencliFiles {
 		content, err := renderCobraTemplate(f.tmplPath, funcMap, allCmdsData)
@@ -166,15 +228,16 @@ func genCLICobra(doc *spec.Document, opts *genCLIOptions) (map[string][]byte, er
 
 	runContent, err := renderCobraTemplate("templates/code/cobra/gencli/run.tmpl", funcMap, allCmdsData)
 	if err != nil {
-		return nil, fmt.Errorf("rendering gencli/run.go: %w", err)
+		return nil, fmt.Errorf("rendering gencli/run.gen.go: %w", err)
 	}
 	formattedRun, err := format.Source(runContent)
 	if err != nil {
-		return nil, fmt.Errorf("formatting gencli/run.go: %w\nsource:\n%s", err, runContent)
+		return nil, fmt.Errorf("formatting gencli/run.gen.go: %w\nsource:\n%s", err, runContent)
 	}
-	out["gencli/run.go"] = formattedRun
+	out["gencli/run.gen.go"] = formattedRun
 
 	for _, cmdFile := range cmdFiles {
+		cmdFile.GlobalFlags = globalFlags
 		content, err := renderCobraTemplate("templates/code/cobra/gencli/command.tmpl", funcMap, cmdFile)
 		if err != nil {
 			return nil, fmt.Errorf("rendering %s: %w", cmdFile.OutPath, err)
@@ -308,6 +371,7 @@ func walkCmdTree(
 			TypeName:     flagTypeName,
 			Shorthand:    shorthand,
 			ExtraAliases: extraAliases,
+			AltSources:   flag.AltSources,
 		})
 	}
 
@@ -381,7 +445,65 @@ func cobraTemplateFuncMap() template.FuncMap {
 			}
 			return false
 		},
+		// resolveFlagValue returns the Go expression that yields a flag's value inside
+		// RunE. Without alternative sources it is just the bound variable (optionally cast
+		// to a generated choices type). With alternative sources it calls the matching
+		// resolver from gencli/config.gen.go, which prefers the CLI value when the flag was
+		// set on the command line and otherwise falls back to env/config in declared order.
+		"resolveFlagValue": func(f cobraFlagEntry) string {
+			if len(f.AltSources) == 0 {
+				return plainCobraFlagExpr(f)
+			}
+			resolver, ok := cobraCliAltSourceResolvers[f.GoType]
+			if !ok {
+				return plainCobraFlagExpr(f)
+			}
+			expr := fmt.Sprintf("%s(c.Flags(), %q, %s)", resolver, f.FlagName, formatAltSources(f.AltSources))
+			if f.TypeName != "" {
+				expr = fmt.Sprintf("%s(%s)", f.TypeName, expr)
+			}
+			return expr
+		},
 	}
+}
+
+// plainCobraFlagExpr returns the expression for a flag with no alternative sources: the bound
+// variable, cast to its generated choices type when one exists.
+func plainCobraFlagExpr(f cobraFlagEntry) string {
+	if f.TypeName != "" {
+		return fmt.Sprintf("%s(%s)", f.TypeName, f.VarName)
+	}
+	return f.VarName
+}
+
+// scanCobraAltSources reports whether any flag in the slice declares an alternative
+// source (hasAlt), and specifically whether any of them is a $FILE source
+// (hasFile). A $FILE source requires the generated config code to import a JSONPath library.
+func scanCobraAltSources(flags []cobraFlagEntry) (hasAlt, hasFile bool) {
+	for _, f := range flags {
+		if len(f.AltSources) > 0 {
+			hasAlt = true
+		}
+		for _, src := range f.AltSources {
+			if src.Type == "$FILE" {
+				hasFile = true
+			}
+		}
+	}
+	return hasAlt, hasFile
+}
+
+// cobraCliAltSourceResolvers maps a Go flag type to the generated resolver function in
+// gencli/config.gen.go that falls back to alternative sources when the flag is not set.
+var cobraCliAltSourceResolvers = map[string]string{
+	"string":    "resolveStringFlag",
+	"int64":     "resolveInt64Flag",
+	"bool":      "resolveBoolFlag",
+	"float64":   "resolveFloat64Flag",
+	"[]string":  "resolveStringSliceFlag",
+	"[]int64":   "resolveInt64SliceFlag",
+	"[]bool":    "resolveBoolSliceFlag",
+	"[]float64": "resolveFloat64SliceFlag",
 }
 
 // cobraBindFn returns the cobra Flags() method name for the given spec type and variadic flag.
@@ -413,7 +535,7 @@ func cobraBindFn(t string, variadic bool) string {
 
 // cobraDefaultVal returns the Go literal for the default value of a cobra flag.
 func cobraDefaultVal(val any, t string, variadic bool) string {
-	switch val.(type) {
+	switch v := val.(type) {
 	case string:
 		return fmt.Sprintf("\"%s\"", strings.ReplaceAll(fmt.Sprintf("%s", val), "\"", "\\\""))
 	case int, int32, int64:
@@ -422,6 +544,30 @@ func cobraDefaultVal(val any, t string, variadic bool) string {
 		return fmt.Sprintf("%f", val)
 	case bool:
 		return fmt.Sprintf("%t", val)
+	case []string:
+		parts := make([]string, len(v))
+		for i, s := range v {
+			parts[i] = fmt.Sprintf("\"%s\"", strings.ReplaceAll(s, "\"", "\\\""))
+		}
+		return "[]string{" + strings.Join(parts, ", ") + "}"
+	case []int64:
+		parts := make([]string, len(v))
+		for i, n := range v {
+			parts[i] = strconv.FormatInt(n, 10)
+		}
+		return "[]int64{" + strings.Join(parts, ", ") + "}"
+	case []float64:
+		parts := make([]string, len(v))
+		for i, f := range v {
+			parts[i] = strconv.FormatFloat(f, 'f', -1, 64)
+		}
+		return "[]float64{" + strings.Join(parts, ", ") + "}"
+	case []bool:
+		parts := make([]string, len(v))
+		for i, b := range v {
+			parts[i] = strconv.FormatBool(b)
+		}
+		return "[]bool{" + strings.Join(parts, ", ") + "}"
 	}
 
 	// no default was provided in the spec, use a zero value for cobra

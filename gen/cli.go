@@ -67,6 +67,10 @@ func CLI(doc *spec.Document, options ...GenCLIOption) (map[string][]byte, error)
 		return nil, fmt.Errorf("provided specification document was nil")
 	}
 
+	if err := validateNoGroupFlagsArgs(doc); err != nil {
+		return nil, err
+	}
+
 	if bi, ok := debug.ReadBuildInfo(); ok {
 		if bi.Main.Version != "" {
 			moduleVersion = bi.Main.Version
@@ -95,6 +99,38 @@ func CLI(doc *spec.Document, options ...GenCLIOption) (map[string][]byte, error)
 	}
 
 	return nil, fmt.Errorf("unsupported CLI framework: %s", opts.Framework)
+}
+
+// validateNoGroupFlagsArgs ensures no group command declares arguments or flags.
+// Group commands are pure containers for subcommands; generated code has nowhere
+// to read their args/flags from as opencli spec does not support the concept of
+// persisted flags outside of global flags (and the cobra template would emit flag
+// bindings referencing undeclared variables). This mirrors the rule enforced by the
+// validate package so generation fails cleanly even when callers skip validation,
+// using the same group predicate as walkCmdTree.
+// This could be something we remove in the future if we want to support persisted flags
+func validateNoGroupFlagsArgs(doc *spec.Document) error {
+	var walk func(cmd *spec.CommandItem) error
+	walk = func(cmd *spec.CommandItem) error {
+		if cmd == nil {
+			return nil
+		}
+		isGroup := cmd.Kind == spec.CommandKindGroup || len(cmd.Commands) > 0
+		if isGroup && (len(cmd.Flags) > 0 || len(cmd.Args) > 0) {
+			name := cmd.CommandLine
+			if name == "" {
+				name = cmd.Segment
+			}
+			return fmt.Errorf("command %q: group commands cannot have arguments or flags", name)
+		}
+		for _, subcmd := range cmd.Commands {
+			if err := walk(subcmd); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	return walk(doc.Commands)
 }
 
 /* Functional Options

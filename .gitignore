@@ -10,6 +10,7 @@ coverage.txt
 .DS_Store
 Thumbs.db
 tmp*
+.scratch
 scratch*
 
 node_modules

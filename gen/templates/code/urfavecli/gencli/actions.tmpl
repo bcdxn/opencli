@@ -10,7 +10,7 @@ import (
 // ActionsInterface defines all actions the {{.Binary}} CLI supports.
 type ActionsInterface interface {
 {{- range .LeafCommands}}
-	{{.MethodName}}(ctx context.Context, {{if .Args}}args {{.ArgsTypeName}}, {{end}}{{if .Flags}}flags {{.FlagsTypeName}}{{end}}) error
+	{{.MethodName}}(ctx context.Context{{if .Args}}, args {{.ArgsTypeName}}{{end}}{{if .Flags}}, flags {{.FlagsTypeName}}{{end}}) error
 {{- end}}
 	HelpFunc(cmd *spec.CommandItem)
 	UsageFunc(cmd *spec.CommandItem) error

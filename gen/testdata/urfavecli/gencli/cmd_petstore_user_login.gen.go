@@ -15,8 +15,8 @@ func NewCmdPetstoreUserLogin(a ActionsInterface) *cli.Command {
 		Metadata:    map[string]any{"spec_cmd": getSpecPetstoreUserLoginCmd()},
 		Action: func(ctx context.Context, c *cli.Command) error {
 			cmdFlags := PetstoreUserLoginFlags{
-				Username: c.String("username"),
-				Password: c.String("password"),
+				Username: resolveStringFlag(c.IsSet("username"), c.String("username"), []AltSource{{Type: "$ENV", Property: "PETSTORE_USER"}, {Type: "$FILE", Property: "$.auth.user"}}),
+				Password: resolveStringFlag(c.IsSet("password"), c.String("password"), []AltSource{{Type: "$ENV", Property: "PETSTORE_PASS"}, {Type: "$FILE", Property: "$.auth.pass"}}),
 			}
 			return a.PetstoreUserLogin(ctx, cmdFlags)
 		},

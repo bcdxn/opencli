@@ -956,6 +956,138 @@ The command failed
 Missing or invalid input
 .
 .
+.SH EXAMPLES
+
+.PP
+.nf
+# List all available endpoints
+.
+$ petstore list
+# /api/pet/findByStatus   GET   Find pets by status
+# /api/pet/findByTags     GET   Find pets by tags
+# /api/pet/{petId}        GET   Find pet by ID
+# /api/store/inventory    GET   Returns pet inventories by status
+.fi
+.
+.PP
+.nf
+# Add a new pet using flags
+.
+$ petstore pet add --name "Rex" \\
+  --status available \\
+  --photo-urls https://example.com/photos/rex.jpg \\
+  --tag dog
+# ✓ Pet created successfully (id=101)
+
+.fi
+.
+.PP
+.nf
+# Add a new pet from a JSON payload file
+.
+$ cat ./rex.json
+# { "name": "Rex", "status": "available" }
+$ petstore pet add ./rex.json
+# ✓ Pet created successfully (id=102)
+.fi
+.
+.PP
+.nf
+# Update a pet using flags
+.
+$ petstore pet update --status sold --tags adopted
+# ✓ Pet updated successfully
+.fi
+.
+.PP
+.nf
+# Find all available pets
+.
+$ petstore pet find-by-status --status available
+# [
+#   { "id": 101, "name": "Rex", "status": "available" },
+#   { "id": 102, "name": "Whiskers", "status": "available" }
+# ]
+.fi
+.
+.PP
+.nf
+# Find a pet by ID
+.
+$ petstore pet get --id 101
+# { "id": 101, "name": "Rex", "status": "available" }
+.fi
+.
+.PP
+.nf
+# Delete a pet with an API key header
+.
+$ petstore pet delete --id 102 --api-key demo-api-key
+# ✓ Pet 102 deleted successfully
+.fi
+.
+.PP
+.nf
+# Return inventories by status
+.
+$ petstore store inventory
+# { "available": 3, "pending": 1, "sold": 5 }
+.fi
+.
+.PP
+.nf
+# Place an order using flags
+.
+$ petstore store order place --pet-id 101 --quantity 2
+# { "id": 5001, "petId": 101, "quantity": 2, "status": "placed" }
+.fi
+.
+.PP
+.nf
+# Find an order by ID
+.
+$ petstore store order get --id 5001
+# { "id": 5001, "petId": 101, "quantity": 2, "status": "placed" }
+.fi
+.
+.PP
+.nf
+# Create a user using flags
+.
+$ petstore user create --username jane.doe \\
+  --firstName Jane \\
+  --lastName Doe \\
+  --email jane@example.com
+# ✓ User 'jane.doe' created successfully
+.fi
+.
+.PP
+.nf
+# Log in with explicit credentials
+.
+$ petstore user login --username jane.doe --password s3cret
+# Logged in as 'jane.doe' (token expires in 7200s)
+
+.fi
+.
+.PP
+.nf
+# Log in using environment variables
+.
+$ export PETSTORE_USER=jane.doe
+$ export PETSTORE_PASS=s3cret
+$ petstore user login
+# Logged in as 'jane.doe' (token expires in 7200s)
+.fi
+.
+.PP
+.nf
+# Log out the current user
+.
+$ petstore user logout
+# ✓ Logged out successfully
+.fi
+.
 .
 .SH AUTHORS
 .UR https://github.com/bcdxn/opencli

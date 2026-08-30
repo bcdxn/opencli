@@ -6,10 +6,19 @@ import (
 	"errors"
 	"fmt"
 	"os"
+{{- if .GlobalFlags}}
+
+	"github.com/urfave/cli/v3"
+{{- end}}
 )
 
 // Run executes the root urfave command and returns an exit code.
 func Run(ctx context.Context, actions ActionsInterface) int {
+{{- if .HasAltSources}}
+	// Load config file from disk (JSON/YAML/TOML) for $FILE alternative sources
+	loadConfig()
+
+{{end}}
 	// Setup custom help printer with glamour/lipgloss rendering
 	SetupUrfaveHelpPrinter(actions)
 

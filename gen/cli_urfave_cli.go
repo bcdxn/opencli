@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"go/format"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -20,6 +21,16 @@ type urfaveCliAllCommandsTmplData struct {
 	LeafCommands  []cliCmdEntry
 	ExitCodes     []spec.ExitCode
 	GlobalFlags   []urfaveCliFlagEntry
+	// Config file paths from global.config (only formats that are declared)
+	ConfigJSON string
+	ConfigTOML string
+	ConfigYAML string
+	// HasAltSources is true if any flag declares an alternative source, which
+	// requires emitting gencli/config.gen.go and calling loadConfig at startup.
+	HasAltSources bool
+	// HasFileAltSource is true if any flag declares a $FILE alternative source,
+	// which requires the generated config code to import a JSONPath library.
+	HasFileAltSource bool
 }
 
 // urfaveCliCommandFileTmplData is the template data passed to command.tmpl.
@@ -30,6 +41,7 @@ type urfaveCliCommandFileTmplData struct {
 	ChildImports []subCmdImport
 	UrfaveArgs   []urfaveCliArgEntry
 	UrfaveFlags  []urfaveCliFlagEntry
+	GlobalFlags  []urfaveCliFlagEntry // non-help/version global flags, shared by all leaf commands
 }
 
 // urfaveCliArgEntry describes how to bind a positional argument in an urfave command.
@@ -41,6 +53,7 @@ type urfaveCliArgEntry struct {
 }
 
 // urfaveCliFlagEntry describes how to bind a flag in an urfave command.
+// AltSources reuses spec.AlternativeSource directly (no need for a parallel type).
 type urfaveCliFlagEntry struct {
 	FieldName  string
 	FlagName   string
@@ -48,9 +61,11 @@ type urfaveCliFlagEntry struct {
 	UrfaveFlag string // e.g. "cli.StringFlag", "cli.Int64Flag"
 	Default    string // Go literal for the default value
 	Summary    string
-	TypeName   string   // non-empty when the struct field uses a generated type (needs cast)
+	TypeName   string // non-empty when the struct field uses a generated type (needs cast)
+	Choices    []cliChoiceEntry
 	Aliases    []string // all aliases (urfave uses Aliases []string, not separate shorthand)
 	Accessor   string   // e.g. "String", "Int64", "Bool", "Float64", "StringSlice", etc.
+	AltSources []spec.AlternativeSource
 }
 
 //go:embed templates/code/urfavecli
@@ -77,12 +92,35 @@ func genCLIUrfaveCli(doc *spec.Document, opts *genCLIOptions) (map[string][]byte
 
 	var exitCodes []spec.ExitCode
 	var globalFlags []urfaveCliFlagEntry
+	var configJSON, configTOML, configYAML string
 	if doc.Global != nil {
 		exitCodes = doc.Global.ExitCodes
+		configJSON = doc.Global.Config.JSON
+		configTOML = doc.Global.Config.TOML
+		configYAML = doc.Global.Config.YAML
 		for _, flag := range doc.Global.Flags {
 			if flag.Name == "help" || flag.Name == "version" {
 				continue
 			}
+
+			// Choice-constrained globals get the same enum metadata as command flags so
+			// that generated handlers validate both CLI values and alternative-sourced
+			// resolved values with IsValid(). The GoType stays the base type (not the
+			// enum name): it is used for resolver lookup in resolveFlagValue, which keys
+			// on "string"/"int64".
+			flagTypeName := ""
+			var choices []cliChoiceEntry
+			if len(flag.Choices) > 0 && (flag.Type == "string" || flag.Type == "") && !flag.Variadic {
+				flagTypeName = binaryPascal + toPascalCase(flag.Name)
+				for _, c := range flag.Choices {
+					valStr := fmt.Sprintf("%v", c.Value)
+					choices = append(choices, cliChoiceEntry{
+						ConstName: flagTypeName + toPascalCase(valStr),
+						Value:     valStr,
+					})
+				}
+			}
+
 			globalFlags = append(globalFlags, urfaveCliFlagEntry{
 				FieldName:  toPascalCase(flag.Name),
 				FlagName:   flag.Name,
@@ -90,19 +128,37 @@ func genCLIUrfaveCli(doc *spec.Document, opts *genCLIOptions) (map[string][]byte
 				UrfaveFlag: urfaveCliFlagStruct(flag.Type, flag.Variadic),
 				Default:    urfaveCliDefaultVal(flag.Default, flag.Type, flag.Variadic),
 				Summary:    flag.Summary,
+				TypeName:   flagTypeName,
+				Choices:    choices,
 				Aliases:    flag.Aliases,
 				Accessor:   urfaveCliAccessor(flag.Type, flag.Variadic),
+				AltSources: flag.AltSources,
 			})
 		}
 	}
 
+	// Track alternative-source usage across all flags so we know whether to emit
+	// gencli/config.gen.go (and call loadConfig from run.tmpl). A $FILE source
+	// additionally requires the generated config code to import a JSONPath library.
+	hasAltSources, hasFileAltSource := scanUrfaveCliAltSources(globalFlags)
+	for i := range cmdFiles {
+		cmdHasAlt, cmdHasFile := scanUrfaveCliAltSources(cmdFiles[i].UrfaveFlags)
+		hasAltSources = hasAltSources || cmdHasAlt
+		hasFileAltSource = hasFileAltSource || cmdHasFile
+	}
+
 	allCmdsData := urfaveCliAllCommandsTmplData{
-		ModuleVersion: opts.ModuleVersion,
-		Binary:        binary,
-		BinaryPascal:  binaryPascal,
-		LeafCommands:  leafCommands,
-		ExitCodes:     exitCodes,
-		GlobalFlags:   globalFlags,
+		ModuleVersion:    opts.ModuleVersion,
+		Binary:           binary,
+		BinaryPascal:     binaryPascal,
+		LeafCommands:     leafCommands,
+		ExitCodes:        exitCodes,
+		GlobalFlags:      globalFlags,
+		ConfigJSON:       configJSON,
+		ConfigTOML:       configTOML,
+		ConfigYAML:       configYAML,
+		HasAltSources:    hasAltSources,
+		HasFileAltSource: hasFileAltSource,
 	}
 
 	funcMap := urfaveCliTemplateFuncMap()
@@ -113,13 +169,19 @@ func genCLIUrfaveCli(doc *spec.Document, opts *genCLIOptions) (map[string][]byte
 	}
 	gencliFiles := []gencliFile{
 		{"gencli/actions.gen.go", "templates/code/urfavecli/gencli/actions.tmpl"},
+		// Only emitted when at least one flag declares alternative sources, so that
+		// specs without this feature produce no extra files or imports.
+	}
+	if hasAltSources {
+		gencliFiles = append(gencliFiles, gencliFile{"gencli/config.gen.go", "templates/code/urfavecli/gencli/config.tmpl"})
+	}
+	gencliFiles = append(gencliFiles, []gencliFile{
 		{"gencli/errors.gen.go", "templates/code/urfavecli/gencli/errors.tmpl"},
 		{"gencli/help.gen.go", "templates/code/urfavecli/gencli/help.tmpl"},
 		{"gencli/iostreams.gen.go", "templates/code/urfavecli/gencli/iostreams.tmpl"},
 		{"gencli/params.gen.go", "templates/code/urfavecli/gencli/params.tmpl"},
 		{"gencli/run.gen.go", "templates/code/urfavecli/gencli/run.tmpl"},
-	}
-
+	}...)
 	for _, f := range gencliFiles {
 		content, err := renderUrfaveCliTemplate(f.tmplPath, funcMap, allCmdsData)
 		if err != nil {
@@ -133,6 +195,7 @@ func genCLIUrfaveCli(doc *spec.Document, opts *genCLIOptions) (map[string][]byte
 	}
 
 	for _, cmdFile := range cmdFiles {
+		cmdFile.GlobalFlags = globalFlags
 		content, err := renderUrfaveCliTemplate("templates/code/urfavecli/gencli/command.tmpl", funcMap, cmdFile)
 		if err != nil {
 			return nil, fmt.Errorf("rendering %s: %w", cmdFile.OutPath, err)
@@ -145,6 +208,24 @@ func genCLIUrfaveCli(doc *spec.Document, opts *genCLIOptions) (map[string][]byte
 	}
 
 	return out, nil
+}
+
+// scanUrfaveCliAltSources reports whether any flag in the slice declares an
+// alternative source (hasAlt), and specifically whether any of them is a $FILE
+// source (hasFile). A $FILE source requires the generated config code to import
+// a JSONPath library.
+func scanUrfaveCliAltSources(flags []urfaveCliFlagEntry) (hasAlt, hasFile bool) {
+	for _, f := range flags {
+		if len(f.AltSources) > 0 {
+			hasAlt = true
+		}
+		for _, src := range f.AltSources {
+			if src.Type == "$FILE" {
+				hasFile = true
+			}
+		}
+	}
+	return hasAlt, hasFile
 }
 
 // walkUrfaveCliCmdTree recursively collects template data for all commands in the tree.
@@ -268,6 +349,7 @@ func walkUrfaveCliCmdTree(
 			TypeName:   flagTypeName,
 			Aliases:    flag.Aliases,
 			Accessor:   urfaveCliAccessor(flag.Type, flag.Variadic),
+			AltSources: flag.AltSources,
 		})
 	}
 
@@ -333,7 +415,56 @@ func urfaveCliTemplateFuncMap() template.FuncMap {
 		"goString": func(s string) string {
 			return fmt.Sprintf("%q", s)
 		},
+		// hasChoiceGlobals reports whether any global flag is choice-constrained, in which case the
+		// handler must hoist the GlobalFlags literal into a local so each entry can be validated
+		// with IsValid() before being injected into context. Specs without such flags keep the
+		// compact inline form (zero golden churn).
+		"hasChoiceGlobals": func(flags []urfaveCliFlagEntry) bool {
+			for _, f := range flags {
+				if f.TypeName != "" {
+					return true
+				}
+			}
+			return false
+		},
+		"resolveFlagValue": func(f urfaveCliFlagEntry) string {
+			// No alternative sources — read the value straight from the CLI.
+			if len(f.AltSources) == 0 {
+				if f.TypeName != "" {
+					return fmt.Sprintf("%s(c.%s(%q))", f.TypeName, f.Accessor, f.FlagName)
+				}
+				return fmt.Sprintf("c.%s(%q)", f.Accessor, f.FlagName)
+			}
+			// Alternative sources present — fall back to env/config only when the
+			// flag was not provided on the command line (c.IsSet).
+			resolver, ok := urfaveCliAltSourceResolvers[f.GoType]
+			if !ok {
+				if f.TypeName != "" {
+					return fmt.Sprintf("%s(c.%s(%q))", f.TypeName, f.Accessor, f.FlagName)
+				}
+				return fmt.Sprintf("c.%s(%q)", f.Accessor, f.FlagName)
+			}
+			srcs := formatAltSources(f.AltSources)
+			expr := fmt.Sprintf("%s(c.IsSet(%q), c.%s(%q), %s)", resolver, f.FlagName, f.Accessor, f.FlagName, srcs)
+			if f.TypeName != "" {
+				expr = fmt.Sprintf("%s(%s)", f.TypeName, expr)
+			}
+			return expr
+		},
 	}
+}
+
+// urfaveCliAltSourceResolvers maps a Go flag type to the generated resolver
+// function that falls back to alternative sources when the flag is not set.
+var urfaveCliAltSourceResolvers = map[string]string{
+	"string":    "resolveStringFlag",
+	"int64":     "resolveInt64Flag",
+	"bool":      "resolveBoolFlag",
+	"float64":   "resolveFloat64Flag",
+	"[]string":  "resolveStringSliceFlag",
+	"[]int64":   "resolveInt64SliceFlag",
+	"[]bool":    "resolveBoolSliceFlag",
+	"[]float64": "resolveFloat64SliceFlag",
 }
 
 // urfaveCliFlagStruct returns the urfave/cli v3 flag struct type for the given spec type.
@@ -417,7 +548,7 @@ func urfaveCliZeroValue(t string, variadic bool) string {
 // urfaveCliDefaultVal returns the Go literal for the default value of an urfave flag.
 func urfaveCliDefaultVal(val any, t string, variadic bool) string {
 	switch slice := val.(type) {
-	// handle slice types first
+	// handle slice types first; the codec normalizes list defaults to these shapes
 	case []string:
 		var elems []string
 		for _, v := range slice {
@@ -425,33 +556,32 @@ func urfaveCliDefaultVal(val any, t string, variadic bool) string {
 		}
 		return fmt.Sprintf("[]string{%s}", strings.Join(elems, ", "))
 
-	case []int:
+	case []int64:
 		var elems []string
 		for _, v := range slice {
-			elems = append(elems, fmt.Sprintf("%d", v))
+			elems = append(elems, strconv.FormatInt(v, 10))
 		}
 		return fmt.Sprintf("[]int64{%s}", strings.Join(elems, ", "))
 
 	case []float64:
 		var elems []string
 		for _, v := range slice {
-			// %g prints the most compact representation of a float
-			elems = append(elems, fmt.Sprintf("%g", v))
+			elems = append(elems, strconv.FormatFloat(v, 'f', -1, 64))
 		}
 		return fmt.Sprintf("[]float64{%s}", strings.Join(elems, ", "))
 
 	case []bool:
 		var elems []string
 		for _, v := range slice {
-			elems = append(elems, fmt.Sprintf("%t", v))
+			elems = append(elems, strconv.FormatBool(v))
 		}
 		return fmt.Sprintf("[]bool{%s}", strings.Join(elems, ", "))
-	// handle non-slice scalars
+	// handle non-slice scalars; the codec normalizes these to string/int64/float64/bool
 	case string:
 		return fmt.Sprintf("%q", val)
-	case int:
+	case int, int32, int64, uint64:
 		return fmt.Sprintf("%d", val)
-	case float64:
+	case float32, float64:
 		return fmt.Sprintf("%f", val)
 	case bool:
 		return fmt.Sprintf("%t", val)
@@ -459,7 +589,20 @@ func urfaveCliDefaultVal(val any, t string, variadic bool) string {
 		return urfaveCliZeroValue(t, variadic)
 
 	default:
-		// should never panic because the spec will have been validated before generation is run
-		panic(fmt.Sprintf("unsupported type: must be a slice of string, int, float64, or bool - %T", val))
+		// should never panic because the codec normalizes defaults before generation is run
+		panic(fmt.Sprintf("unsupported type: must be a slice of string, int64, float64, or bool - %T", val))
 	}
+}
+
+// formatAltSources formats a slice of spec.AlternativeSource as a Go composite
+// literal of the generated AltSource type, for use in generated template code.
+func formatAltSources(sources []spec.AlternativeSource) string {
+	if len(sources) == 0 {
+		return "nil"
+	}
+	var parts []string
+	for _, s := range sources {
+		parts = append(parts, fmt.Sprintf("{Type: %q, Property: %q}", s.Type, s.Property))
+	}
+	return fmt.Sprintf("[]AltSource{%s}", strings.Join(parts, ", "))
 }

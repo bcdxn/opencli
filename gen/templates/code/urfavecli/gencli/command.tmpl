@@ -42,7 +42,7 @@ func {{.FuncName}}(a ActionsInterface) *cli.Command {
 {{- if .UrfaveFlags}}
 			cmdFlags := {{.FlagsTypeName}}{
 {{- range .UrfaveFlags}}
-				{{.FieldName}}: {{if .TypeName}}{{.TypeName}}(c.{{.Accessor}}("{{.FlagName}}")){{else}}c.{{.Accessor}}("{{.FlagName}}"){{end}},
+				{{.FieldName}}: {{resolveFlagValue .}},
 {{- end}}
 			}
 {{- range .UrfaveFlags}}
@@ -54,6 +54,29 @@ func {{.FuncName}}(a ActionsInterface) *cli.Command {
 			}
 {{- end}}
 {{- end}}
+{{- end}}
+{{- if and .GlobalFlags (hasChoiceGlobals .GlobalFlags)}}
+			globalFlags := GlobalFlags{
+{{- range .GlobalFlags}}
+				{{.FieldName}}: {{resolveFlagValue .}},
+{{- end}}
+			}
+{{- range .GlobalFlags}}
+{{- if .TypeName}}
+			if globalFlags.{{.FieldName}} != "" && !globalFlags.{{.FieldName}}.IsValid() {
+				return BadUserInput("invalid value for --{{.FlagName}} flag: "+string(globalFlags.{{.FieldName}}), func() error {
+					return a.UsageFunc({{$.SpecFuncName}}())
+				})
+			}
+{{- end}}
+{{- end}}
+			ctx = WithGlobalFlags(ctx, globalFlags)
+{{- else if .GlobalFlags}}
+			ctx = WithGlobalFlags(ctx, GlobalFlags{
+{{- range .GlobalFlags}}
+				{{.FieldName}}: {{resolveFlagValue .}},
+{{- end}}
+			})
 {{- end}}
 			return a.{{.MethodName}}(ctx, {{if and .UrfaveArgs .UrfaveFlags}}cmdArgs, cmdFlags{{else if .UrfaveArgs}}cmdArgs{{else if .UrfaveFlags}}cmdFlags{{end}})
 		},

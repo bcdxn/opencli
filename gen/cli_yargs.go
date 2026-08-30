@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -21,6 +22,17 @@ type yargsAllCmdsTmplData struct {
 	RootImport    yargsChildImport   // import stub for the root command (used by run.ts)
 	ChildImports  []yargsChildImport // direct children of root (used by run.ts)
 	ExitCodes     []spec.ExitCode
+	GlobalFlags   []yargsFlagEntry
+	// Config file paths from global.config (only formats that are declared)
+	ConfigJSON string
+	ConfigTOML string
+	ConfigYAML string
+	// HasAltSources is true if any flag declares an alternative source, which
+	// requires emitting gencli/config.ts and calling loadConfig at startup.
+	HasAltSources bool
+	// HasFileAltSource is true if any flag declares a $FILE alternative source,
+	// which requires the generated config code to import a JSONPath library.
+	HasFileAltSource bool
 }
 
 // yargsCmdEntry holds pre-computed data for a single leaf command (used by actions/params).
@@ -41,6 +53,7 @@ type yargsFieldEntry struct {
 	IsVariadic bool
 	IsRequired bool
 	Default    any
+	AltSources []spec.AlternativeSource // alt-sourced flags may resolve to undefined even when required
 }
 
 // yargsChoiceEntry holds one allowed value for an enum field.
@@ -57,6 +70,8 @@ type yargsCommandFileTmplData struct {
 	ChildImports   []yargsChildImport
 	YargsArgs      []yargsArgEntry
 	YargsFlags     []yargsFlagEntry
+	GlobalFlags    []yargsFlagEntry // non-help/version global flags, shared by all leaf commands
+	ConfigImports  []string         // unique resolver names from gencli/config.ts used by this command's alt-source flags
 }
 
 // yargsChildImport holds data for importing and registering a child command module.
@@ -80,16 +95,19 @@ type yargsArgEntry struct {
 
 // yargsFlagEntry describes how to bind an option/flag in a yargs command.
 type yargsFlagEntry struct {
-	FieldName    string // camelCase field on argv
-	RawName      string // unmodified name from spec, used for .option() and the local argv interface
-	TSType       string
-	IsRequired   bool
-	IsVariadic   bool
-	TypeName     string // non-empty when field uses generated enum type
-	Choices      []yargsChoiceEntry
-	Shorthand    string
-	ExtraAliases []string
-	Default      string // TypeScript literal or empty
+	FieldName      string // camelCase field on argv
+	RawName        string // unmodified name from spec, used for .option() and the local argv interface
+	TSType         string
+	IsRequired     bool
+	IsVariadic     bool
+	TypeName       string // non-empty when field uses generated enum type
+	Choices        []yargsChoiceEntry
+	Shorthand      string
+	ExtraAliases   []string
+	Default        string // TypeScript literal or empty
+	Summary        string // flag summary (used for global option registration)
+	VariadicCoerce string // pre-rendered JS arrow coercing array elements for non-string variadics ("" otherwise)
+	AltSources     []spec.AlternativeSource
 }
 
 //go:embed templates/code/yargs
@@ -116,12 +134,75 @@ func genCLIYargs(doc *spec.Document, opts *genCLIOptions) (map[string][]byte, er
 
 	rootChildImports := yargsBuildChildImports(rootCmd.Commands, []string{binary})
 
+	var globalFlags []yargsFlagEntry
+	configJSON, configTOML, configYAML := "", "", ""
+	if doc.Global != nil {
+		configJSON = doc.Global.Config.JSON
+		configTOML = doc.Global.Config.TOML
+		configYAML = doc.Global.Config.YAML
+		for _, flag := range doc.Global.Flags {
+			if flag.Name == "help" || flag.Name == "version" {
+				continue
+			}
+			shorthand, extraAliases := splitAliases(flag.Aliases)
+
+			// Choice-constrained globals get the same enum metadata as command flags so
+			// that root options emit .choices(...) and alt-sourced values are validated
+			// with assertChoice. The TSType stays the base type (not the enum name): it is
+			// used for resolver lookup in resolveFlagValue, which keys on "string"/"number".
+			flagTypeName := ""
+			var choices []yargsChoiceEntry
+			if len(flag.Choices) > 0 && (flag.Type == "string" || flag.Type == "") && !flag.Variadic {
+				flagTypeName = binaryPascal + toPascalCase(flag.Name)
+				for _, c := range flag.Choices {
+					valStr := fmt.Sprintf("%v", c.Value)
+					choices = append(choices, yargsChoiceEntry{
+						EnumKey: strings.ToUpper(strings.ReplaceAll(toGoPackageName(valStr), "-", "_")),
+						Value:   valStr,
+					})
+				}
+			}
+
+			globalFlags = append(globalFlags, yargsFlagEntry{
+				FieldName:      toCamelCase(flag.Name),
+				RawName:        flag.Name,
+				TSType:         toTSType(flag.Type, flag.Variadic),
+				IsRequired:     flag.Required,
+				IsVariadic:     flag.Variadic,
+				VariadicCoerce: yargsVariadicCoerce(flag.Type),
+				TypeName:       flagTypeName,
+				Choices:        choices,
+				Shorthand:      shorthand,
+				ExtraAliases:   extraAliases,
+				Default:        yargsDefaultVal(flag.Default),
+				Summary:        flag.Summary,
+				AltSources:     flag.AltSources,
+			})
+		}
+	}
+
+	// Track alternative-source usage across all flags so we know whether to emit
+	// gencli/config.ts (and call loadConfig from run.tmpl). A $FILE source
+	// additionally requires the generated config code to import a JSONPath library.
+	hasAltSources, hasFileAltSource := scanYargsAltSources(globalFlags)
+	for i := range cmdFiles {
+		cmdHasAlt, cmdHasFile := scanYargsAltSources(cmdFiles[i].YargsFlags)
+		hasAltSources = hasAltSources || cmdHasAlt
+		hasFileAltSource = hasFileAltSource || cmdHasFile
+	}
+
 	allCmdsData := yargsAllCmdsTmplData{
-		ModuleVersion: opts.ModuleVersion,
-		Binary:        binary,
-		BinaryPascal:  binaryPascal,
-		LeafCommands:  leafCommands,
-		ChildImports:  rootChildImports,
+		ModuleVersion:    opts.ModuleVersion,
+		Binary:           binary,
+		BinaryPascal:     binaryPascal,
+		LeafCommands:     leafCommands,
+		ChildImports:     rootChildImports,
+		GlobalFlags:      globalFlags,
+		ConfigJSON:       configJSON,
+		ConfigTOML:       configTOML,
+		ConfigYAML:       configYAML,
+		HasAltSources:    hasAltSources,
+		HasFileAltSource: hasFileAltSource,
 		RootImport: yargsChildImport{
 			FuncName: yargsCommandFuncName([]string{binary}),
 			FileName: yargsCommandFileName([]string{binary}),
@@ -141,12 +222,19 @@ func genCLIYargs(doc *spec.Document, opts *genCLIOptions) (map[string][]byte, er
 	}
 	supportFiles := []gencliFile{
 		{"gencli/actions.ts", "templates/code/yargs/gencli/actions.tmpl"},
-		{"gencli/params.ts", "templates/code/yargs/gencli/params.tmpl"},
-		{"gencli/errors.ts", "templates/code/yargs/gencli/errors.tmpl"},
-		{"gencli/help.ts", "templates/code/yargs/gencli/help.tmpl"},
-		{"gencli/types.ts", "templates/code/yargs/gencli/types.tmpl"},
-		{"gencli/run.ts", "templates/code/yargs/gencli/run.tmpl"},
+		// Only emitted when at least one flag declares alternative sources, so that
+		// specs without this feature produce no extra files or imports.
 	}
+	if hasAltSources {
+		supportFiles = append(supportFiles, gencliFile{"gencli/config.ts", "templates/code/yargs/gencli/config.tmpl"})
+	}
+	supportFiles = append(supportFiles,
+		gencliFile{"gencli/params.ts", "templates/code/yargs/gencli/params.tmpl"},
+		gencliFile{"gencli/errors.ts", "templates/code/yargs/gencli/errors.tmpl"},
+		gencliFile{"gencli/help.ts", "templates/code/yargs/gencli/help.tmpl"},
+		gencliFile{"gencli/types.ts", "templates/code/yargs/gencli/types.tmpl"},
+		gencliFile{"gencli/run.ts", "templates/code/yargs/gencli/run.tmpl"},
+	)
 	for _, f := range supportFiles {
 		content, err := renderYargsTemplate(f.tmplPath, funcMap, allCmdsData)
 		if err != nil {
@@ -156,6 +244,41 @@ func genCLIYargs(doc *spec.Document, opts *genCLIOptions) (map[string][]byte, er
 	}
 
 	sort.Slice(cmdFiles, func(i, j int) bool { return cmdFiles[i].OutPath < cmdFiles[j].OutPath })
+	for i := range cmdFiles {
+		cmdFiles[i].GlobalFlags = globalFlags
+	}
+	// Collect the resolver functions each command file needs from gencli/config.ts,
+	// based on its own flags plus any alt-source global flags (which every leaf
+	// command handler also resolves).
+	hasGlobalAlt, _ := scanYargsAltSources(globalFlags)
+	for i := range cmdFiles {
+		seen := make(map[string]bool)
+		var imports []string
+		addResolver := func(f yargsFlagEntry) {
+			if len(f.AltSources) == 0 {
+				return
+			}
+			// Choice-typed alt-source flags also need assertChoice to validate values
+			// resolved from $ENV/$FILE against the declared choices.
+			if f.TypeName != "" && !seen["assertChoice"] {
+				seen["assertChoice"] = true
+				imports = append(imports, "assertChoice")
+			}
+			if r, ok := yargsAltSourceResolvers[f.TSType]; ok && !seen[r] {
+				seen[r] = true
+				imports = append(imports, r)
+			}
+		}
+		for _, f := range cmdFiles[i].YargsFlags {
+			addResolver(f)
+		}
+		if hasGlobalAlt {
+			for _, f := range globalFlags {
+				addResolver(f)
+			}
+		}
+		cmdFiles[i].ConfigImports = imports
+	}
 	for _, cmdFile := range cmdFiles {
 		content, err := renderYargsTemplate("templates/code/yargs/gencli/command.tmpl", funcMap, cmdFile)
 		if err != nil {
@@ -235,6 +358,7 @@ func walkYargsCmdTree(
 				IsRequired: flag.Required,
 				IsVariadic: flag.Variadic,
 				Default:    flag.Default,
+				AltSources: flag.AltSources,
 			}
 			if len(flag.Choices) > 0 && (flag.Type == "string" || flag.Type == "") && !flag.Variadic {
 				fe.TypeName = methodName + toPascalCase(flag.Name)
@@ -304,16 +428,18 @@ func walkYargsCmdTree(
 		}
 		specFlags = append(specFlags, specFlagEntry{Name: flag.Name, Summary: flag.Summary, Aliases: extraAliases})
 		yargsFlags = append(yargsFlags, yargsFlagEntry{
-			FieldName:    toCamelCase(flag.Name),
-			RawName:      flag.Name,
-			TSType:       toTSType(flag.Type, flag.Variadic),
-			IsRequired:   flag.Required,
-			IsVariadic:   flag.Variadic,
-			TypeName:     flagTypeName,
-			Choices:      choices,
-			Shorthand:    shorthand,
-			ExtraAliases: extraAliases,
-			Default:      yargsDefaultVal(flag.Default),
+			FieldName:      toCamelCase(flag.Name),
+			RawName:        flag.Name,
+			TSType:         toTSType(flag.Type, flag.Variadic),
+			IsRequired:     flag.Required,
+			IsVariadic:     flag.Variadic,
+			VariadicCoerce: yargsVariadicCoerce(flag.Type),
+			TypeName:       flagTypeName,
+			Choices:        choices,
+			Shorthand:      shorthand,
+			ExtraAliases:   extraAliases,
+			Default:        yargsDefaultVal(flag.Default),
+			AltSources:     flag.AltSources,
 		})
 	}
 
@@ -395,7 +521,139 @@ func yargsTemplateFuncMap() template.FuncMap {
 			return result
 		},
 		"joinStrings": strings.Join,
+		// requiredAltFlags returns only the flags that are both required and declare an
+		// alternative source. Such flags skip demandOption (a CLI-absent value may still
+		// resolve from env/config), so the handler must validate after resolution that at
+		// least one source produced a value before calling the action.
+		"requiredAltFlags": func(flags []yargsFlagEntry) []yargsFlagEntry {
+			var result []yargsFlagEntry
+			for _, f := range flags {
+				if f.IsRequired && len(f.AltSources) > 0 {
+					result = append(result, f)
+				}
+			}
+			return result
+		},
+		// resolveFlagValue returns the expression that yields a flag's value in
+		// generated command code. Without alternative sources it reads the parsed
+		// argv field directly; with alt-sources it calls the type-specific resolver
+		// from gencli/config.ts, which prefers an explicit CLI value and otherwise
+		// falls back to env/config in declared order. For choice-typed flags the
+		// resolved expression is additionally wrapped in assertChoice: yargs only
+		// validates values parsed from the command line against .choices(), so a
+		// value sourced from $ENV or $FILE must be checked here before it reaches
+		// the action — mirroring the IsValid() check the Go generators perform.
+		"resolveFlagValue": func(f yargsFlagEntry) string {
+			if len(f.AltSources) == 0 {
+				return plainYargsFlagExpr(f)
+			}
+			resolver, ok := yargsAltSourceResolvers[f.TSType]
+			if !ok {
+				return plainYargsFlagExpr(f)
+			}
+			names := formatTSAltNames(yargsAltSourceNames(f))
+			expr := fmt.Sprintf("%s(argv, %s, %s)", resolver, names, formatTSAltSources(f.AltSources))
+			if f.TypeName != "" {
+				expr = fmt.Sprintf("assertChoice(%q, (%s) as %s | undefined, [%s])", f.RawName, expr, f.TypeName, yargsChoicesLiteral(f.Choices))
+			}
+			return expr
+		},
 	}
+}
+
+// plainYargsFlagExpr returns the expression for a flag with no alternative sources:
+// the parsed argv field cast to its generated type (choices enum when one exists, else
+// the base TS type). This mirrors the pre-alt-source template exactly so that specs
+// without alternative sources produce byte-identical output.
+func plainYargsFlagExpr(f yargsFlagEntry) string {
+	if f.TypeName != "" {
+		return fmt.Sprintf("argv.%s as %s", f.FieldName, f.TypeName)
+	}
+	return fmt.Sprintf("argv.%s as %s", f.FieldName, f.TSType)
+}
+
+// yargsChoicesLiteral renders a flag's allowed choices as a TypeScript string array
+// literal (e.g. ["text", "json"]) for use in the assertChoice call.
+func yargsChoicesLiteral(choices []yargsChoiceEntry) string {
+	vals := make([]string, len(choices))
+	for i, c := range choices {
+		vals[i] = fmt.Sprintf("%q", c.Value)
+	}
+	return strings.Join(vals, ", ")
+}
+
+// scanYargsAltSources reports whether any flag in the slice declares an alternative
+// source (hasAlt), and specifically whether any of them is a $FILE source
+// (hasFile). A $FILE source requires the generated config code to import a JSONPath library.
+func scanYargsAltSources(flags []yargsFlagEntry) (hasAlt, hasFile bool) {
+	for _, f := range flags {
+		if len(f.AltSources) > 0 {
+			hasAlt = true
+		}
+		for _, src := range f.AltSources {
+			if src.Type == "$FILE" {
+				hasFile = true
+			}
+		}
+	}
+	return hasAlt, hasFile
+}
+
+// yargsAltSourceResolvers maps a TypeScript flag type to the generated resolver
+// function in gencli/config.ts that falls back to alternative sources when the
+// flag was not provided on the command line.
+var yargsAltSourceResolvers = map[string]string{
+	"string":    "resolveStringFlag",
+	"number":    "resolveNumberFlag",
+	"boolean":   "resolveBoolFlag",
+	"string[]":  "resolveStringSliceFlag",
+	"number[]":  "resolveNumberSliceFlag",
+	"boolean[]": "resolveBoolSliceFlag",
+}
+
+// formatTSAltSources formats a slice of spec.AlternativeSource as a TypeScript array
+// literal of the generated AltSource type, for use in generated template code.
+func formatTSAltSources(sources []spec.AlternativeSource) string {
+	if len(sources) == 0 {
+		return "[]"
+	}
+	parts := make([]string, 0, len(sources))
+	for _, s := range sources {
+		parts = append(parts, fmt.Sprintf("{ type: %q, property: %q }", s.Type, s.Property))
+	}
+	return "[" + strings.Join(parts, ", ") + "]"
+}
+
+// yargsAltSourceNames returns every option spelling that can reference the flag on the
+// command line: its camelCase field name (always first — used to read argv), its raw
+// spec name when different (yargs accepts kebab-case too), and all aliases. The generated
+// wasSetOnCli scanner matches process.argv tokens against this list, mirroring how pflag's
+// Changed and urfave/cli's IsSet account for shorthands and aliases.
+func yargsAltSourceNames(f yargsFlagEntry) []string {
+	seen := make(map[string]bool)
+	var names []string
+	add := func(s string) {
+		if s != "" && !seen[s] {
+			seen[s] = true
+			names = append(names, s)
+		}
+	}
+	add(f.FieldName)
+	add(f.RawName)
+	add(f.Shorthand)
+	for _, a := range f.ExtraAliases {
+		add(a)
+	}
+	return names
+}
+
+// formatTSAltNames formats the accepted option-name list as a TypeScript string array literal.
+func formatTSAltNames(names []string) string {
+	parts := make([]string, 0, len(names))
+	for _, n := range names {
+		parts = append(parts, fmt.Sprintf("%q", n))
+	}
+	return "[" + strings.Join(parts, ", ") + "]"
 }
 
 // yargsSpecFuncName returns the help-data factory function name for a command.
@@ -453,12 +711,56 @@ func yargsCommandDSL(cmd *spec.CommandItem) string {
 	return strings.Join(cmdDSL, " ")
 }
 
-// yargsDefaultVal returns a TypeScript literal default value for a flag.
+// yargsVariadicCoerce returns a pre-rendered JavaScript arrow function that maps
+// the array elements of a non-string variadic flag to their proper JS type, or ""
+// when no coercion is needed (non-variadics and string variadics). Yargs has no
+// native typed-array support: with only `type: "array"`, elements arrive as
+// strings (and the parser's numeric heuristic misses non-integers), so we coerce
+// explicitly. The Array.isArray guard keeps absent flags undefined rather than
+// turning them into empty arrays.
+func yargsVariadicCoerce(t string) string {
+	switch t {
+	case "integer", "number":
+		return "(v) => Array.isArray(v) ? v.map(Number) : v"
+	case "boolean":
+		return `(v) => Array.isArray(v) ? v.map((x) => x === true || x === "true") : v`
+	default:
+		return ""
+	}
+}
+
+// yargsDefaultVal returns a TypeScript literal default value for a flag. The
+// codec normalizes defaults to string/int64/float64/bool (and typed slices for
+// variadic flags); the other scalar cases are kept as defensive fallbacks.
 func yargsDefaultVal(val any) string {
-	switch val.(type) {
+	switch v := val.(type) {
+	case []string:
+		parts := make([]string, len(v))
+		for i, s := range v {
+			parts[i] = fmt.Sprintf("\"%s\"", strings.ReplaceAll(s, "\"", "\\\""))
+		}
+		return "[" + strings.Join(parts, ", ") + "]"
+	case []int64:
+		parts := make([]string, len(v))
+		for i, n := range v {
+			parts[i] = strconv.FormatInt(n, 10)
+		}
+		return "[" + strings.Join(parts, ", ") + "]"
+	case []float64:
+		parts := make([]string, len(v))
+		for i, f := range v {
+			parts[i] = strconv.FormatFloat(f, 'f', -1, 64)
+		}
+		return "[" + strings.Join(parts, ", ") + "]"
+	case []bool:
+		parts := make([]string, len(v))
+		for i, b := range v {
+			parts[i] = strconv.FormatBool(b)
+		}
+		return "[" + strings.Join(parts, ", ") + "]"
 	case string:
 		return fmt.Sprintf("\"%s\"", strings.ReplaceAll(fmt.Sprintf("%s", val), "\"", "\\\""))
-	case int, int32, int64:
+	case int, int32, int64, uint64:
 		return fmt.Sprintf("%d", val)
 	case float32, float64:
 		return fmt.Sprintf("%f", val)

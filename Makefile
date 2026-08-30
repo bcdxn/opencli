@@ -10,21 +10,23 @@ test: generate
 
 version = $(shell git describe --tags HEAD)
 
+
 .PHONY: gen-docs
 gen-docs: generate
 	@go run cmd/ocli/main.go gen docs \
 		--format markdown \
 		--out ./docs \
-		opencli.ocs.yaml
+		ocli.ocs.yaml
 	@go run cmd/ocli/main.go gen docs \
 		--format html-embed \
 		--out ./web/public \
-		opencli.ocs.yaml
+		ocli.ocs.yaml
 	@go run cmd/ocli/main.go gen docs \
 		--format man \
 		--out ./docs \
-		opencli.ocs.yaml
-	mkdir -p build && mv docs/opencli.ocs.1 build/ocli.1
+		ocli.ocs.yaml
+	mkdir -p build && mv docs/ocli.ocs.1 build/ocli.1
+
 
 .PHONY: gen-examples
 gen-examples: generate
@@ -44,6 +46,17 @@ gen-examples: generate
 		--framework cobra \
 		--out ./examples/code/cobra/pleasantries/internal \
 		./examples/pleasantries-cli.ocs.yaml
+	@go run cmd/ocli/main.go gen cli \
+		--framework urfavecli \
+		--out ./examples/code/urfavecli/pleasantries/internal \
+		./examples/pleasantries-cli.ocs.yaml
+
+.PHONY: gen-ocli
+gen-ocli:
+	@go run cmd/ocli/main.go gen cli \
+		--framework cobra \
+		--out ./internal/cli \
+		./ocli.ocs.yaml
 
 .PHONY: release
 release: gen-docs gen-examples
@@ -67,6 +80,7 @@ build-wasm: copy-wasm-exec generate
 
 .PHONY: build-ui
 build-ui: build-wasm gen-docs
+	cp ./examples/petstore-cli.ocs.yaml ./web/public/petstore-cli.ocs.yaml
 	cp ./spec.schema.json ./web/src/spec.schema.json
 	cd web && npm ci && npm run build
 

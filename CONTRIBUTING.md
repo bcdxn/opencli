@@ -80,7 +80,7 @@ To keep the project reliable, we require all code changes to be accompanied by a
 
 The code, examples, schema, and web editor are all implemented within this same repository so you can evaluate the ecosystem end to end without context switching. If you are only exploring, start with `README.md` and `examples/`; if you are validating behavior, use the build and test targets in this document.
 
-- `spec/`, `opencli.ocs.yaml`, `spec.schema.json`: Core OpenCLI spec types, canonical example spec, and JSON Schema.
+- `spec/`, `ocli.ocs.yaml`, `spec.schema.json`: Core OpenCLI spec types, canonical example spec, and JSON Schema.
 - `cmd/`: Entry points for executables (Cobra CLI and WASM target).
 - `internal/`: Internal CLI implementation details and supporting utilities.
 - `codec/`: Spec encode/decode logic and fixtures.

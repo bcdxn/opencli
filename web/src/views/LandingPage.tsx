@@ -7,7 +7,7 @@ import SiteFooter from "../components/SiteFooter";
 import React from "react";
 import { useI18n } from "../i18n";
 
-const yamlSampleEn = `opencliVersion: 1.0.0-alpha.13
+const yamlSampleEn = `opencliVersion: 1.0.0-alpha.14
 
 info:
   title: Pleasantries CLI
@@ -27,7 +27,7 @@ commands:
         type: "string"
         default: "english"`;
 
-const yamlSampleCh = `opencliVersion: 1.0.0-alpha.13
+const yamlSampleCh = `opencliVersion: 1.0.0-alpha.14
 
 info:
   title: 寒暄

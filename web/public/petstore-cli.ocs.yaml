@@ -1,4 +1,4 @@
-opencliVersion: 1.0.0-alpha.13
+opencliVersion: 1.0.0-alpha.14
 
 info:
   title: PetStore CLI
@@ -52,15 +52,35 @@ global:
     json: ~/.petstore/config.json
     toml: ~/.petstore/config.toml
     yaml: ~/.petstore/config.yaml
+  flags:
+    - name: "help"
+      aliases:
+        - "h"
+      summary: "contextual help"
+      type: boolean
+    - name: "version"
+      summary: "print the version of the CLI"
+      type: boolean
 
 commands:
   petstore {command} <arguments> [flags]:
     kind: group
 
-  petstore list [flags]:
-    aliases:
-    - ls
+  petstore list [flags] -- <arguments>:
     summary: List all endpoints available
+    args:
+    - name: http-arguments
+      type: string
+      summary: additional arguments to pass to underlying HTTP client
+      passthrough: true
+    examples:
+    - title: List all available endpoints
+      content: |
+        $ petstore list
+        # /api/pet/findByStatus   GET   Find pets by status
+        # /api/pet/findByTags     GET   Find pets by tags
+        # /api/pet/{petId}        GET   Find pet by ID
+        # /api/store/inventory    GET   Returns pet inventories by status
 
   petstore pet {command} <arguments> [flags]:
     summary: A collection of commands for managing pets
@@ -86,7 +106,7 @@ commands:
       - n
       type: string
       summary: The name of the pet
-    - name: photoUrls
+    - name: photo-urls
       aliases:
       - p
       type: string
@@ -101,12 +121,27 @@ commands:
       - value: available
       - value: pending
       - value: sold
+      default: "available"
     - name: tag
       type: string
       summary: Tag to assign to the pet for grouping/sorting
       description: |
         Provide this flag multiple times to add multiple tags.
       variadic: true
+    examples:
+    - title: Add a new pet using flags
+      content: |
+        $ petstore pet add --name "Rex" \
+          --status available \
+          --photo-urls https://example.com/photos/rex.jpg \
+          --tag dog
+        # ✓ Pet created successfully (id=101)
+    - title: Add a new pet from a JSON payload file
+      content: |
+        $ cat ./rex.json
+        # { "name": "Rex", "status": "available" }
+        $ petstore pet add ./rex.json
+        # ✓ Pet created successfully (id=102)
 
   petstore pet update [flags]:
     summary: Update an existing pet
@@ -129,7 +164,7 @@ commands:
       - value: available
       - value: pending
       - value: sold
-    - name: photoUrls
+    - name: photo-urls
       aliases:
       - p
       type: string
@@ -143,6 +178,11 @@ commands:
       description: |
         Provide this flag multiple times to add multiple tags.
       variadic: true
+    examples:
+    - title: Update a pet using flags
+      content: |
+        $ petstore pet update --status sold --tags adopted
+        # ✓ Pet updated successfully
 
   petstore pet find-by-status [flags]:
     summary: Find pets by status
@@ -155,6 +195,14 @@ commands:
       - value: pending
       - value: sold
       required: true
+    examples:
+    - title: Find all available pets
+      content: |
+        $ petstore pet find-by-status --status available
+        # [
+        #   { "id": 101, "name": "Rex", "status": "available" },
+        #   { "id": 102, "name": "Whiskers", "status": "available" }
+        # ]
 
   petstore pet find-by-tags [flags]:
     summary: Find pets by tags
@@ -173,6 +221,11 @@ commands:
       type: integer
       summary: The ID of the pet to retrieve
       required: true
+    examples:
+    - title: Find a pet by ID
+      content: |
+        $ petstore pet get --id 101
+        # { "id": 101, "name": "Rex", "status": "available" }
 
   petstore pet update-form [flags]:
     summary: Update a pet using form data
@@ -202,6 +255,11 @@ commands:
     - name: api-key
       type: string
       summary: API key header used to authorize the delete request
+    examples:
+    - title: Delete a pet with an API key header
+      content: |
+        $ petstore pet delete --id 102 --api-key demo-api-key
+        # ✓ Pet 102 deleted successfully
 
   petstore pet upload-image <path-to-file> [flags]:
     summary: Upload an image for a pet
@@ -227,6 +285,11 @@ commands:
 
   petstore store inventory:
     summary: Returns pet inventories by status
+    examples:
+    - title: Return inventories by status
+      content: |
+        $ petstore store inventory
+        # { "available": 3, "pending": 1, "sold": 5 }
 
   petstore store order {command} <arguments> [flags]:
     summary: A collection of commands for purchase orders
@@ -257,6 +320,11 @@ commands:
     - name: complete
       type: boolean
       summary: Whether the order has been completed
+    examples:
+    - title: Place an order using flags
+      content: |
+        $ petstore store order place --pet-id 101 --quantity 2
+        # { "id": 5001, "petId": 101, "quantity": 2, "status": "placed" }
 
   petstore store order get [flags]:
     summary: Find purchase order by ID
@@ -265,6 +333,11 @@ commands:
       type: integer
       summary: The ID of the order to retrieve
       required: true
+    examples:
+    - title: Find an order by ID
+      content: |
+        $ petstore store order get --id 5001
+        # { "id": 5001, "petId": 101, "quantity": 2, "status": "placed" }
 
   petstore store order delete [flags]:
     summary: Delete purchase order by ID
@@ -312,6 +385,14 @@ commands:
       type: integer
       summary: The user's status
       required: false
+    examples:
+    - title: Create a user using flags
+      content: |
+        $ petstore user create --username jane.doe \
+          --firstName Jane \
+          --lastName Doe \
+          --email jane@example.com
+        # ✓ User 'jane.doe' created successfully
 
   petstore user create-with-list <arguments>:
     summary: Create multiple users with a list
@@ -344,9 +425,25 @@ commands:
         property: PETSTORE_PASS
       - type: $FILE
         property: $.auth.pass
+    examples:
+    - title: Log in with explicit credentials
+      content: |
+        $ petstore user login --username jane.doe --password s3cret
+        # Logged in as 'jane.doe' (token expires in 7200s)
+    - title: Log in using environment variables
+      content: |
+        $ export PETSTORE_USER=jane.doe
+        $ export PETSTORE_PASS=s3cret
+        $ petstore user login
+        # Logged in as 'jane.doe' (token expires in 7200s)
 
   petstore user logout:
     summary: Log out the current user
+    examples:
+    - title: Log out the current user
+      content: |
+        $ petstore user logout
+        # ✓ Logged out successfully
 
   petstore user get [flags]:
     summary: Get user by username
