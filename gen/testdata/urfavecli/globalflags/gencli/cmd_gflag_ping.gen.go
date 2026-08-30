@@ -14,11 +14,17 @@ func NewCmdGflagPing(a ActionsInterface) *cli.Command {
 		Description: "",
 		Metadata:    map[string]any{"spec_cmd": getSpecGflagPingCmd()},
 		Action: func(ctx context.Context, c *cli.Command) error {
-			ctx = WithGlobalFlags(ctx, GlobalFlags{
+			globalFlags := GlobalFlags{
 				Debug:        c.Bool("debug"),
 				Timeout:      c.Int64("timeout"),
-				OutputFormat: resolveStringFlag(c.IsSet("output-format"), c.String("output-format"), []AltSource{{Type: "$ENV", Property: "GFLAG_OUTPUT_FORMAT"}, {Type: "$FILE", Property: "$.greeting.outputFormat"}}),
-			})
+				OutputFormat: GflagOutputFormat(resolveStringFlag(c.IsSet("output-format"), c.String("output-format"), []AltSource{{Type: "$ENV", Property: "GFLAG_OUTPUT_FORMAT"}, {Type: "$FILE", Property: "$.greeting.outputFormat"}})),
+			}
+			if globalFlags.OutputFormat != "" && !globalFlags.OutputFormat.IsValid() {
+				return BadUserInput("invalid value for --output-format flag: "+string(globalFlags.OutputFormat), func() error {
+					return a.UsageFunc(getSpecGflagPingCmd())
+				})
+			}
+			ctx = WithGlobalFlags(ctx, globalFlags)
 			return a.GflagPing(ctx)
 		},
 	}

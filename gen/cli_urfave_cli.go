@@ -61,7 +61,8 @@ type urfaveCliFlagEntry struct {
 	UrfaveFlag string // e.g. "cli.StringFlag", "cli.Int64Flag"
 	Default    string // Go literal for the default value
 	Summary    string
-	TypeName   string   // non-empty when the struct field uses a generated type (needs cast)
+	TypeName   string // non-empty when the struct field uses a generated type (needs cast)
+	Choices    []cliChoiceEntry
 	Aliases    []string // all aliases (urfave uses Aliases []string, not separate shorthand)
 	Accessor   string   // e.g. "String", "Int64", "Bool", "Float64", "StringSlice", etc.
 	AltSources []spec.AlternativeSource
@@ -101,6 +102,25 @@ func genCLIUrfaveCli(doc *spec.Document, opts *genCLIOptions) (map[string][]byte
 			if flag.Name == "help" || flag.Name == "version" {
 				continue
 			}
+
+			// Choice-constrained globals get the same enum metadata as command flags so
+			// that generated handlers validate both CLI values and alternative-sourced
+			// resolved values with IsValid(). The GoType stays the base type (not the
+			// enum name): it is used for resolver lookup in resolveFlagValue, which keys
+			// on "string"/"int64".
+			flagTypeName := ""
+			var choices []cliChoiceEntry
+			if len(flag.Choices) > 0 && (flag.Type == "string" || flag.Type == "") && !flag.Variadic {
+				flagTypeName = binaryPascal + toPascalCase(flag.Name)
+				for _, c := range flag.Choices {
+					valStr := fmt.Sprintf("%v", c.Value)
+					choices = append(choices, cliChoiceEntry{
+						ConstName: flagTypeName + toPascalCase(valStr),
+						Value:     valStr,
+					})
+				}
+			}
+
 			globalFlags = append(globalFlags, urfaveCliFlagEntry{
 				FieldName:  toPascalCase(flag.Name),
 				FlagName:   flag.Name,
@@ -108,6 +128,8 @@ func genCLIUrfaveCli(doc *spec.Document, opts *genCLIOptions) (map[string][]byte
 				UrfaveFlag: urfaveCliFlagStruct(flag.Type, flag.Variadic),
 				Default:    urfaveCliDefaultVal(flag.Default, flag.Type, flag.Variadic),
 				Summary:    flag.Summary,
+				TypeName:   flagTypeName,
+				Choices:    choices,
 				Aliases:    flag.Aliases,
 				Accessor:   urfaveCliAccessor(flag.Type, flag.Variadic),
 				AltSources: flag.AltSources,
@@ -392,6 +414,18 @@ func urfaveCliTemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
 		"goString": func(s string) string {
 			return fmt.Sprintf("%q", s)
+		},
+		// hasChoiceGlobals reports whether any global flag is choice-constrained, in which case the
+		// handler must hoist the GlobalFlags literal into a local so each entry can be validated
+		// with IsValid() before being injected into context. Specs without such flags keep the
+		// compact inline form (zero golden churn).
+		"hasChoiceGlobals": func(flags []urfaveCliFlagEntry) bool {
+			for _, f := range flags {
+				if f.TypeName != "" {
+					return true
+				}
+			}
+			return false
 		},
 		"resolveFlagValue": func(f urfaveCliFlagEntry) string {
 			// No alternative sources — read the value straight from the CLI.

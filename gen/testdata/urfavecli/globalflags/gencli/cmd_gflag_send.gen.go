@@ -21,11 +21,17 @@ func NewCmdGflagSend(a ActionsInterface) *cli.Command {
 			cmdFlags := GflagSendFlags{
 				Count: c.Int64("count"),
 			}
-			ctx = WithGlobalFlags(ctx, GlobalFlags{
+			globalFlags := GlobalFlags{
 				Debug:        c.Bool("debug"),
 				Timeout:      c.Int64("timeout"),
-				OutputFormat: resolveStringFlag(c.IsSet("output-format"), c.String("output-format"), []AltSource{{Type: "$ENV", Property: "GFLAG_OUTPUT_FORMAT"}, {Type: "$FILE", Property: "$.greeting.outputFormat"}}),
-			})
+				OutputFormat: GflagOutputFormat(resolveStringFlag(c.IsSet("output-format"), c.String("output-format"), []AltSource{{Type: "$ENV", Property: "GFLAG_OUTPUT_FORMAT"}, {Type: "$FILE", Property: "$.greeting.outputFormat"}})),
+			}
+			if globalFlags.OutputFormat != "" && !globalFlags.OutputFormat.IsValid() {
+				return BadUserInput("invalid value for --output-format flag: "+string(globalFlags.OutputFormat), func() error {
+					return a.UsageFunc(getSpecGflagSendCmd())
+				})
+			}
+			ctx = WithGlobalFlags(ctx, globalFlags)
 			return a.GflagSend(ctx, cmdArgs, cmdFlags)
 		},
 	}
