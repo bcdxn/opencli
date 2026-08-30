@@ -89,7 +89,7 @@ func (a *app) ExampleCmd(
 
 Notes:
 
-- `GlobalFlagsFromContext` returns zero values if no globals were set (e.g. when calling an action directly from a test without wrapping the context). If you need to distinguish "absent" from "zero", wrap it yourself with `gencli.WithGlobalFlags(ctx, g)` in tests — that's what the generated handler does at runtime.
+- `GlobalFlagsFromContext` returns zero values if no globals were set (e.g. when calling an action directly from a test without wrapping the context). Use `gencli.WithGlobalFlags(ctx, g)` in tests when you want to reproduce the context setup performed by the generated runtime handler.
 - The parameter types and context helpers all live in the _generated_ package (in its params file). Your implementation lives elsewhere, so everything is referenced through that package's import name — `gencli.ExampleCmdArgs`, `gencli.GlobalFlagsFromContext(ctx)`, etc.
 
 ## TypeScript (Yargs) — module-level accessors
