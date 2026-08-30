@@ -80,6 +80,7 @@ build-wasm: copy-wasm-exec generate
 
 .PHONY: build-ui
 build-ui: build-wasm gen-docs
+	cp ./examples/petstore-cli.ocs.yaml ./web/public/petstore-cli.ocs.yaml
 	cp ./spec.schema.json ./web/src/spec.schema.json
 	cd web && npm ci && npm run build
 

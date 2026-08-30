@@ -67,6 +67,12 @@
   "commands": {
     "petstore list [flags]": {
       "aliases": ["ls"],
+      "examples": [
+        {
+          "content": "$ petstore list\n# /api/pet/findByStatus   GET   Find pets by status\n# /api/pet/findByTags     GET   Find pets by tags\n# /api/pet/{petId}        GET   Find pet by ID\n# /api/store/inventory    GET   Returns pet inventories by status\n",
+          "title": "List all available endpoints"
+        }
+      ],
       "summary": "List all endpoints available"
     },
     "petstore pet add [flags]": {
@@ -80,6 +86,16 @@
         }
       ],
       "description": "Create a new pet in the store using a JSON payload or explicit flags.\n",
+      "examples": [
+        {
+          "content": "$ petstore pet add --name \"Rex\" \\\n  --status available \\\n  --photo-urls https://example.com/photos/rex.jpg \\\n  --tag dog\n# ✓ Pet created successfully (id=101)\n",
+          "title": "Add a new pet using flags"
+        },
+        {
+          "content": "$ cat ./rex.json\n# { \"name\": \"Rex\", \"status\": \"available\" }\n$ petstore pet add ./rex.json\n# ✓ Pet created successfully (id=102)\n",
+          "title": "Add a new pet from a JSON payload file"
+        }
+      ],
       "flags": [
         {
           "aliases": ["n"],
@@ -122,6 +138,12 @@
       "summary": "Add a new pet to the store"
     },
     "petstore pet delete [flags]": {
+      "examples": [
+        {
+          "content": "$ petstore pet delete --id 102 --api-key demo-api-key\n# ✓ Pet 102 deleted successfully\n",
+          "title": "Delete a pet with an API key header"
+        }
+      ],
       "flags": [
         {
           "name": "id",
@@ -138,6 +160,12 @@
       "summary": "Delete a pet"
     },
     "petstore pet find-by-status [flags]": {
+      "examples": [
+        {
+          "content": "$ petstore pet find-by-status --status available\n# [\n#   { \"id\": 101, \"name\": \"Rex\", \"status\": \"available\" },\n#   { \"id\": 102, \"name\": \"Whiskers\", \"status\": \"available\" }\n# ]\n",
+          "title": "Find all available pets"
+        }
+      ],
       "flags": [
         {
           "choices": [
@@ -172,6 +200,12 @@
       "summary": "Find pets by tags"
     },
     "petstore pet get [flags]": {
+      "examples": [
+        {
+          "content": "$ petstore pet get --id 101\n# { \"id\": 101, \"name\": \"Rex\", \"status\": \"available\" }\n",
+          "title": "Find a pet by ID"
+        }
+      ],
       "flags": [
         {
           "name": "id",
@@ -191,6 +225,12 @@
         }
       ],
       "description": "Update a pet using a JSON payload or explicit flags.\n",
+      "examples": [
+        {
+          "content": "$ petstore pet update --status sold --tags adopted\n# ✓ Pet updated successfully\n",
+          "title": "Update a pet using flags"
+        }
+      ],
       "flags": [
         {
           "aliases": ["n"],
@@ -294,6 +334,12 @@
       "summary": "A collection of commands for managing pets"
     },
     "petstore store inventory": {
+      "examples": [
+        {
+          "content": "$ petstore store inventory\n# { \"available\": 3, \"pending\": 1, \"sold\": 5 }\n",
+          "title": "Return inventories by status"
+        }
+      ],
       "summary": "Returns pet inventories by status"
     },
     "petstore store order delete [flags]": {
@@ -308,6 +354,12 @@
       "summary": "Delete purchase order by ID"
     },
     "petstore store order get [flags]": {
+      "examples": [
+        {
+          "content": "$ petstore store order get --id 5001\n# { \"id\": 5001, \"petId\": 101, \"quantity\": 2, \"status\": \"placed\" }\n",
+          "title": "Find an order by ID"
+        }
+      ],
       "flags": [
         {
           "name": "id",
@@ -327,6 +379,12 @@
         }
       ],
       "description": "Create a purchase order using a JSON payload or explicit flags.\n",
+      "examples": [
+        {
+          "content": "$ petstore store order place --pet-id 101 --quantity 2\n# { \"id\": 5001, \"petId\": 101, \"quantity\": 2, \"status\": \"placed\" }\n",
+          "title": "Place an order using flags"
+        }
+      ],
       "flags": [
         {
           "name": "pet-id",
@@ -380,6 +438,12 @@
         }
       ],
       "description": "Create a new user using a JSON payload or explicit flags.\n",
+      "examples": [
+        {
+          "content": "$ petstore user create --username jane.doe \\\n  --firstName Jane \\\n  --lastName Doe \\\n  --email jane@example.com\n# ✓ User 'jane.doe' created successfully\n",
+          "title": "Create a user using flags"
+        }
+      ],
       "flags": [
         {
           "name": "username",
@@ -462,6 +526,16 @@
       "summary": "Get user by username"
     },
     "petstore user login [flags]": {
+      "examples": [
+        {
+          "content": "$ petstore user login --username jane.doe --password s3cret\n# Logged in as 'jane.doe' (token expires in 7200s)\n",
+          "title": "Log in with explicit credentials"
+        },
+        {
+          "content": "$ export PETSTORE_USER=jane.doe\n$ export PETSTORE_PASS=s3cret\n$ petstore user login\n# Logged in as 'jane.doe' (token expires in 7200s)\n",
+          "title": "Log in using environment variables"
+        }
+      ],
       "flags": [
         {
           "alternativeSources": [
@@ -499,6 +573,12 @@
       "summary": "Log in a user"
     },
     "petstore user logout": {
+      "examples": [
+        {
+          "content": "$ petstore user logout\n# ✓ Logged out successfully\n",
+          "title": "Log out the current user"
+        }
+      ],
       "summary": "Log out the current user"
     },
     "petstore user update [flags]": {

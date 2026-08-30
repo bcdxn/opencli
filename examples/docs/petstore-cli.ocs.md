@@ -83,6 +83,18 @@ print the version of the CLI
 
 List all endpoints available
 
+#### Examples
+
+```sh
+# List all available endpoints
+
+$ petstore list
+# /api/pet/findByStatus   GET   Find pets by status
+# /api/pet/findByTags     GET   Find pets by tags
+# /api/pet/{petId}        GET   Find pet by ID
+# /api/store/inventory    GET   Returns pet inventories by status
+```
+
 ---
 
 ### `$ petstore pet {command} <arguments> [flags]`
@@ -149,6 +161,27 @@ Provide this flag multiple times to add multiple tags.
 
 `string` `variadic`
 
+#### Examples
+
+```sh
+# Add a new pet using flags
+
+$ petstore pet add --name "Rex" \
+  --status available \
+  --photo-urls https://example.com/photos/rex.jpg \
+  --tag dog
+# ✓ Pet created successfully (id=101)
+
+```
+```sh
+# Add a new pet from a JSON payload file
+
+$ cat ./rex.json
+# { "name": "Rex", "status": "available" }
+$ petstore pet add ./rex.json
+# ✓ Pet created successfully (id=102)
+```
+
 ---
 
 ### `$ petstore pet update <arguments> [flags]`
@@ -201,6 +234,15 @@ Provide this flag multiple times to add multiple tags.
 
 `string` `variadic`
 
+#### Examples
+
+```sh
+# Update a pet using flags
+
+$ petstore pet update --status sold --tags adopted
+# ✓ Pet updated successfully
+```
+
 ---
 
 ### `$ petstore pet find-by-status [flags]`
@@ -220,6 +262,18 @@ The status to filter pets by
 - `available`
 - `pending`
 - `sold`
+
+#### Examples
+
+```sh
+# Find all available pets
+
+$ petstore pet find-by-status --status available
+# [
+#   { "id": 101, "name": "Rex", "status": "available" },
+#   { "id": 102, "name": "Whiskers", "status": "available" }
+# ]
+```
 
 ---
 
@@ -250,6 +304,15 @@ Find pet by ID
 The ID of the pet to retrieve
 
 `integer`
+
+#### Examples
+
+```sh
+# Find a pet by ID
+
+$ petstore pet get --id 101
+# { "id": 101, "name": "Rex", "status": "available" }
+```
 
 ---
 
@@ -303,6 +366,15 @@ API key header used to authorize the delete request
 
 `string`
 
+#### Examples
+
+```sh
+# Delete a pet with an API key header
+
+$ petstore pet delete --id 102 --api-key demo-api-key
+# ✓ Pet 102 deleted successfully
+```
+
 ---
 
 ### `$ petstore pet upload-image <arguments> [flags]`
@@ -346,6 +418,15 @@ A collection of commands for store operations
 ### `$ petstore store inventory`
 
 Returns pet inventories by status
+
+#### Examples
+
+```sh
+# Return inventories by status
+
+$ petstore store inventory
+# { "available": 3, "pending": 1, "sold": 5 }
+```
 
 ---
 
@@ -403,6 +484,15 @@ Whether the order has been completed
 
 `boolean`
 
+#### Examples
+
+```sh
+# Place an order using flags
+
+$ petstore store order place --pet-id 101 --quantity 2
+# { "id": 5001, "petId": 101, "quantity": 2, "status": "placed" }
+```
+
 ---
 
 ### `$ petstore store order get [flags]`
@@ -416,6 +506,15 @@ Find purchase order by ID
 The ID of the order to retrieve
 
 `integer`
+
+#### Examples
+
+```sh
+# Find an order by ID
+
+$ petstore store order get --id 5001
+# { "id": 5001, "petId": 101, "quantity": 2, "status": "placed" }
+```
 
 ---
 
@@ -491,6 +590,18 @@ The user's status
 
 `integer`
 
+#### Examples
+
+```sh
+# Create a user using flags
+
+$ petstore user create --username jane.doe \
+  --firstName Jane \
+  --lastName Doe \
+  --email jane@example.com
+# ✓ User 'jane.doe' created successfully
+```
+
 ---
 
 ### `$ petstore user create-with-list <arguments>`
@@ -537,11 +648,38 @@ The user's password
 - `env:$PETSTORE_PASS`
 - `file:$.auth.pass`
 
+#### Examples
+
+```sh
+# Log in with explicit credentials
+
+$ petstore user login --username jane.doe --password s3cret
+# Logged in as 'jane.doe' (token expires in 7200s)
+
+```
+```sh
+# Log in using environment variables
+
+$ export PETSTORE_USER=jane.doe
+$ export PETSTORE_PASS=s3cret
+$ petstore user login
+# Logged in as 'jane.doe' (token expires in 7200s)
+```
+
 ---
 
 ### `$ petstore user logout`
 
 Log out the current user
+
+#### Examples
+
+```sh
+# Log out the current user
+
+$ petstore user logout
+# ✓ Logged out successfully
+```
 
 ---
 
