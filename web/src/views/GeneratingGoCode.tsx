@@ -563,9 +563,8 @@ function GeneratingGoCodePage() {
               your document declares root-level flags. Note that{" "}
               <span className="guide-inline-code">GlobalFlagsFromContext</span>{" "}
               returns zero values if no globals were set (e.g., when calling an
-              action directly from a test without wrapping the context) — if you
-              need to distinguish &ldquo;absent&rdquo; from &ldquo;zero&rdquo;,
-              wrap it yourself with{" "}
+              action directly from a test without wrapping the context). To
+              mirror runtime context setup in tests, wrap it yourself with{" "}
               <span className="guide-inline-code">
                 gencli.WithGlobalFlags(ctx, g)
               </span>{" "}
