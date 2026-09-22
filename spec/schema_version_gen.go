@@ -3,4 +3,4 @@
 package spec
 
 // SchemaVersion is the version declared by the canonical OpenCLI schema.
-const SchemaVersion = "1.0.0-alpha.15"
+const SchemaVersion = "1.0.0-alpha.16"

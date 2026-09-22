@@ -15,19 +15,13 @@ npm install @openclidev/specification
 Import the schema directly:
 
 ```typescript
-import schema from "@openclidev/specification";
+import schema from "@openclidev/specification" with { type: "json" };
 ```
 
 Or reference the schema file:
 
 ```text
 @openclidev/specification/schema/opencli.schema.json
-```
-
-The schema is also available via the `schema` export:
-
-```typescript
-import schema from "@openclidev/specification/schema";
 ```
 
 ## Source of Truth
