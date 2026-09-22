@@ -231,8 +231,8 @@ func main() {
     },
   }
 
-  // Add the hidden __opencli command
-  ourfave.FromCommand(command, ourfave.WithOutput(os.Stdout))
+  // Add the hidden __opencli command, plus a visible `docgen` alias
+  ourfave.FromCommand(command, ourfave.WithPublicCommand("docgen"))
 
   app := command.App()
   app.Run(context.Background(), preprocessArgs(os.Args))
@@ -249,6 +249,19 @@ pleasantries __opencli
 #   summary: A fun CLI that greets the caller
 # commands:
 #   ...
+```
+
+`__opencli` is always attached and hidden, so it works as a stable machine-facing
+contract. `WithPublicCommand` adds a visible command with the same behaviour so
+users (and AI agents reading `--help`) can discover it. Both accept `--format yaml|json`
+and `-o/--out <file>`.
+
+The `ocli` CLI accepts a binary in place of a spec file and tries `__opencli`
+first, then `docgen`, so it works with CLIs that expose either command:
+
+```sh
+ocli check ./pleasantries
+ocli gen docs --format markdown --out ./docs ./pleasantries
 ```
 
 ## The Spec
