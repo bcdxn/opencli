@@ -1,0 +1,65 @@
+name: Publish Specification
+
+on:
+  push:
+    tags:
+      - "spec/v*"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    name: Publish @openclidev/specification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Extract version
+        id: version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          VERSION="${TAG#spec/v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Publishing version: $VERSION"
+
+      - name: Prepare package
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          mkdir -p npm/specification/schema
+
+          cp spec.schema.json \
+             npm/specification/schema/opencli.schema.json
+
+          sed "s/###VERSION###/$VERSION/g" \
+            npm/specification/package.json.template \
+            > npm/specification/package.json
+
+      - name: Verify package
+        working-directory: npm/specification
+        run: |
+          echo "Generated package.json:"
+          cat package.json
+
+          echo
+          echo "Package contents:"
+          npm pack --dry-run
+
+          test -f schema/opencli.schema.json
+
+      # - name: Publish
+      #   working-directory: npm/specification
+      #   run: npm publish --provenance --access public
