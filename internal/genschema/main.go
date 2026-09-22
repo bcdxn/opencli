@@ -71,8 +71,9 @@ func readVersion(path string) (string, error) {
 	versions := document.Properties.OpenCLIVersion.Enum
 
 	if len(versions) < 1 || versions[len(versions)-1] == "" {
-		return "", fmt.Errorf("schema properties.opencliVersion.enum must contain exactly one non-empty string")
+		return "", fmt.Errorf("schema properties.opencliVersion.enum must contain at least one non-empty string")
 	}
+	// take most recent version (versions will be in ascending order in the schema)
 	version := versions[len(versions)-1]
 
 	const schemaSuffix = "/spec.schema.json"

@@ -868,7 +868,7 @@ func TestCLI_Yargs_ConfigEmissionConditional(t *testing.T) {
 	}
 
 	t.Run("no_alt_sources", func(t *testing.T) {
-		files := generate(t, `opencliVersion: 1.0.0-alpha.14
+		files := generate(t, `opencliVersion: `+spec.SchemaVersion+`
 info:
   title: minimal cli for alt-source emission test
   binary: minicli
