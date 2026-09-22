@@ -172,3 +172,41 @@ func TestCLI_YargsGlobalVariadicBoolean(t *testing.T) {
 		t.Error(`expected "verbose?: boolean[] | undefined;" in GlobalFlags interface`)
 	}
 }
+
+// TestCLI_YargsRequiredVariadicFlag ensures a flag that is both required and
+// variadic is registered as a demanded array option, so yargs rejects zero
+// occurrences while still accepting many values.
+func TestCLI_YargsRequiredVariadicFlag(t *testing.T) {
+	doc := &spec.Document{
+		OpenCLIVersion: "1.0.0-alpha.14",
+		Info:           spec.Info{Title: "VarTest CLI", Binary: "vartest"},
+		Commands: &spec.CommandItem{
+			Segment: "greet",
+			Flags: []spec.FlagItem{
+				{Name: "items", Type: "string", Variadic: true, Required: true},
+			},
+		},
+	}
+
+	files, err := CLI(doc, GenCLIWithFramework(YargsFramework))
+	if err != nil {
+		t.Fatalf("unexpected error generating yargs output: %v", err)
+	}
+
+	var all strings.Builder
+	for _, content := range files {
+		all.Write(content)
+		all.WriteByte('\n')
+	}
+	got := all.String()
+
+	if !strings.Contains(got, `type: "array",`) {
+		t.Error("expected required variadic flag to be registered as an array option")
+	}
+	if !strings.Contains(got, "demandOption: true,") {
+		t.Error("expected required variadic flag to emit demandOption: true")
+	}
+	if !strings.Contains(got, `"items": string[]`) {
+		t.Error("expected required variadic flag to be a non-optional string[] field in the argv interface")
+	}
+}
