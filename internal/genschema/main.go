@@ -81,7 +81,7 @@ func readVersion(path string) (string, error) {
 		return "", fmt.Errorf("schema $id must end with %q", schemaSuffix)
 	}
 	idWithoutSuffix := strings.TrimSuffix(document.ID, schemaSuffix)
-	idVersion := idWithoutSuffix[strings.LastIndex(idWithoutSuffix, "/")+1:]
+	idVersion := idWithoutSuffix[strings.LastIndex(idWithoutSuffix, "/v")+2:]
 	if idVersion != version {
 		return "", fmt.Errorf("schema $id version %q does not match opencliVersion enum %q", idVersion, version)
 	}
@@ -90,7 +90,7 @@ func readVersion(path string) (string, error) {
 }
 
 var (
-quotedVersionPattern = regexp.MustCompile(`(opencliVersion["']?\s*:\s*["'])([^"']+)(["'])`)
+	quotedVersionPattern = regexp.MustCompile(`(opencliVersion["']?\s*:\s*["'])([^"']+)(["'])`)
 	bareVersionPattern   = regexp.MustCompile(`(opencliVersion\s*:\s*)([0-9][^[:space:]#,}]+)`)
 )
 
