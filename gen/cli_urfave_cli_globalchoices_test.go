@@ -15,7 +15,7 @@ import (
 // their plain Go types (no cast, no validation) to avoid golden churn for specs without choices.
 func TestCLI_UrfaveCliGlobalChoicesValidation(t *testing.T) {
 	doc := &spec.Document{
-		OpenCLIVersion: "1.0.0-alpha.14",
+		OpenCLIVersion: spec.SchemaVersion,
 		Info:           spec.Info{Title: "GChoice CLI", Binary: "gchoice"},
 		Global: &spec.Global{
 			Flags: []spec.FlagItem{

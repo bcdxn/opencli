@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bcdxn/opencli/spec"
 	"github.com/bcdxn/opencli/validate"
 )
 
@@ -145,7 +146,7 @@ func TestValidationError_PathFormatting(t *testing.T) {
 }
 
 func TestValidateYAML_DuplicateFlagNames(t *testing.T) {
-	yaml := `opencliVersion: 1.0.0-alpha.14
+	yaml := `opencliVersion: ` + spec.SchemaVersion + `
 info:
   title: Test CLI
   version: "1.0.0"
@@ -259,7 +260,7 @@ func TestValidateJSON_InvalidSchema(t *testing.T) {
 
 func TestValidateYAML_SchemaValidationErrorFormatting(t *testing.T) {
 	// Invalid schema produces a schemaValidationError which uses writeSchemaError
-	err := validate.ValidateYAML([]byte(`opencliVersion: 1.0.0-alpha.14`))
+	err := validate.ValidateYAML([]byte("opencliVersion: " + spec.SchemaVersion))
 	if err == nil {
 		t.Fatal("expected schema validation error")
 	}
