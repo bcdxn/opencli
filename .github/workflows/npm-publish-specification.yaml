@@ -31,9 +31,43 @@ jobs:
         env:
           TAG: ${{ github.ref_name }}
         run: |
+          if [[ ! "$TAG" =~ ^spec/v.+$ ]]; then
+            echo "ERROR: Invalid specification tag: $TAG"
+            exit 1
+          fi
+
           VERSION="${TAG#spec/v}"
+
+          SCHEMA_VERSION="$(jq -r '
+            .properties.opencliVersion.enum as $versions
+            | if ($versions | type) == "array" and ($versions | length) == 1 and ($versions[0] | type) == "string"
+              then $versions[0]
+              else empty
+              end
+          ' spec.schema.json)"
+
+          if [[ -z "$SCHEMA_VERSION" ]]; then
+            echo "ERROR: Could not determine the schema version from spec.schema.json"
+            exit 1
+          fi
+
+          if [[ "$VERSION" != "$SCHEMA_VERSION" ]]; then
+            echo "ERROR: Tag version $VERSION does not match schema version $SCHEMA_VERSION"
+            exit 1
+          fi
+
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Publishing version: $VERSION"
+
+          if [[ "$VERSION" =~ -([a-zA-Z]+)\.[0-9]+$ ]]; then
+            DIST_TAG="${BASH_REMATCH[1]}"
+          else
+            DIST_TAG="latest"
+          fi
+
+          echo "dist_tag=$DIST_TAG" >> "$GITHUB_OUTPUT"
+
+          echo "Version: $VERSION"
+          echo "Dist tag: $DIST_TAG"
 
       - name: Prepare package
         env:
@@ -44,8 +78,10 @@ jobs:
           cp spec.schema.json \
              npm/specification/schema/opencli.schema.json
 
-          sed "s/###VERSION###/$VERSION/g" \
-            npm/specification/package.json.template \
+          cp LICENSE npm/specification/LICENSE
+
+          sed "s|{{VERSION}}|$VERSION|g" \
+            npm/specification/package.json.tmpl \
             > npm/specification/package.json
 
       - name: Verify package
@@ -59,7 +95,10 @@ jobs:
           npm pack --dry-run
 
           test -f schema/opencli.schema.json
+          test -f LICENSE
 
-      # - name: Publish
-      #   working-directory: npm/specification
-      #   run: npm publish --provenance --access public
+      - name: Publish
+        working-directory: npm/specification
+        env:
+          DIST_TAG: ${{ steps.version.outputs.dist_tag }}
+        run: npm publish --provenance --access public --tag "$DIST_TAG"

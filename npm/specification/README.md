@@ -32,7 +32,7 @@ import schema from "@openclidev/specification/schema";
 
 ## Source of Truth
 
-The OpenCLI specification and its JSON Schema are maintained in the [OpenCLI repository](https://github.com/openclidev/opencli). This package is a distribution of the canonical schema for use by tools and implementations across the [ecosystem](https://github.com/bcdxn/opencli#ecosystem).
+The OpenCLI specification and its JSON Schema are maintained in the [OpenCLI repository](https://github.com/bcdxn/opencli). This package is a distribution of the canonical schema for use by tools and implementations across the [ecosystem](https://github.com/bcdxn/opencli#ecosystem).
 
 ## License
 
