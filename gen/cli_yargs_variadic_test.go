@@ -14,7 +14,7 @@ import (
 // typed. String variadics must remain byte-identical to prior output.
 func TestCLI_YargsVariadicNonString(t *testing.T) {
 	doc := &spec.Document{
-		OpenCLIVersion: "1.0.0-alpha.14",
+		OpenCLIVersion: spec.SchemaVersion,
 		Info:           spec.Info{Title: "VarTest CLI", Binary: "vartest"},
 		Commands: &spec.CommandItem{
 			Segment: "greet",
@@ -78,7 +78,7 @@ func TestCLI_YargsVariadicNonString(t *testing.T) {
 // on GlobalFlags. String variadics must keep string:true (golden parity).
 func TestCLI_YargsGlobalVariadicNonString(t *testing.T) {
 	doc := &spec.Document{
-		OpenCLIVersion: "1.0.0-alpha.14",
+		OpenCLIVersion: spec.SchemaVersion,
 		Info:           spec.Info{Title: "GVarTest CLI", Binary: "gvar"},
 		Global: &spec.Global{
 			Config: spec.Configuration{},
@@ -135,7 +135,7 @@ func TestCLI_YargsGlobalVariadicNonString(t *testing.T) {
 // the boolean coerce function rather than string:true.
 func TestCLI_YargsGlobalVariadicBoolean(t *testing.T) {
 	doc := &spec.Document{
-		OpenCLIVersion: "1.0.0-alpha.14",
+		OpenCLIVersion: spec.SchemaVersion,
 		Info:           spec.Info{Title: "GBoolTest CLI", Binary: "gbool"},
 		Global: &spec.Global{
 			Config: spec.Configuration{},

@@ -1,6 +1,17 @@
 .PHONY: generate
 generate:
 	go generate ./...
+	cp ./spec.schema.json ./validate/spec.schema.json
+	cp ./spec.schema.json ./web/src/spec.schema.json
+
+.PHONY: update-schema-version
+update-schema-version:
+	go run ./internal/genschema \
+		-schema ./spec.schema.json \
+		-out ./spec/schema_version_gen.go \
+		-update-documents \
+		-document-root .
+	$(MAKE) generate
 
 .PHONY: test
 test: generate
