@@ -1,0 +1,31 @@
+{
+  "name": "@openclidev/specification",
+  "version": "{{VERSION}}",
+  "description": "The canonical JSON Schema for the OpenCLI specification.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bcdxn/opencli.git"
+  },
+  "license": "MIT",
+  "files": [
+    "schema",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": "./schema/opencli.schema.json",
+    "./schema": "./schema/opencli.schema.json",
+    "./schema/opencli.schema.json": "./schema/opencli.schema.json",
+    "./package.json": "./package.json"
+  },
+  "keywords": [
+    "opencli",
+    "cli",
+    "specification",
+    "json-schema",
+    "cli-specification"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

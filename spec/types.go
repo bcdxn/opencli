@@ -1,5 +1,7 @@
 package spec
 
+//go:generate go run ../internal/genschema -schema ../spec.schema.json -out schema_version_gen.go
+
 // Document represents the top-level OpenCLI document.
 type Document struct {
 	OpenCLIVersion string

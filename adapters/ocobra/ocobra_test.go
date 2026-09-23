@@ -27,7 +27,7 @@ func TestGenerateDocument_Basic(t *testing.T) {
 
 	doc := GenerateDocument(root)
 
-	if doc.OpenCLIVersion != defaultOpenCLIVersion {
+	if doc.OpenCLIVersion != spec.SchemaVersion {
 		t.Fatalf("unexpected version: %s", doc.OpenCLIVersion)
 	}
 	if doc.Info.Binary != "myapp" {

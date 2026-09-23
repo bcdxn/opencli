@@ -40,6 +40,7 @@ You can also go to our releases page to download platform specific binaries.
 - [OpenCLI CLI](#opencli-cli)
 - [Live Editor](#live-editor)
 - [Examples](#examples)
+- [Ecosystem](#ecosystem)
 - [The Spec](#the-spec)
 - [Releases](#releases)
 - [Inspiration](#inspiration)
@@ -88,7 +89,7 @@ The CLI above can be described using an OpenCLI Specification Document in YAML (
 ```yaml
 # cli.yaml
 
-opencliVersion: 1.0.0-alpha.14
+opencliVersion: 1.0.0-alpha.16
 
 info:
   title: Pleasantries
@@ -243,7 +244,7 @@ Run the CLI to generate the OpenCLI document.
 
 ```sh
 pleasantries __opencli
-# opencliVersion: 1.0.0-alpha.14
+# opencliVersion: 1.0.0-alpha.16
 # info:
 #   title: pleasantries
 #   summary: A fun CLI that greets the caller
@@ -263,6 +264,13 @@ first, then `docgen`, so it works with CLIs that expose either command:
 ocli check ./pleasantries
 ocli gen docs --format markdown --out ./docs ./pleasantries
 ```
+## Ecosystem
+
+Community projects built on the OpenCLI Specification:
+
+- [clidoc](https://github.com/bhouston/clidoc) - TypeScript tooling that generates OpenCLI documents from Yargs, Commander, and oclif CLIs, validates them, and publishes Markdown to Docusaurus and VitePress. Includes an MCP server and a [GitHub Action](https://github.com/bhouston/clidoc-action) for validating specs in CI.
+
+Building on OpenCLI? Open a pull request to add your project here.
 
 ## The Spec
 

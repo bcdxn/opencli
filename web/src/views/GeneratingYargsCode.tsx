@@ -4,6 +4,7 @@ import React, { useState, useCallback } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { nord } from "react-syntax-highlighter/dist/esm/styles/prism";
 import SiteHeader from "../components/SiteHeader";
+import { schemaVersion } from "../schemaVersion";
 import "./Docs.css";
 
 // ── Highlighted Code Block (with syntax highlighting) ─────────────────────────
@@ -161,7 +162,7 @@ function GeneratingYargsCodePage() {
           <HighlightedCodeBlock
             language="yaml"
             lines={[
-              `opencliVersion: 1.0.0-alpha.14`,
+              `opencliVersion: ${schemaVersion}`,
               ``,
               `info:`,
               `  title: Pleasantries`,

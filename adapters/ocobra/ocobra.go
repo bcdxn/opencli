@@ -24,8 +24,6 @@ import (
 	"github.com/spf13/pflag"
 )
 
-const defaultOpenCLIVersion = "1.0.0-alpha.14"
-
 // config holds the functional-option state.
 type config struct {
 	info        *spec.Info
@@ -143,7 +141,7 @@ func GenerateDocument(rootCmd *cobra.Command, opts ...Option) *spec.Document {
 
 func documentFromCommand(rootCmd *cobra.Command, c *config) *spec.Document {
 	var doc spec.Document
-	doc.OpenCLIVersion = defaultOpenCLIVersion
+	doc.OpenCLIVersion = spec.SchemaVersion
 	doc.Info = c.getInfo()
 	if doc.Info.Binary == "" {
 		doc.Info.Binary = GetBinaryName(rootCmd)

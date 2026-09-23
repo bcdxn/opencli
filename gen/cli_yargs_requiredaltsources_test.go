@@ -14,7 +14,7 @@ import (
 // must not be validated, and required flags WITHOUT alternative sources keep plain demandOption.
 func TestCLI_YargsRequiredAltSourcesValidation(t *testing.T) {
 	doc := &spec.Document{
-		OpenCLIVersion: "1.0.0-alpha.14",
+		OpenCLIVersion: spec.SchemaVersion,
 		Info:           spec.Info{Title: "ReqAlt CLI", Binary: "reqalt"},
 		Commands: &spec.CommandItem{
 			Segment: "login",
@@ -111,7 +111,7 @@ func TestCLI_YargsRequiredAltSourcesValidation(t *testing.T) {
 func TestCLI_YargsRequiredAltSourcesGlobalValidation(t *testing.T) {
 	makeDoc := func(globalFlags []spec.FlagItem, cmdFlags []spec.FlagItem) *spec.Document {
 		return &spec.Document{
-			OpenCLIVersion: "1.0.0-alpha.14",
+			OpenCLIVersion: spec.SchemaVersion,
 			Info:           spec.Info{Title: "ReqAlt Global CLI", Binary: "reqaltg"},
 			Global:         &spec.Global{Flags: globalFlags},
 			Commands: &spec.CommandItem{
