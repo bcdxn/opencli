@@ -355,7 +355,7 @@ func validateFileReferences(cmdLine, itemName, itemType string, index int, altSo
 	return nil
 }
 
-// validateFlagConstraints checks for duplicate flag names/aliases and variadic+required constraints
+// validateFlagConstraints checks for duplicate flag names/aliases and minItems/maxItems constraints
 func validateFlagConstraints(cmd *spec.CommandItem) error {
 	// Check for duplicate flag names and aliases
 	seen := make(map[string]int)
@@ -387,14 +387,6 @@ func validateFlagConstraints(cmd *spec.CommandItem) error {
 				}
 			}
 			seen[alias] = i
-		}
-
-		// Validate variadic flags aren't required
-		if flag.Variadic && flag.Required {
-			return &ValidationError{
-				Message: fmt.Sprintf("variadic flag '%s' cannot be marked as required (variadic flags can be provided 0 or more times)", flagName),
-				Path:    fmt.Sprintf("command '%s', flags[%d]", cmd.CommandLine, i),
-			}
 		}
 
 		// Check minItems/maxItems are only used with variadic

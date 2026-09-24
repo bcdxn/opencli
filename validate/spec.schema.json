@@ -385,7 +385,7 @@
         },
         "variadic": {
           "type": "boolean",
-          "description": "Indicates if the the flag value is variadic. Variadic flags can be supplied multiple times. e.g.: `--flag value --flag value_two --flag value_three`",
+          "description": "Indicates if the the flag value is variadic. Variadic flags can be supplied multiple times. e.g.: `--flag value --flag value_two --flag value_three`. A variadic flag may also be `required`, meaning it must be supplied at least once. Use `minItems`/`maxItems` to constrain the number of values when the flag is supplied.",
           "default": false
         },
         "minItems": {
@@ -434,7 +434,7 @@
         },
         "required": {
           "type": "boolean",
-          "description": "Determines if the flag is mandatory. If required flags are not supplied, the command will exit in error.",
+          "description": "Determines if the flag is mandatory. If required flags are not supplied, the command will exit in error. May be combined with `variadic` to require a flag that accepts multiple values.",
           "default": false
         },
         "default": {
