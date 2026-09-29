@@ -206,7 +206,7 @@ func TestCLI_YargsRequiredVariadicFlag(t *testing.T) {
 	if !strings.Contains(got, "demandOption: true,") {
 		t.Error("expected required variadic flag to emit demandOption: true")
 	}
-	if !strings.Contains(got, `"items": string[]`) {
-		t.Error("expected required variadic flag to be a non-optional string[] field in the argv interface")
+	if !strings.Contains(string(files["gencli/params.ts"]), "  items: string[];\n") {
+		t.Error("expected required variadic flag to be a non-optional string[] field in the action flags interface")
 	}
 }
