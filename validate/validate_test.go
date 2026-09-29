@@ -80,13 +80,6 @@ func TestValidateYAML_LogicalValidationErrors(t *testing.T) {
 			wantErr: "argument 'name' has minItems but is not variadic",
 		},
 		{
-			name: "variadic flag cannot be required",
-			input: replaceOnce(t, petstoreYAML,
-				"      variadic: true",
-				"      variadic: true\n      required: true"),
-			wantErr: "variadic flag 'photo-urls' cannot be marked as required",
-		},
-		{
 			name: "duplicate flag alias",
 			input: replaceOnce(t, pleasantriesYAML,
 				"    examples:",
@@ -277,5 +270,17 @@ func TestValidateJSON_UnmarshalError(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "error unmarshalling document") {
 		t.Fatalf("expected unmarshal error message, got: %v", err)
+	}
+}
+
+// TestValidateYAML_RequiredVariadicFlag ensures a flag may be both required and
+// variadic (must be supplied at least once, accepts multiple values). See
+// https://github.com/bcdxn/opencli/issues/20.
+func TestValidateYAML_RequiredVariadicFlag(t *testing.T) {
+	input := replaceOnce(t, petstoreYAML,
+		"      variadic: true",
+		"      variadic: true\n      required: true")
+	if err := validate.ValidateYAML(input); err != nil {
+		t.Fatalf("required variadic flag should validate, got: %v", err)
 	}
 }
