@@ -66,7 +66,7 @@ func getSpecOcliGenDocsCmd() *spec.CommandItem {
 			"[flags]",
 		},
 		Args: []spec.ArgumentItem{
-			{Name: "path-to-spec", Summary: "Path to the OpenCLI Spec document"},
+			{Name: "path-to-spec", Summary: "Path to the OpenCLI Spec document, or a CLI binary that emits one via `__opencli` or `docgen`"},
 		},
 		Flags: []spec.FlagItem{
 			{Name: "format", Summary: "The format of the documentation to generate"},

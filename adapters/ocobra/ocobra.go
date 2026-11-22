@@ -1,7 +1,8 @@
 // Package ocobra provides the ability to create OpenCLI documents from existing Cobra CLIs.
 //
-// It attaches a hidden subcommand to an existing Cobra root command that, when
-// invoked, walks the entire command tree and emits a valid OpenCLI spec document.
+// It attaches a hidden "__opencli" subcommand (and optionally a visible one via
+// WithPublicCommand) to an existing Cobra root command that, when invoked,
+// walks the entire command tree and emits a valid OpenCLI spec document.
 //
 // Typical usage:
 //
@@ -30,6 +31,7 @@ type config struct {
 	globalFlags []spec.FlagItem
 	output      io.Writer
 	format      codec.Format
+	publicName  string
 }
 
 func (c *config) getInfo() spec.Info {
@@ -64,25 +66,47 @@ func WithFormat(f codec.Format) Option {
 	return func(c *config) { c.format = f }
 }
 
+// WithPublicCommand additionally attaches a visible subcommand with the given
+// name (e.g. "docgen") that behaves exactly like the hidden "__opencli" command.
+// A visible command advertises in help output that the CLI can describe itself.
+func WithPublicCommand(name string) Option {
+	return func(c *config) { c.publicName = name }
+}
+
 // WithOutput sets the io.Writer for the generated spec.
 // Defaults to os.Stdout if omitted.
 func WithOutput(w io.Writer) Option {
 	return func(c *config) { c.output = w }
 }
 
-// FromCommand attaches a hidden "__opencli" subcommand to rootCmd.
-// Running that subcommand walks the Cobra command tree and writes an OpenCLI
-// spec document to the configured output (default: stdout).
+// generatorAnnotation marks subcommands attached by FromCommand so the tree walk
+// can skip them.
+const generatorAnnotation = "opencli.generator"
+
+// FromCommand attaches a hidden "__opencli" subcommand to rootCmd, plus a visible
+// one when WithPublicCommand is used. Running either subcommand walks the Cobra
+// command tree and writes an OpenCLI spec document to the configured output
+// (default: stdout).
 func FromCommand(rootCmd *cobra.Command, opts ...Option) {
 	c := defaultConfigWithOptions(opts...)
-	var flagOut string
+
+	rootCmd.AddCommand(newGenCmd(rootCmd, c, "__opencli", true))
+	if c.publicName != "" {
+		rootCmd.AddCommand(newGenCmd(rootCmd, c, c.publicName, false))
+	}
+}
+
+func newGenCmd(rootCmd *cobra.Command, c *config, name string, hidden bool) *cobra.Command {
+	var flagOut, flagFormat string
 
 	genCmd := &cobra.Command{
-		Use:    "__opencli",
-		Short:  "Generates OpenCLI specification",
-		Hidden: true,
-		Args:   cobra.NoArgs,
+		Use:         name,
+		Short:       "Generate the OpenCLI specification for this CLI",
+		Hidden:      hidden,
+		Annotations: map[string]string{generatorAnnotation: "true"},
+		Args:        cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			out := c.output
 			if flagOut != "" {
 				// The user has passed a file to output to
 				f, err := os.OpenFile(flagOut, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
@@ -90,17 +114,21 @@ func FromCommand(rootCmd *cobra.Command, opts ...Option) {
 					return fmt.Errorf("unable to write opencli doc to specified file: %w", err)
 				}
 				defer f.Close()
-
-				c.output = f
+				out = f
+			}
+			format := c.format
+			if flagFormat != "" {
+				format = codec.Format(flagFormat)
 			}
 			doc := documentFromCommand(rootCmd, c)
-			return writeDoc(c.output, doc, c.format)
+			return writeDoc(out, doc, format)
 		},
 	}
 
-	genCmd.Flags().StringVarP(&flagOut, "out", "o", "", "The path to the directory where the generated code will be output")
+	genCmd.Flags().StringVarP(&flagOut, "out", "o", "", "The path to the file where the generated spec will be written (default: stdout)")
+	genCmd.Flags().StringVar(&flagFormat, "format", "", "The output format: yaml or json")
 
-	rootCmd.AddCommand(genCmd)
+	return genCmd
 }
 
 // GenerateDocument walks a Cobra command tree and returns the corresponding
@@ -222,8 +250,8 @@ func commandFromCobra(cmd *cobra.Command, parent *spec.CommandItem) *spec.Comman
 
 	// Recurse into children
 	for _, child := range cmd.Commands() {
-		if child.Use == "__opencli" {
-			continue // skip our own genator command
+		if child.Annotations[generatorAnnotation] != "" {
+			continue // skip our own generator commands
 		}
 		childItem := commandFromCobra(child, item)
 		item.Commands = append(item.Commands, childItem)

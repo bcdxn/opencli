@@ -60,7 +60,7 @@ func getSpecOcliGenCliCmd() *spec.CommandItem {
 			"[flags]",
 		},
 		Args: []spec.ArgumentItem{
-			{Name: "path-to-spec", Summary: "The spec used to generate the code"},
+			{Name: "path-to-spec", Summary: "The spec used to generate the code, or a CLI binary that emits one via `__opencli` or `docgen`"},
 		},
 		Flags: []spec.FlagItem{
 			{Name: "out", Summary: "The path to the directory where the generated code will be output"},

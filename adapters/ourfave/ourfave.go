@@ -1,7 +1,8 @@
 // Package ourfave provides the ability to create OpenCLI documents from existing urfave/cli v3 CLIs.
 //
-// It attaches a hidden subcommand to an existing urfave/cli root command that, when
-// invoked, walks the entire command tree and emits a valid OpenCLI spec document.
+// It attaches a hidden "__opencli" subcommand (and optionally a visible one via
+// WithPublicCommand) to an existing urfave/cli root command that, when invoked,
+// walks the entire command tree and emits a valid OpenCLI spec document.
 //
 // Typical usage:
 //
@@ -30,6 +31,7 @@ type config struct {
 	globalFlags []spec.FlagItem
 	output      io.Writer
 	format      codec.Format
+	publicName  string
 }
 
 func (c *config) getInfo() spec.Info {
@@ -64,43 +66,71 @@ func WithFormat(f codec.Format) Option {
 	return func(c *config) { c.format = f }
 }
 
+// WithPublicCommand additionally attaches a visible subcommand with the given
+// name (e.g. "docgen") that behaves exactly like the hidden "__opencli" command.
+// A visible command advertises in help output that the CLI can describe itself.
+func WithPublicCommand(name string) Option {
+	return func(c *config) { c.publicName = name }
+}
+
 // WithOutput sets the io.Writer for the generated spec.
 // Defaults to os.Stdout if omitted.
 func WithOutput(w io.Writer) Option {
 	return func(c *config) { c.output = w }
 }
 
-// FromCommand attaches a hidden "__opencli" subcommand to rootCmd.
-// Running that subcommand walks the urfave/cli command tree and writes an OpenCLI
-// spec document to the configured output (default: stdout).
+// generatorMetadata marks subcommands attached by FromCommand so the tree walk
+// can skip them.
+const generatorMetadata = "opencli.generator"
+
+// FromCommand attaches a hidden "__opencli" subcommand to rootCmd, plus a visible
+// one when WithPublicCommand is used. Running either subcommand walks the
+// urfave/cli command tree and writes an OpenCLI spec document to the configured
+// output (default: stdout).
 func FromCommand(rootCmd *cli.Command, opts ...Option) {
 	c := defaultConfigWithOptions(opts...)
 
-	rootCmd.Commands = append(rootCmd.Commands, &cli.Command{
-		Name:   "__opencli",
-		Hidden: true,
+	rootCmd.Commands = append(rootCmd.Commands, newGenCmd(rootCmd, c, "__opencli", true))
+	if c.publicName != "" {
+		rootCmd.Commands = append(rootCmd.Commands, newGenCmd(rootCmd, c, c.publicName, false))
+	}
+}
+
+func newGenCmd(rootCmd *cli.Command, c *config, name string, hidden bool) *cli.Command {
+	return &cli.Command{
+		Name:     name,
+		Usage:    "Generate the OpenCLI specification for this CLI",
+		Hidden:   hidden,
+		Metadata: map[string]any{generatorMetadata: true},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
-			outPath := cmd.String("out")
-			if outPath != "" {
+			out := c.output
+			if outPath := cmd.String("out"); outPath != "" {
 				f, err := os.OpenFile(outPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 				if err != nil {
 					return fmt.Errorf("unable to write opencli doc to specified file: %w", err)
 				}
 				defer f.Close()
-
-				c.output = f
+				out = f
+			}
+			format := c.format
+			if f := cmd.String("format"); f != "" {
+				format = codec.Format(f)
 			}
 			doc := documentFromCommand(rootCmd, c)
-			return writeDoc(c.output, doc, c.format)
+			return writeDoc(out, doc, format)
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "out",
 				Aliases: []string{"o"},
-				Usage:   "The path to the file where the generated spec will be output",
+				Usage:   "The path to the file where the generated spec will be written (default: stdout)",
+			},
+			&cli.StringFlag{
+				Name:  "format",
+				Usage: "The output format: yaml or json",
 			},
 		},
-	})
+	}
 }
 
 // GenerateDocument walks a urfave/cli command tree and returns the corresponding
@@ -215,8 +245,8 @@ func commandFromUrfave(cmd *cli.Command, parent *spec.CommandItem, isRoot bool) 
 
 	// Recurse into children (skip our own generator command)
 	for _, child := range cmd.Commands {
-		if child.Name == "__opencli" {
-			continue
+		if child.Metadata[generatorMetadata] != nil {
+			continue // skip our own generator commands
 		}
 		childItem := commandFromUrfave(child, item, false)
 		item.Commands = append(item.Commands, childItem)

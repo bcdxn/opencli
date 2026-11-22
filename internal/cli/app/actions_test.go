@@ -891,3 +891,53 @@ func TestOcliGenCliParseError(t *testing.T) {
 		t.Errorf("expected ValidationError for parse error, got %T", err)
 	}
 }
+
+// fakeCLI writes an executable shell script that only answers to `docgen`, so the
+// `__opencli` attempt fails and the fallback must be used.
+func fakeCLI(t *testing.T) string {
+	t.Helper()
+	path := filepath.Join(t.TempDir(), "mycli")
+	script := "#!/bin/sh\nif [ \"$1\" = \"docgen\" ]; then cat <<'SPEC'\n" + validSpecJSON + "\nSPEC\nexit 0; fi\nexit 1\n"
+	if err := os.WriteFile(path, []byte(script), 0755); err != nil {
+		t.Fatalf("failed to write fake cli: %v", err)
+	}
+	return path
+}
+
+func TestOcliCheckFromBinaryFallsBackToDocgen(t *testing.T) {
+	ios, _, output, _ := gencli.TestIOS()
+	actions := Actions{IOS: ios}
+
+	err := actions.OcliCheck(t.Context(), gencli.OcliCheckArgs{PathToSpec: fakeCLI(t)}, gencli.OcliCheckFlags{FailOnErr: true})
+	if err != nil {
+		t.Fatalf("expected spec from binary to validate, got: %v", err)
+	}
+	if !contains(output.String(), "Document is valid") {
+		t.Errorf("expected valid document output, got: %s", output.String())
+	}
+}
+
+func TestOcliGenDocsFromBinary(t *testing.T) {
+	ios, _, _, _ := gencli.TestIOS()
+	actions := Actions{IOS: ios}
+	out := t.TempDir()
+
+	err := actions.OcliGenDocs(t.Context(), gencli.OcliGenDocsArgs{PathToSpec: fakeCLI(t)}, gencli.OcliGenDocsFlags{Format: "markdown", Out: out})
+	if err != nil {
+		t.Fatalf("expected docs from binary, got: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(out, "mycli.md")); err != nil {
+		t.Errorf("expected mycli.md to be written: %v", err)
+	}
+}
+
+func TestLoadSpecBinaryNoSpecCommand(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "nocli")
+	if err := os.WriteFile(path, []byte("#!/bin/sh\nexit 1\n"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	_, _, err := loadSpec(path)
+	if err == nil || !contains(err.Error(), "tried __opencli, docgen") {
+		t.Errorf("expected error listing tried commands, got: %v", err)
+	}
+}

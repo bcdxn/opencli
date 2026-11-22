@@ -390,3 +390,34 @@ func TestGenerateDocument_NonLocalRootFlagNoDuplication(t *testing.T) {
 		}
 	}
 }
+
+func TestFromCommand_WithPublicCommand(t *testing.T) {
+	root := &cobra.Command{Use: "myapp"}
+	buf := new(bytes.Buffer)
+	FromCommand(root, WithPublicCommand("docgen"), WithOutput(buf))
+
+	var pub *cobra.Command
+	for _, c := range root.Commands() {
+		if c.Use == "docgen" {
+			pub = c
+		}
+	}
+	if pub == nil {
+		t.Fatal("docgen subcommand not found")
+	}
+	if pub.Hidden {
+		t.Error("docgen should be visible")
+	}
+
+	root.SetArgs([]string{"docgen", "--format", "json"})
+	if err := root.Execute(); err != nil {
+		t.Fatalf("docgen failed: %v", err)
+	}
+	if !strings.HasPrefix(strings.TrimSpace(buf.String()), "{") {
+		t.Errorf("expected JSON output, got: %s", buf.String())
+	}
+	// Neither generator command may appear in the document itself.
+	if strings.Contains(buf.String(), "docgen") || strings.Contains(buf.String(), "__opencli") {
+		t.Error("generator commands must be excluded from the generated document")
+	}
+}

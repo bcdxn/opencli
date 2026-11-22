@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -13,6 +14,62 @@ import (
 	"github.com/bcdxn/opencli/spec"
 	"github.com/bcdxn/opencli/validate"
 )
+
+// specCommands are the subcommands tried, in order, when the spec path is a CLI
+// binary rather than a document. `__opencli` is the hidden command attached by
+// the adapters; `docgen` is the public alternative (see WithPublicCommand).
+var specCommands = []string{"__opencli", "docgen"}
+
+// loadSpec reads an OpenCLI document from path and reports its format as a file
+// extension (".json", ".yaml", or ".yml"). A .json/.yaml/.yml path is read as a file. Any
+// other executable path is treated as a CLI binary: each of specCommands is run in
+// turn and the first successful stdout is used.
+func loadSpec(path string) ([]byte, string, error) {
+	info, err := os.Stat(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, "", gencli.NewValidationError(fmt.Sprintf("file not found: %s", path))
+		}
+		return nil, "", gencli.NewValidationError(fmt.Sprintf("cannot access file: %s (%v)", path, err))
+	}
+	if info.IsDir() {
+		return nil, "", gencli.NewValidationError(fmt.Sprintf("path is a directory, not a file: %s", path))
+	}
+
+	ext := strings.ToLower(filepath.Ext(path))
+	switch ext {
+	case ".json", ".yaml", ".yml":
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return nil, "", gencli.NewValidationError(fmt.Sprintf("cannot read file: %s (%v)", path, err))
+		}
+		return data, ext, nil
+	}
+
+	if info.Mode()&0111 == 0 {
+		return nil, "", gencli.NewValidationError(fmt.Sprintf("unsupported file format: %s (only .json, .yaml, .yml, or an executable CLI are supported)", ext))
+	}
+
+	var errs []string
+	for _, sub := range specCommands {
+		out, err := exec.Command(path, sub).Output()
+		if err == nil {
+			if strings.HasPrefix(strings.TrimSpace(string(out)), "{") {
+				return out, ".json", nil
+			}
+			return out, ".yaml", nil
+		}
+		errs = append(errs, fmt.Sprintf("%s %s: %v", filepath.Base(path), sub, err))
+	}
+	return nil, "", gencli.NewValidationError(fmt.Sprintf("cannot get spec from %s (tried %s): %s", path, strings.Join(specCommands, ", "), strings.Join(errs, "; ")))
+}
+
+func decoderFor(ext string) func([]byte) (*spec.Document, error) {
+	if ext == ".json" {
+		return codec.UnmarshalJSON
+	}
+	return codec.UnmarshalYAML
+}
 
 // Ensure we conform to the generated ActionsInterface
 var _ gencli.ActionsInterface = (*Actions)(nil)
@@ -31,29 +88,11 @@ type Actions struct {
 }
 
 func (a Actions) OcliGenDocs(_ context.Context, args gencli.OcliGenDocsArgs, flags gencli.OcliGenDocsFlags) error {
-	// Validate file exists and is not a directory
-	info, err := os.Stat(args.PathToSpec)
+	data, ext, err := loadSpec(args.PathToSpec)
 	if err != nil {
-		if os.IsNotExist(err) {
-			return gencli.NewValidationError(fmt.Sprintf("file not found: %s", args.PathToSpec))
-		}
-		return gencli.NewValidationError(fmt.Sprintf("cannot access file: %s (%v)", args.PathToSpec, err))
+		return err
 	}
-	if info.IsDir() {
-		return gencli.NewValidationError(fmt.Sprintf("path is a directory, not a file: %s", args.PathToSpec))
-	}
-
-	// Select decoder by file extension
-	ext := strings.ToLower(filepath.Ext(args.PathToSpec))
-	decode := codec.UnmarshalYAML
-	switch ext {
-	case ".json":
-		decode = codec.UnmarshalJSON
-	case ".yaml", ".yml":
-		// default
-	default:
-		return gencli.NewValidationError(fmt.Sprintf("unsupported spec format: %s (only .json, .yaml, .yml are supported)", ext))
-	}
+	decode := decoderFor(ext)
 
 	// Map the --format flag to a DocFormat; this map is the extension point for new formats
 	type docFormatMeta struct {
@@ -78,11 +117,7 @@ func (a Actions) OcliGenDocs(_ context.Context, args gencli.OcliGenDocsArgs, fla
 	stdout := a.IOS.Out()
 	fmt.Fprintf(stdout, "\n→ Reading spec:       %s\n", args.PathToSpec)
 
-	// Read and parse the spec document
-	data, err := os.ReadFile(args.PathToSpec)
-	if err != nil {
-		return gencli.NewValidationError(fmt.Sprintf("cannot read file: %s (%v)", args.PathToSpec, err))
-	}
+	// Parse the spec document
 	doc, err := decode(data)
 	if err != nil {
 		return gencli.NewValidationError(fmt.Sprintf("failed to parse spec: %v", err))
@@ -135,36 +170,16 @@ func (a Actions) OcliGenDocs(_ context.Context, args gencli.OcliGenDocsArgs, fla
 
 // OcliCheck implements the `ocli check` command and uses the `validate` package to validate/check the specified document.
 func (a Actions) OcliCheck(_ context.Context, args gencli.OcliCheckArgs, flags gencli.OcliCheckFlags) error {
-	// Verify file exists and is readable
-	info, err := os.Stat(args.PathToSpec)
+	data, ext, err := loadSpec(args.PathToSpec)
 	if err != nil {
-		if os.IsNotExist(err) {
-			return gencli.NewValidationError(fmt.Sprintf("file not found: %s", args.PathToSpec))
-		}
-		return gencli.NewValidationError(fmt.Sprintf("cannot access file: %s (%v)", args.PathToSpec, err))
+		return err
 	}
 
-	if info.IsDir() {
-		return gencli.NewValidationError(fmt.Sprintf("path is a directory, not a file: %s", args.PathToSpec))
-	}
-
-	// Read file content
-	data, err := os.ReadFile(args.PathToSpec)
-	if err != nil {
-		return gencli.NewValidationError(fmt.Sprintf("cannot read file: %s (%v)", args.PathToSpec, err))
-	}
-
-	// Determine format by file extension
-	ext := strings.ToLower(filepath.Ext(args.PathToSpec))
 	var validationErr error
-
-	switch ext {
-	case ".json":
+	if ext == ".json" {
 		validationErr = validate.ValidateJSON(data)
-	case ".yaml", ".yml":
+	} else {
 		validationErr = validate.ValidateYAML(data)
-	default:
-		return gencli.NewValidationError(fmt.Sprintf("unsupported file format: %s (only .json, .yaml, .yml are supported)", ext))
 	}
 
 	// Output results
@@ -190,38 +205,16 @@ func (a Actions) OcliCheck(_ context.Context, args gencli.OcliCheckArgs, flags g
 }
 
 func (a Actions) OcliGenCli(_ context.Context, args gencli.OcliGenCliArgs, flags gencli.OcliGenCliFlags) error {
-	// Validate file exists and is not a directory
-	info, err := os.Stat(args.PathToSpec)
+	data, ext, err := loadSpec(args.PathToSpec)
 	if err != nil {
-		if os.IsNotExist(err) {
-			return gencli.NewValidationError(fmt.Sprintf("file not found: %s", args.PathToSpec))
-		}
-		return gencli.NewValidationError(fmt.Sprintf("cannot access file: %s (%v)", args.PathToSpec, err))
+		return err
 	}
-	if info.IsDir() {
-		return gencli.NewValidationError(fmt.Sprintf("path is a directory, not a file: %s", args.PathToSpec))
-	}
-
-	// Select decoder by file extension
-	ext := strings.ToLower(filepath.Ext(args.PathToSpec))
-	decode := codec.UnmarshalYAML
-	switch ext {
-	case ".json":
-		decode = codec.UnmarshalJSON
-	case ".yaml", ".yml":
-		// default
-	default:
-		return gencli.NewValidationError(fmt.Sprintf("unsupported spec format: %s (only .json, .yaml, .yml are supported)", ext))
-	}
+	decode := decoderFor(ext)
 
 	stdout := a.IOS.Out()
 	fmt.Fprintf(stdout, "\n→ Reading spec:       %s\n", args.PathToSpec)
 
-	// Read and parse the spec document
-	data, err := os.ReadFile(args.PathToSpec)
-	if err != nil {
-		return gencli.NewValidationError(fmt.Sprintf("cannot read file: %s (%v)", args.PathToSpec, err))
-	}
+	// Parse the spec document
 	doc, err := decode(data)
 	if err != nil {
 		return gencli.NewValidationError(fmt.Sprintf("failed to parse spec: %v", err))

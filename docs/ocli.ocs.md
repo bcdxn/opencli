@@ -112,6 +112,10 @@ by parsing it and checking it against the OpenCLI Specification.
 > [!TIP]
 > The format of the input file will be determined by the file extension.
 
+The path may also point to a CLI binary built with one of the OpenCLI
+adapters. In that case `ocli` runs `<binary> __opencli`, falling back to
+`<binary> docgen`, and checks the document it emits.
+
 
 `string`
 
@@ -156,7 +160,7 @@ generated using the `--format` flag.
 
 ##### `<path-to-spec>`
 
-Path to the OpenCLI Spec document
+Path to the OpenCLI Spec document, or a CLI binary that emits one via `__opencli` or `docgen`
 
 `string`
 
@@ -222,7 +226,7 @@ various CLI frameworks from an OpenCLI Spec document.
 
 ##### `<path-to-spec>`
 
-The spec used to generate the code
+The spec used to generate the code, or a CLI binary that emits one via `__opencli` or `docgen`
 
 `string`
 

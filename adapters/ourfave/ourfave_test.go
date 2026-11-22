@@ -437,3 +437,33 @@ func TestGenerateDocument_NonLocalRootFlagNoDuplication(t *testing.T) {
 		}
 	}
 }
+
+func TestFromCommand_WithPublicCommand(t *testing.T) {
+	root := &cli.Command{Name: "myapp"}
+	buf := new(bytes.Buffer)
+	FromCommand(root, WithPublicCommand("docgen"), WithOutput(buf))
+
+	var pub *cli.Command
+	for _, c := range root.Commands {
+		if c.Name == "docgen" {
+			pub = c
+		}
+	}
+	if pub == nil {
+		t.Fatal("docgen subcommand not found")
+	}
+	if pub.Hidden {
+		t.Error("docgen should be visible")
+	}
+
+	if err := root.Run(context.Background(), []string{"myapp", "docgen", "--format", "json"}); err != nil {
+		t.Fatalf("docgen failed: %v", err)
+	}
+	if !strings.HasPrefix(strings.TrimSpace(buf.String()), "{") {
+		t.Errorf("expected JSON output, got: %s", buf.String())
+	}
+	// Neither generator command may appear in the document itself.
+	if strings.Contains(buf.String(), "docgen") || strings.Contains(buf.String(), "__opencli") {
+		t.Error("generator commands must be excluded from the generated document")
+	}
+}
